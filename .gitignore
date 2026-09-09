@@ -29,6 +29,8 @@ perf/openapi-core-get.json
 .ruff_cache/
 htmlcov/
 .coverage
+# Cobertura del frontend (vitest --coverage)
+frontend/coverage/
 *.log
 
 # SO
