@@ -1,0 +1,1709 @@
+{
+  "$schema_version": 1,
+  "project": "Project Dossier - Continuidad (Proyecto APT)",
+  "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
+  "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
+  "updated": "2026-09-07",
+  "status_values": [
+    "pending",
+    "claimed",
+    "in_progress",
+    "review",
+    "blocked",
+    "done"
+  ],
+  "owners": {
+    "FO": "Felipe Orellana Alvarez - backend y agentes",
+    "DG": "Dario Garcia Avendano - frontend e integraciones de usuario",
+    "FD": "Felipe Docmac Bravo - seguridad y aseguramiento de la calidad",
+    "EQ": "Equipo completo"
+  },
+  "gaps": {
+    "B1": "Sintesis en Markdown sin contrato JSON validado",
+    "B2": "Sin agente de registros corporativos europeos",
+    "B3": "Sin agente de noticias",
+    "B4": "Estados por consulta periodica, no en tiempo real",
+    "B5": "Entrega por correo inexistente"
+  },
+  "sprints": {
+    "0": {
+      "name": "Diagnostico y diseno",
+      "weeks": "S1-S4",
+      "start": "2026-09-07",
+      "due": "2026-10-04"
+    },
+    "1": {
+      "name": "Consolidacion tecnica",
+      "weeks": "S5-S6",
+      "start": "2026-10-05",
+      "due": "2026-10-18"
+    },
+    "2": {
+      "name": "Cobertura corporativa europea",
+      "weeks": "S7-S8",
+      "start": "2026-10-19",
+      "due": "2026-11-01"
+    },
+    "3": {
+      "name": "Noticias y dashboard",
+      "weeks": "S9-S10",
+      "start": "2026-11-02",
+      "due": "2026-11-15"
+    },
+    "4": {
+      "name": "Sintesis JSON y estados",
+      "weeks": "S11-S12",
+      "start": "2026-11-16",
+      "due": "2026-11-29"
+    },
+    "5": {
+      "name": "Tiempo real y correo",
+      "weeks": "S13-S14",
+      "start": "2026-11-30",
+      "due": "2026-12-13"
+    },
+    "6": {
+      "name": "Entrega automatica y seguridad",
+      "weeks": "S15-S16",
+      "start": "2026-12-14",
+      "due": "2026-12-27"
+    },
+    "7": {
+      "name": "Validacion y cierre",
+      "weeks": "S17-S18",
+      "start": "2026-12-28",
+      "due": "2027-01-10"
+    }
+  },
+  "features": [
+    {
+      "id": "S0.1",
+      "sprint": 0,
+      "title": "Inventario de modulos y contraste con Especificaciones v2.0",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/kDXktuEq",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.2",
+      "sprint": 0,
+      "title": "Verificar y priorizar las cinco brechas con evidencia archivo:linea",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/AcNDXXFw",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.3",
+      "sprint": 0,
+      "title": "Medir linea base de deuda tecnica (pytest, cobertura, pip-audit, npm audit)",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S1.4",
+        "S7.5"
+      ],
+      "trello": "https://trello.com/c/IAK805QL",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.4",
+      "sprint": 0,
+      "title": "Declarar la linea de implementacion canonica (DeepSeek / Gemini shim / OpenAI)",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S1.6"
+      ],
+      "trello": "https://trello.com/c/2hy0vk0h",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.5",
+      "sprint": 0,
+      "title": "Evaluar modelos de lenguaje: DeepSeek vs GPT-4o vs GPT-5.6 Luna",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/fTIhZjbk",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.6",
+      "sprint": 0,
+      "title": "Evaluar fuentes de registros corporativos europeos - INICIAR SEMANA 1",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": "B2",
+      "due": "2026-09-27",
+      "depends_on": [],
+      "blocks": [
+        "S1.8"
+      ],
+      "trello": "https://trello.com/c/mrqb90ou",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.7",
+      "sprint": 0,
+      "title": "Evaluar proveedores de busqueda de noticias",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": "B3",
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S3.1"
+      ],
+      "trello": "https://trello.com/c/x5iJJgie",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.8",
+      "sprint": 0,
+      "title": "Evaluar proveedores de correo transaccional",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": "B5",
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S5.6"
+      ],
+      "trello": "https://trello.com/c/GUKBDLfd",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.9",
+      "sprint": 0,
+      "title": "Disenar el esquema JSON estricto del dossier",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A2",
+      "objective": "OE3",
+      "gap": "B1",
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S4.1"
+      ],
+      "trello": "https://trello.com/c/ImetqLRF",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.10",
+      "sprint": 0,
+      "title": "Disenar ajustes al modelo de datos y estrategia de migracion",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A2",
+      "objective": "OE3",
+      "gap": "B1",
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S4.5"
+      ],
+      "trello": "https://trello.com/c/MVWxRA34",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.11",
+      "sprint": 0,
+      "title": "Decidir el protocolo de estados progresivos (SSE vs WebSocket)",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A2",
+      "objective": "OE3",
+      "gap": "B4",
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S4.8"
+      ],
+      "trello": "https://trello.com/c/0UXFjv4C",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.12",
+      "sprint": 0,
+      "title": "Disenar la arquitectura del agente europeo y del agente de noticias",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A2",
+      "objective": "OE3",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [
+        "S1.9"
+      ],
+      "trello": "https://trello.com/c/W9um0U59",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.13",
+      "sprint": 0,
+      "title": "Definir criterios de aceptacion por brecha priorizada",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A2",
+      "objective": "OE3",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/3RUQtMQa",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.14",
+      "sprint": 0,
+      "title": "Construir el backlog priorizado en Trello",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/H0nMakIV",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S0.15",
+      "sprint": 0,
+      "title": "Acordar alcance y calendario con el docente guia (receso de fin de ano)",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/Ibv8MVA2",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.1",
+      "sprint": 1,
+      "title": "Adoptar Alembic y generar la migracion de linea base",
+      "status": "pending",
+      "owner": "FD",
+      "area": "db",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [],
+      "blocks": [
+        "S1.7",
+        "S4.10",
+        "S4.5"
+      ],
+      "trello": "https://trello.com/c/nNXCbjyN",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.2",
+      "sprint": 1,
+      "title": "Introducir pyproject.toml con ruff y mypy",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": [
+        "S0.3"
+      ],
+      "depends_on": [],
+      "blocks": [
+        "S1.3",
+        "S1.5"
+      ],
+      "trello": "https://trello.com/c/34m08r3A",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.3",
+      "sprint": 1,
+      "title": "Corregir los errores de analisis estatico detectados",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [
+        "S1.2"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/WrCMYvsg",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.4",
+      "sprint": 1,
+      "title": "Fijar versiones de dependencias y cerrar vulnerabilidades de severidad alta",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [
+        "S0.3"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/nEy6Pyms",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.5",
+      "sprint": 1,
+      "title": "Configurar integracion continua bloqueante",
+      "status": "pending",
+      "owner": "FD",
+      "area": "ci",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [
+        "S1.2"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/71Yk5SAe",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.6",
+      "sprint": 1,
+      "title": "Retirar la linea de implementacion no canonica y las rutas legadas",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [
+        "S0.4"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/y0kAn8vh",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.7",
+      "sprint": 1,
+      "title": "Documentar el arranque local del proyecto",
+      "status": "pending",
+      "owner": "FD",
+      "area": "docs",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-18",
+      "depends_on": [
+        "S1.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/9aYyOOts",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.8",
+      "sprint": 1,
+      "title": "Implementar el cliente HTTP de la fuente europea",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-10-18",
+      "depends_on": [
+        "S0.6"
+      ],
+      "blocks": [
+        "S2.1"
+      ],
+      "trello": "https://trello.com/c/4ZNQlFQF",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S1.9",
+      "sprint": 1,
+      "title": "Definir el modelo comun de registro corporativo (UK / US / EU)",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-10-18",
+      "depends_on": [
+        "S0.12"
+      ],
+      "blocks": [
+        "S2.1",
+        "S2.3"
+      ],
+      "trello": "https://trello.com/c/mMpvfTj3",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.1",
+      "sprint": 2,
+      "title": "Implementar el agente de registros corporativos europeos",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S1.8",
+        "S1.9"
+      ],
+      "blocks": [
+        "S2.2"
+      ],
+      "trello": "https://trello.com/c/3pFm547I",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.2",
+      "sprint": 2,
+      "title": "Integrar el agente europeo al orquestador con seleccion de jurisdiccion",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S2.1"
+      ],
+      "blocks": [
+        "S2.4",
+        "S2.5",
+        "S3.5"
+      ],
+      "trello": "https://trello.com/c/iGmajDD0",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.3",
+      "sprint": 2,
+      "title": "Adaptar los agentes de Reino Unido y Estados Unidos al modelo comun",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S1.9"
+      ],
+      "blocks": [
+        "S2.6"
+      ],
+      "trello": "https://trello.com/c/KgI9fxpR",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.4",
+      "sprint": 2,
+      "title": "Implementar tolerancia a fallos del agente europeo",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S2.2"
+      ],
+      "blocks": [
+        "S2.6"
+      ],
+      "trello": "https://trello.com/c/lfFvmsBi",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.5",
+      "sprint": 2,
+      "title": "Registrar fuente y fecha de consulta por jurisdiccion",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S2.2"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/zdrvV8i4",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.6",
+      "sprint": 2,
+      "title": "Pruebas de contraste entre las tres jurisdicciones",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A4",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S2.3",
+        "S2.4"
+      ],
+      "blocks": [
+        "S2.7"
+      ],
+      "trello": "https://trello.com/c/ZWhZxKW5",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S2.7",
+      "sprint": 2,
+      "title": "Documentar el agente europeo: cobertura, limites y costo",
+      "status": "pending",
+      "owner": "FO",
+      "area": "docs",
+      "activity": "A9",
+      "objective": "OE4",
+      "gap": "B2",
+      "due": "2026-11-01",
+      "depends_on": [
+        "S2.6"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/UkX5kX3I",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.1",
+      "sprint": 3,
+      "title": "Implementar el cliente del proveedor de noticias",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B3",
+      "due": "2026-11-15",
+      "depends_on": [
+        "S0.7"
+      ],
+      "blocks": [
+        "S3.2"
+      ],
+      "trello": "https://trello.com/c/7hPbjEf6",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.2",
+      "sprint": 3,
+      "title": "Implementar el agente de noticias con deduplicacion",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B3",
+      "due": "2026-11-15",
+      "depends_on": [
+        "S3.1"
+      ],
+      "blocks": [
+        "S3.3",
+        "S3.4"
+      ],
+      "trello": "https://trello.com/c/uV9I99pn",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.3",
+      "sprint": 3,
+      "title": "Implementar el filtro de homonimos",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B3",
+      "due": "2026-11-15",
+      "depends_on": [
+        "S3.2"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/9pip56Fk",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.4",
+      "sprint": 3,
+      "title": "Registrar procedencia completa de cada mencion de prensa",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B3",
+      "due": "2026-11-15",
+      "depends_on": [
+        "S3.2"
+      ],
+      "blocks": [
+        "S3.6"
+      ],
+      "trello": "https://trello.com/c/pwolO3DM",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.5",
+      "sprint": 3,
+      "title": "Ampliar el dashboard con la vista de registros corporativos europeos",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": null,
+      "due": "2026-11-15",
+      "depends_on": [
+        "S2.2"
+      ],
+      "blocks": [
+        "S3.7"
+      ],
+      "trello": "https://trello.com/c/wVHUTvWP",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.6",
+      "sprint": 3,
+      "title": "Ampliar el dashboard con la vista del modulo de prensa",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": null,
+      "due": "2026-11-15",
+      "depends_on": [
+        "S3.4"
+      ],
+      "blocks": [
+        "S3.7"
+      ],
+      "trello": "https://trello.com/c/VlOF87ZH",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.7",
+      "sprint": 3,
+      "title": "Incorporar las cadenas de interfaz de los modulos nuevos en los cinco idiomas",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": null,
+      "due": "2026-11-15",
+      "depends_on": [
+        "S3.5",
+        "S3.6"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/EzVXD9fD",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.8",
+      "sprint": 3,
+      "title": "Endurecer la politica de origenes permitidos (CORS)",
+      "status": "pending",
+      "owner": "FD",
+      "area": "security",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-11-15",
+      "depends_on": [],
+      "blocks": [
+        "S6.8"
+      ],
+      "trello": "https://trello.com/c/yxFNmUet",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S3.9",
+      "sprint": 3,
+      "title": "Reducir la vigencia del token e introducir renovacion",
+      "status": "pending",
+      "owner": "FD",
+      "area": "security",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-11-15",
+      "depends_on": [],
+      "blocks": [
+        "S6.8"
+      ],
+      "trello": "https://trello.com/c/JNkEtd4k",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.1",
+      "sprint": 4,
+      "title": "Implementar el esquema JSON estricto como modelos Pydantic",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S0.9"
+      ],
+      "blocks": [
+        "S4.2",
+        "S4.6",
+        "S4.7"
+      ],
+      "trello": "https://trello.com/c/7RjsQIvr",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.2",
+      "sprint": 4,
+      "title": "Ajustar la capa de sintesis para emitir JSON conforme al esquema",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.1"
+      ],
+      "blocks": [
+        "S4.3"
+      ],
+      "trello": "https://trello.com/c/AV6SiELu",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.3",
+      "sprint": 4,
+      "title": "Sustituir el envoltorio Markdown por el contrato validado en dossier_data",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.2"
+      ],
+      "blocks": [
+        "S4.4",
+        "S5.5",
+        "S7.3"
+      ],
+      "trello": "https://trello.com/c/KvzzlxAm",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.4",
+      "sprint": 4,
+      "title": "Implementar compatibilidad de lectura para dossiers historicos en Markdown",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.3"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/97X0uVbA",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.5",
+      "sprint": 4,
+      "title": "Crear las entidades de alertas, trayectoria y menciones de prensa",
+      "status": "pending",
+      "owner": "FO",
+      "area": "db",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S0.10",
+        "S1.1"
+      ],
+      "blocks": [
+        "S6.5",
+        "S6.7"
+      ],
+      "trello": "https://trello.com/c/VW3yuA4g",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.6",
+      "sprint": 4,
+      "title": "Incorporar alertas de riesgo e ideas para iniciar la conversacion",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/SrxaqZo5",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.7",
+      "sprint": 4,
+      "title": "Exigir origen y fecha de consulta en toda afirmacion estructurada",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A5",
+      "objective": "OE5",
+      "gap": "B1",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/vScCHriV",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.8",
+      "sprint": 4,
+      "title": "Implementar el canal de estados progresivos en el servicio",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S0.11"
+      ],
+      "blocks": [
+        "S4.9",
+        "S5.1"
+      ],
+      "trello": "https://trello.com/c/ht5AxvMH",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.9",
+      "sprint": 4,
+      "title": "Emitir resultados parciales cuando un agente falla",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-11-29",
+      "depends_on": [
+        "S4.8"
+      ],
+      "blocks": [
+        "S5.4",
+        "S7.2"
+      ],
+      "trello": "https://trello.com/c/r3JiXDVU",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S4.10",
+      "sprint": 4,
+      "title": "Implementar la tabla y el servicio de registro de auditoria",
+      "status": "pending",
+      "owner": "FD",
+      "area": "db",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-11-29",
+      "depends_on": [
+        "S1.1"
+      ],
+      "blocks": [
+        "S6.6",
+        "S6.7"
+      ],
+      "trello": "https://trello.com/c/3wVUVam1",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.1",
+      "sprint": 5,
+      "title": "Consumir el canal en DossierJobsProvider y retirar su setInterval",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S4.8"
+      ],
+      "blocks": [
+        "S5.2",
+        "S5.3",
+        "S5.4"
+      ],
+      "trello": "https://trello.com/c/4wewW4BW",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.2",
+      "sprint": 5,
+      "title": "Consumir el canal en NotificationsProvider y retirar su setInterval",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S5.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/wmseVTR9",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.3",
+      "sprint": 5,
+      "title": "Implementar reconexion del canal con retroceso progresivo",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S5.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/yUmmkdGV",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.4",
+      "sprint": 5,
+      "title": "Mostrar resultados parciales y estado por agente",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S4.9",
+        "S5.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/taJ6cNQf",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.5",
+      "sprint": 5,
+      "title": "Renderizar el dossier desde JSON con componentes por modulo",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B1",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S4.3"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/Uz45ed5q",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.6",
+      "sprint": 5,
+      "title": "Integrar el proveedor de correo transaccional",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S0.8"
+      ],
+      "blocks": [
+        "S5.7",
+        "S6.1"
+      ],
+      "trello": "https://trello.com/c/b40uAH4m",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.7",
+      "sprint": 5,
+      "title": "Construir la plantilla de correo del dossier",
+      "status": "pending",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S5.6"
+      ],
+      "blocks": [
+        "S6.1"
+      ],
+      "trello": "https://trello.com/c/Y6TyljD1",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.8",
+      "sprint": 5,
+      "title": "Implementar limitacion de tasa en autenticacion y generacion",
+      "status": "pending",
+      "owner": "FD",
+      "area": "security",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-12-13",
+      "depends_on": [],
+      "blocks": [
+        "S6.8"
+      ],
+      "trello": "https://trello.com/c/S6I7pjQn",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S5.9",
+      "sprint": 5,
+      "title": "PUNTO DE CONTROL - decidir sobre las extensiones condicionadas",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-12-13",
+      "depends_on": [],
+      "blocks": [],
+      "trello": "https://trello.com/c/D0VtE1qm",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.1",
+      "sprint": 6,
+      "title": "Implementar el envio del dossier por correo al completarse la generacion",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-20",
+      "depends_on": [
+        "S5.6",
+        "S5.7"
+      ],
+      "blocks": [
+        "S6.2",
+        "S6.3",
+        "S6.4",
+        "S6.6"
+      ],
+      "trello": "https://trello.com/c/byxrDl6m",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.2",
+      "sprint": 6,
+      "title": "Implementar acceso al dossier por enlace de un solo uso",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-20",
+      "depends_on": [
+        "S6.1"
+      ],
+      "blocks": [
+        "S6.8"
+      ],
+      "trello": "https://trello.com/c/bRkzSIe3",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.3",
+      "sprint": 6,
+      "title": "Habilitar la automatizacion previa a la reunion desde el calendario",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-20",
+      "depends_on": [
+        "S6.1"
+      ],
+      "blocks": [
+        "S7.1"
+      ],
+      "trello": "https://trello.com/c/wpSv6BzC",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.4",
+      "sprint": 6,
+      "title": "Implementar reintento y registro de fallos de envio",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A7",
+      "objective": "OE7",
+      "gap": "B5",
+      "due": "2026-12-20",
+      "depends_on": [
+        "S6.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/V0Idtuzh",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.5",
+      "sprint": 6,
+      "title": "Implementar retencion de 24 horas con borrado verificado",
+      "status": "pending",
+      "owner": "FD",
+      "area": "security",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-12-20",
+      "depends_on": [
+        "S4.5"
+      ],
+      "blocks": [
+        "S6.6"
+      ],
+      "trello": "https://trello.com/c/EOfroRV2",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.6",
+      "sprint": 6,
+      "title": "Extender la auditoria a envios de correo y borrados por retencion",
+      "status": "pending",
+      "owner": "FD",
+      "area": "security",
+      "activity": "A8",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-12-20",
+      "depends_on": [
+        "S4.10",
+        "S6.1",
+        "S6.5"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/Jr2hNSu4",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.7",
+      "sprint": 6,
+      "title": "Pruebas negativas de aislamiento entre organizaciones",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-12-20",
+      "depends_on": [
+        "S4.5",
+        "S4.10"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/kbGIl5Hl",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S6.8",
+      "sprint": 6,
+      "title": "Pruebas de seguridad y su incorporacion a la integracion continua",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2026-12-20",
+      "depends_on": [
+        "S3.8",
+        "S3.9",
+        "S5.8",
+        "S6.2"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/uvlkbaPV",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.0",
+      "sprint": 7,
+      "title": "CONGELAMIENTO DE FUNCIONALIDADES",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A11",
+      "objective": null,
+      "gap": null,
+      "due": "2026-12-28",
+      "depends_on": [],
+      "blocks": [
+        "S7.6",
+        "S7.7"
+      ],
+      "trello": "https://trello.com/c/5qa3uVlq",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.1",
+      "sprint": 7,
+      "title": "Pruebas de aceptacion extremo a extremo",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE7",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S6.3"
+      ],
+      "blocks": [
+        "S7.4",
+        "S7.9"
+      ],
+      "trello": "https://trello.com/c/22WwAuSD",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.2",
+      "sprint": 7,
+      "title": "Pruebas de tolerancia a fallos con cada agente fallando por separado",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S4.9"
+      ],
+      "blocks": [
+        "S7.4"
+      ],
+      "trello": "https://trello.com/c/pmo7alzp",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.3",
+      "sprint": 7,
+      "title": "Verificar descuento de creditos y aislamiento en el flujo completo",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S4.3"
+      ],
+      "blocks": [
+        "S7.4"
+      ],
+      "trello": "https://trello.com/c/gxi7THee",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.4",
+      "sprint": 7,
+      "title": "Registrar y corregir defectos priorizados por severidad",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE8",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S7.1",
+        "S7.2",
+        "S7.3"
+      ],
+      "blocks": [
+        "S7.8"
+      ],
+      "trello": "https://trello.com/c/r9BC9Epo",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.5",
+      "sprint": 7,
+      "title": "Medir el estado final de deuda tecnica y compararlo con la linea base",
+      "status": "pending",
+      "owner": "FD",
+      "area": "quality",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S0.3"
+      ],
+      "blocks": [
+        "S7.8"
+      ],
+      "trello": "https://trello.com/c/TlvmKJNl",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.6",
+      "sprint": 7,
+      "title": "Redactar la documentacion tecnica",
+      "status": "pending",
+      "owner": "FD",
+      "area": "docs",
+      "activity": "A10",
+      "objective": "OE9",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S7.0"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/QVtcWIzA",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.7",
+      "sprint": 7,
+      "title": "Actualizar el manual de usuario del dashboard",
+      "status": "pending",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A10",
+      "objective": "OE9",
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S7.0"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/EbSnTcxD",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.8",
+      "sprint": 7,
+      "title": "Redactar el informe final del Proyecto APT",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A11",
+      "objective": null,
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S7.4",
+        "S7.5"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/qAQWptvk",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "S7.9",
+      "sprint": 7,
+      "title": "Preparar la presentacion y ensayar la demostracion en vivo",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A11",
+      "objective": null,
+      "gap": null,
+      "due": "2027-01-10",
+      "depends_on": [
+        "S7.1"
+      ],
+      "blocks": [],
+      "trello": "https://trello.com/c/IT8U6WTG",
+      "branch": null,
+      "evidence": [],
+      "notes": ""
+    }
+  ]
+}
