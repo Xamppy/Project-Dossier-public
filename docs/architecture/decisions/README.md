@@ -58,4 +58,9 @@ Sin estas seis escritas, **el Sprint 0 no está cerrado**:
 
 ## Índice
 
-*(vacío — se completa a medida que se toman las decisiones)*
+1. [0001 · Línea de implementación LLM canónica](0001-linea-llm-canonica.md) (S0.4)
+2. [0002 · Modelo de lenguaje para síntesis ejecutiva](0002-modelo-de-lenguaje.md) (S0.5)
+3. [0003 · Fuente de registros corporativos europeos](0003-fuente-registros-europeos.md) (S0.6)
+4. [0004 · Proveedor de búsqueda de noticias](0004-proveedor-noticias.md) (S0.7)
+5. [0005 · Proveedor de correo transaccional y entrega de dossiers](0005-proveedor-correo.md) (S0.8)
+6. [0006 · Protocolo de estados progresivos (SSE vs WebSockets)](0006-protocolo-estados-progresivos.md) (S0.11)
