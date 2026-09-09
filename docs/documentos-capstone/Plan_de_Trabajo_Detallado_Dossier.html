@@ -1,0 +1,924 @@
+<title>Plan de Trabajo Detallado — Project Dossier</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+  :root {
+    --ink: #16202b;
+    --muted: #5b6b7c;
+    --line: #d4dce4;
+    --soft: #f4f7fa;
+    --accent: #1b4f72;
+    --ok: #1e7d52;
+    --warn: #9a5b06;
+    --bad: #a02c2c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 9.6pt;
+    line-height: 1.45;
+    margin: 0;
+    background: #fff;
+  }
+  h1, h2, h3, h4 { color: var(--accent); margin: 0 0 .35em; line-height: 1.2; }
+  h1 { font-size: 21pt; letter-spacing: -.01em; }
+  h2 {
+    font-size: 13.5pt;
+    margin-top: 1.6em;
+    padding-bottom: .25em;
+    border-bottom: 2px solid var(--accent);
+    page-break-after: avoid;
+  }
+  h3 { font-size: 11pt; margin-top: 1.2em; page-break-after: avoid; }
+  h4 { font-size: 9.8pt; margin-top: .9em; color: var(--ink); page-break-after: avoid; }
+  p { margin: 0 0 .6em; }
+  ul, ol { margin: 0 0 .6em; padding-left: 1.15em; }
+  li { margin-bottom: .18em; }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .88em;
+    background: var(--soft);
+    padding: .1em .3em;
+    border-radius: 3px;
+    color: #24405c;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: .5em 0 1em;
+    font-size: 8.6pt;
+    page-break-inside: auto;
+  }
+  th, td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: var(--accent); color: #fff; font-weight: 600; }
+  tbody tr:nth-child(even) { background: var(--soft); }
+  tr { page-break-inside: avoid; }
+
+  .cover { text-align: center; padding-top: 42mm; page-break-after: always; }
+  .cover h1 { font-size: 27pt; margin-bottom: .15em; }
+  .cover .sub { font-size: 13pt; color: var(--muted); margin-bottom: 2.6em; }
+  .cover .meta { display: inline-block; text-align: left; font-size: 10pt; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1em 1.6em; }
+  .cover .meta b { display: inline-block; min-width: 130px; color: var(--accent); }
+
+  .lead { font-size: 10pt; background: var(--soft); border-left: 4px solid var(--accent); padding: .8em 1em; margin-bottom: 1.2em; }
+  .note { border-left: 3px solid var(--warn); background: #fdf7ee; padding: .55em .9em; margin: .7em 0; font-size: 9pt; }
+  .danger { border-left-color: var(--bad); background: #fdf1f1; }
+  .good { border-left-color: var(--ok); background: #f0f8f4; }
+
+  .tag { display: inline-block; font-size: 7.6pt; font-weight: 700; padding: 1px 6px; border-radius: 9px; color: #fff; white-space: nowrap; }
+  .t-no { background: var(--bad); }
+  .t-part { background: var(--warn); }
+  .t-si { background: var(--ok); }
+  .t-x { background: var(--muted); }
+
+  .sprint { border: 1px solid var(--line); border-radius: 5px; margin: .9em 0 1.3em; page-break-inside: avoid; overflow: hidden; }
+  .sprint > header { background: var(--accent); color: #fff; padding: .5em .9em; }
+  .sprint > header h3 { color: #fff; margin: 0; font-size: 11pt; }
+  .sprint > header .when { font-size: 8.6pt; opacity: .9; }
+  .sprint .body { padding: .8em .9em .2em; }
+  .sprint table { margin-bottom: .7em; }
+
+  .gantt { font-size: 7.2pt; table-layout: fixed; }
+  .gantt th, .gantt td { padding: 3px 2px; text-align: center; }
+  .gantt th.act, .gantt td.act { text-align: left; width: 20%; font-size: 7.6pt; }
+  .gantt td.on { background: var(--accent); }
+  .gantt td.on2 { background: #7ba7c9; }
+  .gantt td.hito { background: var(--warn); color: #fff; font-weight: 700; }
+
+  footer.pageend { margin-top: 2em; border-top: 1px solid var(--line); padding-top: .6em; font-size: 8pt; color: var(--muted); }
+  .pb { page-break-before: always; }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<div class="cover">
+  <h1>Plan de Trabajo Detallado</h1>
+  <div class="sub">Continuidad de Project Dossier — cierre de brechas hacia el MVP</div>
+  <div class="meta">
+    <div><b>Proyecto APT</b> Project Dossier (Alloxentric)</div>
+    <div><b>Documento base</b> Guía Estudiante — Definición Proyecto APT, Fase 1</div>
+    <div><b>Equipo</b> Felipe Orellana Álvarez · Darío García Avendaño · Felipe Docmac Bravo</div>
+    <div><b>Carrera</b> Ingeniería Informática — Sede Viña del Mar</div>
+    <div><b>Duración</b> 18 semanas · Sprint 0 + 7 sprints de 2 semanas</div>
+    <div><b>Periodo</b> 07-09-2026 al 10-01-2027</div>
+    <div><b>Emisión</b> 07 de septiembre de 2026</div>
+  </div>
+</div>
+
+<h1>1. Resumen ejecutivo</h1>
+
+<p class="lead">
+Este documento contrasta el estado real del repositorio <code>dossier-ordocga</code> contra el plan
+comprometido en la Guía de Fase 1, y convierte ese contraste en un plan de trabajo ejecutable por
+sprint, con tareas, responsables, criterios de aceptación y entregables verificables.
+</p>
+
+<p>
+La auditoría de código confirma <strong>las cinco brechas declaradas en la Guía</strong>: la síntesis
+se persiste como Markdown sin contrato JSON validado; no existe agente de registros corporativos
+europeos; no existe agente de noticias; el avance se obtiene por consultas periódicas
+(<code>setInterval</code>) y no en tiempo real; y la entrega por correo existe únicamente como
+columnas en el modelo de datos. Ninguna de las cinco fue encontrada implementada ni parcialmente
+funcional.
+</p>
+
+<p>
+La auditoría añade además un hallazgo que la Guía enuncia de forma general y que aquí se
+cuantifica: la base técnica está <strong>menos consolidada de lo que el porcentaje de avance sugiere</strong>.
+No existe integración continua, no existen migraciones versionadas, no hay linter ni verificación de
+tipos configurados en el backend, y la razón entre pruebas y código fuente es de 40 pruebas para 100
+módulos Python. Esto no cambia el alcance comprometido, pero sí justifica que el Sprint 1 sea de
+consolidación estricta y bloqueante: sin CI ni migraciones, los sprints 2 a 6 no tienen forma de
+demostrar que no introducen regresiones.
+</p>
+
+<p>
+El plan mantiene la estructura de la Guía (Sprint 0 de diagnóstico y siete sprints de dos semanas)
+y respeta la asignación de responsables y las actividades A1 a A11. Sobre esa estructura, este
+documento aporta el desglose fino: <strong>76 tareas</strong> distribuidas en los ocho sprints, cada
+una con responsable único, criterio de aceptación y evidencia esperada.
+</p>
+
+<div class="note">
+<strong>Hallazgo de calendario.</strong> Con inicio el lunes 07-09-2026, las semanas 16 y 17 caen sobre
+el receso de fin de año (21-12-2026 al 03-01-2027). El Sprint 6 (seguridad y entrega automática) y
+el arranque del Sprint 7 (validación y cierre) son los tramos afectados. Es necesario acordar con el
+docente guía si el calendario académico contempla ese receso; en caso afirmativo, la ruta crítica
+debe adelantarse dos semanas o el alcance del Sprint 6 debe reducirse. Ver sección 7.
+</div>
+
+<h1 class="pb">2. Método del análisis</h1>
+
+<p>
+El diagnóstico se realizó sobre el árbol de trabajo del repositorio, sin ejecutar la aplicación. Se
+aplicaron cuatro técnicas:
+</p>
+
+<ol>
+  <li><strong>Inventario estructural.</strong> Enumeración de módulos de <code>backend/src/dossier</code>
+      (100 archivos Python) y de <code>frontend/src</code> (96 archivos TypeScript/TSX).</li>
+  <li><strong>Búsqueda dirigida por brecha.</strong> Para cada una de las cinco brechas declaradas se
+      buscaron los indicadores positivos que probarían su existencia (por ejemplo
+      <code>EventSource</code>, <code>StreamingResponse</code>, <code>smtp</code>, <code>newsapi</code>)
+      y los indicadores negativos que la confirmarían (por ejemplo <code>setInterval</code>,
+      <code>"format": "markdown"</code>).</li>
+  <li><strong>Lectura del modelo de datos.</strong> Revisión completa de <code>db/models.py</code>
+      para determinar qué entidades existen y cuáles la especificación exige y faltan.</li>
+  <li><strong>Verificación de tooling.</strong> Presencia de configuración de CI, migraciones,
+      linters, verificación de tipos y auditoría de dependencias.</li>
+</ol>
+
+<p>
+Cada afirmación de la sección 3 está anclada a un archivo y línea del repositorio. Las afirmaciones
+que no pudieron verificarse por esta vía se marcan explícitamente como pendientes de medición en el
+Sprint 0.
+</p>
+
+<div class="note">
+<strong>Limitación declarada.</strong> No fue posible ejecutar la suite de pruebas ni las herramientas
+de auditoría de dependencias: el entorno virtual del backend no está instalado en esta copia de
+trabajo (<code>No module named pytest</code>). Por lo tanto, el número de pruebas que <em>pasan</em>,
+la cobertura real y el recuento de vulnerabilidades de severidad alta son <strong>valores pendientes</strong>
+y constituyen la primera tarea medida del Sprint 0 (tarea S0.3). Los conteos de este informe son
+estáticos: pruebas declaradas, no pruebas verdes.
+</div>
+
+<h1 class="pb">3. Estado actual verificado</h1>
+
+<h2>3.1 Lo que el sistema ya hace</h2>
+
+<p>
+La base heredada es sustancial y funcional en sus capas transversales. El inventario confirma lo que
+la Guía describe como punto de partida:
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:24%">Capacidad</th><th style="width:46%">Evidencia en el repositorio</th><th style="width:30%">Observación</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Autenticación y RBAC</td>
+      <td><code>security/jwt_tokens.py</code>, <code>security/rbac.py</code>, <code>api/auth_routes.py</code></td>
+      <td>JWT firmado, roles admin/user/viewer, pruebas en <code>test_rbac.py</code></td>
+    </tr>
+    <tr>
+      <td>Multiempresa</td>
+      <td><code>db/models.py</code>: <code>Organization</code>, <code>OrgMembership</code>, <code>OrgInvite</code>; <code>org_workspace.py</code></td>
+      <td>Aislamiento por <code>organization_id</code> presente en las tablas de negocio</td>
+    </tr>
+    <tr>
+      <td>Calendarios Google y Microsoft</td>
+      <td><code>services/google_calendar_api.py</code>, <code>services/graph_calendar.py</code>, tokens OAuth dedicados</td>
+      <td>Integración operativa con detección de eventos</td>
+    </tr>
+    <tr>
+      <td>Generación asíncrona</td>
+      <td><code>services/dossier_generation_worker.py</code>, <code>DossierGenerationJob</code>, colas Redis</td>
+      <td>Trabajo en segundo plano con estado persistido</td>
+    </tr>
+    <tr>
+      <td>Investigación de personas</td>
+      <td><code>services/person_research_pipeline.py</code>, <code>pdl_*</code>, <code>lusha_*</code></td>
+      <td>Fuentes PDL y Lusha integradas</td>
+    </tr>
+    <tr>
+      <td>Registros corporativos UK y USA</td>
+      <td><code>companies_house/</code>, <code>sec_edgar/</code>, <code>graphs/corporate_dossier_graph.py</code></td>
+      <td>Dos jurisdicciones, orquestadas con LangGraph</td>
+    </tr>
+    <tr>
+      <td>Créditos y planes</td>
+      <td><code>billing/credit_policy.py</code>, <code>billing/entitlements.py</code>, <code>billing/plan_catalog.py</code></td>
+      <td>Cobro interno con pruebas propias</td>
+    </tr>
+    <tr>
+      <td>Retención configurable</td>
+      <td><code>services/dossier_retention.py</code>, <code>dossier_retention_worker.py</code></td>
+      <td>7, 14, 30 o 90 días; purga automática</td>
+    </tr>
+    <tr>
+      <td>Dashboard e internacionalización</td>
+      <td><code>frontend/src/app/dashboard</code>, <code>i18n/messages</code> (es, en, en-gb, fr, de)</td>
+      <td>Next.js 16, React 19, Tailwind 4</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3.2 Las cinco brechas del alcance firme</h2>
+
+<p>
+Las cinco brechas están confirmadas. Ninguna presenta implementación parcial aprovechable, salvo
+donde se indica.
+</p>
+
+<h3>B1 — Salida en texto plano sin contrato JSON validado <span class="tag t-no">CONFIRMADA</span></h3>
+<p>
+La capa de síntesis produce Markdown y lo persiste como tal. En
+<code>services/person_research_pipeline.py:154</code> el resultado se lee desde la clave
+<code>gemini_analysis_markdown</code> y se guarda con el envoltorio <code>{"format": "markdown"}</code>
+(líneas 190 y 284). El campo <code>dossier_data</code> es de tipo <code>JSONB</code>
+(<code>db/models.py:319</code>), de modo que el contenedor sí es JSON, pero <strong>no existe
+esquema que lo valide</strong>: no hay modelo Pydantic de salida del dossier en
+<code>schemas/</code>. El frontend confirma el diagnóstico desde el otro extremo: depende de
+<code>react-markdown</code> y <code>remark-gfm</code> para renderizar el resultado.
+</p>
+<p>
+Faltan además las entidades que la especificación exige: existe una columna <code>alerts</code>
+(<code>db/models.py:320</code>) pero no hay tablas ni esquemas para trayectoria profesional ni para
+menciones de prensa, y no hay estructura para origen y fecha de consulta por fuente. Las columnas
+<code>agents_activated</code>, <code>agents_failed</code> y <code>data_sources_used</code> existen
+como arreglos de texto, lo que da trazabilidad de agente pero no de fuente individual.
+</p>
+
+<h3>B2 — Sin agente de registros corporativos europeos <span class="tag t-no">CONFIRMADA</span></h3>
+<p>
+Solo existen dos jurisdicciones. El grafo <code>graphs/corporate_dossier_graph.py</code> invoca
+<code>build_uk_corporate_context_markdown</code> (línea 77) y
+<code>build_us_corporate_context_markdown</code> (línea 101). No hay módulo, cliente ni credencial
+para ninguna fuente de Europa continental. Esta es la brecha de mayor riesgo del proyecto: no hay
+nada reutilizable más allá del patrón de los dos agentes existentes, y la cobertura, el costo y las
+condiciones de licencia varían por país.
+</p>
+
+<h3>B3 — Sin agente de noticias <span class="tag t-no">CONFIRMADA</span></h3>
+<p>
+La palabra «noticias» aparece exclusivamente dentro de las plantillas de instrucción al modelo de
+lenguaje (<code>services/person_dossier_locales.py</code>, líneas 7, 42, 78, 104 y equivalentes en
+inglés). Es decir, <strong>se le pide al modelo que considere noticias, pero no se le entrega ninguna</strong>:
+no hay cliente de NewsAPI, GDELT, Bing News ni SerpAPI, ni dependencia asociada en
+<code>requirements.txt</code>. Toda mención de prensa en un dossier actual proviene del conocimiento
+interno del modelo, sin fuente citable ni fecha de consulta. Esto es también un riesgo de calidad:
+son afirmaciones sin respaldo verificable.
+</p>
+
+<h3>B4 — Estados por consulta periódica, no en tiempo real <span class="tag t-no">CONFIRMADA</span></h3>
+<p>
+El frontend sondea el backend con temporizadores: <code>providers/DossierJobsProvider.tsx:285</code>
+y <code>providers/NotificationsProvider.tsx:177</code> usan <code>window.setInterval</code>. En el
+backend no existe <code>StreamingResponse</code>, endpoint <code>text/event-stream</code> ni
+WebSocket. La única aparición de «WebSocket» en el código son cadenas de interfaz que describen el
+estado pendiente: <code>"phase.4": "Generar dossier (mock WebSocket)"</code> y
+<code>"phase.8": "WebSocket real y estados en vivo"</code> (<code>i18n/messages/es.ts</code>, líneas
+104 y 108). El propio producto declara la brecha al usuario.
+</p>
+
+<h3>B5 — Entrega por correo inexistente <span class="tag t-no">CONFIRMADA</span></h3>
+<p>
+El modelo de datos está preparado y el comportamiento no existe. <code>db/models.py</code> define
+<code>email_sent</code> (línea 350), <code>email_sent_at</code> (351), <code>email_recipients</code>
+(354) y <code>auto_send_email</code> (183), pero no hay ningún cliente de correo en el backend: sin
+<code>smtplib</code>, sin <code>aiosmtplib</code>, sin SDK de Resend, SendGrid, Mailgun, Postmark o
+SES, y sin dependencia correspondiente en <code>requirements.txt</code>. La documentación de
+migración (<code>db/Migracion.md</code>) sí prevé una tabla de configuración con
+<code>provider IN ('gmail','outlook','smtp')</code>, lo que confirma que el diseño existía y la
+implementación nunca se hizo.
+</p>
+
+<h2 class="pb">3.3 Deuda técnica y riesgos de seguridad</h2>
+
+<p>
+Esta sección desarrolla lo que la Guía agrupa como «deuda técnica y riesgos de seguridad, auditoría,
+pruebas, integración continua y migraciones». Es el insumo directo de las actividades A3 y A8.
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:20%">Frente</th><th style="width:10%">Estado</th><th style="width:40%">Evidencia</th><th style="width:30%">Consecuencia</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Integración continua</td>
+      <td><span class="tag t-no">Ausente</span></td>
+      <td>No existe directorio <code>.github/</code> ni configuración de ningún servicio de CI</td>
+      <td>Ninguna verificación automática antes de integrar; la Definición de Terminado no es exigible</td>
+    </tr>
+    <tr>
+      <td>Migraciones versionadas</td>
+      <td><span class="tag t-no">Ausente</span></td>
+      <td>Sin Alembic. El esquema se aplica desde <code>db/schema_patches.py</code> (67 líneas) y se documenta en <code>db/Migracion.md</code></td>
+      <td>El esquema no es reproducible ni reversible; los cambios de los sprints 4 y 6 son de alto riesgo</td>
+    </tr>
+    <tr>
+      <td>Linter y tipos en backend</td>
+      <td><span class="tag t-no">Ausente</span></td>
+      <td>Sin <code>pyproject.toml</code>, sin configuración de ruff, flake8 o mypy. Solo <code>pytest.ini</code></td>
+      <td>El objetivo específico 2 («análisis estático sin errores») no tiene hoy herramienta que lo mida</td>
+    </tr>
+    <tr>
+      <td>Linter en frontend</td>
+      <td><span class="tag t-part">Parcial</span></td>
+      <td><code>eslint.config.mjs</code> con <code>eslint-config-next</code>; script <code>npm run lint</code></td>
+      <td>Configurado, pero sin ejecución obligatoria en CI</td>
+    </tr>
+    <tr>
+      <td>Dependencias fijadas</td>
+      <td><span class="tag t-part">Parcial</span></td>
+      <td><code>requirements.txt</code> usa rangos abiertos (<code>&gt;=</code>) en 13 de 15 líneas; <code>requests</code> sin versión</td>
+      <td>Compilaciones no reproducibles; la auditoría de vulnerabilidades no es estable en el tiempo</td>
+    </tr>
+    <tr>
+      <td>Cobertura de pruebas</td>
+      <td><span class="tag t-part">Baja</span></td>
+      <td>40 funciones de prueba declaradas en 11 archivos, frente a 100 módulos Python</td>
+      <td>Las regresiones de los sprints 2 a 6 no se detectarían</td>
+    </tr>
+    <tr>
+      <td>Línea de implementación canónica</td>
+      <td><span class="tag t-part">Ambigua</span></td>
+      <td>Coexisten <code>llm/client.py</code> (DeepSeek vía SDK de OpenAI), <code>gemini/analyze.py</code> (google-genai) y <code>services/openai_dossier.py</code>; el pipeline etiqueta el agente como <code>deepseek_person_analysis</code> pero lee la clave <code>gemini_analysis_markdown</code></td>
+      <td>Es exactamente la dificultad que la Guía anticipa en A2; debe resolverse antes de diseñar</td>
+    </tr>
+    <tr>
+      <td>Rutas legadas</td>
+      <td><span class="tag t-part">Contenidas</span></td>
+      <td><code>security/legacy_routes.py</code> con <code>assert_legacy_route_allowed()</code></td>
+      <td>Bien acotadas, pero pendientes de retiro (A3)</td>
+    </tr>
+    <tr>
+      <td>Limitación de tasa</td>
+      <td><span class="tag t-no">Ausente</span></td>
+      <td>Sin slowapi ni middleware equivalente. Las coincidencias de <code>rate_limit</code> corresponden a manejo de errores del proveedor LLM (<code>llm/common.py:61</code>)</td>
+      <td>Autenticación y generación expuestas a abuso; objetivo específico 8 sin cubrir</td>
+    </tr>
+    <tr>
+      <td>Registro de auditoría</td>
+      <td><span class="tag t-no">Ausente</span></td>
+      <td>Sin tabla ni servicio de auditoría; las coincidencias de «audit» son texto de instrucciones y un comentario</td>
+      <td>No hay rastro de quién accedió a datos personales; objetivo específico 8 sin cubrir</td>
+    </tr>
+    <tr>
+      <td>Retención de 24 horas</td>
+      <td><span class="tag t-part">Diverge</span></td>
+      <td><code>ALLOWED_DOSSIER_RETENTION_DAYS = {7, 14, 30, 90}</code>, por omisión 30 días</td>
+      <td>La especificación exige 24 horas con borrado verificado; hoy el mínimo es 7 días y sin verificación</td>
+    </tr>
+    <tr>
+      <td>Sesiones y CORS</td>
+      <td><span class="tag t-part">Permisiva</span></td>
+      <td>JWT de 7 días por omisión (<code>JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080</code>, <code>jwt_tokens.py:41</code>) almacenado en <code>localStorage</code>; CORS con <code>allow_methods=["*"]</code> y <code>allow_credentials=True</code></td>
+      <td>Un token de larga vida en almacenamiento accesible por script amplía el impacto de cualquier XSS</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note danger">
+<strong>Prioridad de seguridad.</strong> De los cuatro puntos del objetivo específico 8 (control de
+acceso, limitación de tasa, auditoría y retención de 24 horas), solo el control de acceso existe.
+Los otros tres parten de cero. Por eso la actividad A8 se distribuye desde el Sprint 3 y no se
+concentra en el Sprint 6: concentrarla dejaría tres implementaciones sin verificar en la semana 16.
+</div>
+
+<h2>3.4 Estimación de avance</h2>
+
+<p>
+La Guía estima un avance del 55 % al 60 % por juicio técnico. La auditoría es coherente con ese
+rango si se pondera por capacidad funcional, y algo más exigente si se pondera por preparación para
+producción:
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:34%">Dimensión</th><th style="width:16%">Avance estimado</th><th style="width:50%">Fundamento</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Capacidades funcionales</td><td>60 %</td><td>Autenticación, multiempresa, calendarios, créditos, dossier UK/US y dashboard operativos</td></tr>
+    <tr><td>Contrato de datos y salida</td><td>20 %</td><td>Contenedor JSONB presente; contrato, validación y entidades ausentes</td></tr>
+    <tr><td>Cobertura de fuentes</td><td>50 %</td><td>Dos de tres jurisdicciones; agente de noticias ausente</td></tr>
+    <tr><td>Experiencia en tiempo real</td><td>25 %</td><td>Estados persistidos y expuestos, pero consumidos por sondeo</td></tr>
+    <tr><td>Entrega y notificación</td><td>10 %</td><td>Solo modelo de datos</td></tr>
+    <tr><td>Seguridad y cumplimiento</td><td>35 %</td><td>Autenticación y aislamiento sí; tasa, auditoría y retención de 24 horas no</td></tr>
+    <tr><td>Calidad e infraestructura de entrega</td><td>20 %</td><td>Sin CI, sin migraciones, sin análisis estático en backend</td></tr>
+    <tr style="font-weight:600"><td>Ponderado</td><td>≈ 45 % – 50 %</td><td>Por debajo del rango declarado, por el peso de calidad y seguridad</td></tr>
+  </tbody>
+</table>
+
+<p>
+La diferencia no altera el alcance firme ni la factibilidad: el trabajo comprometido es el mismo. Sí
+refuerza que el Sprint 1 debe cerrarse completo antes de abrir el Sprint 2, y que las extensiones
+condicionadas deben tratarse con criterio estricto en el punto de control del Sprint 5.
+</p>
+
+<h1 class="pb">4. Alcance</h1>
+
+<h2>4.1 Alcance firme comprometido</h2>
+<ol>
+  <li>Cierre de las cinco brechas verificadas (B1 a B5).</li>
+  <li>Consolidación de la base técnica: línea canónica declarada, análisis estático sin errores,
+      dependencias sin vulnerabilidades de severidad alta, migraciones versionadas e integración
+      continua operativa.</li>
+  <li>Controles de seguridad con pruebas: control de acceso, limitación de tasa, registro de
+      auditoría y retención de 24 horas con borrado verificado.</li>
+  <li>Documentación técnica y manual de usuario que permitan la operación y continuidad por parte de
+      Alloxentric.</li>
+</ol>
+
+<h2>4.2 Extensiones condicionadas</h2>
+<p>
+Se abordan <strong>solo si el alcance firme está cerrado al término del Sprint 5</strong> (semana 14) y
+previo acuerdo con el docente guía. En caso contrario se documentan como trabajo futuro, con
+estimación registrada.
+</p>
+<ul>
+  <li>Integración de pagos en entorno de pruebas (Stripe).</li>
+  <li>Agente de redes profesionales.</li>
+  <li>Personalización de marca del plan Enterprise.</li>
+  <li>API pública para clientes.</li>
+</ul>
+
+<h2>4.3 Fuera de alcance</h2>
+<ul>
+  <li>Operación con datos reales de producción o con datos personales no autorizados.</li>
+  <li>Cobros reales; toda integración de pago permanece en entorno de pruebas.</li>
+  <li>Expansión a jurisdicciones fuera de Reino Unido, Estados Unidos y la fuente europea seleccionada en el Sprint 0.</li>
+  <li>Aplicaciones móviles nativas.</li>
+</ul>
+
+<h2>4.4 Definición de Terminado</h2>
+<p>Una tarea está terminada cuando cumple, sin excepción, las seis condiciones siguientes:</p>
+<ol>
+  <li>Código integrado a la rama principal mediante solicitud de incorporación revisada.</li>
+  <li>Análisis estático sin errores en backend y frontend.</li>
+  <li>Pruebas asociadas escritas y en verde en integración continua.</li>
+  <li>Revisión por un segundo integrante del equipo.</li>
+  <li>Documentación actualizada cuando la tarea cambia comportamiento observable o configuración.</li>
+  <li>Evidencia adjunta en la tarjeta de Trello correspondiente.</li>
+</ol>
+<p>
+Ninguna función se presenta como terminada sin evidencia de implementación, validación y
+documentación. Esta regla se aplica también a los informes de avance.
+</p>
+
+<h1 class="pb">5. Plan de trabajo por sprint</h1>
+
+<p>
+La codificación de tareas es <code>S&lt;sprint&gt;.&lt;n&gt;</code>. La columna «Act.» indica la
+actividad A1 a A11 de la Guía a la que la tarea tributa. Responsables: <strong>FO</strong> Felipe
+Orellana, <strong>DG</strong> Darío García, <strong>FD</strong> Felipe Docmac, <strong>EQ</strong> equipo completo.
+</p>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 0 — Diagnóstico y diseño</h3>
+    <div class="when">Semanas 1 a 4 · 07-09-2026 al 04-10-2026 · Objetivos específicos 1 y 3 · Actividades A1, A2</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Convertir el sistema heredado en un objeto conocido y
+    medido, y dejar decidido por escrito qué se construirá y contra qué criterio se aceptará.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S0.1</td><td>A1</td><td>Inventario de módulos del backend y del frontend, contrastado con Especificaciones v2.0, PRD v1.1 y manual de usuario</td><td>EQ</td><td>Matriz que cruza cada requisito de la especificación con su módulo, marcado como implementado, parcial o ausente</td></tr>
+        <tr><td>S0.2</td><td>A1</td><td>Verificar y priorizar las cinco brechas; registrar evidencia archivo:línea de cada una</td><td>EQ</td><td>Cada brecha con evidencia citable y prioridad acordada según dependencia y riesgo</td></tr>
+        <tr><td>S0.3</td><td>A1</td><td>Medir la línea base de deuda técnica: instalar entorno, ejecutar pytest, medir cobertura, correr <code>pip-audit</code> y <code>npm audit</code></td><td>FD</td><td>Informe con números reales: pruebas verdes sobre total, porcentaje de cobertura, número de vulnerabilidades por severidad</td></tr>
+        <tr><td>S0.4</td><td>A1</td><td>Declarar la línea de implementación canónica entre DeepSeek, Gemini y OpenAI, resolviendo la ambigüedad de <code>gemini_analysis_markdown</code></td><td>FO</td><td>Decisión técnica registrada en el repositorio, con la lista de módulos a retirar</td></tr>
+        <tr><td>S0.5</td><td>A1</td><td>Evaluar modelos de lenguaje: DeepSeek actual, GPT-4o comprometido y GPT-5.6 Luna propuesto, sobre un conjunto fijo de casos</td><td>FO</td><td>Tabla de costo por dossier y de calidad de salida, con precios verificados a la fecha de evaluación, y decisión registrada</td></tr>
+        <tr><td>S0.6</td><td>A1</td><td>Evaluar fuentes de registros corporativos europeos: cobertura por país, costo, licencia y límites</td><td>FO</td><td>Fuente seleccionada, con credenciales de prueba obtenidas y una consulta de ejemplo ejecutada</td></tr>
+        <tr><td>S0.7</td><td>A1</td><td>Evaluar proveedores de búsqueda de noticias</td><td>FO</td><td>Proveedor seleccionado, con credenciales de prueba y una consulta de ejemplo ejecutada</td></tr>
+        <tr><td>S0.8</td><td>A1</td><td>Evaluar proveedores de correo transaccional</td><td>DG</td><td>Proveedor seleccionado, con cuenta de prueba y un envío de ejemplo verificado</td></tr>
+        <tr><td>S0.9</td><td>A2</td><td>Diseñar el esquema JSON estricto del dossier: identidad, trayectoria, registros corporativos, prensa, alertas, ideas de conversación y fuentes con origen y fecha</td><td>FO</td><td>Esquema revisado por el equipo, con ejemplo válido y ejemplos inválidos que debe rechazar</td></tr>
+        <tr><td>S0.10</td><td>A2</td><td>Diseñar los ajustes al modelo de datos y la estrategia de migración de los dossiers históricos en Markdown</td><td>FO</td><td>Diagrama entidad-relación de las entidades nuevas y decisión escrita sobre compatibilidad hacia atrás</td></tr>
+        <tr><td>S0.11</td><td>A2</td><td>Decidir el protocolo de estados progresivos entre eventos enviados por el servidor y WebSocket, considerando el despliegue actual</td><td>FO</td><td>Decisión registrada con el contrato de eventos y su comportamiento ante reconexión</td></tr>
+        <tr><td>S0.12</td><td>A2</td><td>Diseñar la arquitectura del agente europeo y del agente de noticias sobre el patrón de los agentes existentes</td><td>FO</td><td>Diagrama de los nodos nuevos en el orquestador y contrato de entrada y salida de cada uno</td></tr>
+        <tr><td>S0.13</td><td>A2</td><td>Definir criterios de aceptación por brecha priorizada</td><td>EQ</td><td>Cada brecha con criterio verificable y prueba asociada identificada</td></tr>
+        <tr><td>S0.14</td><td>A1</td><td>Construir el backlog priorizado en Trello: listas por estado, tarjetas por historia, criterios en lista de verificación</td><td>EQ</td><td>Tablero poblado con los siete sprints y la Definición de Terminado fijada</td></tr>
+        <tr><td>S0.15</td><td>A1</td><td>Acordar con el docente guía el alcance firme, las extensiones condicionadas y el efecto del receso de fin de año</td><td>EQ</td><td>Acuerdo por escrito, incorporado al informe de diagnóstico</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Informe de diagnóstico y priorización de brechas · Informe de deuda técnica, estado inicial · Documento de diseño de la solución · Backlog en Trello.</p>
+    <p><strong>Riesgo principal.</strong> Que la evaluación de fuentes europeas no concluya en cuatro semanas por trámites de licencia. Mitigación: iniciar S0.6 en la semana 1, antes que cualquier otra evaluación.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 1 — Consolidación técnica</h3>
+    <div class="when">Semanas 5 y 6 · 05-10-2026 al 18-10-2026 · Objetivo específico 2 · Actividades A3, A4</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Dejar el repositorio en condiciones de recibir cambios sin
+    riesgo de regresión silenciosa. Este sprint es bloqueante: sin él, ningún sprint posterior puede
+    demostrar la Definición de Terminado.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S1.1</td><td>A3</td><td>Adoptar Alembic y generar la migración de línea base a partir del esquema vigente descrito en <code>Migracion.md</code> y <code>schema_patches.py</code></td><td>FD</td><td>Base de datos vacía reconstruida por completo con <code>alembic upgrade head</code>, sin intervención manual</td></tr>
+        <tr><td>S1.2</td><td>A3</td><td>Introducir <code>pyproject.toml</code> con ruff y mypy; fijar el nivel de exigencia inicial</td><td>FD</td><td>Configuración incorporada y el comando de análisis ejecuta sobre todo <code>backend/src</code></td></tr>
+        <tr><td>S1.3</td><td>A3</td><td>Corregir los errores de análisis estático detectados</td><td>FD</td><td>Ruff y mypy sin errores en el nivel acordado</td></tr>
+        <tr><td>S1.4</td><td>A3</td><td>Fijar versiones exactas de dependencias y actualizar las que presenten vulnerabilidad de severidad alta</td><td>FD</td><td><code>pip-audit</code> y <code>npm audit</code> sin hallazgos de severidad alta; instalación reproducible</td></tr>
+        <tr><td>S1.5</td><td>A3</td><td>Configurar integración continua con verificación de ruff, mypy, pytest, eslint, compilación del frontend y auditoría de dependencias</td><td>FD</td><td>La verificación corre en cada solicitud de incorporación y bloquea la integración cuando falla</td></tr>
+        <tr><td>S1.6</td><td>A3</td><td>Retirar la línea de implementación no canónica decidida en S0.4 y las rutas legadas</td><td>FO</td><td>Módulos eliminados, pruebas en verde, sin referencias residuales en el código</td></tr>
+        <tr><td>S1.7</td><td>A3</td><td>Documentar el arranque local: variables de entorno, PostgreSQL, Redis y ejecución de migraciones</td><td>FD</td><td>Un integrante que parte de cero levanta el sistema siguiendo solo el documento</td></tr>
+        <tr><td>S1.8</td><td>A4</td><td>Implementar el cliente HTTP de la fuente europea seleccionada, con manejo de límites y errores</td><td>FO</td><td>Consulta real contra la fuente en entorno de prueba, con pruebas sobre respuestas fijas</td></tr>
+        <tr><td>S1.9</td><td>A4</td><td>Definir el modelo común de registro corporativo que normaliza las tres jurisdicciones</td><td>FO</td><td>Esquema Pydantic al que los agentes de Reino Unido y Estados Unidos también pueden adaptarse</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Integración continua operativa · Migraciones versionadas · Informe de deuda técnica comparado contra la línea base · Cliente de la fuente europea.</p>
+    <p><strong>Riesgo principal.</strong> Que la corrección del análisis estático descubra defectos reales de comportamiento. Mitigación: corregir por módulo, con prueba antes y después, y no mezclar la corrección con cambios funcionales.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 2 — Cobertura corporativa europea</h3>
+    <div class="when">Semanas 7 y 8 · 19-10-2026 al 01-11-2026 · Objetivo específico 4 · Actividad A4</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Cerrar la brecha B2, la de mayor riesgo, dejando el dossier
+    corporativo operativo en tres jurisdicciones.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S2.1</td><td>A4</td><td>Implementar el agente de registros corporativos europeos como nodo del orquestador, siguiendo el patrón de <code>companies_house</code> y <code>sec_edgar</code></td><td>FO</td><td>El agente devuelve el modelo común de registro corporativo para al menos tres países de la Unión Europea</td></tr>
+        <tr><td>S2.2</td><td>A4</td><td>Integrar el agente al grafo <code>corporate_dossier_graph</code> con selección de jurisdicción a partir de los datos de la empresa</td><td>FO</td><td>Una empresa europea activa el agente europeo; una británica sigue activando el de Reino Unido</td></tr>
+        <tr><td>S2.3</td><td>A4</td><td>Adaptar los agentes de Reino Unido y Estados Unidos al modelo común definido en S1.9</td><td>FO</td><td>Las tres jurisdicciones emiten la misma estructura; el consumidor no distingue el origen salvo por el campo de fuente</td></tr>
+        <tr><td>S2.4</td><td>A4</td><td>Implementar tolerancia a fallos: si el agente europeo falla, el dossier se emite igualmente y el fallo queda registrado</td><td>FO</td><td>Prueba que simula el fallo del agente y verifica <code>agents_failed</code> poblado y dossier entregado</td></tr>
+        <tr><td>S2.5</td><td>A4</td><td>Poblar <code>data_sources_used</code> con la fuente y la fecha de consulta por jurisdicción</td><td>FO</td><td>Cada dossier corporativo declara qué registro consultó y cuándo</td></tr>
+        <tr><td>S2.6</td><td>A4</td><td>Pruebas de contraste entre jurisdicciones sobre casos fijos</td><td>FO</td><td>Conjunto de pruebas que cubre una empresa por jurisdicción más los casos de empresa no encontrada y de datos incompletos</td></tr>
+        <tr><td>S2.7</td><td>A9</td><td>Documentar el agente europeo: fuente, cobertura por país, límites y costo por consulta</td><td>FO</td><td>Sección incorporada a la documentación técnica</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Repositorio con el agente europeo integrado y operativo · Pruebas de contraste entre las tres jurisdicciones.</p>
+    <p><strong>Riesgo principal.</strong> Cobertura desigual entre países europeos. Mitigación: comprometer por escrito solo los países verificados en el Sprint 0 y registrar el resto como trabajo futuro.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 3 — Agente de noticias y ampliación del dashboard</h3>
+    <div class="when">Semanas 9 y 10 · 02-11-2026 al 15-11-2026 · Objetivo específico 5 · Actividades A5, A6, A8</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Cerrar la brecha B3 y abrir el trabajo de frontend y de
+    seguridad en paralelo, para que ninguno de los dos quede concentrado al final.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S3.1</td><td>A5</td><td>Implementar el cliente del proveedor de noticias con control de límites y de costo</td><td>FO</td><td>Consulta real en entorno de prueba, con pruebas sobre respuestas fijas</td></tr>
+        <tr><td>S3.2</td><td>A5</td><td>Implementar el agente de noticias como nodo del orquestador, con deduplicación de artículos</td><td>FO</td><td>Una misma noticia replicada en varios medios aparece una sola vez</td></tr>
+        <tr><td>S3.3</td><td>A5</td><td>Implementar el filtro de homónimos: descartar menciones que no corresponden al sujeto del dossier</td><td>FO</td><td>Caso de prueba con un nombre común donde las menciones ajenas quedan descartadas o marcadas de baja confianza</td></tr>
+        <tr><td>S3.4</td><td>A5</td><td>Registrar por cada mención el título, el medio, la URL y la fecha de publicación y de consulta</td><td>FO</td><td>Ninguna mención se persiste sin sus cuatro campos de procedencia</td></tr>
+        <tr><td>S3.5</td><td>A6</td><td>Ampliar el dashboard con la vista del módulo de registros corporativos europeos</td><td>DG</td><td>La vista muestra la jurisdicción consultada y la fecha de consulta</td></tr>
+        <tr><td>S3.6</td><td>A6</td><td>Ampliar el dashboard con la vista del módulo de prensa</td><td>DG</td><td>Cada mención se muestra con enlace a la fuente y fecha visible</td></tr>
+        <tr><td>S3.7</td><td>A6</td><td>Incorporar las cadenas de interfaz de los módulos nuevos en los cinco idiomas soportados</td><td>DG</td><td><code>test_i18n_keys.py</code> en verde, sin claves faltantes</td></tr>
+        <tr><td>S3.8</td><td>A8</td><td>Endurecer la política de orígenes permitidos: sustituir <code>allow_methods=["*"]</code> por la lista explícita de métodos usados</td><td>FD</td><td>Los métodos no usados son rechazados; el dashboard sigue operando</td></tr>
+        <tr><td>S3.9</td><td>A8</td><td>Reducir la vigencia del token de acceso e introducir renovación, evitando la sesión de siete días en almacenamiento local</td><td>FD</td><td>Token de acceso de vida corta, renovación funcionando y prueba de expiración</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Dossier con módulo de prensa citable · Dashboard con los dos módulos nuevos · Primeras mejoras de seguridad integradas.</p>
+    <p><strong>Riesgo principal.</strong> Calidad variable de los resultados de noticias. Mitigación: el filtro de homónimos se prueba antes de integrar el módulo a la síntesis, no después.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 4 — Síntesis estructurada y estados progresivos en el servicio</h3>
+    <div class="when">Semanas 11 y 12 · 16-11-2026 al 29-11-2026 · Objetivos específicos 5 y 6 · Actividades A5, A6, A8</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Cerrar la brecha B1 y dejar disponible en el servicio el
+    canal que el Sprint 5 consumirá desde el dashboard.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S4.1</td><td>A5</td><td>Implementar el esquema JSON estricto del dossier como modelos Pydantic, según el diseño de S0.9</td><td>FO</td><td>El esquema rechaza los ejemplos inválidos definidos en el diseño y acepta el ejemplo válido</td></tr>
+        <tr><td>S4.2</td><td>A5</td><td>Ajustar la capa de síntesis para emitir JSON conforme al esquema, con reintento acotado ante salida inválida</td><td>FO</td><td>Ninguna salida no conforme se persiste; el reintento queda registrado y acotado</td></tr>
+        <tr><td>S4.3</td><td>A5</td><td>Sustituir el envoltorio <code>{"format": "markdown"}</code> por el contrato validado en <code>dossier_data</code></td><td>FO</td><td>Los dossiers nuevos se persisten estructurados; el pipeline ya no depende de <code>gemini_analysis_markdown</code></td></tr>
+        <tr><td>S4.4</td><td>A5</td><td>Implementar la compatibilidad de lectura para los dossiers históricos en Markdown</td><td>FO</td><td>Un dossier anterior a la migración se sigue mostrando sin error</td></tr>
+        <tr><td>S4.5</td><td>A5</td><td>Crear las entidades de alertas, trayectoria profesional y menciones de prensa, con integridad referencial y aislamiento por organización</td><td>FO</td><td>Migración aplicada, claves foráneas y restricción por organización verificadas con prueba negativa</td></tr>
+        <tr><td>S4.6</td><td>A5</td><td>Incorporar a la síntesis las alertas de riesgo y las ideas para iniciar la conversación, con un máximo de tres</td><td>FO</td><td>La salida incluye ambas secciones y respeta el límite</td></tr>
+        <tr><td>S4.7</td><td>A5</td><td>Garantizar que cada afirmación estructurada declare su origen y fecha de consulta</td><td>FO</td><td>El esquema rechaza un elemento sin procedencia; prueba que lo demuestra</td></tr>
+        <tr><td>S4.8</td><td>A6</td><td>Implementar en el servicio el canal de estados progresivos según la decisión de S0.11</td><td>FO</td><td>El canal emite un evento por transición de agente y cierra correctamente al terminar el trabajo</td></tr>
+        <tr><td>S4.9</td><td>A6</td><td>Emitir resultados parciales cuando un agente falla, sin abortar la generación</td><td>FO</td><td>Prueba con un agente forzado a fallar: el canal emite el fallo y la generación continúa</td></tr>
+        <tr><td>S4.10</td><td>A8</td><td>Implementar la tabla y el servicio de registro de auditoría, con los eventos de acceso a datos personales</td><td>FD</td><td>Toda lectura y generación de dossier queda registrada con actor, organización, recurso e instante</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Contrato JSON validado en producción de datos · Entidades de alertas, trayectoria y prensa · Canal de estados progresivos disponible · Registro de auditoría operativo.</p>
+    <p><strong>Riesgo principal.</strong> Que el modelo de lenguaje produzca JSON no conforme con frecuencia alta. Mitigación: medir la tasa de conformidad en el Sprint 0 como parte de S0.5, y elegir el modelo también por ese criterio.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 5 — Estados en tiempo real en el dashboard y correo transaccional</h3>
+    <div class="when">Semanas 13 y 14 · 30-11-2026 al 13-12-2026 · Objetivos específicos 6 y 7 · Actividades A6, A7, A8</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Cerrar la brecha B4 desde el consumidor y dejar habilitado
+    el proveedor de correo. Al término de este sprint se decide sobre las extensiones condicionadas.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S5.1</td><td>A6</td><td>Consumir el canal de estados progresivos en <code>DossierJobsProvider</code> y retirar su <code>setInterval</code></td><td>DG</td><td>El avance se actualiza sin sondeo; no queda ningún temporizador de sondeo en el proveedor</td></tr>
+        <tr><td>S5.2</td><td>A6</td><td>Consumir el canal en <code>NotificationsProvider</code> y retirar su <code>setInterval</code></td><td>DG</td><td>Las notificaciones llegan por el canal; el sondeo queda eliminado</td></tr>
+        <tr><td>S5.3</td><td>A6</td><td>Implementar reconexión ante caída del canal, con retroceso progresivo</td><td>DG</td><td>Cortada la conexión, el dashboard se recupera sin recargar la página</td></tr>
+        <tr><td>S5.4</td><td>A6</td><td>Mostrar resultados parciales y el estado por agente, incluidos los agentes fallidos</td><td>DG</td><td>El usuario ve qué agente falló y qué módulos sí se completaron</td></tr>
+        <tr><td>S5.5</td><td>A6</td><td>Renderizar el dossier desde el contrato JSON con componentes por módulo, sustituyendo el render de Markdown</td><td>DG</td><td>La vista se construye desde datos estructurados; <code>react-markdown</code> queda solo para dossiers históricos</td></tr>
+        <tr><td>S5.6</td><td>A7</td><td>Integrar el proveedor de correo transaccional seleccionado en S0.8</td><td>DG</td><td>Envío de prueba verificado desde el backend, con credenciales en variables de entorno</td></tr>
+        <tr><td>S5.7</td><td>A7</td><td>Construir la plantilla de correo del dossier, con versión en texto y en HTML</td><td>DG</td><td>Plantilla revisada, legible en un cliente de correo de escritorio y en uno móvil</td></tr>
+        <tr><td>S5.8</td><td>A8</td><td>Implementar la limitación de tasa en autenticación y en generación de dossiers</td><td>FD</td><td>Superado el umbral, la API responde con el código correspondiente; prueba automatizada que lo verifica</td></tr>
+        <tr><td>S5.9</td><td>A1</td><td>Punto de control de alcance: evaluar si el alcance firme está cerrado y decidir sobre las extensiones condicionadas</td><td>EQ</td><td>Decisión registrada y acordada con el docente guía, con estimación de lo que se difiere</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Dashboard con estados en tiempo real · Dossier renderizado desde JSON · Proveedor de correo habilitado · Limitación de tasa operativa · Acta del punto de control.</p>
+    <p><strong>Riesgo principal.</strong> Que el cambio de sondeo a canal afecte la gestión de estado de varias vistas del dashboard, como advierte la Guía en A6. Mitigación: migrar primero un proveedor, verificarlo, y solo entonces migrar el segundo.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 6 — Entrega automática y cierre de seguridad</h3>
+    <div class="when">Semanas 15 y 16 · 14-12-2026 al 27-12-2026 · Objetivos específicos 7 y 8 · Actividades A7, A8, A9</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Cerrar la brecha B5 y completar los controles de seguridad
+    comprometidos, con sus pruebas.</p>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S6.1</td><td>A7</td><td>Implementar el envío del dossier por correo al completarse la generación, poblando <code>email_sent</code>, <code>email_sent_at</code> y <code>email_recipients</code></td><td>DG</td><td>Generado un dossier, el correo llega y las tres columnas quedan pobladas</td></tr>
+        <tr><td>S6.2</td><td>A7</td><td>Implementar el acceso al dossier desde el correo mediante enlace de un solo uso con vigencia limitada</td><td>DG</td><td>El enlace funciona una vez y caduca; prueba que verifica ambos comportamientos</td></tr>
+        <tr><td>S6.3</td><td>A7</td><td>Habilitar la automatización previa a la reunión desde el calendario, respetando <code>auto_send_email</code></td><td>DG</td><td>Una reunión externa próxima dispara la generación y el envío sin intervención del usuario</td></tr>
+        <tr><td>S6.4</td><td>A7</td><td>Implementar el reintento y el registro de fallos de envío</td><td>DG</td><td>Un fallo del proveedor queda registrado y se reintenta un número acotado de veces</td></tr>
+        <tr><td>S6.5</td><td>A8</td><td>Implementar la retención de 24 horas con borrado verificado, ajustando la política actual de 7 a 90 días</td><td>FD</td><td>Transcurridas 24 horas, el dossier y sus entidades asociadas no son recuperables; prueba que lo verifica</td></tr>
+        <tr><td>S6.6</td><td>A8</td><td>Extender el registro de auditoría a los eventos de envío por correo y de borrado por retención</td><td>FD</td><td>Cada envío y cada borrado quedan registrados y son consultables</td></tr>
+        <tr><td>S6.7</td><td>A9</td><td>Pruebas negativas de aislamiento entre organizaciones sobre todos los recursos nuevos</td><td>FD</td><td>Ningún recurso de una organización es accesible desde otra; prueba por cada recurso incorporado en los sprints 2 a 6</td></tr>
+        <tr><td>S6.8</td><td>A9</td><td>Pruebas de seguridad sobre limitación de tasa, vigencia de sesión, enlaces de un solo uso y política de orígenes</td><td>FD</td><td>Conjunto de pruebas en verde e incorporado a la verificación de integración continua</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Sistema desplegado con entrega automática por correo · Retención de 24 horas con borrado verificado · Informe de pruebas de seguridad.</p>
+    <p><strong>Riesgo principal.</strong> El receso de fin de año se superpone con la semana 16. Mitigación: adelantar S6.5 a S6.8 a la semana 15 y reservar la semana 16 solo para corrección.</p>
+  </div>
+</div>
+
+<div class="sprint">
+  <header>
+    <h3>Sprint 7 — Validación, documentación y cierre</h3>
+    <div class="when">Semanas 17 y 18 · 28-12-2026 al 10-01-2027 · Objetivos específicos 8 y 9 · Actividades A9, A10, A11</div>
+  </header>
+  <div class="body">
+    <p><strong>Objetivo del sprint.</strong> Demostrar el cumplimiento del objetivo general con evidencia,
+    y dejar el sistema documentado para su continuidad por Alloxentric.</p>
+    <div class="note"><strong>Congelamiento de funcionalidades:</strong> lunes 28-12-2026, inicio de la semana 17. Desde esa fecha solo se integran correcciones de defectos.</div>
+    <table>
+      <thead><tr><th style="width:7%">ID</th><th style="width:6%">Act.</th><th style="width:38%">Tarea</th><th style="width:7%">Resp.</th><th style="width:42%">Criterio de aceptación</th></tr></thead>
+      <tbody>
+        <tr><td>S7.1</td><td>A9</td><td>Ejecutar las pruebas de aceptación extremo a extremo: reunión detectada en el calendario, dossier generado con todos los módulos, envío por correo</td><td>EQ</td><td>El flujo completo se ejecuta sin intervención manual y queda registrado como evidencia</td></tr>
+        <tr><td>S7.2</td><td>A9</td><td>Ejecutar las pruebas de tolerancia a fallos con cada agente fallando por separado</td><td>FD</td><td>En todos los casos el dossier se entrega con resultado parcial y el fallo queda registrado</td></tr>
+        <tr><td>S7.3</td><td>A9</td><td>Verificar el descuento de créditos y el aislamiento entre organizaciones en el flujo completo</td><td>FD</td><td>Los créditos se descuentan una sola vez por dossier; ninguna fuga entre organizaciones</td></tr>
+        <tr><td>S7.4</td><td>A9</td><td>Registrar y corregir los defectos encontrados, priorizados por severidad</td><td>EQ</td><td>Ningún defecto de severidad alta abierto al cierre; los menores documentados como trabajo futuro</td></tr>
+        <tr><td>S7.5</td><td>A9</td><td>Medir el estado final de deuda técnica y compararlo con la línea base de S0.3</td><td>FD</td><td>Informe comparado: cobertura, análisis estático, vulnerabilidades, migraciones e integración continua</td></tr>
+        <tr><td>S7.6</td><td>A10</td><td>Redactar la documentación técnica: instalación, despliegue, variables de entorno, operación y registro de decisiones técnicas</td><td>FD</td><td>Un tercero instala y opera el sistema siguiendo solo el documento</td></tr>
+        <tr><td>S7.7</td><td>A10</td><td>Actualizar el manual de usuario del dashboard con los módulos incorporados</td><td>DG</td><td>Manual que refleja el estado final del sistema, con capturas actualizadas</td></tr>
+        <tr><td>S7.8</td><td>A11</td><td>Redactar el informe final: resultados, brechas cerradas con evidencia, extensiones no abordadas y trabajo futuro</td><td>EQ</td><td>Cada brecha cerrada respaldada por evidencia de implementación, validación y documentación</td></tr>
+        <tr><td>S7.9</td><td>A11</td><td>Preparar la presentación y ensayar la demostración en vivo sobre el ambiente de prueba</td><td>EQ</td><td>Demostración ensayada al menos dos veces, con plan de contingencia ante fallo de red o de proveedor</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Entregables.</strong> Informe de pruebas y resultados de seguridad · Documentación técnica · Manual de usuario · Informe final del Proyecto APT · Presentación y demostración.</p>
+    <p><strong>Riesgo principal.</strong> Coincidencia con el cierre académico y con el receso. Mitigación: el congelamiento de funcionalidades en la semana 17 es una fecha fija, no negociable dentro del equipo.</p>
+  </div>
+</div>
+
+<h1 class="pb">6. Carta Gantt</h1>
+
+<p>
+Semanas 1 a 18, del 07-09-2026 al 10-01-2027. Azul oscuro indica trabajo principal; azul claro,
+trabajo secundario o en paralelo. H marca hito de entrega.
+</p>
+
+<table class="gantt">
+  <thead>
+    <tr>
+      <th class="act" rowspan="2">Actividad</th>
+      <th rowspan="2" style="width:7%">Resp.</th>
+      <th colspan="4">Sprint 0</th><th colspan="2">S1</th><th colspan="2">S2</th><th colspan="2">S3</th><th colspan="2">S4</th><th colspan="2">S5</th><th colspan="2">S6</th><th colspan="2">S7</th>
+    </tr>
+    <tr>
+      <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="act">A1. Diagnóstico y priorización</td><td>EQ</td>
+      <td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A2. Diseño de la solución</td><td>FO</td>
+      <td></td><td class="on"></td><td class="on"></td><td class="on"></td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A3. Consolidación base técnica</td><td>FD</td>
+      <td></td><td></td><td class="on2"></td><td class="on2"></td>
+      <td class="on"></td><td class="on"></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A4. Agente registros europeos</td><td>FO</td>
+      <td></td><td></td><td></td><td></td>
+      <td class="on2"></td><td class="on2"></td><td class="on"></td><td class="on"></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A5. Noticias y síntesis ampliada</td><td>FO</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A6. Dashboard y tiempo real</td><td>DG</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td class="on"></td><td class="on"></td><td class="on2"></td><td class="on2"></td><td class="on"></td><td class="on"></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="act">A7. Correo y automatización</td><td>DG</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="on2"></td><td class="on2"></td><td class="on"></td><td class="on"></td><td></td><td></td></tr>
+    <tr><td class="act">A8. Seguridad, tasa y auditoría</td><td>FD</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td class="on2"></td><td class="on2"></td><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td><td></td><td></td></tr>
+    <tr><td class="act">A9. Pruebas y calidad</td><td>FD</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+    <tr><td class="act">A10. Documentación y manual</td><td>EQ</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="on"></td><td class="on"></td></tr>
+    <tr><td class="act">A11. Informe final y presentación</td><td>EQ</td>
+      <td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="on"></td><td class="on"></td></tr>
+    <tr><td class="act"><strong>Hitos de entrega</strong></td><td>EQ</td>
+      <td></td><td></td><td></td><td class="hito">H1</td>
+      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="hito">H2</td><td></td><td></td><td></td><td></td><td></td><td class="hito">H3</td></tr>
+  </tbody>
+</table>
+
+<h2>6.1 Hitos de entrega</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:8%">Hito</th><th style="width:14%">Fecha</th><th style="width:20%">Fase</th><th style="width:58%">Contenido</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>H1</strong></td><td class="nowrap">04-10-2026</td><td>Fin Sprint 0 — Fase 1</td><td>Informe de diagnóstico y priorización de brechas · Informe de deuda técnica, estado inicial · Documento de diseño de la solución · Backlog en Trello · Acuerdo de alcance con el docente guía</td></tr>
+    <tr><td><strong>H2</strong></td><td class="nowrap">29-11-2026</td><td>Fin Sprint 4 — Fase 2</td><td>Repositorio con el agente europeo y el agente de noticias operativos · Contrato JSON validado · Entidades de alertas, trayectoria y prensa · Canal de estados progresivos · Registro de auditoría</td></tr>
+    <tr><td><strong>H3</strong></td><td class="nowrap">10-01-2027</td><td>Fin Sprint 7 — Fase 3</td><td>Sistema desplegado con entrega automática por correo · Informe de pruebas y seguridad · Documentación técnica y manual de usuario · Informe final y presentación</td></tr>
+  </tbody>
+</table>
+
+<h2>6.2 Trazabilidad entre objetivos, brechas y sprints</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:8%">Obj.</th><th style="width:40%">Objetivo específico</th><th style="width:12%">Brecha</th><th style="width:14%">Sprint</th><th style="width:26%">Evidencia de cierre</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>OE1</td><td>Diagnosticar el estado del sistema y priorizar brechas</td><td>—</td><td>Sprint 0</td><td>Informe de diagnóstico</td></tr>
+    <tr><td>OE2</td><td>Consolidar la base técnica: análisis estático, dependencias, migraciones, integración continua</td><td>Deuda técnica</td><td>Sprint 1</td><td>Informe de deuda comparado</td></tr>
+    <tr><td>OE3</td><td>Diseñar arquitectura, modelo de datos y criterios de aceptación</td><td>—</td><td>Sprint 0</td><td>Documento de diseño</td></tr>
+    <tr><td>OE4</td><td>Implementar el agente de registros corporativos europeos</td><td>B2</td><td>Sprints 1 y 2</td><td>Repositorio y pruebas de contraste</td></tr>
+    <tr><td>OE5</td><td>Incorporar el agente de noticias y la síntesis sobre esquema JSON estricto</td><td>B3 y B1</td><td>Sprints 3 y 4</td><td>Repositorio y pruebas de esquema</td></tr>
+    <tr><td>OE6</td><td>Ampliar el dashboard y sustituir el sondeo por estados en tiempo real</td><td>B4</td><td>Sprints 3 a 5</td><td>Dashboard desplegado</td></tr>
+    <tr><td>OE7</td><td>Habilitar la entrega automática por correo, incluida desde el calendario</td><td>B5</td><td>Sprints 5 y 6</td><td>Sistema desplegado</td></tr>
+    <tr><td>OE8</td><td>Asegurar el sistema: acceso, tasa, auditoría y retención de 24 horas</td><td>Seguridad</td><td>Sprints 3 a 6</td><td>Informe de pruebas de seguridad</td></tr>
+    <tr><td>OE9</td><td>Documentar el sistema para su operación y continuidad</td><td>—</td><td>Sprint 7</td><td>Documentación técnica y manual</td></tr>
+  </tbody>
+</table>
+
+<h1 class="pb">7. Riesgos</h1>
+
+<table>
+  <thead>
+    <tr><th style="width:5%">ID</th><th style="width:29%">Riesgo</th><th style="width:9%">Prob.</th><th style="width:9%">Impacto</th><th style="width:48%">Mitigación</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>R1</td><td>El receso de fin de año se superpone con las semanas 16 y 17, que concentran seguridad y cierre</td><td>Alta</td><td>Alto</td><td>Acordar el calendario con el docente guía en el Sprint 0 (S0.15). Adelantar las tareas de seguridad a la semana 15 y fijar el congelamiento de funcionalidades el 28-12-2026</td></tr>
+    <tr><td>R2</td><td>Cobertura, costo o licencia insuficientes en la fuente de registros europeos</td><td>Alta</td><td>Alto</td><td>Iniciar la evaluación en la semana 1. Comprometer por escrito solo los países verificados; el resto pasa a trabajo futuro</td></tr>
+    <tr><td>R3</td><td>El modelo de lenguaje produce JSON no conforme al esquema con frecuencia alta</td><td>Media</td><td>Alto</td><td>Medir la tasa de conformidad como criterio de selección del modelo en S0.5. Implementar reintento acotado y registro de fallos en S4.2</td></tr>
+    <tr><td>R4</td><td>La corrección del análisis estático descubre defectos de comportamiento y desborda el Sprint 1</td><td>Media</td><td>Alto</td><td>Corregir por módulo, con prueba antes y después. No mezclar corrección estática con cambio funcional en la misma incorporación</td></tr>
+    <tr><td>R5</td><td>La migración del sondeo al canal en tiempo real desestabiliza el estado de varias vistas</td><td>Media</td><td>Medio</td><td>Migrar un proveedor primero, verificarlo en el ambiente de prueba, y solo entonces migrar el segundo</td></tr>
+    <tr><td>R6</td><td>Homónimos y datos incompletos degradan la calidad del módulo de prensa</td><td>Alta</td><td>Medio</td><td>Filtro de homónimos probado antes de integrar el módulo a la síntesis. Marcar la confianza por mención y mostrarla al usuario</td></tr>
+    <tr><td>R7</td><td>Cambio de precios, límites o disponibilidad de las API externas durante el semestre</td><td>Media</td><td>Medio</td><td>Registrar el proveedor y su condición contractual como decisión técnica. Verificar precios al momento de la evaluación y al cierre</td></tr>
+    <tr><td>R8</td><td>Exposición de credenciales de calendario, correo o pagos</td><td>Baja</td><td>Alto</td><td>Credenciales solo en variables de entorno y en gestor de secretos. Únicamente cuentas y ambientes de prueba durante todo el proyecto</td></tr>
+    <tr><td>R9</td><td>La migración del contrato JSON rompe la visualización de dossiers históricos</td><td>Media</td><td>Medio</td><td>Compatibilidad de lectura explícita (S4.4) con prueba dedicada sobre un dossier anterior a la migración</td></tr>
+    <tr><td>R10</td><td>Ausencia o baja disponibilidad de un integrante en la ruta crítica</td><td>Media</td><td>Alto</td><td>Revisión de código entre pares obligatoria, de modo que cada frente tenga un segundo integrante con contexto. Reasignación en la retrospectiva del sprint</td></tr>
+    <tr><td>R11</td><td>Que las extensiones condicionadas se inicien sin haber cerrado el alcance firme</td><td>Media</td><td>Medio</td><td>Punto de control formal en S5.9, con decisión registrada. Sin acta, no se inicia ninguna extensión</td></tr>
+    <tr><td>R12</td><td>Tratamiento de datos personales identificables sin base autorizada</td><td>Baja</td><td>Alto</td><td>Uso exclusivo de datos autorizados y de prueba. Retención de 24 horas con borrado verificado y registro de auditoría de todo acceso</td></tr>
+  </tbody>
+</table>
+
+<h1 class="pb">8. Gestión del proyecto</h1>
+
+<h2>8.1 Ceremonias</h2>
+<table>
+  <thead><tr><th style="width:22%">Ceremonia</th><th style="width:20%">Frecuencia</th><th style="width:12%">Duración</th><th style="width:46%">Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Planificación de sprint</td><td>Inicio de cada sprint</td><td>90 min</td><td>Tarjetas del sprint en Trello con responsable y criterio de aceptación</td></tr>
+    <tr><td>Sincronización</td><td>Dos veces por semana</td><td>15 min</td><td>Avance, impedimentos y reasignaciones</td></tr>
+    <tr><td>Revisión con el docente guía</td><td>Cierre de cada sprint</td><td>45 min</td><td>Incremento demostrado y observaciones registradas</td></tr>
+    <tr><td>Retrospectiva</td><td>Cierre de cada sprint</td><td>30 min</td><td>Ajustes al plan y a la forma de trabajo</td></tr>
+  </tbody>
+</table>
+
+<h2>8.2 Flujo de trabajo en Trello</h2>
+<p>
+Una lista por estado (Backlog, Sprint actual, En curso, En revisión, Terminado) y una lista por
+sprint con sus tarjetas. Cada tarjeta lleva el identificador de tarea, el responsable, la fecha de
+término del sprint y una lista de verificación con la Definición de Terminado. Una tarjeta se mueve
+a Terminado solo cuando sus seis condiciones están marcadas y la evidencia está adjunta.
+</p>
+
+<h2>8.3 Control de versiones</h2>
+<ul>
+  <li>Rama por funcionalidad, nombrada con el identificador de tarea, por ejemplo <code>feat/S2.1-agente-europeo</code>.</li>
+  <li>Solicitud de incorporación con revisión obligatoria de un segundo integrante.</li>
+  <li>Integración a la rama principal solo con la verificación automática en verde.</li>
+  <li>Decisiones técnicas registradas en el repositorio, con fecha, alternativas evaluadas y fundamento.</li>
+</ul>
+
+<h2>8.4 Métricas de seguimiento</h2>
+<table>
+  <thead><tr><th style="width:32%">Métrica</th><th style="width:22%">Línea base</th><th style="width:22%">Meta al cierre</th><th style="width:24%">Frecuencia</th></tr></thead>
+  <tbody>
+    <tr><td>Brechas del alcance firme cerradas</td><td>0 de 5</td><td>5 de 5</td><td>Por sprint</td></tr>
+    <tr><td>Errores de análisis estático en backend</td><td>Sin medir (S0.3)</td><td>0</td><td>Cada incorporación</td></tr>
+    <tr><td>Vulnerabilidades de severidad alta</td><td>Sin medir (S0.3)</td><td>0</td><td>Semanal</td></tr>
+    <tr><td>Pruebas declaradas</td><td>40</td><td>Al menos una por criterio de aceptación</td><td>Por sprint</td></tr>
+    <tr><td>Cobertura de pruebas</td><td>Sin medir (S0.3)</td><td>Meta fijada en S0.3 sobre la línea base</td><td>Por sprint</td></tr>
+    <tr><td>Verificación automática en verde</td><td>No existe</td><td>Obligatoria para integrar</td><td>Continua</td></tr>
+    <tr><td>Defectos de severidad alta abiertos</td><td>Sin medir</td><td>0 al cierre</td><td>Por sprint desde el 6</td></tr>
+  </tbody>
+</table>
+
+<h2>8.5 Distribución de la carga</h2>
+<table>
+  <thead><tr><th style="width:24%">Integrante</th><th style="width:26%">Frente</th><th style="width:16%">Tareas</th><th style="width:34%">Sprints de mayor carga</th></tr></thead>
+  <tbody>
+    <tr><td>Felipe Orellana Álvarez</td><td>Backend y agentes</td><td>31</td><td>Sprints 2, 3 y 4</td></tr>
+    <tr><td>Darío García Avendaño</td><td>Frontend e integraciones de usuario</td><td>16</td><td>Sprints 5 y 6</td></tr>
+    <tr><td>Felipe Docmac Bravo</td><td>Seguridad y aseguramiento de la calidad</td><td>19</td><td>Sprints 1, 6 y 7</td></tr>
+    <tr><td>Equipo completo</td><td>Diagnóstico, cierre y documentación</td><td>10</td><td>Sprints 0 y 7</td></tr>
+  </tbody>
+</table>
+
+<div class="note good">
+<strong>Observación sobre la carga.</strong> El Sprint 4 concentra nueve de sus diez tareas en un solo
+responsable (Felipe Orellana), y es además el sprint del que depende todo el Sprint 5. Es el punto más frágil de
+la planificación. Se recomienda que S4.10 (registro de auditoría) permanezca asignada a Felipe
+Docmac, como está previsto, y que S4.8 y S4.9 (canal de estados progresivos) se diseñen junto con
+Darío García en la planificación del sprint, para que el contrato de eventos quede acordado antes de
+implementarse.
+</div>
+
+<h1 class="pb">9. Conclusión</h1>
+
+<p>
+La auditoría confirma las cinco brechas del alcance firme y no encuentra ninguna de ellas
+implementada. Confirma también que la base heredada es sólida en sus capas transversales:
+autenticación, multiempresa, calendarios, créditos, generación asíncrona y dashboard están
+operativos y son reutilizables sin reescritura.
+</p>
+
+<p>
+El principal ajuste que este análisis introduce respecto de la Guía es de énfasis, no de alcance: la
+infraestructura de entrega —integración continua, migraciones versionadas y análisis estático— está
+ausente por completo, y sin ella la Definición de Terminado no es verificable. Por eso el Sprint 1
+se trata como bloqueante y las tareas de seguridad se distribuyen desde el Sprint 3 en lugar de
+concentrarse en el Sprint 6.
+</p>
+
+<p>
+El plan es ejecutable en 18 semanas con el equipo de tres integrantes, con dos condiciones: que el
+efecto del receso de fin de año se resuelva con el docente guía durante el Sprint 0, y que la
+evaluación de la fuente de registros europeos comience en la semana 1, por ser la dependencia
+externa de mayor riesgo y de plazo menos controlable.
+</p>
+
+<footer class="pageend">
+Plan de Trabajo Detallado — Project Dossier · Elaborado sobre la Guía Estudiante de Definición de
+Proyecto APT, Fase 1, y sobre la auditoría del repositorio <code>dossier-ordocga</code> ·
+07 de septiembre de 2026
+</footer>
