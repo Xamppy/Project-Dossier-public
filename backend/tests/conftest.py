@@ -66,12 +66,17 @@ def entorno_de_pruebas():
 
 @pytest.fixture(autouse=True)
 def sin_red(request, monkeypatch):
-    """Ninguna prueba sale a la red real.
+    """Ninguna prueba sale a la red real (pero sí permite loopback).
 
     Una prueba que depende de internet no es una prueba: es un monitor de
     disponibilidad ajena. Falla los viernes por razones que no son tuyas.
 
-    Para saltarlo en un caso justificado y documentado:
+    Loopback (127.0.0.1 / ::1 / localhost) queda permitido: en Windows, crear
+    un event loop de asyncio abre un socketpair local internamente
+    (``asyncio.proactor_events._make_self_pipe``), y `TestClient` de FastAPI
+    (tests/integration/) necesita poder crear ese event loop.
+
+    Para saltarlo del todo en un caso justificado y documentado:
 
         @pytest.mark.parametrize("sin_red", [False], indirect=True)
     """
@@ -80,14 +85,31 @@ def sin_red(request, monkeypatch):
 
     import socket
 
-    def bloqueado(*args, **kwargs):
-        raise RuntimeError(
+    _connect_real = socket.socket.connect
+    _create_connection_real = socket.create_connection
+
+    def _es_loopback(direccion) -> bool:
+        host = direccion[0] if isinstance(direccion, tuple) else direccion
+        return str(host) in ("127.0.0.1", "::1", "localhost")
+
+    def _mensaje() -> str:
+        return (
             "Esta prueba intentó abrir una conexión de red. Simula la respuesta "
             "del proveedor con monkeypatch o con un doble de prueba."
         )
 
-    monkeypatch.setattr(socket.socket, "connect", bloqueado)
-    monkeypatch.setattr(socket, "create_connection", bloqueado)
+    def connect_bloqueado(self, direccion, *args, **kwargs):
+        if _es_loopback(direccion):
+            return _connect_real(self, direccion, *args, **kwargs)
+        raise RuntimeError(_mensaje())
+
+    def create_connection_bloqueada(direccion, *args, **kwargs):
+        if _es_loopback(direccion):
+            return _create_connection_real(direccion, *args, **kwargs)
+        raise RuntimeError(_mensaje())
+
+    monkeypatch.setattr(socket.socket, "connect", connect_bloqueado)
+    monkeypatch.setattr(socket, "create_connection", create_connection_bloqueada)
 
 
 @pytest.fixture
