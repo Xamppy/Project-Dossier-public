@@ -579,7 +579,7 @@
       "id": "S1.9",
       "sprint": 1,
       "title": "Definir el modelo comun de registro corporativo (UK / US / EU)",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -596,7 +596,8 @@
       "trello": "https://trello.com/c/mMpvfTj3",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S2.1",
