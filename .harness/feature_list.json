@@ -1111,7 +1111,7 @@
       "id": "S4.8",
       "sprint": 4,
       "title": "Implementar el canal de estados progresivos en el servicio",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1128,7 +1128,8 @@
       "trello": "https://trello.com/c/ht5AxvMH",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.9",
