@@ -8,6 +8,49 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S1.9 · FO (agente)
+
+**Hecho.** Definido `RegistroCorporativo` (`backend/src/dossier/schemas/corporate_registry.py`):
+el esquema unificado que ADR 0003 nombraba pero no formalizaba. Submodelos
+`DomicilioRegistrado`, `Directivo`, `Presentacion`; enum `JurisdiccionRegistro` con las cuatro
+jurisdicciones del alcance firme (`uk`, `us`, `fr`, `de`); campo `datos_brutos` como escape
+hatch para no perder información de la fuente mientras S2.3 decide qué migrar a campos
+estructurados.
+
+Especificación previa (era un contrato nuevo, exige SDD):
+`specs/proposals/S1.9-modelo-comun-registro-corporativo.md`, con una tabla de mapeo de campos
+por fuente (Companies House, SEC EDGAR, Recherche d'entreprises, Handelsregister) para que
+S2.1 y S2.3 no repitan la investigación.
+
+Prueba nueva `backend/tests/test_corporate_registry_schema.py` (9 casos): campos mínimos,
+las cuatro jurisdicciones válidas, jurisdicción inválida rechazada, submodelos con forma real
+de la fuente francesa (`dirigeants`) y de Companies House (filing history), serialización a
+JSON. Suite completa: 69 en verde (60 previas + 9), sin regresiones.
+
+**Sin terminar.** Nada de S1.9. Los adaptadores que conviertan las respuestas reales de cada
+API a este modelo NO están hechos — es explícitamente S2.1 (agente europeo) y S2.3 (adaptar UK
+y US). `corporate_dossier_graph.py` sigue usando Markdown crudo, no este modelo; conectarlo es
+S2.2/S2.3, no S1.9.
+
+**Lo que hay que saber.**
+- **`companies_house/cli.py` no trae directores hoy.** Solo expone perfil + filing history; el
+  endpoint de officers de Companies House no se consulta en ningún lado del pipeline actual.
+  Si S2.3 quiere poblar `directivos` para UK, es un endpoint nuevo, no un campo que ya viene.
+- **Francia y Alemania sí traen directivos "gratis".** ADR 0003 dice que la API francesa
+  entrega `dirigeants` y que Handelsregister entrega directores en su JSON — por eso
+  `directivos` existe en el modelo común desde ahora, aunque UK/US lo dejen vacío por ahora.
+- **`fecha_constitucion` va a variar mucho en precisión por fuente** (CH: fecha exacta; Alemania:
+  "variable por Land" según ADR 0003). Se dejó como `str | None`, no `date`, a propósito: forzar
+  un tipo `date` habría exigido decidir ahora cómo tratar fechas parciales, que no es esta tarea.
+
+**Siguiente paso concreto.** S1.8 (cliente HTTP de la fuente europea) — usa la tabla de mapeo
+de esta spec para Francia (columna ya lista); Alemania puede quedar con menos campos si su API
+entrega menos estructura, el modelo ya lo permite todo opcional salvo los cuatro campos base.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · S1.6 · FO (agente)
 
 **Hecho.** Ejecutada la acción pendiente de ADR 0001 (línea LLM canónica).

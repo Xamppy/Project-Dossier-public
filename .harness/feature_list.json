@@ -579,7 +579,7 @@
       "id": "S1.9",
       "sprint": 1,
       "title": "Definir el modelo comun de registro corporativo (UK / US / EU)",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -594,9 +594,11 @@
         "S2.3"
       ],
       "trello": "https://trello.com/c/mMpvfTj3",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_corporate_registry_schema.py,specs/proposals/S1.9-modelo-comun-registro-corporativo.md"
+      ],
+      "notes": "RegistroCorporativo en dossier/schemas/corporate_registry.py; spec con tabla de mapeo de campos por fuente.",
       "owner_session": "FO (agente)"
     },
     {
