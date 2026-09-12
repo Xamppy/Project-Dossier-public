@@ -8,6 +8,40 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S1.8 · FO (agente)
+
+**Hecho.** Cliente HTTP europeo en `backend/src/dossier/eu_registry/client.py`, mismo patrón
+que `companies_house/cli.py` y `sec_edgar/cli.py`: solo fetch + parseo del JSON crudo, sin
+normalizar a `RegistroCorporativo` (eso es S2.1/S2.3).
+
+- `search_france_companies()` contra `recherche-entreprises.api.gouv.fr/search` — endpoint y
+  forma de respuesta verificados en vivo (`results`, `siren`, `nom_complet`, `siege`,
+  `dirigeants`, `etat_administratif`, `nature_juridique`, `date_creation`).
+- `search_germany_companies()` contra la API SQL estilo Datasette de OffeneRegister.de.
+- 7 pruebas nuevas (`tests/test_eu_registry_client.py`) con `respuesta_fija` + `monkeypatch`
+  sobre `requests.get`, sin red real. Suite completa: 76 en verde, 13 en espera.
+
+**Sin terminar.** Nada de S1.8 en sí, pero **Alemania queda con un riesgo documentado, no
+resuelto**: el esquema exacto (nombre de base de datos/tabla, columnas) no se pudo verificar
+en vivo porque `db.offeneregister.de` devolvió 502 al intentarlo. El cliente usa la convención
+estándar de Datasette (`/<db>/<tabla>.json?columna__contains=...`) con nombres configurables
+por `EU_REGISTRY_DE_API_BASE` / `_DATABASE` / `_TABLE`, pero son un valor por defecto
+razonable, no un hecho confirmado.
+
+**Lo que hay que saber.**
+- **Quien retome S2.1 (agente europeo) debe reverificar Alemania antes de escribir el
+  adaptador.** Si `db.offeneregister.de` sigue caído o cambió de esquema, hay alternativas
+  comerciales (OpenRegister, handelsregister.ai) que ADR 0003 descartó por costo — repasar esa
+  decisión si el Open Data gratuito ya no es viable.
+- **Francia sí está verificado y es estable**: sin API key, JSON limpio, campos ya mapeados en
+  la tabla de `specs/proposals/S1.9-modelo-comun-registro-corporativo.md`.
+
+**Siguiente paso concreto.** S4.1 (esquema JSON estricto del dossier como modelos Pydantic).
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · S1.9 · FO (agente)
 
 **Hecho.** Definido `RegistroCorporativo` (`backend/src/dossier/schemas/corporate_registry.py`):

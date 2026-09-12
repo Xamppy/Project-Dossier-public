@@ -557,7 +557,7 @@
       "id": "S1.8",
       "sprint": 1,
       "title": "Implementar el cliente HTTP de la fuente europea",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -571,9 +571,11 @@
         "S2.1"
       ],
       "trello": "https://trello.com/c/4ZNQlFQF",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_eu_registry_client.py"
+      ],
+      "notes": "Cliente HTTP FR/DE en eu_registry/client.py; FR verificado en vivo, DE pendiente de verificar esquema (servicio dio 502).",
       "owner_session": "FO (agente)"
     },
     {
