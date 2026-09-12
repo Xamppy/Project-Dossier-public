@@ -168,7 +168,7 @@ function personJobHasPartialFailure(job: TrackedJob): boolean {
   }
   const personResult = job.result as PersonResearchApiResponse;
   if (!personResult.saved_dossier?.id) return false;
-  const hasAnalysis = !!personResult.gemini_analysis_markdown?.trim();
+  const hasAnalysis = !!personResult.llm_analysis_markdown?.trim();
   const criticalWarnings = (personResult.warnings ?? []).filter(
     (w) =>
       !isPdlProfileFoundInfoWarning(w) &&

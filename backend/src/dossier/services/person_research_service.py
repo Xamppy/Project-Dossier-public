@@ -88,7 +88,7 @@ def run_person_research(
     if req.include_posts and not gemini_only:
         warnings.append("La opción «incluir posts» no está disponible; se ignoró.")
 
-    gemini_md: str | None = None
+    llm_md: str | None = None
     gemini_google_search_used = False
     has_llm_key = bool(deepseek_api_key())
     filters_gem = _filters_for_person_gemini(req, organization_context_block)
@@ -115,7 +115,7 @@ def run_person_research(
 
     if gemini_only:
         if md_web:
-            gemini_md = md_web
+            llm_md = md_web
         elif not has_llm_key:
             warnings.append(
                 "Sin DEEPSEEK_API_KEY no se puede ejecutar la búsqueda por IA."
@@ -130,7 +130,7 @@ def run_person_research(
         )
     elif profiles:
         try:
-            gemini_md = analyze_person_profile_bundle(
+            llm_md = analyze_person_profile_bundle(
                 filters=filters_gem,
                 profiles=profiles,
                 posts_by_url={},
@@ -139,9 +139,9 @@ def run_person_research(
                 enrichment_provider="pdl",
                 output_language=out_lang,
             )
-            if md_web and not gemini_md:
-                gemini_md = md_web
-            elif md_web and gemini_md:
+            if md_web and not llm_md:
+                llm_md = md_web
+            elif md_web and llm_md:
                 warnings.append(
                     "Búsqueda web complementaria omitida: el análisis principal "
                     "ya incluye la estructura completa."
@@ -150,11 +150,11 @@ def run_person_research(
             warnings.append(str(e))
         except Exception as e:  # noqa: BLE001
             warnings.append(f"Error en análisis sobre perfiles: {e!s}")
-        if gemini_md is None and md_web:
-            gemini_md = md_web
+        if llm_md is None and md_web:
+            llm_md = md_web
     elif not gemini_only and not profiles:
         if md_web:
-            gemini_md = md_web
+            llm_md = md_web
         elif not has_llm_key:
             warnings.append(
                 "Sin datos de enriquecimiento y sin DEEPSEEK_API_KEY: no se pudo ejecutar el análisis con IA."
@@ -164,7 +164,7 @@ def run_person_research(
                 "Sin datos de enriquecimiento y DEEPSEEK_DISABLE_PERSON_WEB=1: no se ejecutó el análisis con IA."
             )
 
-    gemini_md = normalize_person_report_text(gemini_md)
+    llm_md = normalize_person_report_text(llm_md)
 
     return {
         "filters_applied": {
@@ -196,7 +196,7 @@ def run_person_research(
         "profile_urls": profile_urls[: req.max_profiles],
         "profiles": profiles,
         "posts_by_url": {},
-        "gemini_analysis_markdown": gemini_md,
+        "llm_analysis_markdown": llm_md,
         "gemini_google_search_used": gemini_google_search_used,
         "warnings": warnings,
     }

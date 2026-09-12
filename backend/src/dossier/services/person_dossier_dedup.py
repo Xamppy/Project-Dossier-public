@@ -104,7 +104,7 @@ def should_cache_person_research_result(
     gemini_only: bool,
 ) -> bool:
     """Evita cachear búsquedas PDL sin match (el usuario puede reintentar con más datos)."""
-    md = (result.get("gemini_analysis_markdown") or "").strip()
+    md = (result.get("llm_analysis_markdown") or "").strip()
     if not md or md.lstrip().startswith("# Error"):
         return False
     if gemini_only:
@@ -152,7 +152,7 @@ def person_research_response_from_redis_cache(
         "profile_urls": profile_urls,
         "profiles": [],
         "posts_by_url": {},
-        "gemini_analysis_markdown": markdown.strip() or None,
+        "llm_analysis_markdown": markdown.strip() or None,
         "gemini_google_search_used": cached_payload.get("gemini_google_search_used"),
         "warnings": warnings,
     }

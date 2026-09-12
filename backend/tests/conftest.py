@@ -57,7 +57,6 @@ def entorno_de_pruebas():
             "DOSSIER_GENERATION_WORKER_ENABLED": "0",
             "DOSSIER_RETENTION_WORKER_ENABLED": "0",
             "DOSSIER_REDIS_ENABLED": "0",
-            "DOSSIER_ENABLE_LEGACY_OPEN_ROUTES": "0",
         }
     )
     yield

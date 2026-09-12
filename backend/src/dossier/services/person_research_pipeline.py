@@ -18,7 +18,7 @@ from dossier.cache.person_dossier_redis import (
     set_person_cached_payload,
 )
 from dossier.db.models import Dossier, Organization, User
-from dossier.gemini.analyze import normalize_person_report_text
+from dossier.llm.common import normalize_person_report_text
 from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.person_research import PersonResearchRequest
 from dossier.billing.credit_policy import (
@@ -109,7 +109,7 @@ def run_person_research_and_persist(
                 return
             result = nr
             elapsed_ms = int((time.perf_counter() - t_run) * 1000)
-            md_new = (result.get("gemini_analysis_markdown") or "").strip()
+            md_new = (result.get("llm_analysis_markdown") or "").strip()
             if should_cache_person_research_result(
                 result,
                 gemini_only=body.research_source.value == "gemini_web",
@@ -151,7 +151,7 @@ def run_person_research_and_persist(
         fp[:16],
     )
 
-    md = normalize_person_report_text((result.get("gemini_analysis_markdown") or "").strip())
+    md = normalize_person_report_text((result.get("llm_analysis_markdown") or "").strip())
     saved: dict[str, Any] | None = None
     now = datetime.now(timezone.utc)
     cache_row_key = person_cache_redis_key(fp) if cache_hit else None

@@ -39,7 +39,7 @@ def test_pdl_search_sql_covers_multiple_name_splits():
 
 def test_should_not_cache_pdl_without_profiles():
     result = {
-        "gemini_analysis_markdown": "# Informe",
+        "llm_analysis_markdown": "# Informe",
         "profiles": [],
     }
     assert not should_cache_person_research_result(result, gemini_only=False)
