@@ -514,7 +514,7 @@
       "id": "S1.6",
       "sprint": 1,
       "title": "Retirar la linea de implementacion no canonica y las rutas legadas",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A3",
@@ -528,7 +528,8 @@
       "trello": "https://trello.com/c/y0kAn8vh",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S1.7",
