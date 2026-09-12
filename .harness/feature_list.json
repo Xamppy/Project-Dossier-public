@@ -557,7 +557,7 @@
       "id": "S1.8",
       "sprint": 1,
       "title": "Implementar el cliente HTTP de la fuente europea",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -573,7 +573,8 @@
       "trello": "https://trello.com/c/4ZNQlFQF",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S1.9",
