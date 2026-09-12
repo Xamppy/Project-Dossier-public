@@ -762,7 +762,7 @@
       "id": "S3.1",
       "sprint": 3,
       "title": "Implementar el cliente del proveedor de noticias",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -778,7 +778,8 @@
       "trello": "https://trello.com/c/7hPbjEf6",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S3.2",
