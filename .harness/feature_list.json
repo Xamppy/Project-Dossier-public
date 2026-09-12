@@ -954,7 +954,7 @@
       "id": "S4.1",
       "sprint": 4,
       "title": "Implementar el esquema JSON estricto como modelos Pydantic",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -972,7 +972,8 @@
       "trello": "https://trello.com/c/7RjsQIvr",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.2",
