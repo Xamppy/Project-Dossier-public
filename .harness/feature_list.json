@@ -80,7 +80,7 @@
       "id": "S0.1",
       "sprint": 0,
       "title": "Inventario de modulos y contraste con Especificaciones v2.0",
-      "status": "review",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -91,7 +91,9 @@
       "blocks": [],
       "trello": "https://trello.com/c/kDXktuEq",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/inventario-modulos.md completado",
       "owner_session": "FO (agente)"
     },
@@ -99,7 +101,7 @@
       "id": "S0.2",
       "sprint": 0,
       "title": "Verificar y priorizar las cinco brechas con evidencia archivo:linea",
-      "status": "review",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -110,7 +112,9 @@
       "blocks": [],
       "trello": "https://trello.com/c/AcNDXXFw",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/gaps.md verificado con evidencia archivo:linea",
       "owner_session": "FO (agente)"
     },
@@ -139,7 +143,7 @@
       "id": "S0.4",
       "sprint": 0,
       "title": "Declarar la linea de implementacion canonica (DeepSeek / Gemini shim / OpenAI)",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -152,7 +156,9 @@
       ],
       "trello": "https://trello.com/c/2hy0vk0h",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0001-linea-llm-canonica.md completado",
       "owner_session": "FO (agente)"
     },
@@ -160,7 +166,7 @@
       "id": "S0.5",
       "sprint": 0,
       "title": "Evaluar modelos de lenguaje: DeepSeek vs GPT-4o vs GPT-5.6 Luna",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -171,7 +177,9 @@
       "blocks": [],
       "trello": "https://trello.com/c/fTIhZjbk",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0002-modelo-de-lenguaje.md completado",
       "owner_session": "FO (agente)"
     },
@@ -179,7 +187,7 @@
       "id": "S0.6",
       "sprint": 0,
       "title": "Evaluar fuentes de registros corporativos europeos - INICIAR SEMANA 1",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -192,7 +200,9 @@
       ],
       "trello": "https://trello.com/c/mrqb90ou",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0003-fuente-registros-europeos.md completado",
       "owner_session": "FO (agente)"
     },
@@ -200,7 +210,7 @@
       "id": "S0.7",
       "sprint": 0,
       "title": "Evaluar proveedores de busqueda de noticias",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -213,7 +223,9 @@
       ],
       "trello": "https://trello.com/c/x5iJJgie",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0004-proveedor-noticias.md completado",
       "owner_session": "FO (agente)"
     },
@@ -221,7 +233,7 @@
       "id": "S0.8",
       "sprint": 0,
       "title": "Evaluar proveedores de correo transaccional",
-      "status": "review",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A1",
@@ -234,7 +246,9 @@
       ],
       "trello": "https://trello.com/c/GUKBDLfd",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0005-proveedor-correo.md completado",
       "owner_session": "FO (agente)"
     },
@@ -242,7 +256,7 @@
       "id": "S0.9",
       "sprint": 0,
       "title": "Disenar el esquema JSON estricto del dossier",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -255,7 +269,9 @@
       ],
       "trello": "https://trello.com/c/ImetqLRF",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "specs/proposals/S0.9-esquema-json-dossier.md completado",
       "owner_session": "FO (agente)"
     },
@@ -263,7 +279,7 @@
       "id": "S0.10",
       "sprint": 0,
       "title": "Disenar ajustes al modelo de datos y estrategia de migracion",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -276,7 +292,9 @@
       ],
       "trello": "https://trello.com/c/MVWxRA34",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/estrategia-migracion-modelo-datos.md completado",
       "owner_session": "FO (agente)"
     },
@@ -284,7 +302,7 @@
       "id": "S0.11",
       "sprint": 0,
       "title": "Decidir el protocolo de estados progresivos (SSE vs WebSocket)",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -297,7 +315,9 @@
       ],
       "trello": "https://trello.com/c/0UXFjv4C",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados",
       "owner_session": "FO (agente)"
     },
@@ -305,7 +325,7 @@
       "id": "S0.12",
       "sprint": 0,
       "title": "Disenar la arquitectura del agente europeo y del agente de noticias",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -318,7 +338,9 @@
       ],
       "trello": "https://trello.com/c/W9um0U59",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "specs/proposals/S0.12-arquitectura-agentes-europa-noticias.md completado",
       "owner_session": "FO (agente)"
     },
@@ -326,7 +348,7 @@
       "id": "S0.13",
       "sprint": 0,
       "title": "Definir criterios de aceptacion por brecha priorizada",
-      "status": "review",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A2",
@@ -337,7 +359,9 @@
       "blocks": [],
       "trello": "https://trello.com/c/3RUQtMQa",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "docs/architecture/criterios-aceptacion-brechas.md completado",
       "owner_session": "FO (agente)"
     },
@@ -345,7 +369,7 @@
       "id": "S0.14",
       "sprint": 0,
       "title": "Construir el backlog priorizado en Trello",
-      "status": "review",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -356,7 +380,9 @@
       "blocks": [],
       "trello": "https://trello.com/c/H0nMakIV",
       "branch": null,
-      "evidence": [],
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
       "notes": "Backlog en Trello construido el 2026-09-07",
       "owner_session": "FO (agente)"
     },
@@ -364,7 +390,7 @@
       "id": "S0.15",
       "sprint": 0,
       "title": "Acordar alcance y calendario con el docente guia (receso de fin de ano)",
-      "status": "review",
+      "status": "pending",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -376,8 +402,8 @@
       "trello": "https://trello.com/c/Ibv8MVA2",
       "branch": null,
       "evidence": [],
-      "notes": "Riesgo R1 registrado y calendario acordado",
-      "owner_session": "FO (agente)"
+      "notes": "Revertida de review a pending: el criterio exige acuerdo POR ESCRITO con el docente guía sobre alcance, receso de fin de año y cambio de modelo comprometido (GPT-4o -> DeepSeek, ver ADR 0001/0002). Registrar el riesgo R1 no es acordarlo. Requiere reunión real, no puede cerrarla un agente.",
+      "owner_session": null
     },
     {
       "id": "S1.1",
@@ -658,7 +684,7 @@
       "trello": "https://trello.com/c/lfFvmsBi",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "ADR 0003 declara que el orquestador registrará agents_skipped para jurisdicciones no cubiertas. Esa columna NO existe en models.py (solo agents_activated y agents_failed). Requiere migración -> depende de S1.1, sin declarar en la ADR."
     },
     {
       "id": "S2.5",
@@ -983,7 +1009,7 @@
       "trello": "https://trello.com/c/KvzzlxAm",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "CRÍTICO antes de tocar dossier_data: el trigger de facturación que lee dossier_data->>'billing' (mencionado en dossier_routes.py:91 y en progress.md como hallazgo a preservar) NO aparece en Migracion.md ni en schema_patches.py. Los únicos triggers versionados son los de updated_at. Verificar si el trigger real vive solo en la BD de producción (fuera de control de versiones) antes de migrar el contrato JSON, o el descuento de créditos puede romperse silenciosamente."
     },
     {
       "id": "S4.4",
@@ -1136,7 +1162,7 @@
       "trello": "https://trello.com/c/3wVUVam1",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "Migracion.md:821-824 ya define el diseño de campos de auditoría (verbo HTTP + recurso, tipo de recurso: dossier/contact/user/billing/api_key). Partir de ese diseño en vez de diseñar de cero."
     },
     {
       "id": "S5.1",
@@ -1264,7 +1290,7 @@
       "trello": "https://trello.com/c/b40uAH4m",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "ADR 0005 asume ENCRYPTION_SECRET como 'clave maestra del entorno' para cifrar credenciales SMTP. Esa variable NO existe hoy (ni en código ni en .env.example). Hay que crearla y decidir gestión/rotación antes de implementar."
     },
     {
       "id": "S5.7",

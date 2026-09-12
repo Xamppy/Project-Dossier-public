@@ -8,6 +8,47 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · Revisión del Sprint 0 · EQ (agente, segunda sesión)
+
+**Hecho.** Revisión de las 14 tareas de Sprint 0 en `review` (commit `a3c45b6`), contra el
+código real, no contra lo que las ADRs dicen de sí mismas. Reporte completo en
+`specs/reports/sprint0-verificacion.md`.
+
+- **13 tareas → `done`**: S0.1, S0.2, S0.4 a S0.14. ADR 0001 verificada línea por línea contra
+  el código y exacta. Argumento de SSE (ADR 0006) correcto: `new WebSocket()` no admite headers,
+  por eso SSE con `Authorization: Bearer` es la elección sensata.
+- **S0.15 → vuelve a `pending`**: su criterio exige acuerdo POR ESCRITO con el docente guía.
+  Registrar el riesgo R1 no es acordarlo. No delegable a un agente.
+- **ADR 0002 corregida**: precio de GPT-5.6 Luna no coincidía con la Guía de Fase 1 (0,20/1,20
+  USD por millón). Se corrigió para no divergir del documento comprometido ante la comisión.
+- **Cuatro hallazgos anotados** en las tareas que los heredan (no bloquean Sprint 0, pero hay
+  que resolverlos al llegar a esas tareas):
+  - **S2.4**: ADR 0003 menciona `agents_skipped`, columna que no existe en `models.py`
+  - **S5.6**: ADR 0005 asume `ENCRYPTION_SECRET`, variable que no existe en el proyecto
+  - **S4.10**: `Migracion.md:821-824` ya diseña campos de auditoría, nadie lo usó como base
+  - **S4.3**: el más importante — el trigger de facturación (`dossier_data->>'billing'`) que
+    `dossier_routes.py:91` menciona en un comentario **no aparece en ningún esquema
+    versionado** (`Migracion.md`, `schema_patches.py`, `docs/sql/`). O vive solo en la base de
+    producción fuera de control de versiones, o el comentario está obsoleto. Debe resolverse
+    ANTES de empezar S4.3, no al llegar a ella: si se migra el contrato de `dossier_data` sin
+    saber dónde vive ese trigger, el descuento de créditos puede romperse en silencio.
+
+**Sin terminar.** S0.15 sigue pendiente de una reunión real con el docente guía. S0.3 (línea
+base de deuda técnica) sigue en `pending`: sin ella, Sprint 0 no cierra del todo aunque el resto
+esté en verde.
+
+**Lo que hay que saber.** El patrón de esta sesión es el que vale para todo el proyecto: una
+ADR bien escrita y bien argumentada puede aun así citar algo que no existe en el código. Verificar
+contra el repositorio, no contra la prosa del documento, es lo que la fase 5 de SDD existe para
+hacer. Ninguno de los cuatro hallazgos invalida las decisiones tomadas; todos son "falta
+conectar esto antes de construir sobre ello".
+
+**Siguiente paso concreto.** Agendar la reunión de S0.15. En paralelo, Sprint 1 ya puede
+arrancar: S1.1 (migraciones Alembic) y S1.8 (cliente HTTP de la fuente europea, que no depende
+de S0.15).
+
+**Rama.** `FO` · **Estado.** listo para commit
+
 ### 2026-09-09 · Sprint 0 Diagnóstico, ADRs y Especificaciones · FO (agente)
 
 **Hecho.** Completado el paquete completo de decisiones arquitectónicas y especificaciones del Sprint 0:
