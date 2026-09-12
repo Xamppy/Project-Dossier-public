@@ -8,6 +8,70 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S4.8 · FO (agente)
+
+**Hecho.** Canal SSE de estados progresivos, `GET
+/dossier-generation-jobs/{id}/stream`, siguiendo `specs/proposals/S0.11-protocolo-estados-progresivos.md`
+pero sobre la arquitectura real de hoy (worker en background thread, mismo proceso que la API,
+sondeo de Postgres cada 2s — no hay Redis pub/sub ni cola de eventos):
+
+- `services/dossier_progress_events.py`: bus de eventos en memoria por job (deque acotado a
+  200, dedup por contenido). Documentado como válido para un solo proceso; si el servicio pasa
+  a varios dynos hace falta Redis.
+- `services/dossier_progress_stream.py`: generador de frames SSE puro, sin FastAPI ni DB
+  (`fetch_job` es cualquier callable). Traduce cambios de `status` a `job_status` /
+  `job_completed` / `job_failed`, heartbeat cada 15s (CA4), resincronización por
+  `Last-Event-ID` sin duplicar el estado ya visto (CA3).
+- `api/dossier_stream_routes.py`: reutiliza `get_current_user_and_org` y el mismo aislamiento
+  404 (no 403) que `api/dossier_job_routes.py` ya usaba — desviación deliberada del "403" que
+  dibujaba la spec, a favor de la convención real del repo (no revela que el job existe en otra
+  organización).
+
+**Infra nueva para todo el repo, no solo esta tarea:** arreglé `tests/conftest.py` — el fixture
+`sin_red` bloqueaba también el socketpair de loopback que `asyncio` abre internamente en
+Windows, así que **ninguna prueba con `TestClient` podía correr en este entorno**, con o sin
+esta tarea. Ahora permite loopback (127.0.0.1/::1/localhost) y sigue bloqueando todo lo demás
+(prueba propia: `test_sin_red_permite_loopback.py`). Esto habilita
+`tests/integration/` (ya prevista en `docs/dev/testing-policy.md §3`, nadie la había usado) con
+`TestClient` + `dependency_overrides`, sin necesitar Postgres real.
+
+19 pruebas nuevas: unitarias del bus de eventos y del generador, integración (200 +
+`text/event-stream` real), seguridad (401 sin token, 404 por organización ajena, 404 por
+usuario ajeno en la misma organización, 404 por job inexistente), y estrés (buffer acotado con
+10 000 eventos, 50 jobs publicando concurrentemente sin cruzarse, 20 streams concurrentes hasta
+estado terminal). Suite completa: 108 en verde, 13 en espera.
+
+**Sin terminar — brecha documentada, no resuelta.** **CA2 de la spec (`agent_progress`
+por-agente, <500ms) no está implementado.** El pipeline LangGraph
+(`corporate_dossier_graph.py`, `calendar_event_dossiers.py`, `person_research_pipeline.py`) no
+publica progreso interno hoy: solo hay una fila de Postgres con `status` de
+queued/running/completed/failed. Dar granularidad por agente exige instrumentar esos nodos para
+llamar a `publish_if_changed`, que es un cambio bastante más grande que "el canal en sí" y toca
+código que S4.9 ("emitir resultados parciales cuando un agente falla") también va a tocar.
+Quien retome S4.9 o S5.1 debería decidir si instrumenta ahí o abre una tarea aparte.
+
+**Lo que hay que saber.**
+- **`db.expire_all()` antes de cada `db.get()` en el poll loop es obligatorio.** Sin eso,
+  SQLAlchemy devuelve el objeto cacheado en el identity map y el stream nunca ve cambios de
+  estado reales — un bug silencioso fácil de no notar porque los tests con `_FakeSession` no lo
+  habrían detectado (no usan SQLAlchemy real). Si alguien reescribe `fetch_job`, no quitar esa
+  línea.
+- **El fix de `sin_red` es genérico, no específico de SSE**: cualquier tarea futura que necesite
+  `TestClient` (probablemente S5.x de frontend/backend integrado, o S6.8 pruebas de seguridad
+  en CI) ya lo tiene disponible.
+- **La numeración de eventos se reinicia si el job llega a estado terminal y luego alguien
+  vuelve a publicar para ese mismo `job_id`** (`forget()` limpia el contador). No pasa en la
+  práctica porque un job terminal no debería volver a cambiar de estado, pero si algo lo
+  reutiliza, un cliente con un `Last-Event-ID` viejo no notará el reinicio (ver
+  `test_termina_en_estado_terminal_y_limpia_el_bus`).
+
+**Siguiente paso concreto.** S3.1 (cliente del proveedor de noticias) — última tarea del orden
+acordado para esta sesión.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · S4.1 · FO (agente)
 
 **Hecho.** Implementado `DossierExecutivePayload` en

@@ -1111,7 +1111,7 @@
       "id": "S4.8",
       "sprint": 4,
       "title": "Implementar el canal de estados progresivos en el servicio",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1126,9 +1126,11 @@
         "S5.1"
       ],
       "trello": "https://trello.com/c/ht5AxvMH",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py"
+      ],
+      "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. agent_progress por-agente (CA2) no implementado: requiere instrumentar LangGraph.",
       "owner_session": "FO (agente)"
     },
     {
