@@ -8,6 +8,58 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S1.6 · FO (agente)
+
+**Hecho.** Ejecutada la acción pendiente de ADR 0001 (línea LLM canónica).
+
+- Eliminado `backend/src/dossier/gemini/` (shim); sus cinco importadores
+  (`companies_house/cli.py`, `sec_edgar/cli.py`, `calendar_event_dossiers.py`,
+  `person_research_pipeline.py`, `corporate_registry_context.py`) ahora leen directo de
+  `dossier.llm.common` y `dossier.llm.document_analyze`.
+- Eliminados `services/openai_dossier.py`, `DOSSIER_LEGACY_OPENAI` y la ruta
+  `GET /generar-dossier`.
+- Eliminados `security/legacy_routes.py`, `DOSSIER_ENABLE_LEGACY_OPEN_ROUTES` y
+  `api/google_calendar.py` completo: su única ruta (`POST
+  /calendario/generar-dossier-google`, sin JWT) no tenía llamador en el frontend ni en
+  pruebas; el flujo real es `/calendario/generar-dossiers-google` (con JWT, ya existente).
+- Renombrado `gemini_analysis_markdown` → `llm_analysis_markdown` (backend y frontend) y
+  `_node_synthesize_gemini`/`"synthesize_gemini"` → `_node_synthesize_llm`/`"synthesize_llm"`
+  en el grafo corporativo y en los reportes de agentes activados/fallidos.
+- Prueba nueva `backend/tests/test_llm_canonical_line.py`: escanea `backend/src` y
+  `frontend/src` en busca de los tokens retirados y verifica que las rutas/módulos legados
+  no existan. Roja antes del cambio (13 fallos), verde después.
+- Borrado `backend/tests/test_legacy_routes.py` (probaba el módulo que este commit elimina).
+
+**Sin terminar.** Nada de S1.6. Verificado con la suite completa: 60 en verde, 13 en espera
+(sin regresiones frente a las 49+13 previas). `qa.py` sin bloqueos, dos avisos preexistentes
+(falta prueba en `tests/security/` para el cambio en `security/` —la baja de
+`legacy_routes.py` sí tiene su prueba, pero `qa.py` no distingue eliminación de omisión— y
+`frontend/node_modules` no instalado en este worktree).
+
+**Lo que hay que saber.**
+- **Este worktree no traía `backend/.venv`.** Lo creé desde cero
+  (`python -m venv .venv` + `pip install -r requirements.txt -r requirements-dev.txt`) y
+  faltaba `msal` en el entorno hasta instalarlo. Cada worktree nuevo necesita este paso;
+  no es compartido entre `mako`, `main` y el checkout original.
+- **No toqué las variables `GEMINI_*` de análisis de documentos** (`GEMINI_API_KEY`,
+  `GEMINI_MODEL`, `gemini_google_search_used`, `PersonResearchSource.gemini_web`, el
+  `"gemini"` en `data_sources_used`, las funciones `_gemini_*` de
+  `corporate_registry_context.py`). Son la integración real con la API de Gemini para
+  análisis de documentos/búsqueda web, una capacidad distinta de la línea de síntesis de
+  texto que ADR 0001 reemplazó por DeepSeek. Confundirlas sería revertir una decisión que
+  nadie tomó.
+- **La rama `FO` ya traía Sprint 0 resuelto** (commits `a3c45b6` y `b27d168`): 13 de 14
+  tareas en `done`, seis ADRs y las especificaciones de S0.9/S0.11/S0.12 ya escritas. Quien
+  retome S1.8, S1.9, S4.1 o S4.8 puede partir de esos documentos en
+  `docs/architecture/decisions/` y `specs/proposals/` sin rehacerlos.
+
+**Siguiente paso concreto.** S1.9 (modelo común de registro corporativo UK/US/EU), después
+S1.8 (cliente HTTP europeo) — en ese orden porque S1.8 va a usar el modelo que define S1.9.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · Revisión del Sprint 0 · EQ (agente, segunda sesión)
 
 **Hecho.** Revisión de las 14 tareas de Sprint 0 en `review` (commit `a3c45b6`), contra el

@@ -514,7 +514,7 @@
       "id": "S1.6",
       "sprint": 1,
       "title": "Retirar la linea de implementacion no canonica y las rutas legadas",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A3",
@@ -526,9 +526,11 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/y0kAn8vh",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_llm_canonical_line.py"
+      ],
+      "notes": "Retirado gemini/, openai_dossier.py, legacy_routes.py y sus rutas. Prueba test_llm_canonical_line.py cubre backend y frontend.",
       "owner_session": "FO (agente)"
     },
     {
