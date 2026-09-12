@@ -8,6 +8,44 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S4.1 · FO (agente)
+
+**Hecho.** Implementado `DossierExecutivePayload` en
+`backend/src/dossier/schemas/dossier_executive_payload.py`, siguiendo la spec ya aprobada
+`specs/proposals/S0.9-esquema-json-dossier.md` (no hizo falta escribir spec nueva). Incluye
+`SourceCitation`, `RiskAlert`, `ConversationStarter`, `CareerPosition`, `PressMention`, y el
+envoltorio de compatibilidad `LegacyMarkdownDossier` + `parse_dossier_payload()` para dossiers
+históricos `{"format": "markdown", "body": "..."}`.
+
+**Desviación deliberada del diseño original:** en vez de duplicar el `CorporateRegistryRecord`
+que la spec dibujaba, los registros corporativos reutilizan `RegistroCorporativo` (S1.9)
+envuelto en `CorporateRecordCitation` (agrega la cita de origen obligatoria que CA3 exige;
+`RegistroCorporativo` deja esa cita opcional a propósito porque también se usa suelto en otros
+contextos, como el cliente `eu_registry`).
+
+9 pruebas nuevas cubren las cuatro CA de la spec: payload completo válido, campos requeridos
+faltantes (`executive_summary`, `conversation_starters`), tope de 3 rompehielos, 0 alertas
+válido, `PressMention`/`CorporateRecordCitation` sin `source` fallan, y el dossier histórico se
+normaliza sin error. Suite completa: 85 en verde, 13 en espera.
+
+**Sin terminar.** Nada de S4.1. **No** se tocó el prompt de síntesis (S4.2) ni las columnas de
+Postgres (S4.5): el pipeline sigue guardando `{"format": "markdown", ...}` como antes, este
+esquema todavía no se usa en ningún lado del código de producción.
+
+**Lo que hay que saber.**
+- **Pydantic v2, no v1.** La spec S0.9 estaba escrita con `regex=` y `max_items=` (sintaxis v1);
+  el proyecto ya usa Pydantic 2.13. Se tradujo a `pattern=` y `max_length=`. Si alguien copia
+  código de esa spec literalmente para otra tarea, va a fallar igual.
+- **`parse_dossier_payload()` es solo el detector de formato**, no un migrador. No convierte
+  Markdown a la estructura nueva; eso seguiría siendo trabajo de S4.4 ("compatibilidad de
+  lectura para dossiers históricos") si hace falta más que "no explotar al leerlo".
+
+**Siguiente paso concreto.** S4.8 (canal de estados progresivos SSE).
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · S1.8 · FO (agente)
 
 **Hecho.** Cliente HTTP europeo en `backend/src/dossier/eu_registry/client.py`, mismo patrón

@@ -954,7 +954,7 @@
       "id": "S4.1",
       "sprint": 4,
       "title": "Implementar el esquema JSON estricto como modelos Pydantic",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -970,9 +970,11 @@
         "S4.7"
       ],
       "trello": "https://trello.com/c/7RjsQIvr",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_dossier_executive_payload.py"
+      ],
+      "notes": "DossierExecutivePayload en dossier/schemas/dossier_executive_payload.py, siguiendo la spec S0.9; corporate_records reutiliza RegistroCorporativo (S1.9) via CorporateRecordCitation.",
       "owner_session": "FO (agente)"
     },
     {
