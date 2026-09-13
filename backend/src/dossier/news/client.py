@@ -73,7 +73,8 @@ def search_newsapi_articles(query: str, *, limite: int = 10) -> list[dict[str, A
     try:
         resp = requests.get(
             NEWSAPI_SEARCH_URL,
-            params={"q": q, "pageSize": max(1, min(limite, 100)), "apiKey": api_key},
+            params={"q": q, "pageSize": max(1, min(limite, 100))},
+            headers={"X-Api-Key": api_key},
             timeout=DEFAULT_TIMEOUT,
         )
         resp.raise_for_status()

@@ -62,10 +62,11 @@ def test_busca_en_newsapi_devuelve_articles(monkeypatch, respuesta_fija):
     monkeypatch.setenv("NEWS_API_KEY", "clave-de-prueba")
     payload = {"status": "ok", "articles": [{"title": "Nota", "url": "https://ejemplo.com"}]}
 
-    def fake_get(url, params=None, timeout=None):
+    def fake_get(url, params=None, headers=None, timeout=None):
         assert url == client.NEWSAPI_SEARCH_URL
         assert params["q"] == "Ana Perez"
-        assert params["apiKey"] == "clave-de-prueba"
+        assert "apiKey" not in params
+        assert headers["X-Api-Key"] == "clave-de-prueba"
         return respuesta_fija(payload)
 
     monkeypatch.setattr(client.requests, "get", fake_get)
