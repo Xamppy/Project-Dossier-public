@@ -8,6 +8,39 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-12 · S3.1 · FO (agente)
+
+**Hecho.** Cliente HTTP del proveedor de noticias (ADR 0004): `backend/src/dossier/news/client.py`
+con `search_gdelt_articles` (GDELT DOC 2.0, fuente base, sin API key, ventana de 30 días) y
+`search_newsapi_articles` (conector secundario, requiere `NEWS_API_KEY`). Mismo patrón y misma
+responsabilidad acotada que `eu_registry/client.py` (S1.8): solo fetch + parseo del JSON crudo,
+sin normalizar. Deduplicar entre proveedores es S3.2, filtrar homónimos S3.3, registrar
+procedencia completa S3.4 — ninguno de los tres toca este módulo.
+
+9 pruebas nuevas (`tests/test_news_client.py`) siguiendo el estilo de
+`test_eu_registry_client.py`: query vacía no llama a la red, error HTTP se traduce a
+`ProveedorNoticiasError`, forma de respuesta inesperada es error, y NewsAPI sin
+`NEWS_API_KEY` configurada es error explícito (no lista vacía silenciosa). Suite completa:
+117 en verde, 13 en espera.
+
+**Sin terminar.** Nada de esta tarea — el alcance es solo el cliente. Sin verificar en vivo
+contra la red real (igual que S1.8 con Alemania): las pruebas mockean `requests.get`.
+
+**Lo que hay que saber.**
+- El query que exige el ADR (`'"Nombre" AND "Empresa"'`) se compone en el llamador, no en el
+  cliente — mismo criterio que `eu_registry` (funciones toman `query: str` ya armado) y que
+  `companies_house`/`sec_edgar`. Quien construya S3.2 arma esa cadena antes de llamar.
+- `search_newsapi_articles` lanza error si falta `NEWS_API_KEY` en vez de devolver `[]`:
+  deliberado, para que S3.2 pueda distinguir "no hay suscripción configurada" de "no hay
+  resultados" y decidir si cae solo a GDELT o marca la fuente como no disponible.
+
+**Siguiente paso concreto.** S3.2 (agente de noticias con deduplicación) — combina
+`search_gdelt_articles` y `search_newsapi_articles`, dedup por URL/título.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-12 · S4.8 · FO (agente)
 
 **Hecho.** Canal SSE de estados progresivos, `GET

@@ -762,7 +762,7 @@
       "id": "S3.1",
       "sprint": 3,
       "title": "Implementar el cliente del proveedor de noticias",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -776,9 +776,12 @@
         "S3.2"
       ],
       "trello": "https://trello.com/c/7hPbjEf6",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/news/client.py",
+        "backend/tests/test_news_client.py"
+      ],
+      "notes": "Cliente GDELT DOC 2.0 + NewsAPI (ADR 0004), mismo patron que eu_registry/client.py (S1.8). Solo fetch+parseo crudo; dedup/homonimos/procedencia quedan para S3.2-S3.4.",
       "owner_session": "FO (agente)"
     },
     {
