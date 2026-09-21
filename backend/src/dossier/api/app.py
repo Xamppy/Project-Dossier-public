@@ -35,8 +35,8 @@ from dossier.api.auth_routes import (
 )
 from dossier.api.integrations_routes import router as integrations_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
+from dossier.api.dossier_stream_routes import router as dossier_stream_router
 from dossier.api.dossier_routes import router as dossiers_router
-from dossier.api.google_calendar import router as google_calendar_router
 from dossier.cache.corporate_dossier_redis import (
     dossier_corporate_redis_health,
     warmup_corporate_dossier_redis,
@@ -45,7 +45,6 @@ from dossier.config import PROJECT_ROOT, load_env
 from dossier.db import is_database_configured
 from dossier.db.connection import get_engine
 from dossier.db.models import Organization, User
-from dossier.security.legacy_routes import assert_legacy_route_allowed
 from dossier.security.jwt_tokens import (
     create_google_oauth_state,
     create_microsoft_oauth_state,
@@ -54,7 +53,7 @@ from dossier.security.jwt_tokens import (
 )
 from dossier.schemas.calendar_dossier import CalendarGenerarDossiersBody
 from dossier.org_dossier_context import format_dossier_context_for_prompt
-from dossier.services import generar_dossier_ejecutivo, listar_reuniones, obtener_reunion_por_id
+from dossier.services import listar_reuniones, obtener_reunion_por_id
 from dossier.services.calendar_event_dossiers import (
     generate_dossiers_from_calendar_event,
     persist_calendar_dossiers,
@@ -220,8 +219,8 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(dossiers_router)
 app.include_router(dossier_jobs_router)
+app.include_router(dossier_stream_router)
 app.include_router(integrations_router)
-app.include_router(google_calendar_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
@@ -1314,20 +1313,6 @@ def api_generar_dossiers_desde_google_calendar_post(
     return {
         "total": len(dossiers),
         "dossiers": dossiers,
-    }
-
-
-@app.get("/generar-dossier")
-def api_generar_dossier(tema: str, participantes: str, descripcion: str = ""):
-    """Genera un dossier con IA a partir de tema y participantes (legacy; desactivado por defecto)."""
-    assert_legacy_route_allowed()
-    informe = generar_dossier_ejecutivo(tema, participantes, descripcion)
-
-    return {
-        "tema": tema,
-        "participantes": participantes,
-        "descripcion": descripcion,
-        "dossier_generado": informe,
     }
 
 

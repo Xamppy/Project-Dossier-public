@@ -8,7 +8,7 @@ import requests
 
 from dossier.companies_house.prompt_templates import format_sec_filing_gemini_prompt
 from dossier.config import data_path, load_env
-from dossier.gemini.analyze import analyze_document_bytes
+from dossier.llm.document_analyze import analyze_document_bytes
 
 USER_AGENT = "CarlosApp/1.0 (fduran@utem.cl)"
 MIN_INTERVAL_SECONDS = 0.1

@@ -38,7 +38,7 @@ from dossier.cache.person_dossier_redis import (
 )
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
 from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
-from dossier.gemini.analyze import normalize_person_report_text
+from dossier.llm.common import normalize_person_report_text
 from dossier.services.person_research_config import default_person_research_source
 from dossier.services.person_dossier_dedup import (
     person_research_fingerprint,
@@ -611,7 +611,7 @@ def _person_research_from_cache_or_pipeline(
                 output_language=out_lang,
             )
             result = nr
-            md_new = (nr.get("gemini_analysis_markdown") or "").strip()
+            md_new = (nr.get("llm_analysis_markdown") or "").strip()
             if should_cache_person_research_result(
                 nr,
                 gemini_only=req.research_source == PersonResearchSource.gemini_web,
@@ -719,7 +719,7 @@ def _generate_one_person_dossier(
             )
             person_cache_hit = False
             person_cache_key = None
-        out["md"] = (person_payload.get("gemini_analysis_markdown") or "").strip() or None
+        out["md"] = (person_payload.get("llm_analysis_markdown") or "").strip() or None
         out["payload"] = person_payload
         out["cache_hit"] = person_cache_hit
         out["cache_key"] = person_cache_key
@@ -1068,8 +1068,8 @@ def persist_calendar_dossiers(
                 "calendar_folder_role": "corporate",
                 "output_language": output_lang,
             },
-            agents_activated=["agent_corporate_uk", "agent_corporate_usa", "synthesize_gemini"],
-            agents_failed=(["synthesize_gemini"] if is_err else []),
+            agents_activated=["agent_corporate_uk", "agent_corporate_usa", "synthesize_llm"],
+            agents_failed=(["synthesize_llm"] if is_err else []),
             data_sources_used=["companies_house", "sec_edgar", "sec_company_facts", "gemini"],
             generation_started_at=now,
             generation_completed_at=now,
