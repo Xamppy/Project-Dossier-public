@@ -8,6 +8,111 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-23 · S1.7 · FD (agente)
+
+**Hecho.** `docs/dev/local-setup.md`: guía completa de arranque (prerrequisitos, backend,
+base de datos —con Alembic o SQL a mano—, frontend, verificación y problemas conocidos).
+De paso, corregido un hallazgo que arrastraba el proyecto desde la auditoría del
+07-09-2026: `docs/sql/schema_project_dossier.sql` estaba vacío (0 bytes) pese a que el
+README lo cita como el SQL a aplicar — repoblado con el DDL completo de `Migracion.md`.
+README.md actualizado para enlazar la guía nueva y no apuntar a un archivo vacío.
+
+**Sin terminar.** Nada de esta tarea específicamente.
+
+**Lo que hay que saber.** El SQL vacío era exactamente el tipo de cosa que solo se nota al
+intentar seguir la guía al pie de la letra — si alguien vuelve a tocar `docs/sql/` o
+`Migracion.md`, hay que mantener ambos sincronizados a mano (no hay generación automática
+entre ellos).
+
+**Siguiente paso concreto.** Ninguno pendiente de esta tarea.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.5 · FD (agente)
+
+**Hecho.** `.github/workflows/ci.yml`: job `backend` (ruff + mypy + pytest --cov) y job
+`frontend` (eslint + vitest + next build), en `push`/`pull_request` a `main`, sin
+`continue-on-error` en ningún paso. Posible recién ahora porque S1.3 dejó ruff y mypy en 0
+errores — antes, la CI habría nacido fallando en cada commit.
+
+**Sin terminar.** No se pudo probar corriendo de verdad en GitHub Actions (sesión local, sin
+push, pedido explícito del dueño del repo). Tampoco se configuró la regla de protección de
+rama en GitHub (Settings → Branches → Require status checks) que es la que de verdad
+impide el merge con el check en rojo — eso requiere push y permisos de administrador en
+GitHub, fuera del alcance de esta sesión.
+
+**Lo que hay que saber.** El archivo es válido (verificado con PyYAML) pero nunca se ejecutó
+contra runners reales de GitHub — quien haga el primer push debería revisar el primer run
+completo por si algo del entorno de CI (versiones exactas de Python/Node en `ubuntu-latest`,
+por ejemplo) se comporta distinto al venv local usado en esta sesión.
+
+**Siguiente paso concreto.** Tras el primer push: revisar que el workflow corra en verde, y
+configurar la regla de protección de rama en `main`.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.4 · FD (agente)
+
+**Hecho.** `backend/requirements.txt` y `requirements-dev.txt` fijados a versiones exactas
+(`==`), resueltas y ya probadas en el venv de S0.3. `frontend/package.json`: `next`
+16.2.6 → 16.3.6, cerrando las 3 CVEs críticas medidas en S0.3 (confirmado con `npm audit`:
+0 vulnerabilidades de `next` después del cambio).
+
+**Sin terminar.** Quedan 2 críticas + 6 altas en `vitest`/`@vitest/coverage-v8` — pero son
+dependencias de **testing**, no van a producción. No se forzó el upgrade (a vitest 5,
+versión mayor) porque `npm install` sobre esta carpeta —montada en red desde Windows—
+falla de forma intermitente (`ENOTEMPTY` al instalar paquetes con binarios nativos, p. ej.
+`sharp`), y sin poder correr la suite de tests de forma confiable no había manera segura de
+verificar que un cambio mayor de vitest no rompiera algo.
+
+**Lo que hay que saber.** `frontend/package.json` ya usaba versiones exactas para
+`next`/`react`/`react-dom`; el resto de dependencias sigue con `^`, pero el proyecto ya
+tiene `package-lock.json`, que es el mecanismo real de reproducibilidad de npm — equivalente
+a lo que a `requirements.txt` le faltaba (no tenía ningún lock file).
+
+**Siguiente paso concreto.** Desde una máquina con el proyecto en disco local (no en red):
+intentar `npm audit fix --force` (sube vitest a 5) y correr `npm test` para confirmar que
+nada se rompió antes de aceptar el cambio.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.3 · FD (agente)
+
+**Hecho.** `ruff check src/dossier`: 169 → 0 errores (167 automáticos con `--fix`; 23×
+`BLE001` marcados `# noqa: BLE001` con una razón corta cada uno — son límites de
+resiliencia deliberados: caché Redis que se degrada sin caer, llamadas a SEC/Companies
+House/DeepSeek que no deben tumbar el flujo, parsers tolerantes de respuestas OAuth;
+ninguno se reescribió a una excepción más específica porque angostarlo sí habría sido un
+cambio de comportamiento). `mypy src/dossier`: 45 → 0 errores — se agregó el plugin
+`pydantic.mypy` a `pyproject.toml` (resolvió 8 de un tiro: sin él, mypy no entiende los
+defaults de `BaseModel` y marca argumentos opcionales como "faltantes"); el resto, firmas
+corregidas donde el tipo declarado no reflejaba lo que la función realmente acepta/devuelve,
+o `# type: ignore` puntual y justificado donde la librería externa es más estricta de lo
+que el uso real requiere. `pytest` antes y después: idéntico, 113/4/13 — sin regresiones.
+
+**Sin terminar.** Los 4 tests en rojo de `test_credit_policy.py` (ya estaban así desde
+S0.3) quedan fuera a propósito — corregirlos junto con el análisis estático habría
+mezclado análisis estático con cambio funcional en el mismo commit (regla de
+`handoff.md` §8).
+
+**Lo que hay que saber.** Quien toque de nuevo alguno de los archivos con `# noqa: BLE001`
+o `# type: ignore` debería leer la razón en el propio comentario antes de "limpiarlo" — cada
+uno está ahí porque el catch genérico o la imprecisión de tipo es deliberada, no un
+descuido.
+
+**Siguiente paso concreto.** Investigar y corregir los 4 tests en rojo de
+`test_credit_policy.py` — no tiene tarea `S` asignada todavía en `feature_list.json`.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
 ### 2026-09-23 · S1.1 · FD (agente)
 
 **Hecho.** Alembic adoptado (`backend/alembic/`, `alembic.ini`, `env.py`) y migración de línea

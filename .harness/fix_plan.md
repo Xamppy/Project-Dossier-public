@@ -126,6 +126,12 @@ trabajo futuro si no se abordan.
   comparen contra los modelos — mientras este hallazgo no se corrija, un autogenerate comparará
   contra metadata incompleta y puede proponer *borrar* las ~9 tablas y los 9 triggers reales que
   el ORM no conoce. No tomar `--autogenerate` a ciegas hasta que los modelos se completen.
+- **4 pruebas en rojo en `test_credit_policy.py`.** Preexistentes desde antes de S0.3 (medidas
+  igual el 07-09-2026 y de nuevo el 23-09-2026, sin cambios): `test_person_research_cost_is_one_credit`,
+  `test_assert_sufficient_credits_insufficient_raises_402`,
+  `test_calendar_estimate_corporate_plus_two_persons`, `test_calendar_estimate_person_only`.
+  No investigadas a fondo todavía — quedaron fuera de **S1.3** a propósito (esa tarea es solo
+  análisis estático, no corrección funcional). Sin tarea `S` asignada.
 - **`gemini/` como shim.** El README lo declara shim de compatibilidad hacia `llm/`, pero la
   clave `gemini_analysis_markdown` sigue viva en el pipeline. S0.4 debe decidir si el shim se
   retira o se documenta como permanente. Mientras tanto, el nombre confunde a quien lee el código.
