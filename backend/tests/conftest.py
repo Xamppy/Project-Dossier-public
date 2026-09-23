@@ -46,8 +46,23 @@ def entorno_de_pruebas():
     Deliberadamente NO se fija `DOSSIER_CHARGE_CREDITS`: por omisión el cobro
     está activo y las pruebas de `test_credit_policy.py` verifican justamente
     eso. Apagarlo aquí las volvería verdes sin probar nada.
+
+    "No fijarla" no basta por sí solo: `dossier.api.app` llama `load_env()` a
+    nivel de módulo (línea de import), y algunas pruebas (p. ej.
+    `tests/integration/test_dossier_stream_route.py`,
+    `tests/security/test_dossier_stream_seguridad.py`) importan ese módulo.
+    pytest importa todos los módulos de prueba en la fase de recolección,
+    antes de que este fixture corra siquiera una vez — así que si el `.env`
+    real del desarrollador trae `DOSSIER_CHARGE_CREDITS=false` (como en
+    `backend/.env`, pensado para demos), `load_dotenv()` ya la dejó en
+    `os.environ` antes de este punto, y quedaba ahí para el resto de la
+    sesión. Por eso `test_credit_policy.py` pasaba solo mientras que fallaba
+    dentro de la suite completa: dependía de qué otro archivo se hubiera
+    importado antes. Se quita explícitamente para garantizar el "no fijada"
+    que el docstring ya prometía, venga de donde venga.
     """
     previo = dict(os.environ)
+    os.environ.pop("DOSSIER_CHARGE_CREDITS", None)
     os.environ.update(
         {
             "JWT_SECRET": "clave-solo-para-pruebas-no-usar-en-produccion",
