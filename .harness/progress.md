@@ -8,6 +8,92 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-23 · S1.1 · FD (agente)
+
+**Hecho.** Alembic adoptado (`backend/alembic/`, `alembic.ini`, `env.py`) y migración de línea
+base (`versions/a3f1c9e2b7d4_baseline_migracion_md.py`) escrita a mano desde el DDL completo de
+`db/Migracion.md`: 19 tablas, 2 vistas, 9 triggers/funciones (incluye el trigger real de cobro de
+créditos sobre `dossiers`), más los parches ya vigentes de `db/schema_patches.py` (reutilizando
+ese módulo, no duplicando su texto). Probada de punta a punta contra un Postgres temporal
+(`pgserver`, venv aislado 3.12 en `/tmp/audit-venv`): `upgrade` crea el esquema completo, un
+insert de organización/usuario/dossier confirma que el trigger descuenta créditos y escribe el
+ledger correctamente, `downgrade` limpia todo sin dejar tablas. Commit local `f5b3bf4`.
+
+**Sin terminar.** No se generó por `alembic revision --autogenerate` — ver "Lo que hay que saber".
+Falta correr la migración contra la base Postgres real del proyecto (no se pudo desde esta sesión:
+el puente al dispositivo llega a un contenedor Linux separado, sin acceso al `localhost:5432` de
+Windows donde corre la Postgres real). Alguien con acceso directo a esa base debe correr
+`alembic upgrade head` y confirmar que coincide con el esquema ya existente (debería ser un no-op
+si la base ya tiene el esquema de `Migracion.md` + `schema_patches.py` aplicado a mano).
+
+**Lo que hay que saber.** Los modelos ORM (`db/models.py`) solo declaran ~10 de las 19 tablas
+reales y cero triggers — confirmado cruzando con el SQL crudo que `account_service.py` ya hace
+contra `credit_ledger`/`dossier_alerts` porque no hay modelo para esas tablas. `alembic/env.py`
+usa `Base.metadata` (los modelos) como `target_metadata`. Mientras ese desfase no se corrija, un
+futuro `alembic revision --autogenerate` comparará contra metadata incompleta y puede proponer
+*borrar* las ~9 tablas y los 9 triggers que el ORM no conoce — **no correr `--autogenerate` a
+ciegas**. Hallazgo completo en `fix_plan.md` → Hallazgos sin tarea asignada.
+
+**Siguiente paso concreto.** Asignar tarea para sincronizar `db/models.py` con `Migracion.md`
+(agregar las ~9 tablas y mapear los triggers, al menos como comentario/documentación ya que
+SQLAlchemy no modela triggers de DB). Después de eso, correr `alembic upgrade head` contra la base
+real para confirmarla como no-op.
+
+**Rama.** `main` (commits locales directos, sin rama por tarea — sesión en modo simplificado
+pedido por el dueño del repo, sin push). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.2 · FD (agente)
+
+**Hecho.** `backend/pyproject.toml` con `[tool.ruff]` (select E,F,I,UP,B,BLE,SIM,C4,PIE,RUF;
+ignore B008/E501/RUF001-003) y `[tool.mypy]` (`explicit_package_bases`, `check_untyped_defs`,
+`ignore_missing_imports`, `warn_unused_ignores`, `warn_redundant_casts`). Corre limpio: `ruff
+check` y `mypy src/dossier` ejecutan con esta config sin errores de configuración. Commit local
+`664edc4`.
+
+**Sin terminar.** Corregir lo que la config reporta (192 errores de ruff, ~44-45 de mypy) es
+**S1.3**, deliberadamente fuera de esta tarea — no mezclar análisis estático con cambio funcional
+en el mismo PR (regla del `handoff.md`, riesgo R4 de `fix_plan.md`).
+
+**Lo que hay que saber.** Las cifras de ruff/mypy con esta config ya están medidas y quedaron como
+evidencia de **S0.3**, así que S1.3 puede arrancar directo sobre la lista en vez de tener que
+remedirla.
+
+**Siguiente paso concreto.** S1.3: corregir los 192 errores de ruff y ~44-45 de mypy, en un commit
+separado de cualquier cambio funcional.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S0.3 · FD (agente)
+
+**Hecho.** Línea base de deuda técnica medida en sesión local (venv aislado Python 3.12, ya que
+el backend requiere ≥3.11 y el entorno de la sesión traía 3.10): `pytest` → 130 pruebas (113 en
+verde, 4 en rojo, 13 en espera), cobertura 33%; `mypy src/dossier` → ~44-45 errores en 14
+archivos; `ruff check src/dossier` (con la config de S1.2) → 192 errores; `pip-audit --local` →
+sin vulnerabilidades conocidas en las dependencias de Python resueltas; `npm audit` (frontend) →
+**3 vulnerabilidades críticas** en `next@16.2.6` (variantes de RCE no autenticado / bypass de
+middleware), fix disponible en `next@16.3.6`.
+
+**Sin terminar.** Las cifras de pytest/mypy no cambiaron respecto a la auditoría del 07-09-2026
+(misma base de código, sirve de validación cruzada). El hallazgo nuevo es la severidad *crítica*
+de las CVEs de Next.js, que la auditoría anterior no había caracterizado así. No se actualizó
+Next.js en esta sesión — queda como hallazgo urgente sin tarea propia (ver `fix_plan.md`).
+
+**Lo que hay que saber.** Los 4 tests en rojo y el resto de esta línea base no se investigaron a
+fondo (estaba fuera del alcance de "medir", no "arreglar"); quien tome una tarea que dependa de
+S0.3 (**S1.4**, **S7.5**) debería revisar cuáles son los 4 antes de asumir que no le tocan.
+
+**Siguiente paso concreto.** Decidir si la actualización de Next.js se hace como parte de **S1.4**
+(fijar versiones) o se abre como tarea de seguridad aparte — es más urgente que el resto de esa
+tarea.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
 ### 2026-09-12 · S3.1 · FO (agente)
 
 **Hecho.** Cliente HTTP del proveedor de noticias (ADR 0004): `backend/src/dossier/news/client.py`

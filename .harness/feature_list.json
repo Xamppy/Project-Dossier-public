@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-09-07",
+  "updated": "2026-09-23",
   "status_values": [
     "pending",
     "claimed",
@@ -122,7 +122,7 @@
       "id": "S0.3",
       "sprint": 0,
       "title": "Medir linea base de deuda tecnica (pytest, cobertura, pip-audit, npm audit)",
-      "status": "pending",
+      "status": "review",
       "owner": "FD",
       "area": "quality",
       "activity": "A1",
@@ -136,8 +136,15 @@
       ],
       "trello": "https://trello.com/c/IAK805QL",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "pytest: 130 pruebas (113 en verde, 4 en rojo, 13 en espera) -- backend/",
+        "cobertura: 33% (pytest --cov) -- backend/",
+        "mypy backend/src/dossier: ~44-45 errores en 14 archivos",
+        "ruff check backend/src/dossier: 192 errores (sin corregir; corresponde a S1.3, no a esta tarea)",
+        "pip-audit --local (backend, venv aislado py3.12): sin vulnerabilidades conocidas en las dependencias resueltas",
+        "npm audit (frontend): 3 vulnerabilidades CRITICAS en next@16.2.6 (RCE no autenticado / bypass de middleware) -- fix disponible: next@16.3.6. Ver nota abajo, no estaba en el informe anterior con esta severidad."
+      ],
+      "notes": "Medido en sesion local (sin push), venv aislado en 3.12 para reproducir. Cifras de pytest/mypy coinciden con la auditoria previa del 2026-09-07 (misma base de codigo). Hallazgo nuevo respecto a esa auditoria: la severidad critica de las 3 CVEs de Next.js 16.2.6 -- ver hallazgo sin tarea asignada en fix_plan.md. Bloquea S1.4 y S7.5 (declarado); revisar sus criterios de aceptacion contra estas cifras antes de tomarlas."
     },
     {
       "id": "S0.4",
@@ -409,7 +416,7 @@
       "id": "S1.1",
       "sprint": 1,
       "title": "Adoptar Alembic y generar la migracion de linea base",
-      "status": "pending",
+      "status": "review",
       "owner": "FD",
       "area": "db",
       "activity": "A3",
@@ -424,14 +431,19 @@
       ],
       "trello": "https://trello.com/c/nNXCbjyN",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "backend/alembic/ + alembic.ini (commit f5b3bf4 feat(db)) -- Alembic adoptado",
+        "backend/alembic/versions/a3f1c9e2b7d4_baseline_migracion_md.py -- migracion de linea base escrita a mano desde db/Migracion.md completo (no desde db/models.py, ver notas)",
+        "Probada de punta a punta contra Postgres temporal (pgserver): upgrade crea 19 tablas + 2 vistas + 9 triggers/funciones; insert de organizacion/usuario/dossier confirma que trg_debit_credits + trg_credit_ledger_after_dossier_insert descuentan creditos y registran el ledger correctamente (10 -> 7 en dossier 'standard'); downgrade elimina todo sin dejar tablas",
+        "Incluye tambien los parches ya vigentes de db/schema_patches.py (dossier_shares, org_invites, columnas nuevas), reutilizando ese modulo para no duplicar su contenido"
+      ],
+      "notes": "No se genero por autogenerate: los modelos ORM (db/models.py) solo declaran ~10 de las 19 tablas reales y cero triggers -- ver hallazgo sin tarea asignada en fix_plan.md ('db/models.py desincronizado de Migracion.md'), que S1.1 deja documentado pero no corrige. env.py usa Base.metadata como target_metadata para futuros autogenerate; mientras ese hallazgo no se resuelva, un autogenerate comparara contra metadata incompleta y podria proponer borrar tablas reales -- no correr --autogenerate a ciegas hasta corregirlo. Commit local unico, sin PR (sesion en modo local simplificado)."
     },
     {
       "id": "S1.2",
       "sprint": 1,
       "title": "Introducir pyproject.toml con ruff y mypy",
-      "status": "pending",
+      "status": "review",
       "owner": "FD",
       "area": "quality",
       "activity": "A3",
@@ -447,8 +459,14 @@
       ],
       "trello": "https://trello.com/c/34m08r3A",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "backend/pyproject.toml (commit 664edc4feat(quality)) -- [tool.ruff] y [tool.mypy] configurados",
+        "ruff select = E,F,I,UP,B,BLE,SIM,C4,PIE,RUF; ignore B008 (Depends() de FastAPI), E501, RUF001-003 (tipografia en espanol)",
+        "mypy: explicit_package_bases, check_untyped_defs, ignore_missing_imports, warn_unused_ignores, warn_redundant_casts",
+        "ruff check backend/src/dossier: 192 errores detectados con esta config (correccion es S1.3, fuera de alcance de esta tarea)",
+        "mypy backend/src/dossier: ~44-45 errores detectados con esta config (correccion es S1.3)"
+      ],
+      "notes": "La configuracion existe y corre; corregir los errores que reporta es S1.3, deliberadamente fuera de esta tarea (ver docs/dev, regla de no mezclar analisis estatico con cambio funcional). Commit local unico, sin PR (sesion en modo local simplificado)."
     },
     {
       "id": "S1.3",
