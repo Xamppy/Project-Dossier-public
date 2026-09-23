@@ -4,7 +4,7 @@ shape que ``graph_calendar.normalizar_evento`` para reutilizar dossiers.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from urllib.parse import quote
 
 import requests
@@ -22,7 +22,7 @@ def _headers(access_token: str) -> dict[str, str]:
 
 
 def _iso_z(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _get(access_token: str, params: dict) -> dict:
@@ -79,7 +79,7 @@ def listar_reuniones_google(
     incluir_pasadas: bool = False,
 ) -> list[dict]:
     """Lista eventos del calendario principal, normalizados."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if incluir_pasadas:
         time_min = now - timedelta(days=min(90, dias_adelante))
         time_max = now + timedelta(days=dias_adelante)
@@ -133,7 +133,7 @@ def diagnostico_google_calendar(access_token: str) -> dict:
     except requests.RequestException as e:
         resultado["errors"].append(f"GET calendars/primary → {e}")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     try:
         params = {
             "timeMin": _iso_z(now - timedelta(days=7)),

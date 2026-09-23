@@ -45,10 +45,7 @@ def default_depth_for_plan(plan: str | None) -> DossierDepth:
 
 def normalize_depth_for_plan(plan: str | None, raw: str | None) -> DossierDepth:
     depth = (raw or default_depth_for_plan(plan)).strip().lower()
-    if depth in DEPTH_CREDITS:
-        candidate = depth  # type: ignore[assignment]
-    else:
-        candidate = default_depth_for_plan(plan)
+    candidate = depth if depth in DEPTH_CREDITS else default_depth_for_plan(plan)
     if plan_allows_depth(plan, candidate):
         return candidate
     return "basic"

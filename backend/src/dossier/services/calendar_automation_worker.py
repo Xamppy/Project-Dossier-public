@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Callable
+from collections.abc import Callable
 
 from dossier.db.connection import is_database_configured
 from dossier.db.session import _factory

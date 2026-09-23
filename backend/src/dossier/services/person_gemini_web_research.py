@@ -7,7 +7,7 @@ y del conocimiento del modelo (sin grounding en buscadores externos).
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from dossier.config import load_env
@@ -62,7 +62,7 @@ def _build_user_prompt(
 ) -> str:
     strings = person_web_research_strings(output_language)
     not_indicated = strings["not_indicated"]
-    fecha = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    fecha = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     nombre = _fv(filters, "full_name", not_indicated)
     nombre_fmt = _name_title_case_words(nombre)
     empresa = _fv(filters, "company", not_indicated)

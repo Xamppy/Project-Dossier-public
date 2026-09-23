@@ -3,20 +3,20 @@ from __future__ import annotations
 
 import os
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from dossier.db.models import OrgInvite, OrgMembership, Organization, User
 from dossier.api_errors import (
     INVITE_WRONG_DOMAIN,
     INVITES_WORKSPACE_ONLY,
     OrgApiError,
     org_api_http_detail,
 )
+from dossier.db.models import Organization, OrgInvite, OrgMembership, User
 from dossier.org_email_domain import email_matches_org_domain, ensure_org_email_domain, read_org_email_domain
 from dossier.org_workspace import read_workspace_kind
 from dossier.security.rbac import normalize_org_role
@@ -38,10 +38,10 @@ def _normalize_email(email: str) -> str:
 
 
 def _invite_is_expired(invite: OrgInvite, now: datetime | None = None) -> bool:
-    ts = now or datetime.now(timezone.utc)
+    ts = now or datetime.now(UTC)
     exp = invite.expires_at
     if exp.tzinfo is None:
-        exp = exp.replace(tzinfo=timezone.utc)
+        exp = exp.replace(tzinfo=UTC)
     return ts > exp
 
 
@@ -104,7 +104,7 @@ def add_user_to_organization(
 
 
 def list_org_invites(db: Session, *, organization_id: UUID) -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rows = db.execute(
         select(OrgInvite)
         .where(
@@ -175,7 +175,7 @@ def create_org_invite(
             make_primary=read_workspace_kind(org) == "work",
         )
         # Marca invitación aceptada de forma inmediata (auditoría).
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         invite = OrgInvite(
             organization_id=org.id,
             email=email_norm,
@@ -207,7 +207,7 @@ def create_org_invite(
                 detail="Ya existe una invitación pendiente para ese correo.",
             )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     invite = OrgInvite(
         organization_id=org.id,
         email=email_norm,
@@ -307,7 +307,7 @@ def accept_org_invite(
         make_primary=make_primary,
     )
     invite.status = "accepted"
-    invite.accepted_at = datetime.now(timezone.utc)
+    invite.accepted_at = datetime.now(UTC)
     db.add(invite)
     return org, membership
 
@@ -324,7 +324,7 @@ def accept_org_invite_for_register(
 
 def list_pending_invites_for_email(db: Session, *, email: str) -> list[dict]:
     email_norm = _normalize_email(email)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rows = db.execute(
         select(OrgInvite, Organization)
         .join(Organization, Organization.id == OrgInvite.organization_id)

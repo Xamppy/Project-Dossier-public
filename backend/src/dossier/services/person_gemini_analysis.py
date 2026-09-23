@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from dossier.llm.text_generate import generate_text_with_llm
+from dossier.services.lusha_profile_facts import format_lusha_verified_facts_block
 from dossier.services.person_analysis_prompts import (
     format_meeting_context_block,
     person_dossier_system_prompt,
 )
-from dossier.services.lusha_profile_facts import format_lusha_verified_facts_block
 from dossier.services.person_dossier_locales import (
     person_bundle_user_header,
     person_bundle_user_instructions,
@@ -44,7 +44,7 @@ def _build_user_prompt(
     enrichment_provider: str = "lusha",
     output_language: str = "es",
 ) -> str:
-    fecha = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    fecha = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     cabecera = _header_line(filters)
     reunion_block = format_meeting_context_block(meeting_context, output_language)
     verified_block = format_lusha_verified_facts_block(

@@ -219,7 +219,7 @@ def _sec_filing_tier_for_gemini_pick(form: str) -> int:
         return 3
     if u in ("DEF 14A", "DEFA14A", "PRE 14A"):
         return 5
-    if u.startswith("S-1") or u.startswith("F-1") or u.startswith("424B"):
+    if u.startswith(("S-1", "F-1", "424B")):
         return 8
     if u.startswith("8-K"):
         return 22
@@ -369,7 +369,7 @@ def _build_sec_company_facts_markdown(cik: str) -> str:
     url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
     try:
         payload = _sec_get_json(url)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - fuente externa opcional (SEC): degrada con texto informativo
         logger.warning("SEC companyfacts CIK=%s: %s", cik, e)
         return (
             "\n\n### Indicadores financieros públicos (cifras reportadas por el emisor)\n\n"
@@ -466,7 +466,7 @@ def _ch_gemini_filing_markdown(
             + (analysis.strip() or "(Sin texto en el resumen del documento.)")
             + "\n"
         )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - fuente externa (DeepSeek): degrada con texto informativo
         logger.warning("DeepSeek CH filing analysis failed: %s", e)
         if _is_gemini_429_or_quota(e):
             return (
@@ -559,19 +559,19 @@ def _sec_gemini_filing_markdown(
         try:
             idx_url = build_index_url(cik, acc_s)
             index_data = _sec_get_json(idx_url)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - fuente externa opcional (SEC): se omite este filing y continua
             logger.info("SEC index.json omitido accession=%s: %s", acc_s, e)
             continue
         doc_name = find_main_document(index_data, symbol_hint=symbol_hint)
         if not doc_name:
             continue
         low = str(doc_name).lower()
-        if not (low.endswith(".htm") or low.endswith(".html")):
+        if not low.endswith((".htm", ".html")):
             continue
         try:
             final_url = build_document_url(cik, acc_s, str(doc_name))
             raw = _sec_fetch_bytes(final_url)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - fuente externa opcional (SEC): se omite este documento y continua
             logger.warning("SEC documento omitido %s: %s", doc_name, e)
             continue
         chosen_form, chosen_date, chosen_acc = form_s, date_s, acc_s
@@ -621,7 +621,7 @@ def _sec_gemini_filing_markdown(
             + (analysis.strip() or "(Sin texto en el resumen del documento.)")
             + "\n"
         )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - fuente externa (DeepSeek): degrada con texto informativo
         logger.warning("DeepSeek SEC filing analysis failed: %s", e)
         if _is_gemini_429_or_quota(e):
             return (

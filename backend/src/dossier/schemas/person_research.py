@@ -1,13 +1,13 @@
 """Solicitud para informe de persona (PDL + IA o solo búsqueda web)."""
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
 
-class PersonResearchSource(str, Enum):
+class PersonResearchSource(StrEnum):
     """Origen de la investigación (elige uno en cada petición)."""
 
     gemini_web = "gemini_web"

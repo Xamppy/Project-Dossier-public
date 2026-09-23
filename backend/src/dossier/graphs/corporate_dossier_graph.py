@@ -113,13 +113,13 @@ def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
 def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
     """Síntesis LLM (DeepSeek) según alcance UK / US / dual."""
     from dossier.llm.text_generate import generate_text_with_llm
-    from dossier.services.output_language import (
-        apply_output_language_to_system_prompt,
-        normalize_output_language,
-    )
     from dossier.services.dossier_prompt_locales import (
         corporate_dossier_delivery_instructions,
         corporate_dual_scope_note,
+    )
+    from dossier.services.output_language import (
+        apply_output_language_to_system_prompt,
+        normalize_output_language,
     )
 
     tema = state.get("tema_reunion", "").strip()
@@ -239,7 +239,7 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
         err = f"Error en la síntesis del informe: {e}"
         return {
             "final_dossier_markdown": f"# Error en síntesis\n\n{err}",
-            "agent_errors": state.get("agent_errors", []) + [err],
+            "agent_errors": [*state.get("agent_errors", []), err],
         }
 
     return {"final_dossier_markdown": texto}

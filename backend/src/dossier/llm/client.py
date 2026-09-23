@@ -72,7 +72,7 @@ def chat_completion(
         try:
             response = client.chat.completions.create(
                 model=m,
-                messages=messages,
+                messages=messages,  # type: ignore[arg-type]  # dict plano vs TypedDicts del SDK
                 timeout=timeout,
             )
             choice = response.choices[0] if response.choices else None

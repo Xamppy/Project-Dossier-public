@@ -5,7 +5,7 @@ from typing import Any
 
 from dossier.schemas.person_research import PersonResearchRequest
 from dossier.services.pdl_client import PdlApiError, PdlClient, pdl_error_message
-from dossier.services.pdl_contact_parse import pdl_person_from_enrich, pdl_people_from_search
+from dossier.services.pdl_contact_parse import pdl_people_from_search, pdl_person_from_enrich
 from dossier.services.pdl_search import build_pdl_enrich_strategies, build_pdl_search_sql
 from dossier.services.person_profile_lookup import extract_profile_urls
 
@@ -154,9 +154,7 @@ def fetch_pdl_profiles(
                     "http_status": e.status,
                     "provider": "pdl",
                 })
-                if e.status == 401:
-                    warnings.append(pdl_error_message(e))
-                elif e.status == 402:
+                if e.status == 401 or e.status == 402:
                     warnings.append(pdl_error_message(e))
                 elif e.status == 404:
                     continue

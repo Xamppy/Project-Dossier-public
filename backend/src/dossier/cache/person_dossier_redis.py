@@ -45,7 +45,7 @@ def get_person_cached_payload(fingerprint_hex: str) -> dict[str, Any] | None:
         if not isinstance(data, dict) or not data.get("markdown"):
             return None
         return data
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
         logger.warning("Redis GET dossier persona: %s", e)
         return None
 
@@ -60,7 +60,7 @@ def set_person_cached_payload(fingerprint_hex: str, payload: dict[str, Any]) -> 
             redis_ttl_seconds(),
             json.dumps(payload, ensure_ascii=False),
         )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
         logger.warning("Redis SETEX dossier persona: %s", e)
 
 
@@ -71,6 +71,6 @@ def run_with_person_cache_lock(fingerprint_hex: str, fn) -> Any:
     try:
         with r.lock(_person_lock_key(fingerprint_hex), timeout=300, blocking_timeout=120):
             return fn()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin lock
         logger.warning("Redis lock dossier persona: %s. Ejecutando sin lock.", e)
         return fn()

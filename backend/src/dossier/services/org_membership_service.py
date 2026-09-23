@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from dossier.db.models import OrgMembership, Organization, User
+from dossier.db.models import Organization, OrgMembership, User
 from dossier.security.rbac import normalize_org_role
 
 ASSIGNABLE_ORG_ROLES: frozenset[str] = frozenset({"admin", "user", "viewer"})

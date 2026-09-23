@@ -5,7 +5,7 @@ import logging
 import os
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -15,9 +15,15 @@ from sqlalchemy.orm import Session
 
 from dossier.api.auth_routes import (
     OrgAuthContext,
-    get_org_auth_context,
     get_db_if_configured,
+    get_org_auth_context,
     require_mutator,
+)
+from dossier.billing.credit_policy import assert_sufficient_credits, person_research_credit_cost
+from dossier.billing.entitlements import (
+    assert_corporate_dossier_allowed,
+    assert_depth_allowed,
+    corporate_dossier_module_flags,
 )
 from dossier.cache.corporate_dossier_redis import (
     build_corporate_cache_key_hash,
@@ -28,52 +34,46 @@ from dossier.cache.corporate_dossier_redis import (
     run_with_corporate_cache_lock,
     set_corporate_cached_markdown,
 )
-from dossier.db.models import Dossier, Organization, User
-from dossier.org_dossier_context import format_dossier_context_for_prompt
+from dossier.db.models import Dossier, Organization
 from dossier.graphs.corporate_dossier_graph import (
     JurisdictionScope,
     infer_jurisdiction_scope,
     run_corporate_dossier_langgraph,
 )
+from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.dossier_generation import (
     DEPTH_CREDITS,
     CreateCorporateDossierRequest,
     build_corporate_generation_strings,
 )
-from dossier.billing.credit_policy import assert_sufficient_credits, person_research_credit_cost
+from dossier.schemas.dossier_share import DossierShareCreate
 from dossier.schemas.person_research import PersonResearchRequest
-from dossier.billing.entitlements import (
-    assert_corporate_dossier_allowed,
-    assert_depth_allowed,
-    corporate_dossier_module_flags,
-)
+from dossier.security.rbac import normalize_org_role
+from dossier.services.calendar_event_dossiers import calendar_meeting_summary_from_dossier_data
 from dossier.services.corporate_company_search import search_corporate_company_candidates
-from dossier.services.person_research_pipeline import run_person_research_and_persist
-from dossier.services.dossier_generation_job_service import enqueue_person_research_job
-from dossier.services.output_language import effective_output_language, normalize_output_language
-from dossier.utils.html_text import strip_html_to_plain_line
 from dossier.services.dossier_deletion_service import (
     delete_dossier_record,
     delete_dossiers_in_folder,
     finalize_dossier_deletions,
 )
-from dossier.services.calendar_event_dossiers import calendar_meeting_summary_from_dossier_data
 from dossier.services.dossier_folder_utils import (
     build_dossier_list_entries,
     serialize_dossier_list_item,
     serialize_folder,
+)
+from dossier.services.dossier_generation_job_service import enqueue_person_research_job
+from dossier.services.dossier_share_service import (
+    dossier_permissions_payload,
+    list_dossier_shares,
 )
 from dossier.services.dossier_visibility import (
     apply_dossier_visibility,
     get_visible_dossier_or_404,
     user_can_delete_dossier,
 )
-from dossier.schemas.dossier_share import DossierShareCreate
-from dossier.security.rbac import normalize_org_role
-from dossier.services.dossier_share_service import (
-    dossier_permissions_payload,
-    list_dossier_shares,
-)
+from dossier.services.output_language import effective_output_language
+from dossier.services.person_research_pipeline import run_person_research_and_persist
+from dossier.utils.html_text import strip_html_to_plain_line
 
 router = APIRouter(tags=["Dossiers"])
 logger = logging.getLogger(__name__)
@@ -258,7 +258,7 @@ def generate_corporate_dossier(
 
     elapsed_ms = 0 if cache_hit else int((time.perf_counter() - t0) * 1000)
     markdown = _append_corporate_org_context(markdown_neutral or "", org_ctx)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     is_err = markdown.lstrip().startswith("# Error")
     status = "failed" if is_err else "complete"
@@ -340,7 +340,7 @@ def get_dossier_folder(
         organization_id=org.id,
         role=role,
     ).order_by(Dossier.created_at.asc())
-    rows = db.execute(stmt).scalars().all()
+    rows = list(db.execute(stmt).scalars().all())
     if not rows:
         raise HTTPException(status_code=404, detail="Carpeta no encontrada.")
     return serialize_folder(rows)
@@ -529,21 +529,20 @@ def delete_dossier_folder(
     if not rows:
         raise HTTPException(status_code=404, detail="Carpeta no encontrada.")
 
-    if normalize_org_role(role) != "admin":
-        if not all(
-            user_can_delete_dossier(
-                db,
-                dossier=row,
-                user_id=user.id,
-                organization_id=org.id,
-                role=role,
-            )
-            for row in rows
-        ):
-            raise HTTPException(
-                status_code=403,
-                detail="No puedes eliminar una carpeta que contiene dossiers de otros usuarios.",
-            )
+    if normalize_org_role(role) != "admin" and not all(
+        user_can_delete_dossier(
+            db,
+            dossier=row,
+            user_id=user.id,
+            organization_id=org.id,
+            role=role,
+        )
+        for row in rows
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="No puedes eliminar una carpeta que contiene dossiers de otros usuarios.",
+        )
 
     deleted = delete_dossiers_in_folder(
         db,
@@ -602,7 +601,7 @@ def list_dossiers_for_org(
         organization_id=org.id,
         role=role,
     ).order_by(Dossier.created_at.desc()).limit(limit)
-    rows = db.execute(stmt).scalars().all()
+    rows = list(db.execute(stmt).scalars().all())
     user_tz = getattr(user, "timezone", None) or "UTC"
     return {
         "organization_id": str(org.id),

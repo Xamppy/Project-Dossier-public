@@ -4,8 +4,8 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from dossier.llm.common import normalize_person_report_text
 from dossier.llm.client import deepseek_api_key
+from dossier.llm.common import normalize_person_report_text
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
 from dossier.services.lusha_profile_facts import (
     merge_lusha_profiles_facts,

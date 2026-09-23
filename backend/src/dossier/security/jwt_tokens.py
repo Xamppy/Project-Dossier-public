@@ -8,7 +8,7 @@ en producción (nunca commitear en el repo).
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
@@ -38,12 +38,12 @@ def create_access_token(
     `role`: rol RBAC en la organización (`admin`, `user`, `viewer`).
     """
     minutes = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))  # 7 días por defecto
-    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
+    expire = datetime.now(UTC) + timedelta(minutes=minutes)
     payload: dict[str, Any] = {
         "sub": user_id,
         "email": email,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
     }
     if organization_id:
         payload["org_id"] = organization_id
@@ -63,13 +63,13 @@ def create_microsoft_oauth_state(*, user_id: str, organization_id: str) -> str:
     Vincula el flujo OAuth al usuario de la app (``sub``) y a su organización (``org_id``).
     Caducidad breve para reducir riesgo si el enlace filtra.
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    expire = datetime.now(UTC) + timedelta(minutes=15)
     payload: dict[str, Any] = {
         "purpose": "microsoft_oauth",
         "sub": user_id,
         "org_id": organization_id,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
     }
     return jwt.encode(payload, _secret(), algorithm="HS256")
 
@@ -87,13 +87,13 @@ def create_google_oauth_state(*, user_id: str, organization_id: str) -> str:
     Token corto (JWT) que Google devuelve en ``state`` al callback.
     Vincula el flujo OAuth al usuario de la app (``sub``) y a su organización (``org_id``).
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    expire = datetime.now(UTC) + timedelta(minutes=15)
     payload: dict[str, Any] = {
         "purpose": "google_oauth",
         "sub": user_id,
         "org_id": organization_id,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
     }
     return jwt.encode(payload, _secret(), algorithm="HS256")
 

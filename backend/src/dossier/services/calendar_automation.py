@@ -8,23 +8,21 @@ import logging
 import os
 import re
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session
 
+from dossier.billing.entitlements import plan_allows_automation
 from dossier.db.models import CalendarEvent, CalendarIntegration, Dossier, Organization, User
-from dossier.services.org_membership_service import active_organization_id_for_user
 from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.services.calendar_event_dossiers import (
     generate_dossiers_from_calendar_event,
     persist_calendar_dossiers,
 )
 from dossier.services.calendar_event_filters import calendar_event_passes_filters
-from dossier.billing.entitlements import plan_allows_automation
-from dossier.services.output_language import resolve_dossier_output_language_for_user
 from dossier.services.google_calendar_api import (
     listar_reuniones_google,
     obtener_reunion_google_por_id,
@@ -36,6 +34,8 @@ from dossier.services.graph_calendar import (
     obtener_reunion_por_id,
 )
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
+from dossier.services.org_membership_service import active_organization_id_for_user
+from dossier.services.output_language import resolve_dossier_output_language_for_user
 
 logger = logging.getLogger(__name__)
 
@@ -98,8 +98,8 @@ def parse_event_datetime(value: str | None) -> datetime | None:
     except ValueError:
         return None
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _attendees_from_participantes(participantes: str) -> list[dict[str, str]]:
@@ -175,7 +175,7 @@ def reschedule_user_calendar_events(
     advance_minutes: int,
 ) -> int:
     """Recalcula ``dossier_scheduled_at`` para reuniones futuras a?n no procesadas."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rows = db.execute(
         select(CalendarEvent).where(
             CalendarEvent.user_id == user_id,
@@ -240,7 +240,7 @@ def sync_calendar_events_for_integration(db: Session, integration: CalendarInteg
 
     try:
         reuniones = _list_upcoming_reuniones(integration, db)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - sync en background: un fallo no debe tumbar el worker
         logger.warning(
             "Sync calendario fall? user=%s provider=%s: %s",
             integration.user_id,
@@ -250,7 +250,7 @@ def sync_calendar_events_for_integration(db: Session, integration: CalendarInteg
         return 0
 
     advance = effective_advance_minutes(integration)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     touched = 0
     user = db.get(User, integration.user_id)
     org_id = _resolve_calendar_org_id(db, integration.user_id, integration)
@@ -354,7 +354,7 @@ def sync_calendar_events_for_integration(db: Session, integration: CalendarInteg
 
 
 def _mark_past_unprocessed_skipped(db: Session) -> int:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rows = db.execute(
         select(CalendarEvent).where(
             CalendarEvent.processing_status.in_(("scheduled", "detected")),
@@ -405,7 +405,7 @@ def _requeue_completed_without_dossiers(db: Session) -> int:
 
     No aplica a eventos en ``skipped`` (p. ej. dossier eliminado por el usuario).
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rows = db.execute(
         select(CalendarEvent).where(
             CalendarEvent.processing_status == "completed",
@@ -457,7 +457,7 @@ def suppress_calendar_event_if_no_dossiers_remain(
 
 def process_due_calendar_events(db: Session) -> dict[str, int]:
     """Genera dossiers para eventos cuya ventana de anticipación ya venció."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     stats = {"processed": 0, "failed": 0, "skipped": 0, "requeued": 0}
 
     stats["requeued"] = _requeue_completed_without_dossiers(db)

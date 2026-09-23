@@ -3,9 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
-
-from dossier.schemas.dossier_generation import DossierDepth
+from pydantic import BaseModel
 
 JobStatus = Literal["queued", "running", "completed", "failed", "cancelled"]
 CalendarJobProvider = Literal["microsoft", "google"]

@@ -17,7 +17,7 @@ import re
 import secrets
 from collections.abc import Generator
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -27,12 +27,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from dossier.api_errors import INVITES_WORKSPACE_ONLY, OrgApiError, org_api_http_detail
 from dossier.billing.plan_catalog import apply_plan_to_organization
 from dossier.db import is_database_configured
 from dossier.db.models import Organization, OrgMembership, User
 from dossier.db.session import get_db
 from dossier.org_dossier_context import apply_dossier_context_patch, read_dossier_context
-from dossier.api_errors import INVITES_WORKSPACE_ONLY, OrgApiError, org_api_http_detail
 from dossier.org_email_domain import ensure_org_email_domain
 from dossier.org_workspace import ORG_NAME_PERSONAL_PLACEHOLDER, read_workspace_kind
 from dossier.schemas.auth import (
@@ -70,6 +70,11 @@ from dossier.schemas.org_invite import (
 from dossier.security import create_access_token, hash_password, verify_password
 from dossier.security.jwt_tokens import decode_access_token
 from dossier.security.rbac import can_manage_organization, can_mutate_dossiers, normalize_org_role
+from dossier.services.account_service import (
+    change_user_email,
+    change_user_password,
+    delete_user_account,
+)
 from dossier.services.dossier_retention import normalize_dossier_retention_days
 from dossier.services.dossier_share_service import list_org_members
 from dossier.services.org_invite_service import (
@@ -85,11 +90,6 @@ from dossier.services.org_membership_service import (
     list_org_members_for_management,
     remove_org_member,
     update_org_member_role,
-)
-from dossier.services.account_service import (
-    change_user_email,
-    change_user_password,
-    delete_user_account,
 )
 
 router = APIRouter(prefix="/auth", tags=["Autenticación app"])
@@ -247,7 +247,8 @@ def load_session_membership(
     for org, membership in rows:
         if membership.is_primary_org:
             return org, membership
-    return rows[0]
+    fallback_org, fallback_membership = rows[0]
+    return fallback_org, fallback_membership
 
 
 def build_user_public(
@@ -591,7 +592,7 @@ def login_user(body: LoginRequest, db: Session = Depends(get_db_if_configured)) 
         )
     org, membership = pair
 
-    user.last_login_at = datetime.now(timezone.utc)
+    user.last_login_at = datetime.now(UTC)
     db.add(user)
     db.commit()
     db.refresh(user)

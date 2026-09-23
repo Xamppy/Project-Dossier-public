@@ -7,15 +7,15 @@ guardados como ``{"format": "markdown", "body": "..."}``.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
-from typing import Any, Union
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from dossier.schemas.corporate_registry import RegistroCorporativo
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
     companies_house = "companies_house"
     sec_edgar = "sec_edgar"
     eu_registry = "eu_registry"
@@ -35,7 +35,7 @@ class SourceCitation(BaseModel):
     record_id: str | None = Field(None, description="Company Number, CIK, SIREN, etc.")
 
 
-class RiskSeverity(str, Enum):
+class RiskSeverity(StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
@@ -99,7 +99,7 @@ class LegacyMarkdownDossier(BaseModel):
     body: str
 
 
-def parse_dossier_payload(data: dict[str, Any]) -> Union[DossierExecutivePayload, LegacyMarkdownDossier]:
+def parse_dossier_payload(data: dict[str, Any]) -> DossierExecutivePayload | LegacyMarkdownDossier:
     """Normaliza ``dossier_data`` (nuevo esquema o envoltorio histórico) sin lanzar error de formato.
 
     CA4: un dossier histórico en Markdown se reconoce por ``format == "markdown"``

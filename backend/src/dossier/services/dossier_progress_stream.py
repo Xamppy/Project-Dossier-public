@@ -75,9 +75,9 @@ def stream_job_events(
     if job is None:
         return
     status = job.get("status")
-    seq = publish_if_changed(job_id, _event_name_for_status(status), job)
-    if seq is not None:
-        yield sse_frame(_event_name_for_status(status), job, seq)
+    new_seq = publish_if_changed(job_id, _event_name_for_status(status), job)
+    if new_seq is not None:
+        yield sse_frame(_event_name_for_status(status), job, new_seq)
         last_sent = clock()
     if status in TERMINAL_STATUSES:
         forget(job_id)
@@ -97,9 +97,9 @@ def stream_job_events(
         if job is None:
             return
         status = job.get("status")
-        seq = publish_if_changed(job_id, _event_name_for_status(status), job)
-        if seq is not None:
-            yield sse_frame(_event_name_for_status(status), job, seq)
+        new_seq = publish_if_changed(job_id, _event_name_for_status(status), job)
+        if new_seq is not None:
+            yield sse_frame(_event_name_for_status(status), job, new_seq)
             last_sent = clock()
         if status in TERMINAL_STATUSES:
             forget(job_id)

@@ -28,7 +28,7 @@ def _database_url_for_sqlalchemy(url: str) -> str:
     Este proyecto usa **psycopg3** (`pip install psycopg[binary]`).
     """
     u = url.strip()
-    if u.startswith("postgresql+psycopg://") or u.startswith("postgresql+asyncpg://"):
+    if u.startswith(("postgresql+psycopg://", "postgresql+asyncpg://")):
         return u
     if u.startswith("postgres://"):
         return "postgresql+psycopg://" + u[len("postgres://") :]

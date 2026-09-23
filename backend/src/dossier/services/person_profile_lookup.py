@@ -32,10 +32,7 @@ def extract_profile_urls(payload: Any, *, max_urls: int = 8) -> list[str]:
         if not u.startswith("http"):
             return
         low = u.lower()
-        if "linkedin.com" in low and ("/in/" in low or "/pub/" in low):
-            seen.add(u)
-            found.append(u)
-        elif "linkedin.com" in low:
+        if ("linkedin.com" in low and ("/in/" in low or "/pub/" in low)) or "linkedin.com" in low:
             seen.add(u)
             found.append(u)
 
