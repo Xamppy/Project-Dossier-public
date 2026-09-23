@@ -14,16 +14,11 @@ import { useAuthMe } from "@/hooks/useAuthMe";
 import {
   DossierApiError,
   deleteDossierFromApi,
-  getStoredAccessToken,
   readDossierUserPreview,
   type DossierDetailResponse,
   type PersonResearchApiResponse,
 } from "@/lib/dossier-api";
-import { resolveDossierOutputLanguage } from "@/lib/resolve-output-language";
-import {
-  buildPersonResearchHref,
-  buildPersonResearchPayloadFromDossier,
-} from "@/lib/person-research-from-dossier";
+import { buildPersonResearchHref } from "@/lib/person-research-from-dossier";
 import { stripHtmlToPlainLine } from "@/lib/strip-html";
 import { useDossierJobs } from "@/providers/DossierJobsProvider";
 import { useTranslation } from "@/providers/PreferencesProvider";
@@ -108,7 +103,7 @@ export default function CorporateDossierDetailView({ dossier }: Props) {
   const { t, preferences } = useTranslation();
   const { user } = useAuthMe();
   const router = useRouter();
-  const { enqueuePersonResearchJob, cancelJob, getActivePersonJob, jobs } = useDossierJobs();
+  const { cancelJob, getActivePersonJob, jobs } = useDossierJobs();
   const [deleting, setDeleting] = useState(false);
   const [deleteErr, setDeleteErr] = useState<string | null>(null);
   const [regenerateErr, setRegenerateErr] = useState<string | null>(null);
@@ -138,6 +133,7 @@ export default function CorporateDossierDetailView({ dossier }: Props) {
     const job = jobs.find((j) => j.id === activeJobId);
     if (!job) return;
     if (job.status === "completed" && job.result) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el estado local con el job en curso rastreado por DossierJobsProvider (sistema externo); no depende de una llamada asincrona propia de este efecto.
       setActiveJobId(null);
       setRegenerating(false);
       const saved = (job.result as PersonResearchApiResponse).saved_dossier?.id;
@@ -191,36 +187,11 @@ export default function CorporateDossierDetailView({ dossier }: Props) {
   const statusFailed = dossier.status === "failed" || meta.success === false;
   const statusMsg = translateDossierStatusMessage(dossier.status_message, t);
 
-  async function handleRegeneratePerson() {
-    if (!isPersonPipeline || isRegenerating) return;
-    setRegenerateErr(null);
-    if (!getStoredAccessToken()) {
-      setRegenerateErr(t("person_research.error_auth"));
-      return;
-    }
-    const payload = buildPersonResearchPayloadFromDossier(
-      dossier,
-      resolveDossierOutputLanguage(preferences),
-      { forceRefresh: true, replaceDossierId: dossier.id },
-    );
-    if (!payload) {
-      setRegenerateErr(t("person_research.error_name"));
-      return;
-    }
-    setRegenerating(true);
-    try {
-      const jobId = await enqueuePersonResearchJob(payload);
-      setActiveJobId(jobId);
-    } catch (e) {
-      setRegenerating(false);
-      setRegenerateErr(
-        e instanceof DossierApiError
-          ? translateApiErrorMessage(e, t)
-          : t("generate.error.api"),
-      );
-    }
-  }
-
+  // handleRegeneratePerson se retiró: no estaba conectado a ningún control de la
+  // interfaz -- el flujo de "regenerar" para el pipeline de personas navega a
+  // /person-research con datos precargados (ver refineHrefForDossier más abajo),
+  // no reenvía el job desde esta vista. Código muerto detectado por eslint
+  // (no-unused-vars) al corregir los errores de análisis estático del frontend.
   async function handleCancelRegenerate() {
     if (!activeJob?.id) return;
     setRegenerateErr(null);

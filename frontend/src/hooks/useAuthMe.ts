@@ -58,6 +58,7 @@ export function useAuthMe(): AuthMeState {
   useEffect(() => {
     let cancelled = false;
     if (!getStoredAccessToken()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- corta segun el token de sesion (sistema externo: localStorage), sin trabajo async.
       setUser(null);
       setLoading(false);
       return;

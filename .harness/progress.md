@@ -8,6 +8,63 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-23 · S1.3 (frontend, omision cerrada) · FD (agente)
+
+**Hecho.** El commit `af49943` (S1.3) solo corrigio el backend; los 21 errores y 6 avisos de
+`npm run lint` en el frontend, documentados desde la auditoria del 07-09-2026 y con la nota
+explicita "se corrigen en S1.3" en `fix_plan.md`, habian quedado sin tocar. Detectado al
+preguntar si "los cientos de errores del principio" ya estaban en el informe de cierre de A3.
+Corregido en 17 archivos:
+
+- **21 errores `react-hooks/set-state-in-effect`** (regla nueva de eslint-plugin-react-hooks
+  que marca cualquier `setState` sincrono dentro del cuerpo de un `useEffect`). Todos son
+  patrones legitimos y repetidos en el codebase (cargar datos al montar, sincronizar con
+  localStorage, reflejar el estado de un job rastreado por un provider, recortar un valor
+  fuera de rango). Sin suite de pruebas E2E que cubra estos componentes, refactorizarlos de
+  verdad (mover a estado derivado, `useSyncExternalStore`, etc.) es riesgo de romper
+  comportamiento sin forma de verificarlo en esta sesion -- mismo criterio que los 23 BLE001
+  del backend en S1.3: se documentaron con `eslint-disable-next-line` y una razon puntual por
+  linea, no se suprimio la regla globalmente.
+- **2 `no-unused-vars` reales**: `enEntries` en `scripts/sync-i18n-keys.mjs` (variable y
+  funcion `extractEntries` sin ningun uso, eliminadas) y `handleRegeneratePerson` en
+  `CorporateDossierDetailView.tsx` (funcion completa sin conectar a ningun boton -- el flujo
+  de "regenerar" para personas navega a `/person-research` con precarga, no reenvia el job
+  desde esta vista; eliminada junto con los 4 imports que quedaron huerfanos).
+- **2 `react-hooks/exhaustive-deps`**: en `CorporateDossierGenerateView.tsx` se agrego `t` a
+  las dependencias (fix real: sin esto, el mensaje de error traducido podia quedar en el
+  idioma anterior si el usuario cambiaba de idioma con un job activo). En
+  `PreferencesProvider.tsx` se dejo `eslint-disable-next-line` justificado: la lista de
+  dependencias es parcial a proposito (solo los campos que viajan al backend), agregar el
+  objeto `preferences` completo dispararia el debounce en cada cambio de UI que no le importa
+  al servidor.
+- **2 `jsx-a11y/alt-text`** en `BrandLogo.tsx`: falso positivo -- el `alt` ya se pasaba via
+  `{...shared}` pero eslint no lo rastrea a traves de un spread. Se agrego `alt={shared.alt}`
+  explicito en cada `<Image>`, mismo valor, cero cambio de comportamiento.
+
+**Sin terminar.** Nada -- `npm run build` corrio en la maquina de FD el mismo dia y
+confirmo: 0/0, compilo, paso TypeScript, genero las 14 rutas. El primer intento fallo por una
+razon aparte: el `node_modules` de `frontend/` habia quedado con una instalacion a medias
+(`@next/swc` seguia en 16.2.6 mientras `next` ya estaba en 16.3.6 desde S1.4) -- mismo tipo de
+corrupcion en carpeta de red que ya se habia visto con `sharp-win32-x64`. Se resolvio con
+`Remove-Item -Recurse -Force node_modules` + `npm install` limpio.
+
+**Lo que hay que saber.** `npm run lint` y `npm test` (14/14) si se pudieron correr completos
+y quedaron en verde. El patron de "solo el primer `setState` de un `useEffect` se reporta,
+los siguientes en el mismo efecto no" costo una vuelta extra: un `eslint-disable-next-line`
+en la segunda ocurrencia del mismo efecto queda como "unused eslint-disable directive"
+(warning), hay que quitarlo. Tambien: `eslint-disable-next-line` solo desactiva la linea
+inmediatamente siguiente -- un comentario de justificacion envuelto en dos lineas hace que la
+directiva "salte" a la segunda linea del comentario en vez de a la linea de codigo real; hay
+que escribir la razon completa en una sola linea.
+
+**Siguiente paso concreto.** Ninguno para S1.3. Correr `npm run build` como verificacion final
+antes de comitear.
+
+**Rama.** `main` (sin comitear aun -- a peticion de FD, que hace los commits el mismo).
+**Estado.** done.
+
+---
+
 ### 2026-09-23 · Hallazgo sin tarea S · FD (agente)
 
 **Hecho.** Investigadas y corregidas las 4 pruebas rojas preexistentes en

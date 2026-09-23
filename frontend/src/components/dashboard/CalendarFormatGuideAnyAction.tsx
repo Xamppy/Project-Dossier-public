@@ -15,6 +15,7 @@ export default function CalendarFormatGuideAnyAction() {
 
   useEffect(() => {
     if (!getStoredAccessToken()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- corta segun el token de sesion (sistema externo: localStorage), sin trabajo async.
       setConnected(false);
       setChecked(true);
       return;

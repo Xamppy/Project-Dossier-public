@@ -64,41 +64,16 @@ Lo que no tiene prueba y debería, por orden de riesgo:
 
 ---
 
-## Análisis estático del frontend — medido
+## Análisis estático del frontend — resuelto
 
-`npm run lint` el 07-09-2026: **21 errores y 6 avisos** en 16 archivos. Ninguno introducido por
-el trabajo reciente; llevaban ahí sin que nadie los viera porque no existe integración continua.
+~~`npm run lint` el 07-09-2026: 21 errores y 6 avisos en 16 archivos~~ **Corregido el
+23-09-2026** (tarea S1.3, detectado como omisión al cerrar la actividad A3 -- el commit
+`af49943` solo había tocado el backend). `npm run lint`: 0/0. Detalle completo en
+`feature_list.json` (evidencia de S1.3) y en `docs/dev/tarea-A3-consolidacion-base-tecnica.md`.
 
-El más repetido es `react-hooks/set-state-in-effect`: llamar a `setState` dentro del cuerpo de un
-`useEffect`, que provoca renderizados en cascada. Aparece en `PreferencesProvider.tsx:100` y en
-varios paneles de ajustes.
-
-Archivos afectados:
-
-```
-app/dashboard/dossiers/[id]/CorporateDossierDetailView.tsx
-app/dashboard/dossiers/folder/[id]/page.tsx
-app/dashboard/person-research/page.tsx
-app/dashboard/settings/page.tsx
-app/register/page.tsx
-components/BrandLogo.tsx
-components/dashboard/CalendarFormatGuideAnyAction.tsx
-components/dashboard/CalendarMeetingFormatGuide.tsx
-components/dashboard/CorporateDossierGenerateView.tsx
-components/dossier/ShareDossierPanel.tsx
-components/settings/BillingPanel.tsx
-components/settings/CompanyContextPanel.tsx
-components/settings/OrganizationMembersPanel.tsx
-components/settings/PendingOrgInvitesPanel.tsx
-hooks/useAuthMe.ts
-providers/PreferencesProvider.tsx
-```
-
-`PreferencesProvider.tsx` merece atención especial: **S5.1 y S5.2 van a reescribir los
-proveedores** para consumir el canal de estados progresivos. Conviene corregir sus efectos antes
-de esa migración, no después, o se arrastra el problema al código nuevo.
-
-Se corrigen en **S1.3**. Hasta entonces `scripts/qa.py` los reporta como fallo.
+`PreferencesProvider.tsx` sigue mereciendo atención en **S5.1 y S5.2** (van a reescribir los
+proveedores para consumir el canal de estados progresivos): los efectos ya quedaron limpios de
+errores de lint, pero conviene revisarlos de nuevo al hacer esa migración.
 
 ---
 

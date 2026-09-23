@@ -10,6 +10,9 @@ mypy==2.3.1
 # Auditoría de dependencias (tareas S0.3 y S1.4)
 pip-audit==2.10.1
 
+# Migraciones de base de datos (tarea S1.1)
+alembic==1.20.0
+
 # Nota sobre pruebas de estrés
 # ---------------------------
 # Las de tests/stress/ corren con pytest en cada PR y no necesitan nada más:
