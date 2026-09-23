@@ -8,6 +8,51 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-23 · Hallazgo sin tarea S · FD (agente)
+
+**Hecho.** Investigadas y corregidas las 4 pruebas rojas preexistentes en
+`test_credit_policy.py` (listadas en `fix_plan.md` como hallazgo sin tarea asignada, no
+tocadas en S1.3 a propósito por ser corrección funcional y no análisis estático). Causa
+raíz: `dossier/api/app.py` llama `load_env()` a nivel de módulo (línea de import, no dentro
+de una función), y pruebas como `tests/integration/test_dossier_stream_route.py` y
+`tests/security/test_dossier_stream_seguridad.py` importan ese módulo durante la
+*recolección* de pytest — antes de que corra el fixture `autouse` de `conftest.py`. Eso
+cargaba el `backend/.env` real del desarrollador (con `DOSSIER_CHARGE_CREDITS=false`,
+legítimo para demos locales) directo a `os.environ`, y ahí quedaba para el resto de la
+sesión de pytest. Por eso las 4 pruebas pasaban solas (`pytest tests/test_credit_policy.py`)
+pero fallaban dentro de la suite completa — dependía de qué otro archivo se hubiera
+importado antes en esa ejecución. Fix de una línea en `tests/conftest.py`:
+`os.environ.pop("DOSSIER_CHARGE_CREDITS", None)` al inicio del fixture, para garantizar el
+"sin fijar" que el docstring del fixture ya prometía, sin importar quién la haya fijado
+antes. Ningún cambio en código de producción (`config.py`, `credit_policy.py` intactos).
+Verificado con la suite completa: **117 passed, 0 failed, 13 skipped** (antes: 113 passed,
+4 failed, 13 skipped). Commit `b3455dc`.
+
+De paso, se detectó y corrigió que el contenido real de **S1.4** (`requirements.txt`/
+`requirements-dev.txt` fijados con `==`, `next.js` 16.2.6→16.3.6) y de **S1.7**
+(`docs/sql/schema_project_dossier.sql` repoblado, `docs/dev/local-setup.md`, `README.md`)
+se había documentado como evidencia en el commit `e4b3347` pero nunca se había comiteado de
+verdad — quedaba como cambios sin confirmar en el árbol de trabajo. Comiteados ahora por
+separado: `b90ae4a` (S1.4) y `168e9c1` (S1.7). El estado `review` de esas dos tareas en
+`feature_list.json` seguía siendo correcto (el trabajo estaba hecho y probado), pero no
+estaba realmente en el historial de git hasta esta sesión.
+
+**Sin terminar.** Nada de esto específicamente.
+
+**Lo que hay que saber.** Vale la pena revisar `git log` vs. `git status` después de cerrar
+evidencia en `feature_list.json`/`progress.md`: el commit de harness (`e4b3347`) documentaba
+trabajo que técnicamente seguía sin comitear. No volvió a pasar aquí, pero es un paso fácil
+de saltarse cuando se cierran varias tareas seguidas.
+
+**Siguiente paso concreto.** Ninguna tarea `S` pendiente de Sprint 1 para `FD`. Quedan
+abiertos, sin tarea asignada: la actualización de `vitest`/`@vitest/coverage-v8` (2 críticas
++ 6 altas, solo dev, necesita disco local no montado por red para probar con seguridad) y
+`db/models.py` desincronizado de `db/Migracion.md` (ver `fix_plan.md`).
+
+**Rama.** `main` (commits locales directos, sin rama, sin push). **Estado.** done.
+
+---
+
 ### 2026-09-23 · S1.7 · FD (agente)
 
 **Hecho.** `docs/dev/local-setup.md`: guía completa de arranque (prerrequisitos, backend,
