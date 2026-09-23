@@ -142,13 +142,13 @@ async def lifespan(app: FastAPI):
         engine = get_engine()
         from dossier.db.schema_patches import apply_schema_patches
 
-        apply_schema_patches(engine)
         auto = os.getenv("DATABASE_AUTO_CREATE_TABLES", "1").strip().lower()
         if auto not in ("0", "false", "no"):
             from dossier.db import models  # noqa: F401 — registra modelos en metadata
             from dossier.db.base import Base
 
             Base.metadata.create_all(bind=engine)
+        apply_schema_patches(engine)
     warmup_corporate_dossier_redis()
     logger.info(
         "CORS: allow_origin_regex=%s, origins=%s",
