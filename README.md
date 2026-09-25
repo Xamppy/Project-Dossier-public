@@ -28,6 +28,7 @@ Detalle: [docs/estructura.md](docs/estructura.md).
 cd SistemaDossier/backend
 python -m venv .venv
 .venv\Scripts\activate
+(opcional en linux)source .venv/bin/activate 
 pip install -r requirements.txt
 copy .env.example .env
 ```
