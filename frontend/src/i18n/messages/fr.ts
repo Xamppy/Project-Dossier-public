@@ -35,8 +35,6 @@ const messages = {
   "auth.register.account_mode": "Comment utiliserez-vous Project Dossier ?",
   "auth.register.mode_work": "Entreprise / équipe",
   "auth.register.mode_personal": "Sans entreprise",
-  "auth.register.mode_caption":
-    "Un espace de travail est toujours créé. Avec « Sans entreprise », le prénom et le nom servent de nom d’organisation et la URL en est dérivée.",
   "auth.register.more_options": "Plus d’options (fuseau horaire, langue)",
   "auth.register.email": "E-mail",
   "auth.register.first_name": "Prénom",

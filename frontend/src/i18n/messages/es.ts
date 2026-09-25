@@ -38,8 +38,6 @@ const messages = {
   "auth.register.account_mode": "¿Cómo lo vas a usar?",
   "auth.register.mode_work": "Empresa o equipo",
   "auth.register.mode_personal": "Sin empresa",
-  "auth.register.mode_caption":
-    "Siempre se crea un espacio de trabajo. Con «Sin empresa» usamos tu nombre y apellido como nombre de organización y generamos la URL a partir de ellos.",
   "auth.register.more_options": "Más opciones (zona horaria, idioma)",
   "auth.register.email": "Email",
   "auth.register.first_name": "Nombre",

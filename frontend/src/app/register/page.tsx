@@ -448,9 +448,6 @@ function RegisterPageContent() {
               {t("auth.register.mode_personal")}
             </button>
           </div>
-          <p className="text-xs leading-snug" style={{ color: textSubtle }}>
-            {t("auth.register.mode_caption")}
-          </p>
         </div>
         ) : null}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import type { Locale, TranslationKey } from "@/i18n/types";
 import {
   SYSTEM_TIMEZONE_VALUE,
@@ -24,6 +25,10 @@ type Props = {
   disabled?: boolean;
 };
 
+const subscribeToHydration = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function TimezoneSelect({
   id,
   name,
@@ -38,11 +43,20 @@ export default function TimezoneSelect({
   title,
   disabled,
 }: Props) {
+  // El HTML inicial debe ser idéntico aunque servidor y navegador tengan
+  // versiones distintas de Intl, otra zona local o cambie el horario de verano.
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
   const options = getGeneralTimezoneOptions(
     followSystem ? [] : [timezone].filter(Boolean),
   );
   const selected = followSystem ? SYSTEM_TIMEZONE_VALUE : timezone;
-  const systemHint = formatBrowserTimezoneHint(locale);
+  const systemLabelText = hydrated
+    ? systemLabel.replace("{hint}", formatBrowserTimezoneHint(locale))
+    : systemLabel.replace(/\s*\(\{hint\}\)/, "");
 
   return (
     <select
@@ -63,15 +77,16 @@ export default function TimezoneSelect({
       style={style}
     >
       <option value={SYSTEM_TIMEZONE_VALUE}>
-        {systemLabel.replace("{hint}", systemHint)}
+        {systemLabelText}
       </option>
-      {options.map(({ value, labelKey }) => (
-        <option key={value} value={value}>
-          {labelKey
-            ? formatGeneralTimezoneLabel(value, locale, t(labelKey))
-            : formatGeneralTimezoneLabel(value, locale, value.replace(/_/g, " "))}
-        </option>
-      ))}
+      {options.map(({ value, labelKey }) => {
+        const label = labelKey ? t(labelKey) : value.replace(/_/g, " ");
+        return (
+          <option key={value} value={value}>
+            {hydrated ? formatGeneralTimezoneLabel(value, locale, label) : label}
+          </option>
+        );
+      })}
     </select>
   );
 }

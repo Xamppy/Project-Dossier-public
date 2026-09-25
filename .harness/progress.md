@@ -8,6 +8,20 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-24 · BUG-2026-09-24-01 · DG (agente)
+
+**Hecho.** Corregida la hidratación de `TimezoneSelect` en `/register` y en ajustes. El HTML inicial usa etiquetas estables; después de hidratar, muestra los offsets y la zona detectada por el navegador. Dos pruebas reproducen la divergencia `GMT`/`GMT+0` y la diferencia de zona del sistema; la primera falló antes del cambio y ambas pasan ahora. `npx tsc --noEmit` y ESLint de los dos archivos tocados pasan.
+
+**Sin terminar.** PR, revisión por un segundo integrante y evidencia en Trello. `python3 scripts/qa.py` falla por los 21 errores ESLint preexistentes en otros archivos; la suite Vitest pasa.
+
+**Lo que hay que saber.** El formato `Intl.DateTimeFormat(..., { timeZoneName: "shortOffset" })` varía entre entornos, y `getBrowserTimezone()` depende del dispositivo. No calcular estos textos en el primer render si el componente participa en SSR. El cambio previo del usuario en `frontend/src/app/register/page.tsx` (eliminación de `mode_caption`) se conservó sin modificar.
+
+**Siguiente paso concreto.** Revisar el diff, resolver el bloqueo de ESLint previsto en S1.3 y abrir PR con revisión y evidencia en Trello.
+
+**Rama.** `dario` · **Estado.** in_progress
+
+---
+
 ### 2026-09-12 · S3.1 · FO (agente)
 
 **Hecho.** Cliente HTTP del proveedor de noticias (ADR 0004): `backend/src/dossier/news/client.py`
