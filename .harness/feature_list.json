@@ -80,7 +80,7 @@
       "id": "S0.1",
       "sprint": 0,
       "title": "Inventario de modulos y contraste con Especificaciones v2.0",
-      "status": "pending",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -91,14 +91,17 @@
       "blocks": [],
       "trello": "https://trello.com/c/kDXktuEq",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/inventario-modulos.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.2",
       "sprint": 0,
       "title": "Verificar y priorizar las cinco brechas con evidencia archivo:linea",
-      "status": "pending",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -109,8 +112,11 @@
       "blocks": [],
       "trello": "https://trello.com/c/AcNDXXFw",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/gaps.md verificado con evidencia archivo:linea",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.3",
@@ -137,7 +143,7 @@
       "id": "S0.4",
       "sprint": 0,
       "title": "Declarar la linea de implementacion canonica (DeepSeek / Gemini shim / OpenAI)",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -150,14 +156,17 @@
       ],
       "trello": "https://trello.com/c/2hy0vk0h",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0001-linea-llm-canonica.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.5",
       "sprint": 0,
       "title": "Evaluar modelos de lenguaje: DeepSeek vs GPT-4o vs GPT-5.6 Luna",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -168,14 +177,17 @@
       "blocks": [],
       "trello": "https://trello.com/c/fTIhZjbk",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0002-modelo-de-lenguaje.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.6",
       "sprint": 0,
       "title": "Evaluar fuentes de registros corporativos europeos - INICIAR SEMANA 1",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -188,14 +200,17 @@
       ],
       "trello": "https://trello.com/c/mrqb90ou",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0003-fuente-registros-europeos.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.7",
       "sprint": 0,
       "title": "Evaluar proveedores de busqueda de noticias",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A1",
@@ -208,14 +223,17 @@
       ],
       "trello": "https://trello.com/c/x5iJJgie",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0004-proveedor-noticias.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.8",
       "sprint": 0,
       "title": "Evaluar proveedores de correo transaccional",
-      "status": "pending",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A1",
@@ -228,14 +246,17 @@
       ],
       "trello": "https://trello.com/c/GUKBDLfd",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0005-proveedor-correo.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.9",
       "sprint": 0,
       "title": "Disenar el esquema JSON estricto del dossier",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -248,14 +269,17 @@
       ],
       "trello": "https://trello.com/c/ImetqLRF",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "specs/proposals/S0.9-esquema-json-dossier.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.10",
       "sprint": 0,
       "title": "Disenar ajustes al modelo de datos y estrategia de migracion",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -268,14 +292,17 @@
       ],
       "trello": "https://trello.com/c/MVWxRA34",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/estrategia-migracion-modelo-datos.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.11",
       "sprint": 0,
       "title": "Decidir el protocolo de estados progresivos (SSE vs WebSocket)",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -288,14 +315,17 @@
       ],
       "trello": "https://trello.com/c/0UXFjv4C",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.12",
       "sprint": 0,
       "title": "Disenar la arquitectura del agente europeo y del agente de noticias",
-      "status": "pending",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A2",
@@ -308,14 +338,17 @@
       ],
       "trello": "https://trello.com/c/W9um0U59",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "specs/proposals/S0.12-arquitectura-agentes-europa-noticias.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.13",
       "sprint": 0,
       "title": "Definir criterios de aceptacion por brecha priorizada",
-      "status": "pending",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A2",
@@ -326,14 +359,17 @@
       "blocks": [],
       "trello": "https://trello.com/c/3RUQtMQa",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "docs/architecture/criterios-aceptacion-brechas.md completado",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.14",
       "sprint": 0,
       "title": "Construir el backlog priorizado en Trello",
-      "status": "pending",
+      "status": "done",
       "owner": "EQ",
       "area": "docs",
       "activity": "A1",
@@ -344,8 +380,11 @@
       "blocks": [],
       "trello": "https://trello.com/c/H0nMakIV",
       "branch": null,
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        "specs/reports/sprint0-verificacion.md"
+      ],
+      "notes": "Backlog en Trello construido el 2026-09-07",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S0.15",
@@ -363,7 +402,8 @@
       "trello": "https://trello.com/c/Ibv8MVA2",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "Revertida de review a pending: el criterio exige acuerdo POR ESCRITO con el docente guía sobre alcance, receso de fin de año y cambio de modelo comprometido (GPT-4o -> DeepSeek, ver ADR 0001/0002). Registrar el riesgo R1 no es acordarlo. Requiere reunión real, no puede cerrarla un agente.",
+      "owner_session": null
     },
     {
       "id": "S1.1",
@@ -474,7 +514,7 @@
       "id": "S1.6",
       "sprint": 1,
       "title": "Retirar la linea de implementacion no canonica y las rutas legadas",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A3",
@@ -486,9 +526,12 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/y0kAn8vh",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_llm_canonical_line.py"
+      ],
+      "notes": "Retirado gemini/, openai_dossier.py, legacy_routes.py y sus rutas. Prueba test_llm_canonical_line.py cubre backend y frontend.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S1.7",
@@ -514,7 +557,7 @@
       "id": "S1.8",
       "sprint": 1,
       "title": "Implementar el cliente HTTP de la fuente europea",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -528,15 +571,18 @@
         "S2.1"
       ],
       "trello": "https://trello.com/c/4ZNQlFQF",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_eu_registry_client.py"
+      ],
+      "notes": "Cliente HTTP FR/DE en eu_registry/client.py; FR verificado en vivo, DE pendiente de verificar esquema (servicio dio 502).",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S1.9",
       "sprint": 1,
       "title": "Definir el modelo comun de registro corporativo (UK / US / EU)",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -551,9 +597,12 @@
         "S2.3"
       ],
       "trello": "https://trello.com/c/mMpvfTj3",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_corporate_registry_schema.py,specs/proposals/S1.9-modelo-comun-registro-corporativo.md"
+      ],
+      "notes": "RegistroCorporativo en dossier/schemas/corporate_registry.py; spec con tabla de mapeo de campos por fuente.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S2.1",
@@ -644,7 +693,7 @@
       "trello": "https://trello.com/c/lfFvmsBi",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "ADR 0003 declara que el orquestador registrará agents_skipped para jurisdicciones no cubiertas. Esa columna NO existe en models.py (solo agents_activated y agents_failed). Requiere migración -> depende de S1.1, sin declarar en la ADR."
     },
     {
       "id": "S2.5",
@@ -713,7 +762,7 @@
       "id": "S3.1",
       "sprint": 3,
       "title": "Implementar el cliente del proveedor de noticias",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -727,9 +776,13 @@
         "S3.2"
       ],
       "trello": "https://trello.com/c/7hPbjEf6",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/news/client.py",
+        "backend/tests/test_news_client.py"
+      ],
+      "notes": "Cliente GDELT DOC 2.0 + NewsAPI (ADR 0004), mismo patron que eu_registry/client.py (S1.8). Solo fetch+parseo crudo; dedup/homonimos/procedencia quedan para S3.2-S3.4.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S3.2",
@@ -905,7 +958,7 @@
       "id": "S4.1",
       "sprint": 4,
       "title": "Implementar el esquema JSON estricto como modelos Pydantic",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -921,9 +974,12 @@
         "S4.7"
       ],
       "trello": "https://trello.com/c/7RjsQIvr",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_dossier_executive_payload.py"
+      ],
+      "notes": "DossierExecutivePayload en dossier/schemas/dossier_executive_payload.py, siguiendo la spec S0.9; corporate_records reutiliza RegistroCorporativo (S1.9) via CorporateRecordCitation.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.2",
@@ -969,7 +1025,7 @@
       "trello": "https://trello.com/c/KvzzlxAm",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "CRÍTICO antes de tocar dossier_data: el trigger de facturación que lee dossier_data->>'billing' (mencionado en dossier_routes.py:91 y en progress.md como hallazgo a preservar) NO aparece en Migracion.md ni en schema_patches.py. Los únicos triggers versionados son los de updated_at. Verificar si el trigger real vive solo en la BD de producción (fuera de control de versiones) antes de migrar el contrato JSON, o el descuento de créditos puede romperse silenciosamente."
     },
     {
       "id": "S4.4",
@@ -1059,7 +1115,7 @@
       "id": "S4.8",
       "sprint": 4,
       "title": "Implementar el canal de estados progresivos en el servicio",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1074,9 +1130,12 @@
         "S5.1"
       ],
       "trello": "https://trello.com/c/ht5AxvMH",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py"
+      ],
+      "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. agent_progress por-agente (CA2) no implementado: requiere instrumentar LangGraph.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.9",
@@ -1122,7 +1181,7 @@
       "trello": "https://trello.com/c/3wVUVam1",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "Migracion.md:821-824 ya define el diseño de campos de auditoría (verbo HTTP + recurso, tipo de recurso: dossier/contact/user/billing/api_key). Partir de ese diseño en vez de diseñar de cero."
     },
     {
       "id": "S5.1",
@@ -1250,7 +1309,7 @@
       "trello": "https://trello.com/c/b40uAH4m",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "ADR 0005 asume ENCRYPTION_SECRET como 'clave maestra del entorno' para cifrar credenciales SMTP. Esa variable NO existe hoy (ni en código ni en .env.example). Hay que crearla y decidir gestión/rotación antes de implementar."
     },
     {
       "id": "S5.7",

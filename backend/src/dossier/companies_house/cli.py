@@ -10,7 +10,7 @@ import requests
 
 from dossier.companies_house.prompt_templates import format_ch_filing_gemini_prompt
 from dossier.config import data_path, load_env, write_json
-from dossier.gemini.analyze import analyze_document_bytes
+from dossier.llm.document_analyze import analyze_document_bytes
 
 SEARCH_URL = "https://api.company-information.service.gov.uk/search/companies"
 COMPANY_URL_TEMPLATE = "https://api.company-information.service.gov.uk/company/{number}"

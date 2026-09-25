@@ -110,8 +110,8 @@ def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
     return {"us_corporate_context": bloque}
 
 
-def _node_synthesize_gemini(state: CorporateDossierState) -> dict[str, Any]:
-    """Síntesis Gemini según alcance UK / US / dual."""
+def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
+    """Síntesis LLM (DeepSeek) según alcance UK / US / dual."""
     from dossier.llm.text_generate import generate_text_with_llm
     from dossier.services.output_language import (
         apply_output_language_to_system_prompt,
@@ -249,12 +249,12 @@ def build_corporate_dossier_graph() -> StateGraph:
     graph = StateGraph(CorporateDossierState)
     graph.add_node("agent_corporate_uk", _node_agent_corporate_uk)
     graph.add_node("agent_corporate_usa", _node_agent_corporate_usa)
-    graph.add_node("synthesize_gemini", _node_synthesize_gemini)
+    graph.add_node("synthesize_llm", _node_synthesize_llm)
 
     graph.add_edge(START, "agent_corporate_uk")
     graph.add_edge(START, "agent_corporate_usa")
-    graph.add_edge(["agent_corporate_uk", "agent_corporate_usa"], "synthesize_gemini")
-    graph.add_edge("synthesize_gemini", END)
+    graph.add_edge(["agent_corporate_uk", "agent_corporate_usa"], "synthesize_llm")
+    graph.add_edge("synthesize_llm", END)
     return graph
 
 

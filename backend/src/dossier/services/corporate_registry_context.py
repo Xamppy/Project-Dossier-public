@@ -28,12 +28,12 @@ from dossier.companies_house.prompt_templates import (
     format_sec_filing_gemini_prompt,
 )
 from dossier.config import load_env
-from dossier.gemini.analyze import (
-    analyze_document_bytes,
-    gemini_error_retry_delay_seconds,
-    gemini_error_should_retry_full_request,
-    is_gemini_transient_server_error,
+from dossier.llm.common import (
+    is_transient_server_error,
+    retry_after_seconds,
+    should_retry,
 )
+from dossier.llm.document_analyze import analyze_document_bytes
 from dossier.services.corporate_company_search import (
     find_companies_house_matches,
     find_sec_matches,
@@ -101,11 +101,11 @@ def _gemini_analyze_bytes_with_retries(
             return analyze_document_bytes(data, filename, prompt)
         except Exception as e:
             last = e
-            if attempt < max_attempts - 1 and gemini_error_should_retry_full_request(e):
+            if attempt < max_attempts - 1 and should_retry(e):
                 wait = (
                     _gemini_retry_sleep_seconds(e)
                     if _is_gemini_429_or_quota(e)
-                    else gemini_error_retry_delay_seconds(e)
+                    else retry_after_seconds(e)
                 )
                 logger.info(
                     "%s: error reintentable (%s), espera %.1fs (paso %s/%s)",
@@ -478,7 +478,7 @@ def _ch_gemini_filing_markdown(
                 "  `DOSSIER_CORPORATE_CH_FILING_GEMINI=0`\n\n"
                 f"*Detalle técnico:* `{e}`\n"
             )
-        if is_gemini_transient_server_error(e):
+        if is_transient_server_error(e):
             return (
                 "\n\n### Lectura del formulario regulatorio (Reino Unido)\n\n"
                 "**El servicio de análisis no respondió a tiempo (503 / no disponible / timeout).** "
@@ -633,7 +633,7 @@ def _sec_gemini_filing_markdown(
                 "  `DOSSIER_CORPORATE_SEC_FILING_GEMINI=0`\n\n"
                 f"*Detalle técnico:* `{e}`\n"
             )
-        if is_gemini_transient_server_error(e):
+        if is_transient_server_error(e):
             return (
                 "\n\n### Lectura del informe periódico SEC\n\n"
                 "**El servicio de análisis no respondió a tiempo (503 / no disponible / timeout).** "

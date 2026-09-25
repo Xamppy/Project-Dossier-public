@@ -998,7 +998,7 @@ export type PersonResearchApiResponse = {
   profile_urls: string[];
   profiles: unknown[];
   posts_by_url: Record<string, unknown>;
-  gemini_analysis_markdown: string | null;
+  llm_analysis_markdown: string | null;
   /** True si el informe incluyó bloque desde búsqueda web pública. */
   gemini_google_search_used?: boolean;
   warnings: string[];

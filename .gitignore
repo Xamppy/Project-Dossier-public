@@ -17,6 +17,7 @@ company_uk_*.json
 
 # Artefactos IDE / documentos temporales
 .snapshots/
+.agents/
 .spec_extract.txt
 *.spec_extract.txt
 .cursor/
