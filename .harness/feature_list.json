@@ -1022,7 +1022,7 @@
       "id": "S4.2",
       "sprint": 4,
       "title": "Ajustar la capa de sintesis para emitir JSON conforme al esquema",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1036,9 +1036,10 @@
         "S4.3"
       ],
       "trello": "https://trello.com/c/AV6SiELu",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (ruta critica del MVP). Si la revision de S4.1 cambia el contrato, S4.2 debe ajustarse.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.3",
