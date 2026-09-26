@@ -193,7 +193,7 @@ const messages = {
   "person_research.company": "Unternehmen (freiwillig)",
   "person_research.company_ph": "Aktueller oder wahrscheinlicher Arbeitgeber",
   "person_research.country": "Land / Region",
-  "person_research.country_ph": "z. B. Deutschland, United Kingdom",
+  "person_research.country_ph": "Land auswählen",
   "person_research.city": "Stadt (freiwillig)",
   "person_research.city_ph": "z. B. Berlin",
   "person_research.extra_keywords": "Zusätzliche Stichwörter (freiwillig)",

@@ -191,7 +191,7 @@ const messages = {
   "person_research.company": "Entreprise (optionnelle)",
   "person_research.company_ph": "Employeur actuel ou probable",
   "person_research.country": "Pays / région",
-  "person_research.country_ph": "ex. France, United Kingdom",
+  "person_research.country_ph": "Sélectionnez un pays",
   "person_research.city": "Ville (optionnelle)",
   "person_research.city_ph": "ex. Paris",
   "person_research.extra_keywords": "Mots-clés supplémentaires (optionnels)",

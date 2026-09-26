@@ -190,7 +190,7 @@ const messages = {
   "person_research.company": "Azienda (facoltativa)",
   "person_research.company_ph": "Datore di lavoro attuale o probabile",
   "person_research.country": "Paese / regione",
-  "person_research.country_ph": "es. Italia, United Kingdom",
+  "person_research.country_ph": "Seleziona un paese",
   "person_research.city": "Città (facoltativa)",
   "person_research.city_ph": "es. Roma",
   "person_research.extra_keywords": "Parole chiave aggiuntive (facoltative)",

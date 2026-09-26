@@ -6,6 +6,20 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-09-26 · BUG-2026-09-26-01 · DG (agente)
+
+**Hecho.** En `person-research`, el campo de texto País / región se reemplazó por un selector accesible con los 249 países y territorios ISO 3166-1 alpha-2, con nombres localizados para los siete idiomas de la interfaz. Los nombres de país se convierten al nombre inglés antes de construir `country` en el payload; los prefills de dossiers convierten nombres habituales y localizados a su código ISO.
+
+**Sin terminar.** PR, revisión por un segundo integrante y evidencia en Trello. La suite backend no se pudo ejecutar en este entorno: el `.venv` no tiene `pytest` y no se pudo ejecutar la validación runtime. El contrato se comprobó en el esquema fuente y no se modificó código backend. ESLint de los archivos nuevos pasa; la página ya reporta dos errores de `react-hooks/set-state-in-effect` en efectos que no se modificaron. Build de Next no verificado porque hay otro proceso de Next activo en el workspace.
+
+**Lo que hay que saber.** `PersonResearchRequest.country` es opcional, texto de hasta 120 caracteres; PDL lo consume como texto en `location_country`. El selector envía nombres en inglés como `United Kingdom` para seguir el formato de la entrada previa. El locale `en-gb` usa la traducción inglesa compartida mediante el fallback existente.
+
+**Siguiente paso concreto.** Revisar el diff, abrir PR, pedir revisión y adjuntar evidencia en Trello.
+
+**Rama.** `dario` · **Estado.** in_progress
+
+---
+
 ---
 
 ### 2026-09-24 · BUG-2026-09-24-01 · DG (agente)

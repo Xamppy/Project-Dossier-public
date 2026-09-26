@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-09-24",
+  "updated": "2026-09-26",
   "status_values": [
     "pending",
     "claimed",
@@ -1783,6 +1783,28 @@
         "frontend/src/components/settings/TimezoneSelect.test.tsx"
       ],
       "notes": "Defecto ad hoc fuera de las 77 tareas del plan. Pruebas y tipos en verde; QA global bloqueado por 21 errores ESLint preexistentes. Falta PR, revision y evidencia en Trello.",
+      "owner_session": "DG (agente)"
+    },
+    {
+      "id": "BUG-2026-09-26-01",
+      "sprint": 0,
+      "title": "Reemplazar el texto libre de país en person-research por selector de países",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-09-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "dario",
+      "evidence": [
+        "frontend/src/components/dashboard/CountrySelect.test.tsx",
+        "frontend/src/lib/countries.test.ts"
+      ],
+      "notes": "Selector con los 249 códigos ISO 3166-1 alpha-2. Payload mantiene country como nombre en inglés, compatible con PersonResearchRequest.country (str | None, max_length=120). Vitest y TypeScript pasan; falta PR, revisión y evidencia en Trello.",
       "owner_session": "DG (agente)"
     }
   ]
