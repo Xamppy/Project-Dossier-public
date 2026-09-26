@@ -1088,7 +1088,7 @@
       "id": "S4.5",
       "sprint": 4,
       "title": "Crear las entidades de alertas, trayectoria y menciones de prensa",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "db",
       "activity": "A5",
@@ -1104,9 +1104,14 @@
         "S6.7"
       ],
       "trello": "https://trello.com/c/VW3yuA4g",
-      "branch": null,
-      "evidence": [],
-      "notes": "",
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/db/schema_patches.py (DOSSIER_ENTITIES_PATCHES)",
+        "backend/alembic/versions/b7e2d4f1a9c3_s4_5_entidades_dossier.py",
+        "backend/src/dossier/db/models.py (DossierAlert, DossierMediaMention, DossierCareerEntry)",
+        "backend/tests/test_dossier_entities_schema.py + tests/integration/test_dossier_entities_migracion.py + tests/security/test_dossier_entities_seguridad.py (21 pruebas; 138 passed en suite completa con Postgres)"
+      ],
+      "notes": "Extiende dossier_alerts/dossier_media_mentions/dossier_career_entries (ya existian en la linea base, sin uso) en vez de crear las 3 tablas del diseno S0.10; decision en docs/architecture/estrategia-migracion-modelo-datos.md s2. Migracion b7e2d4f1a9c3 + modelos ORM DossierAlert/DossierMediaMention/DossierCareerEntry. Pruebas Postgres requieren TEST_DATABASE_URL (la CI las salta).",
       "owner_session": "FO (agente)"
     },
     {

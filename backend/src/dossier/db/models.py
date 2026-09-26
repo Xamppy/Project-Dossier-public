@@ -10,14 +10,19 @@ Tablas cubiertas por los modelos ORM actuales: `organizations`, `users`, `org_me
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     ARRAY,
     Boolean,
+    CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -28,6 +33,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from dossier.db.base import Base
+from dossier.db.schema_patches import ALERT_LEVELS
 
 
 class Organization(Base):
@@ -431,4 +437,119 @@ class DossierGenerationJob(Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+
+# S4.5: las tres tablas siguen el DDL de Migracion.md (secciones 7, 14 y 15) más
+# las columnas que agrega schema_patches.DOSSIER_ENTITIES_PATCHES.
+
+
+class DossierAlert(Base):
+    """Alerta de riesgo de un dossier (``RiskAlert`` del contrato de S4.1)."""
+
+    __tablename__ = "dossier_alerts"
+    __table_args__ = (
+        CheckConstraint(
+            "level IN (" + ", ".join(f"'{nivel}'" for nivel in ALERT_LEVELS) + ")",
+            name="dossier_alerts_level_check",
+        ),
+        Index("idx_alerts_dossier", "dossier_id"),
+        Index("idx_alerts_level", "dossier_id", "level"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    dossier_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("dossiers.id", ondelete="CASCADE"), nullable=False
+    )
+    # 'critical'/'warning' son los niveles heredados; el contrato usa 'low'/'medium'/'high'.
+    level: Mapped[str] = mapped_column(String(10), nullable=False)
+    category: Mapped[str | None] = mapped_column(String(50))
+    title: Mapped[str | None] = mapped_column(String(255))
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    source_url: Mapped[str | None] = mapped_column(Text)
+    sources: Mapped[list] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
+    )
+    detected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    is_acknowledged: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    acknowledged_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id")
+    )
+
+
+class DossierMediaMention(Base):
+    """Mención de prensa de un dossier (``PressMention`` del contrato de S4.1)."""
+
+    __tablename__ = "dossier_media_mentions"
+    __table_args__ = (
+        CheckConstraint(
+            "sentiment IN ('positive', 'neutral', 'negative', 'mixed')",
+            name="dossier_media_mentions_sentiment_check",
+        ),
+        CheckConstraint(
+            "relevance_score BETWEEN 0.00 AND 1.00",
+            name="dossier_media_mentions_relevance_score_check",
+        ),
+        Index("idx_media_dossier", "dossier_id"),
+        Index("idx_media_sentiment", "dossier_id", "sentiment"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    dossier_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("dossiers.id", ondelete="CASCADE"), nullable=False
+    )
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    url: Mapped[str] = mapped_column(Text, nullable=False)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    source_name: Mapped[str | None] = mapped_column(String(255))
+    source_type: Mapped[str | None] = mapped_column(String(50))
+    sentiment: Mapped[str | None] = mapped_column(String(10))
+    summary: Mapped[str | None] = mapped_column(Text)
+    relevance_score: Mapped[Decimal | None] = mapped_column(Numeric(3, 2))
+    # Procedencia (S3.4): SourceCitation serializada y la consulta que la trajo.
+    source_citation: Mapped[dict | None] = mapped_column(JSONB)
+    query_context: Mapped[str | None] = mapped_column(String(255))
+
+
+class DossierCareerEntry(Base):
+    """Cargo de la trayectoria de un dossier (``CareerPosition`` del contrato de S4.1)."""
+
+    __tablename__ = "dossier_career_entries"
+    __table_args__ = (Index("idx_career_dossier", "dossier_id"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    dossier_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("dossiers.id", ondelete="CASCADE"), nullable=False
+    )
+    company_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    job_title: Mapped[str | None] = mapped_column(String(255))
+    start_date: Mapped[date | None] = mapped_column(Date)
+    end_date: Mapped[date | None] = mapped_column(Date)
+    # El contrato trae fechas parciales ("2019", "2019-03") que no caben en DATE.
+    start_date_text: Mapped[str | None] = mapped_column(String(50))
+    end_date_text: Mapped[str | None] = mapped_column(String(50))
+    tenure_months: Mapped[int | None] = mapped_column(Integer)
+    is_current: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    gap_months_after: Mapped[int | None] = mapped_column(Integer)
+    has_discrepancy: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    discrepancy_detail: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(String(50))
+    source_citation: Mapped[dict | None] = mapped_column(JSONB)
+    sort_order: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0")
     )

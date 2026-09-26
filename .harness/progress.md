@@ -8,6 +8,65 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-26 · S4.5 · FO (agente)
+
+**Hecho.** Las entidades de alertas, trayectoria y menciones de prensa cubren el contrato de
+S4.1 (`schemas/dossier_executive_payload.py`). DDL idempotente en
+`db/schema_patches.py:DOSSIER_ENTITIES_PATCHES`, migración Alembic `b7e2d4f1a9c3` (reutiliza
+esa tupla, igual que la línea base con `_PATCHES`) y modelos ORM `DossierAlert`,
+`DossierMediaMention` y `DossierCareerEntry`. 21 pruebas nuevas (unitarias, integración y
+seguridad); suite completa 138 passed con Postgres. Verificado también contra la base local
+de desarrollo: al reiniciar la API aparecen las columnas y el CHECK ampliado.
+
+Antes, en la misma sesión: se trajo `docmac` a `FO` por fast-forward, se reinstalaron las
+dependencias y se commiteó un fix de hidratación en el selector de zona horaria
+(`lib/timezones.ts`: Node y Chrome formatean distinto el offset de UTC).
+
+**Sin terminar.** Nada de S4.5. Falta quien **escriba** en estas tablas: hoy ningún código
+persiste el payload estructurado en ellas. Eso cae en el pipeline de S4.x/S3.x, no en S4.5.
+
+**Lo que hay que saber.**
+- **Se desvió del diseño aprobado de S0.10, con acuerdo del usuario.** El documento proponía
+  crear `dossier_risk_alerts`, `dossier_career_positions` y `dossier_press_mentions`, pero la
+  línea base ya trae `dossier_alerts`, `dossier_career_entries` y `dossier_media_mentions`
+  con el mismo propósito, cascada hacia `dossiers` y cero uso en el código. Se extendieron
+  esas. La tabla de correspondencia contrato → columnas está en
+  `docs/architecture/estrategia-migracion-modelo-datos.md` §2. FD revisó ese diseño: conviene
+  que lo vea.
+- **`dossier_alerts.level` mezcla dos vocabularios a propósito**: `critical/warning`
+  (heredado) y `low/medium/high` (contrato). El CHECK acepta los cinco. El `downgrade` de
+  `b7e2d4f1a9c3` **borra** las alertas con niveles del contrato antes de restaurar el CHECK
+  original; no hay equivalencia honesta entre ambos.
+- **El esquema tiene dos caminos y S4.5 cubre ambos.** Tu base local no tiene
+  `alembic_version`: la extiende `apply_schema_patches` al arrancar (ahora aplica
+  `_PATCHES + DOSSIER_ENTITIES_PATCHES`). Una base nueva la extiende `alembic upgrade head`.
+  **No metas parches nuevos en `_PATCHES`**: la migración de línea base la itera en vivo y
+  dejaría de ser una foto fija. Cada tarea que toque el esquema debería tener su propia tupla
+  y su propia migración, como aquí.
+- **Nuevos fixtures en `tests/conftest.py`: `pg_vacia`, `alembic_cfg` y `sembrar_dossier`.**
+  Corren contra el Postgres de `TEST_DATABASE_URL`, que se define en la terminal y no en
+  `.env`. Recrean el esquema `public` en cada prueba, así que se niegan a correr si el nombre
+  de la base no contiene «test». En esta máquina existe `dossier_test`. S6.5 y S6.7 pueden
+  reutilizarlos tal cual.
+- **La CI no levanta Postgres**, así que ahí esas 9 pruebas se saltan. Es un hueco real en S1.5:
+  la integración de base de datos solo corre en local.
+- **`db/Migracion.md` no se tocó**, siguiendo la convención de los parches anteriores
+  (`dossier_shares`, `org_invites` tampoco están ahí). Hoy la fuente de verdad del esquema es
+  Migracion.md, más `schema_patches.py`, más las migraciones.
+- **Ruff marca 26 errores preexistentes** (scripts, `alembic/env.py`, pruebas antiguas). No
+  se corrigieron para no mezclar análisis estático con un cambio funcional. Detalle: como existe
+  `backend/alembic/`, ruff trata `alembic` como paquete local y exige importarlo después de
+  `sqlalchemy`.
+
+**Siguiente paso concreto.** Revisión de S4.5 por otro integrante (FD, por el cambio de
+diseño). Después, S6.5 (retención de 24 h) y S6.7 (aislamiento entre organizaciones) quedan
+desbloqueadas y pueden apoyarse en la cascada ya probada en
+`tests/security/test_dossier_entities_seguridad.py`.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-23 · S1.3 (frontend, omision cerrada) · FD (agente)
 
 **Hecho.** El commit `af49943` (S1.3) solo corrigio el backend; los 21 errores y 6 avisos de

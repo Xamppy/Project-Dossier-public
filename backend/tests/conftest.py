@@ -149,3 +149,77 @@ def respuesta_fija():
                 raise RuntimeError(f"HTTP {self.status_code}")
 
     return RespuestaFija
+
+
+BACKEND_ROOT = TESTS_ROOT.parent
+
+
+@pytest.fixture
+def pg_vacia():
+    """Engine sobre un Postgres de pruebas con el esquema ``public`` recién recreado.
+
+    Lee ``TEST_DATABASE_URL`` y salta la prueba si no está definida (la CI no
+    levanta Postgres todavía). Borra todo el esquema, así que se niega a correr
+    si el nombre de la base no contiene «test»: nunca contra la base de desarrollo.
+    """
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.engine import make_url
+
+    from dossier.db.settings import _database_url_for_sqlalchemy
+
+    crudo = (os.getenv("TEST_DATABASE_URL") or "").strip()
+    if not crudo:
+        pytest.skip("TEST_DATABASE_URL no definida: prueba contra Postgres omitida")
+    url = make_url(_database_url_for_sqlalchemy(crudo))
+    if "test" not in (url.database or ""):
+        pytest.fail("TEST_DATABASE_URL debe apuntar a una base cuyo nombre contenga 'test'")
+
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+    yield engine
+    engine.dispose()
+
+
+@pytest.fixture
+def alembic_cfg(pg_vacia, monkeypatch):
+    """Config de Alembic apuntando a la base de ``pg_vacia``.
+
+    Sin archivo .ini a propósito: ``env.py`` solo llama ``fileConfig`` si hay
+    archivo, y ese ``fileConfig`` silenciaría los loggers del resto de la suite.
+    """
+    from alembic.config import Config
+
+    monkeypatch.setenv("DATABASE_URL", pg_vacia.url.render_as_string(hide_password=False))
+    cfg = Config()
+    cfg.set_main_option("script_location", str(BACKEND_ROOT / "alembic"))
+    return cfg
+
+
+@pytest.fixture
+def sembrar_dossier():
+    """Inserta organización + usuario + dossier sin cobro y devuelve el id del dossier."""
+    import uuid
+
+    from sqlalchemy import text
+
+    def _sembrar(conn) -> uuid.UUID:
+        sufijo = uuid.uuid4().hex[:8]
+        org_id = conn.execute(
+            text("INSERT INTO organizations (name, slug) VALUES (:n, :s) RETURNING id"),
+            {"n": f"Org {sufijo}", "s": f"org-{sufijo}"},
+        ).scalar_one()
+        user_id = conn.execute(
+            text("INSERT INTO users (email) VALUES (:e) RETURNING id"),
+            {"e": f"prueba-{sufijo}@example.test"},
+        ).scalar_one()
+        return conn.execute(
+            text(
+                "INSERT INTO dossiers (organization_id, requested_by_user_id, dossier_data) "
+                "VALUES (:o, :u, CAST(:d AS JSONB)) RETURNING id"
+            ),
+            {"o": org_id, "u": user_id, "d": '{"billing": "none"}'},
+        ).scalar_one()
+
+    return _sembrar
