@@ -1088,7 +1088,7 @@
       "id": "S4.5",
       "sprint": 4,
       "title": "Crear las entidades de alertas, trayectoria y menciones de prensa",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "db",
       "activity": "A5",
@@ -1106,7 +1106,8 @@
       "trello": "https://trello.com/c/VW3yuA4g",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.6",
