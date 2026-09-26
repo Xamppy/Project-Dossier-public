@@ -1051,7 +1051,7 @@
       "id": "S4.3",
       "sprint": 4,
       "title": "Sustituir el envoltorio Markdown por el contrato validado en dossier_data",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1067,9 +1067,10 @@
         "S7.3"
       ],
       "trello": "https://trello.com/c/KvzzlxAm",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": "CRÍTICO antes de tocar dossier_data: el trigger de facturación que lee dossier_data->>'billing' (mencionado en dossier_routes.py:91 y en progress.md como hallazgo a preservar) NO aparece en Migracion.md ni en schema_patches.py. Los únicos triggers versionados son los de updated_at. Verificar si el trigger real vive solo en la BD de producción (fuera de control de versiones) antes de migrar el contrato JSON, o el descuento de créditos puede romperse silenciosamente."
+      "notes": "Tomada con S4.2 en review (decision del usuario: ruta critica MVP). Opcion mas economica elegida por el usuario: 1 llamada JSON + Markdown renderizado por codigo; dossier_data conserva format/body/billing y agrega executive_payload.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S4.4",
