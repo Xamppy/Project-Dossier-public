@@ -81,6 +81,7 @@ export default function BillingPanel() {
   }, [t]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- load() es async y hace sus propios setState tras el await; la llamada en si es sincrona pero solo dispara el trabajo, no cambia estado directamente.
     void load();
   }, [load]);
 

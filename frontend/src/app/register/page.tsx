@@ -116,6 +116,7 @@ function RegisterPageContent() {
 
   useEffect(() => {
     if (!inviteToken) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- no hay invitacion que cargar, corta el estado de carga inicial.
       setInviteLoading(false);
       return;
     }
@@ -149,6 +150,7 @@ function RegisterPageContent() {
 
   useEffect(() => {
     if (preferences.timezoneFollowSystem) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el formulario con las preferencias del usuario (sistema externo: contexto de PreferencesProvider), no con una prop/estado local.
       setTimezoneFollowSystem(true);
       setTimezone(getBrowserTimezone());
     } else {
@@ -167,6 +169,7 @@ function RegisterPageContent() {
       const personal =
         d.account_kind === "personal" || d.use_work_organization === false;
       const kind: AccountKind = personal ? "personal" : "work";
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata el formulario desde un borrador guardado en sessionStorage (sistema externo) una sola vez, protegido por draftHydratedRef.
       setAccountKind(kind);
       if (typeof d.first_name === "string") setFirstName(d.first_name);
       if (typeof d.last_name === "string") setLastName(d.last_name);

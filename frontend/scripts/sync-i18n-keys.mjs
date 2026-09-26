@@ -20,20 +20,8 @@ function extractKeys(filePath) {
   return keys;
 }
 
-function extractEntries(filePath) {
-  const text = fs.readFileSync(filePath, "utf8");
-  const entries = new Map();
-  const re = /^\s+"([^"]+)":\s*\n?\s*"((?:\\.|[^"\\])*)"/gm;
-  let m;
-  while ((m = re.exec(text)) !== null) {
-    entries.set(m[1], m[2]);
-  }
-  return entries;
-}
-
 const enPath = path.join(messagesDir, "en.ts");
 const enKeys = extractKeys(enPath);
-const enEntries = extractEntries(enPath);
 
 let exitCode = 0;
 

@@ -97,6 +97,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loaded = loadPreferences();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata desde localStorage (sistema externo) una sola vez al montar.
     setPreferences(loaded);
     applyTheme(loaded.theme);
     document.documentElement.lang = loaded.locale;
@@ -182,6 +183,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     }, 400);
 
     return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberado: solo estos campos viajan al backend via preferencesToAuthPatch(); listar el objeto `preferences` completo dispararia el debounce en cada cambio de UI que no le importa al servidor (p. ej. tema, que se maneja aparte).
   }, [
     preferences.locale,
     preferences.timezone,

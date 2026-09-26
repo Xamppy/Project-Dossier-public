@@ -27,11 +27,13 @@ export default function ShareDossierPanel({ dossierId, initialShares, onSharesCh
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el estado local con el prop initialShares cuando el padre lo actualiza.
     setShares(initialShares);
   }, [initialShares]);
 
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marca el inicio de la carga antes del fetch async que sigue en el mismo efecto.
     setLoadingMembers(true);
     void fetchOrgMembers()
       .then((res) => {

@@ -110,9 +110,9 @@ def _assert_can_delete_account(
             ),
         )
 
-    memberships = db.execute(
-        select(OrgMembership).where(OrgMembership.user_id == user.id)
-    ).scalars().all()
+    memberships = list(
+        db.execute(select(OrgMembership).where(OrgMembership.user_id == user.id)).scalars().all()
+    )
     if skip_sole_admin_check:
         return memberships
     for membership in memberships:

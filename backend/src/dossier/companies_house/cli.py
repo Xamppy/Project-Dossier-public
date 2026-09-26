@@ -231,7 +231,7 @@ def maybe_analyze_ch_filing_with_gemini(
         print(f"\n(Análisis guardado en: {out_path.resolve()})")
     except ImportError as e:
         print(f"\n(Gemini: instala dependencias: pip install -r requirements.txt) {e}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI: no debe morir por un fallo del analisis Gemini opcional
         print(f"\n(Gemini: error al analizar — {e})")
 
 

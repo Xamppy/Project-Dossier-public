@@ -27,6 +27,33 @@ def person_dossier_system_prompt(
     return apply_output_language_to_system_prompt(base, output_language)
 
 
+_PERSON_STRUCTURED_SYSTEM = (
+    "Eres analista de inteligencia comercial. Preparas un dossier ejecutivo sobre una persona "
+    "antes de una reunión de negocios, usando SOLO los datos entregados en el mensaje "
+    "(perfiles, publicaciones, hechos verificados y contexto de reunión).\n\n"
+    "- Los hechos verificados prevalecen sobre cualquier otra fuente.\n"
+    "- No inventes cargos, fechas, empresas, noticias ni URLs: si un dato no está, omítelo.\n"
+    "- Cada alerta de riesgo se apoya en evidencia de los datos; si no hay, la lista va vacía.\n"
+    "- Los rompehielos salen del contexto de la reunión y de intereses visibles en los datos.\n"
+    "- Las claves del JSON van siempre en inglés, tal como en el formato; solo se traducen "
+    "los valores."
+)
+
+
+def person_structured_system_prompt(
+    *,
+    meeting_context: dict[str, Any] | None = None,
+    output_language: str = "es",
+) -> str:
+    """Prompt de sistema de la síntesis JSON (S4.2), sin las secciones del informe Markdown."""
+    from dossier.services.output_language import dossier_language_instruction
+
+    base = _PERSON_STRUCTURED_SYSTEM
+    if meeting_context and _meeting_context_active(meeting_context):
+        base += "\n- Orienta el resumen y los rompehielos al objetivo de la reunión."
+    return base + dossier_language_instruction(output_language)
+
+
 def _meeting_context_active(ctx: dict[str, Any]) -> bool:
     for key in ("tema", "descripcion", "participantes", "empresa_reunion", "inicio"):
         val = ctx.get(key)

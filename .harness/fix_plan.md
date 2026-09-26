@@ -64,41 +64,16 @@ Lo que no tiene prueba y debería, por orden de riesgo:
 
 ---
 
-## Análisis estático del frontend — medido
+## Análisis estático del frontend — resuelto
 
-`npm run lint` el 07-09-2026: **21 errores y 6 avisos** en 16 archivos. Ninguno introducido por
-el trabajo reciente; llevaban ahí sin que nadie los viera porque no existe integración continua.
+~~`npm run lint` el 07-09-2026: 21 errores y 6 avisos en 16 archivos~~ **Corregido el
+23-09-2026** (tarea S1.3, detectado como omisión al cerrar la actividad A3 -- el commit
+`af49943` solo había tocado el backend). `npm run lint`: 0/0. Detalle completo en
+`feature_list.json` (evidencia de S1.3) y en `docs/dev/tarea-A3-consolidacion-base-tecnica.md`.
 
-El más repetido es `react-hooks/set-state-in-effect`: llamar a `setState` dentro del cuerpo de un
-`useEffect`, que provoca renderizados en cascada. Aparece en `PreferencesProvider.tsx:100` y en
-varios paneles de ajustes.
-
-Archivos afectados:
-
-```
-app/dashboard/dossiers/[id]/CorporateDossierDetailView.tsx
-app/dashboard/dossiers/folder/[id]/page.tsx
-app/dashboard/person-research/page.tsx
-app/dashboard/settings/page.tsx
-app/register/page.tsx
-components/BrandLogo.tsx
-components/dashboard/CalendarFormatGuideAnyAction.tsx
-components/dashboard/CalendarMeetingFormatGuide.tsx
-components/dashboard/CorporateDossierGenerateView.tsx
-components/dossier/ShareDossierPanel.tsx
-components/settings/BillingPanel.tsx
-components/settings/CompanyContextPanel.tsx
-components/settings/OrganizationMembersPanel.tsx
-components/settings/PendingOrgInvitesPanel.tsx
-hooks/useAuthMe.ts
-providers/PreferencesProvider.tsx
-```
-
-`PreferencesProvider.tsx` merece atención especial: **S5.1 y S5.2 van a reescribir los
-proveedores** para consumir el canal de estados progresivos. Conviene corregir sus efectos antes
-de esa migración, no después, o se arrastra el problema al código nuevo.
-
-Se corrigen en **S1.3**. Hasta entonces `scripts/qa.py` los reporta como fallo.
+`PreferencesProvider.tsx` sigue mereciendo atención en **S5.1 y S5.2** (van a reescribir los
+proveedores para consumir el canal de estados progresivos): los efectos ya quedaron limpios de
+errores de lint, pero conviene revisarlos de nuevo al hacer esa migración.
 
 ---
 
@@ -107,6 +82,37 @@ Se corrigen en **S1.3**. Hasta entonces `scripts/qa.py` los reporta como fallo.
 Detectados en la auditoría, fuera del alcance firme. Registrarlos en el informe final como
 trabajo futuro si no se abordan.
 
+- **[CRÍTICO] Next.js 16.2.6 con 3 CVEs críticas.** Medido con `npm audit` el 2026-09-23 (sesión
+  local, S0.3): 3 vulnerabilidades críticas en `next@16.2.6`, variantes de RCE no autenticado y
+  bypass del middleware de autorización. No estaba registrado con esta severidad en la auditoría
+  del 07-09-2026. Fix disponible sin cambios de API relevantes: `npm install next@16.3.6`. A
+  diferencia de **S1.4** (fijar versiones para builds reproducibles, que es sobre *cómo* se
+  versiona), esto es sobre *qué* versión corre hoy — conviene resolverlo antes o independiente de
+  S1.4, no esperar a que esa tarea se tome.
+- **`db/models.py` desincronizado de `db/Migracion.md`.** Detectado al construir **S1.1**
+  (migración de línea base de Alembic, 2026-09-23). Los modelos SQLAlchemy en `db/models.py`
+  declaran ~10 tablas; el esquema real/documentado en `db/Migracion.md` tiene 19 tablas, 2 vistas
+  y 9 triggers/funciones — incluye el mecanismo real de cobro de créditos
+  (`fn_debit_credits_on_dossier`, `fn_credit_ledger_after_dossier_insert` sobre `dossiers`), que no
+  existe en el ORM en absoluto. Confirmado no solo por lectura del `.md`: `account_service.py`
+  hace SQL crudo contra `credit_ledger` y `dossier_alerts` porque no hay modelo ORM para esas
+  tablas. Riesgo concreto: la migración de línea base (S1.1) usa `Base.metadata` como
+  `target_metadata` en `alembic/env.py` para que futuros `alembic revision --autogenerate`
+  comparen contra los modelos — mientras este hallazgo no se corrija, un autogenerate comparará
+  contra metadata incompleta y puede proponer *borrar* las ~9 tablas y los 9 triggers reales que
+  el ORM no conoce. No tomar `--autogenerate` a ciegas hasta que los modelos se completen.
+- ~~**4 pruebas en rojo en `test_credit_policy.py`.**~~ **Resuelto el 23-09-2026** (commit
+  `b3455dc`, sin tarea `S` asignada — investigación puntual). No era un bug en
+  `credit_policy.py`: `dossier/api/app.py` llama `load_env()` a nivel de módulo, y algunas
+  pruebas (`tests/integration/test_dossier_stream_route.py`,
+  `tests/security/test_dossier_stream_seguridad.py`) importan ese módulo durante la
+  recolección de pytest — antes de que corriera el fixture `entorno_de_pruebas` de
+  `conftest.py`. Eso cargaba el `backend/.env` real del desarrollador (con
+  `DOSSIER_CHARGE_CREDITS=false`, legítimo para demos) directo a `os.environ`, y ahí quedaba
+  para el resto de la sesión de pytest — por eso las 4 pruebas pasaban solas pero fallaban en
+  la suite completa. Fix: `conftest.py` ahora hace `os.environ.pop("DOSSIER_CHARGE_CREDITS",
+  None)` al inicio del fixture, garantizando el "sin fijar" que el docstring ya prometía.
+  Verificado: 117 passed, 0 failed, 13 skipped.
 - **`gemini/` como shim.** El README lo declara shim de compatibilidad hacia `llm/`, pero la
   clave `gemini_analysis_markdown` sigue viva en el pipeline. S0.4 debe decidir si el shim se
   retira o se documenta como permanente. Mientras tanto, el nombre confunde a quien lee el código.

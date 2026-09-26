@@ -7,15 +7,15 @@ guardados como ``{"format": "markdown", "body": "..."}``.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
-from typing import Any, Union
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from dossier.schemas.corporate_registry import RegistroCorporativo
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
     companies_house = "companies_house"
     sec_edgar = "sec_edgar"
     eu_registry = "eu_registry"
@@ -35,7 +35,7 @@ class SourceCitation(BaseModel):
     record_id: str | None = Field(None, description="Company Number, CIK, SIREN, etc.")
 
 
-class RiskSeverity(str, Enum):
+class RiskSeverity(StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
@@ -72,6 +72,38 @@ class PressMention(BaseModel):
     source: SourceCitation
 
 
+class OverallRiskLevel(StrEnum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
+
+
+class RecommendationDecision(StrEnum):
+    proceed = "proceed"
+    proceed_with_caution = "proceed_with_caution"
+    escalate_legal_review = "escalate_legal_review"
+    do_not_proceed = "do_not_proceed"
+
+
+class FinalRecommendation(BaseModel):
+    """Sección 7 del informe Markdown anterior (ampliación de S0.9, 2026-09-26)."""
+
+    key_findings: list[str] = Field(default_factory=list, max_length=5)
+    overall_risk: OverallRiskLevel
+    decision: RecommendationDecision
+    next_steps: list[str] = Field(default_factory=list)
+
+
+class ConfidenceAssessment(BaseModel):
+    """Sección 8 del informe Markdown anterior: qué tan confiable es cada dato."""
+
+    high_confidence: list[str] = Field(default_factory=list)
+    medium_confidence: list[str] = Field(default_factory=list)
+    low_confidence: list[str] = Field(default_factory=list)
+    inferences: list[str] = Field(default_factory=list)
+
+
 class CorporateRecordCitation(BaseModel):
     """Un RegistroCorporativo (S1.9) con su cita de origen obligatoria (CA3)."""
 
@@ -90,6 +122,9 @@ class DossierExecutivePayload(BaseModel):
     risk_alerts: list[RiskAlert] = Field(default_factory=list)
     conversation_starters: list[ConversationStarter] = Field(max_length=3)
     data_sources_used: list[SourceCitation] = Field(default_factory=list)
+    # Opcionales para no invalidar payloads ya guardados (CA5); la síntesis los exige (CA6).
+    final_recommendation: FinalRecommendation | None = None
+    confidence_assessment: ConfidenceAssessment | None = None
 
 
 class LegacyMarkdownDossier(BaseModel):
@@ -99,7 +134,7 @@ class LegacyMarkdownDossier(BaseModel):
     body: str
 
 
-def parse_dossier_payload(data: dict[str, Any]) -> Union[DossierExecutivePayload, LegacyMarkdownDossier]:
+def parse_dossier_payload(data: dict[str, Any]) -> DossierExecutivePayload | LegacyMarkdownDossier:
     """Normaliza ``dossier_data`` (nuevo esquema o envoltorio histórico) sin lanzar error de formato.
 
     CA4: un dossier histórico en Markdown se reconoce por ``format == "markdown"``

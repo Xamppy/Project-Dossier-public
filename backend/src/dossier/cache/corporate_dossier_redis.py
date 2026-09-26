@@ -12,7 +12,7 @@ import logging
 import os
 import re
 import threading
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
@@ -50,7 +50,7 @@ def _redis_log_target(url: str) -> str:
         port = f":{p.port}" if p.port else ""
         db = p.path or ""
         return f"{host}{port}{db}"
-    except Exception:
+    except Exception:  # noqa: BLE001 - solo para log, nunca debe romper la app
         return "?"
 
 
@@ -112,7 +112,7 @@ def _client():
             _redis_singleton = r
             logger.info("Redis dossier: cliente listo (%s).", _redis_log_target(url))
             return r
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
             logger.warning(
                 "Redis dossier: no se pudo conectar (%s). Reintento en el siguiente uso.",
                 e,
@@ -179,7 +179,7 @@ def corporate_cache_redis_key(key_hash: str) -> str:
 
 
 def cached_until_from_now() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(seconds=redis_ttl_seconds())
+    return datetime.now(UTC) + timedelta(seconds=redis_ttl_seconds())
 
 
 def _cache_key(key_hash: str) -> str:
@@ -199,7 +199,7 @@ def get_corporate_cached_markdown(key_hash: str) -> str | None:
         if not raw:
             return None
         return str(raw)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
         logger.warning("Redis GET dossier corporativo: %s", e)
         return None
 
@@ -210,7 +210,7 @@ def set_corporate_cached_markdown(key_hash: str, markdown: str) -> None:
         return
     try:
         r.setex(_cache_key(key_hash), redis_ttl_seconds(), markdown)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
         logger.warning("Redis SETEX dossier corporativo: %s", e)
 
 
@@ -221,7 +221,7 @@ def run_with_corporate_cache_lock(key_hash: str, fn) -> Any:
     try:
         with r.lock(_lock_key(key_hash), timeout=300, blocking_timeout=120):
             return fn()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin lock
         logger.warning("Redis lock dossier corporativo: %s. Ejecutando sin lock.", e)
         return fn()
 
@@ -239,6 +239,6 @@ def delete_dossier_redis_cache(redis_key: str) -> bool:
         if deleted:
             logger.debug("Redis DELETE dossier cache: %s", key)
         return deleted > 0
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Redis opcional: cualquier fallo degrada a sin cache
         logger.warning("Redis DELETE dossier cache (%s): %s", key, e)
         return False

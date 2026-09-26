@@ -1,6 +1,7 @@
 """Estrategias de búsqueda PDL (person/enrich + person/search SQL)."""
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
@@ -87,14 +88,14 @@ def _normalize_linkedin(url: str) -> str:
 
 def _last_name_spelling_variants(last: str) -> list[str]:
     """Variantes ortográficas frecuentes (p. ej. Jeria / Jerias)."""
-    l = last.strip()
-    if len(l) < 3:
-        return [l] if l else []
-    variants = [l]
-    if l.endswith("s") and len(l) > 4:
-        variants.append(l[:-1])
-    elif not l.endswith("s"):
-        variants.append(f"{l}s")
+    base = last.strip()
+    if len(base) < 3:
+        return [base] if base else []
+    variants = [base]
+    if base.endswith("s") and len(base) > 4:
+        variants.append(base[:-1])
+    elif not base.endswith("s"):
+        variants.append(f"{base}s")
     out: list[str] = []
     seen: set[str] = set()
     for v in variants:
@@ -220,7 +221,7 @@ def build_pdl_enrich_strategies(req: PersonResearchRequest) -> list[tuple[str, d
         add("profile (LinkedIn)", {"profile": li})
 
     name = req.full_name.strip()
-    first, last, single = split_person_name(name)
+    _first, _last, single = split_person_name(name)
     companies = company_search_variants(req.company)
     location = ", ".join(
         p for p in [(req.city or "").strip(), (req.country or "").strip()] if p
@@ -270,7 +271,7 @@ def build_pdl_enrich_strategies(req: PersonResearchRequest) -> list[tuple[str, d
 
 def _name_clause(name: str) -> str | None:
     """Cláusula de nombre tolerante a varias divisiones first/last."""
-    first, last, single = split_person_name(name)
+    _first, _last, single = split_person_name(name)
     if single:
         return _equals_clause("full_name", single)
 
@@ -293,10 +294,8 @@ def _name_clause(name: str) -> str | None:
             )
 
     # También el nombre completo por si el proveedor no separa igual.
-    try:
+    with contextlib.suppress(ValueError):
         push(_equals_clause("full_name", name))
-    except ValueError:
-        pass
 
     if not or_parts:
         return None

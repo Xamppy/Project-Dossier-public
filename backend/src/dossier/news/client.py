@@ -35,7 +35,7 @@ def search_gdelt_articles(query: str, *, limite: int = 10) -> list[dict[str, Any
     try:
         resp = requests.get(
             GDELT_SEARCH_URL,
-            params={
+            params={  # type: ignore[arg-type]  # valores str/int validos para requests; mypy infiere dict[str, object]
                 "query": q,
                 "mode": "artlist",
                 "format": "json",
@@ -73,7 +73,7 @@ def search_newsapi_articles(query: str, *, limite: int = 10) -> list[dict[str, A
     try:
         resp = requests.get(
             NEWSAPI_SEARCH_URL,
-            params={"q": q, "pageSize": max(1, min(limite, 100))},
+            params={"q": q, "pageSize": max(1, min(limite, 100))},  # type: ignore[arg-type]  # valores str/int validos para requests; mypy infiere dict[str, object]
             headers={"X-Api-Key": api_key},
             timeout=DEFAULT_TIMEOUT,
         )

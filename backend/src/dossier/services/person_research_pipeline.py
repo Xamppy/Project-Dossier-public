@@ -4,11 +4,16 @@ from __future__ import annotations
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
 
+from dossier.billing.credit_policy import (
+    assert_sufficient_credits,
+    credit_charging_enabled,
+    person_research_credit_cost,
+)
 from dossier.cache.corporate_dossier_redis import cached_until_from_now
 from dossier.cache.person_dossier_redis import (
     get_person_cached_payload,
@@ -21,20 +26,15 @@ from dossier.db.models import Dossier, Organization, User
 from dossier.llm.common import normalize_person_report_text
 from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.person_research import PersonResearchRequest
-from dossier.billing.credit_policy import (
-    assert_sufficient_credits,
-    credit_charging_enabled,
-    person_research_credit_cost,
-)
-from dossier.services.output_language import effective_output_language, normalize_output_language
+from dossier.services.calendar_event_dossiers import _person_failure_message
+from dossier.services.output_language import effective_output_language
 from dossier.services.person_dossier_dedup import (
+    person_research_cache_payload_from_result,
     person_research_fingerprint,
     person_research_response_from_redis_cache,
-    person_research_cache_payload_from_result,
     profiles_count_from_research_result,
     should_cache_person_research_result,
 )
-from dossier.services.calendar_event_dossiers import _person_failure_message
 from dossier.services.person_research_service import run_person_research
 
 logger = logging.getLogger(__name__)
@@ -153,7 +153,7 @@ def run_person_research_and_persist(
 
     md = normalize_person_report_text((result.get("llm_analysis_markdown") or "").strip())
     saved: dict[str, Any] | None = None
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cache_row_key = person_cache_redis_key(fp) if cache_hit else None
     cache_expires = cached_until_from_now() if cache_hit else None
 
@@ -212,6 +212,10 @@ def run_person_research_and_persist(
             "lusha_diagnostics": lusha_diag,
             "output_language": out_lang,
         }
+        # S4.3: el contrato validado va junto al Markdown derivado de él; `format`,
+        # `body` y `billing` no cambian (los leen el dashboard y el trigger de cobro).
+        if result.get("executive_payload"):
+            dossier_data_body["executive_payload"] = result["executive_payload"]
         if existing is not None:
             prev = existing.dossier_data if isinstance(existing.dossier_data, dict) else {}
             dossier_data_body = _preserve_calendar_dossier_metadata(prev, dossier_data_body)

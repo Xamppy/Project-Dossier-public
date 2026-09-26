@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -29,13 +29,13 @@ from dossier.services.calendar_event_dossiers import (
     parse_calendar_event_for_dossiers,
     persist_calendar_dossiers,
 )
-from dossier.services.output_language import effective_output_language, normalize_output_language
-from dossier.services.person_dossier_dedup import person_research_fingerprint
-from dossier.services.person_research_pipeline import run_person_research_and_persist
 from dossier.services.google_calendar_api import obtener_reunion_google_por_id
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import merge_reunion_payload, obtener_reunion_por_id
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
+from dossier.services.output_language import effective_output_language
+from dossier.services.person_dossier_dedup import person_research_fingerprint
+from dossier.services.person_research_pipeline import run_person_research_and_persist
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ _CANCELLABLE_STATUSES = ("queued", "running")
 def _iso(dt: datetime | None) -> str | None:
     if dt is None:
         return None
-    return dt.astimezone(timezone.utc).isoformat()
+    return dt.astimezone(UTC).isoformat()
 
 
 def serialize_job(job: DossierGenerationJob) -> dict[str, Any]:
@@ -182,7 +182,7 @@ def cancel_dossier_generation_job(
         )
     job.status = "cancelled"
     job.error_message = "Cancelado por el usuario"
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     db.commit()
     db.refresh(job)
     return job
@@ -325,7 +325,7 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
         return
 
     if job.status == "queued":
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         job.status = "running"
         job.started_at = now
         db.commit()
@@ -342,7 +342,7 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
         if job is not None and job.status != "cancelled":
             job.status = "failed"
             job.error_message = str(exc)[:2000]
-            job.completed_at = datetime.now(timezone.utc)
+            job.completed_at = datetime.now(UTC)
             db.commit()
 
 
@@ -377,7 +377,7 @@ def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
     else:
         job.status = "completed"
         job.error_message = None
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     saved = result.get("saved_dossier") or {}
     job.credits_consumed = int(saved.get("credits_consumed") or 0)
     db.commit()
@@ -398,7 +398,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         snapshot=job.reunion_snapshot,
     )
     org_ctx = format_dossier_context_for_prompt(org)
-    depth: DossierDepth = job.depth_level if job.depth_level in DEPTH_CREDITS else "standard"  # type: ignore[assignment]
+    depth: DossierDepth = job.depth_level if job.depth_level in DEPTH_CREDITS else "standard"
     charge = credit_charging_enabled()
     assert_depth_allowed(org, depth)
 
@@ -447,7 +447,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
     else:
         job.status = "completed"
         job.error_message = None
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     db.commit()
     logger.info(
         "Job dossier %s %s (event=%s, credits=%s)",
@@ -469,7 +469,7 @@ def claim_next_queued_job(db: Session) -> DossierGenerationJob | None:
     ).first()
     if job is None:
         return None
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     job.status = "running"
     job.started_at = now
     db.commit()

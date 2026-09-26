@@ -5,7 +5,7 @@ Normalizado al mismo shape que ``google_calendar_api.normalizar_evento_google``.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from urllib.parse import quote
 
 import requests
@@ -31,7 +31,7 @@ def _headers(access_token: str) -> dict[str, str]:
 
 
 def _iso_utc(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _graph_datetime_to_utc_iso(dt_str: str) -> str:
@@ -48,14 +48,14 @@ def _graph_datetime_to_utc_iso(dt_str: str) -> str:
     if tz_pos > 10:
         try:
             dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
-            return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         except ValueError:
             pass
     try:
         if "." in s:
             base, frac = s.split(".", 1)
             s = f"{base}.{frac[:6]}"
-        dt = datetime.fromisoformat(s).replace(tzinfo=timezone.utc)
+        dt = datetime.fromisoformat(s).replace(tzinfo=UTC)
         return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     except ValueError:
         return str(dt_str).strip()
@@ -107,7 +107,7 @@ def obtener_eventos_proximos(
     """
     Usa calendarView: forma recomendada por Microsoft para eventos en un rango de fechas.
     """
-    inicio = datetime.now(timezone.utc)
+    inicio = datetime.now(UTC)
     return obtener_eventos_en_rango(
         access_token,
         top=top,
@@ -320,7 +320,7 @@ def diagnostico_microsoft_calendar(access_token: str) -> dict:
         r = requests.get(
             GRAPH_EVENTS_URL,
             headers=_headers(access_token),
-            params={
+            params={  # type: ignore[arg-type]  # valores str/int validos para requests; mypy infiere dict[str, object]
                 "$top": 10,
                 "$orderby": "createdDateTime desc",
                 "$select": "id,subject,start,createdDateTime",
@@ -361,7 +361,7 @@ def listar_reuniones(
     Con incluir_pasadas=True: cualquier evento reciente del calendario.
     """
     if incluir_pasadas:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         fetch_top = min(max(top * 4, top), 50)
         datos = obtener_eventos_en_rango(
             access_token,
@@ -394,7 +394,7 @@ def obtener_reunion_por_id(
     if raw is not None:
         return normalizar_evento(raw)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     try:
         datos = obtener_eventos_en_rango(
             access_token,

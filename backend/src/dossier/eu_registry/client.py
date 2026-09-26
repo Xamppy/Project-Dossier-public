@@ -42,7 +42,7 @@ def search_france_companies(query: str, *, limite: int = 5) -> list[dict[str, An
     try:
         resp = requests.get(
             FRANCE_SEARCH_URL,
-            params={"q": q, "per_page": max(1, min(limite, 25))},
+            params={"q": q, "per_page": max(1, min(limite, 25))},  # type: ignore[arg-type]  # valores str/int validos para requests; mypy infiere dict[str, object]
             timeout=DEFAULT_TIMEOUT,
         )
         resp.raise_for_status()
@@ -69,7 +69,7 @@ def search_germany_companies(query: str, *, limite: int = 5) -> list[dict[str, A
     try:
         resp = requests.get(
             url,
-            params={"name__contains": q, "_shape": "array", "_size": max(1, min(limite, 25))},
+            params={"name__contains": q, "_shape": "array", "_size": max(1, min(limite, 25))},  # type: ignore[arg-type]  # valores str/int validos para requests; mypy infiere dict[str, object]
             timeout=DEFAULT_TIMEOUT,
         )
         resp.raise_for_status()

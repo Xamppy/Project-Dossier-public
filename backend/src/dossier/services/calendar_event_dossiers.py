@@ -8,18 +8,19 @@ Generación de dossiers desde eventos de calendario.
 from __future__ import annotations
 
 import logging
-import os
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from dossier.db.models import Dossier, User
-from dossier.billing.entitlements import corporate_dossier_module_flags, plan_allows_calendar_corporate_dossier
-from dossier.graphs.corporate_dossier_graph import JurisdictionScope, run_corporate_dossier_langgraph
+from dossier.billing.credit_policy import PERSON_IDENTITY_CREDITS, credit_charging_enabled
+from dossier.billing.entitlements import (
+    corporate_dossier_module_flags,
+    plan_allows_calendar_corporate_dossier,
+)
 from dossier.cache.corporate_dossier_redis import (
     build_corporate_langgraph_cache_key_hash,
     cached_until_from_now,
@@ -36,22 +37,11 @@ from dossier.cache.person_dossier_redis import (
     run_with_person_cache_lock,
     set_person_cached_payload,
 )
-from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
-from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
+from dossier.db.models import Dossier, User
+from dossier.graphs.corporate_dossier_graph import JurisdictionScope, run_corporate_dossier_langgraph
 from dossier.llm.common import normalize_person_report_text
-from dossier.services.person_research_config import default_person_research_source
-from dossier.services.person_dossier_dedup import (
-    person_research_fingerprint,
-    person_research_response_from_redis_cache,
-    person_research_cache_payload_from_result,
-    profiles_count_from_research_result,
-    should_cache_person_research_result,
-)
-from dossier.services.output_language import normalize_output_language
-from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
-from dossier.services.person_research_service import run_person_research
-from dossier.billing.credit_policy import PERSON_IDENTITY_CREDITS, credit_charging_enabled
 from dossier.schemas.dossier_generation import DEPTH_CREDITS
+from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
 from dossier.services.calendar_meeting_labels import (
     COUNTRY_IN_DESC,
     COUNTRY_INLINE_IN_JOB,
@@ -65,6 +55,18 @@ from dossier.services.calendar_meeting_labels import (
     PERSON_PATTERNS,
     SUBJECT_CON,
 )
+from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
+from dossier.services.output_language import normalize_output_language
+from dossier.services.person_dossier_dedup import (
+    person_research_cache_payload_from_result,
+    person_research_fingerprint,
+    person_research_response_from_redis_cache,
+    profiles_count_from_research_result,
+    should_cache_person_research_result,
+)
+from dossier.services.person_research_config import default_person_research_source
+from dossier.services.person_research_service import run_person_research
+from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
 
 logger = logging.getLogger(__name__)
 
@@ -198,9 +200,7 @@ def _subject_yields_company(tema: str, extracted: str) -> bool:
     e = extracted.strip().lower()
     if e == t:
         return False
-    if _GENERIC_MEETING_TITLE.match(extracted.strip()):
-        return False
-    return True
+    return not _GENERIC_MEETING_TITLE.match(extracted.strip())
 
 
 def _description_signals_person_only(descripcion: str) -> bool:
@@ -719,7 +719,9 @@ def _generate_one_person_dossier(
             )
             person_cache_hit = False
             person_cache_key = None
-        out["md"] = (person_payload.get("llm_analysis_markdown") or "").strip() or None
+        out["md"] = (
+            person_payload.get("llm_analysis_markdown") or ""  # type: ignore[union-attr]
+        ).strip() or None
         out["payload"] = person_payload
         out["cache_hit"] = person_cache_hit
         out["cache_key"] = person_cache_key
@@ -848,9 +850,7 @@ def _markdown_is_persistable(md: str | None) -> bool:
     s = (md or "").lstrip()
     if s.startswith("# Error"):
         return False
-    if s.startswith("No se pudo generar ningún dossier"):
-        return False
-    return True
+    return not s.startswith("No se pudo generar ningún dossier")
 
 
 def _is_technical_warning(text: str) -> bool:
@@ -915,14 +915,14 @@ def _format_meeting_datetime(inicio: str | None, tz_name: str | None = None) -> 
         normalized = raw.replace("Z", "+00:00")
         dt = datetime.fromisoformat(normalized)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         tz_key = (tz_name or "UTC").strip() or "UTC"
         try:
             from zoneinfo import ZoneInfo
 
             local = dt.astimezone(ZoneInfo(tz_key))
-        except Exception:
-            local = dt.astimezone(timezone.utc)
+        except Exception:  # noqa: BLE001 - fallback de timezone invalida a UTC
+            local = dt.astimezone(UTC)
         return local.strftime("%d/%m/%Y %H:%M")
     except ValueError:
         return raw[:16]
@@ -1005,7 +1005,7 @@ def persist_calendar_dossiers(
     user_row = db.get(User, user_id) if user_id else None
     user_tz = getattr(user_row, "timezone", None) if user_row else None
     cal = _calendar_meta(reunion, calendar_provider, user_tz)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     saved: dict[str, Any] = {}
     folder_id = uuid.uuid4()
     folder_title = (
@@ -1038,7 +1038,7 @@ def persist_calendar_dossiers(
             or "Empresa"
         )
         subject = strip_html_to_plain_line(subject, max_len=255) or "Empresa"
-        corp_flags = corporate_dossier_module_flags(depth_key)  # type: ignore[arg-type]
+        corp_flags = corporate_dossier_module_flags(depth_key)
         dossier = Dossier(
             id=dossier_id,
             organization_id=org_id,

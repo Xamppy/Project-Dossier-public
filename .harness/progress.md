@@ -36,6 +36,480 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-26 · S4.3 (recomendación y confianza) · FO (agente)
+
+**Hecho.** A pedido del usuario, el informe vuelve a traer las secciones 7 («Conclusión y
+recomendación») y 8 («Nivel de confianza») del Markdown anterior. Se agregaron al contrato
+(`FinalRecommendation` y `ConfidenceAssessment`) con la spec S0.9 ampliada (CA5 y CA6), y se
+renderizan en los 6 idiomas. Suite: 180 passed con Postgres. Con DeepSeek real: 1 llamada
+(19 s) y ambas secciones completas.
+
+**Lo que hay que saber.**
+- **Opcionales en el contrato, obligatorios al sintetizar.** Los payloads ya guardados siguen
+  validando (CA5). La síntesis valida contra `_PayloadSintetizado`, una subclase con los dos
+  campos obligatorios: si el modelo los omite, el reintento asistido los pide (CA6).
+- **Cambia qué cuenta como respuesta válida del LLM.** Por eso se actualizaron, a propósito,
+  los helpers `_payload_json` y `_respuesta_valida` de las pruebas de S4.2 y S4.3. Las pruebas
+  de S4.1 no se tocaron y siguen en verde.
+- **El modelo real escribió «Datos proporcionados» como fuente**, en vez de «People Data
+  Labs». Exigir fuentes precisas corresponde a S4.7.
+- Ojo al generar código con `\n` desde un heredoc de bash en esta máquina: aparece como salto
+  de línea real y rompe las cadenas. Usa el editor.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-09-26 · S4.3 · FO (agente)
+
+**Hecho.** Los dossiers de persona (vía PDL) ahora se generan con **una sola llamada JSON**
+(S4.2). El Markdown que ve el dashboard se renderiza por código desde ese JSON
+(`services/executive_markdown.py`, títulos en los 6 idiomas). `dossier_data` suma
+`executive_payload` (el contrato validado) y conserva `format: "markdown"`, `body` y
+`billing`. El frontend no cambió. La caché de Redis y el camino del calendario conservan el
+payload, porque todo pasa por `run_person_research`.
+
+12 pruebas nuevas; la suite da 168 passed con Postgres y 158 sin él. De punta a punta, con
+DeepSeek real, un perfil ficticio y `dossier_test`: 1 llamada (30 s), status `complete`,
+`billing: charged` y el trigger descontó el crédito (10 → 9).
+
+**Sin terminar.**
+- El dashboard todavía no **aprovecha** el JSON: muestra el Markdown derivado. Una vista
+  estructurada (tarjetas de alertas, línea de tiempo) sería trabajo de frontend nuevo.
+- La búsqueda por IA (`gemini_web`) y el grafo corporativo siguen generando Markdown directo,
+  sin payload.
+- No verifiqué el dashboard en el navegador con un dossier nuevo: habría requerido una
+  búsqueda PDL de una persona real o sembrar datos en la base de desarrollo.
+
+**Lo que hay que saber.**
+- **Se apartó de §3 del diseño (con acuerdo del usuario: lo más económico y simple).** No hay
+  `format: "structured_json"` ni `legacy_markdown_body`; el payload va **al lado** del
+  Markdown. Está documentado en `estrategia-migracion-modelo-datos.md` §3. Consecuencia para
+  S4.4 (compatibilidad de lectura): un dossier nuevo **sigue siendo** `format == "markdown"`,
+  así que `parse_dossier_payload` lo trata como histórico. Quien quiera el contrato debe leer
+  `dossier_data["executive_payload"]` cuando exista.
+- **Respaldo a Markdown solo ante JSON inválido** (`StructuredSynthesisError`), con un aviso en
+  `warnings`. Si el proveedor está caído no hay respaldo: la segunda llamada fallaría igual y
+  solo sumaría espera.
+- **El informe se volvió más corto y estructurado** que el Markdown de 8 secciones anterior:
+  ya no hay "nivel de confianza" ni recomendación final. Si el equipo extraña algo, el lugar
+  para agregarlo es el contrato de S4.1 más el renderizado, no el prompt.
+- El pipeline devuelve el dossier guardado en `result["saved_dossier"]`, no en `"saved"`.
+
+**Siguiente paso concreto.** Revisar S4.1 → S4.2 → S4.3 en ese orden (se tomaron
+encadenadas, con la anterior en `review`). Luego, en un navegador, generar un dossier de
+prueba y confirmar cómo se ve el Markdown derivado.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-09-26 · S4.2 · FO (agente)
+
+**Hecho.** La síntesis puede emitir el contrato de S4.1 validado.
+`llm/structured_synthesis.py:synthesize_executive_payload()` hace cuatro cosas:
+- pide a DeepSeek modo `json_object` (nuevo parámetro `json_mode` en `chat_completion`);
+- inyecta un **ejemplo de instancia** más el JSON Schema;
+- valida con Pydantic;
+- si no valida, hace un reintento asistido que le devuelve al modelo los errores concretos
+  (acotados a 20 errores y 8.000 caracteres de eco).
+
+Si aun así falla, lanza `StructuredSynthesisError`. Para persona está
+`analyze_person_profile_bundle_structured()`. Hay 18 pruebas nuevas (unitarias, integración y
+estrés) y la suite da 147 passed. Validado contra DeepSeek real con datos ficticios, en español
+y en inglés: 1 llamada cada uno y payload válido.
+
+**Sin terminar.** No está conectado al pipeline: `person_research_pipeline.py` sigue
+persistiendo `{"format": "markdown"}`. Hacer ese cambio es S4.3. Tampoco cubre el grafo
+corporativo (`graphs/corporate_dossier_graph.py`), que tiene su propia síntesis.
+
+**Lo que hay que saber.**
+- **Se tomó con S4.1 todavía en `review`**, por decisión del usuario (ruta crítica del MVP).
+  `next.py --claim` la rechazaba; se marcó con `--set` y quedó anotado. Si la revisión de S4.1
+  cambia el contrato, hay que ajustar el ejemplo de `executive_payload_example()`. Ese ejemplo
+  se construye con los propios modelos, así que una prueba lo detecta.
+- **Las pruebas con el doble del LLM no bastan aquí; hay que probar contra el proveedor.** El
+  primer diseño reutilizaba los prompts del informe Markdown, más el esquema crudo. Pasaba las
+  15 pruebas, pero con DeepSeek real devolvía el **JSON Schema copiado seguido del informe en
+  Markdown**, incluso en modo `json_object`. Hubo dos correcciones, cada una con su prueba de
+  regresión:
+  1. Prompts propios, sin las instrucciones de secciones `##` (`person_structured_system_prompt`).
+  2. Un ejemplo de instancia además del esquema, con la advertencia de no copiarlo.
+- **El idioma tiene que ir también en el mensaje de usuario.** Con la directiva solo en el
+  sistema, una corrida en inglés salió en español.
+- **Una corrida en inglés tardó 143 s y no se repitió** (la siguiente tardó 14 s, con una sola
+  llamada). No quedó claro si fue latencia de DeepSeek o los reintentos internos de
+  `chat_completion`. Conviene medir esto en S4.3 con datos reales de volumen.
+- **Una prueba de integración se reescribió a conciencia**, según la política §2, regla 1.
+  Exigía reutilizar el prompt de sistema Markdown, y el proveedor real demostró que ese
+  requisito estaba mal. Además, el doble del SDK de OpenAI ahora descarta los argumentos `omit`,
+  igual que el SDK real. Así se envía `response_format` solo cuando se pide, sin romper mypy.
+- **Una prueba sobre el proveedor real no puede quedar en la suite**, porque `sin_red` lo
+  bloquea y costaría tokens en cada PR. El script del smoke test está en la conversación de
+  esta sesión, no en el repositorio; si se quiere repetir, conviene que viva en `scripts/`.
+
+**Siguiente paso concreto.** S4.3: en `person_research_pipeline.py:189`, usar
+`analyze_person_profile_bundle_structured` y guardar el payload con la estructura v2.0 de
+`estrategia-migracion-modelo-datos.md` §3. Hay que conservar `"billing"` en la raíz, porque de
+eso depende el trigger de cobro, y mantener `legacy_markdown_body` mientras el frontend lea
+Markdown.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-09-26 · S4.5 · FO (agente)
+
+**Hecho.** Las entidades de alertas, trayectoria y menciones de prensa cubren el contrato de
+S4.1 (`schemas/dossier_executive_payload.py`). DDL idempotente en
+`db/schema_patches.py:DOSSIER_ENTITIES_PATCHES`, migración Alembic `b7e2d4f1a9c3` (reutiliza
+esa tupla, igual que la línea base con `_PATCHES`) y modelos ORM `DossierAlert`,
+`DossierMediaMention` y `DossierCareerEntry`. 21 pruebas nuevas (unitarias, integración y
+seguridad); suite completa 138 passed con Postgres. Verificado también contra la base local
+de desarrollo: al reiniciar la API aparecen las columnas y el CHECK ampliado.
+
+Antes, en la misma sesión: se trajo `docmac` a `FO` por fast-forward, se reinstalaron las
+dependencias y se commiteó un fix de hidratación en el selector de zona horaria
+(`lib/timezones.ts`: Node y Chrome formatean distinto el offset de UTC).
+
+**Sin terminar.** Nada de S4.5. Falta quien **escriba** en estas tablas: hoy ningún código
+persiste el payload estructurado en ellas. Eso cae en el pipeline de S4.x/S3.x, no en S4.5.
+
+**Lo que hay que saber.**
+- **Se desvió del diseño aprobado de S0.10, con acuerdo del usuario.** El documento proponía
+  crear `dossier_risk_alerts`, `dossier_career_positions` y `dossier_press_mentions`, pero la
+  línea base ya trae `dossier_alerts`, `dossier_career_entries` y `dossier_media_mentions`
+  con el mismo propósito, cascada hacia `dossiers` y cero uso en el código. Se extendieron
+  esas. La tabla de correspondencia contrato → columnas está en
+  `docs/architecture/estrategia-migracion-modelo-datos.md` §2. FD revisó ese diseño: conviene
+  que lo vea.
+- **`dossier_alerts.level` mezcla dos vocabularios a propósito**: `critical/warning`
+  (heredado) y `low/medium/high` (contrato). El CHECK acepta los cinco. El `downgrade` de
+  `b7e2d4f1a9c3` **borra** las alertas con niveles del contrato antes de restaurar el CHECK
+  original; no hay equivalencia honesta entre ambos.
+- **El esquema tiene dos caminos y S4.5 cubre ambos.** Tu base local no tiene
+  `alembic_version`: la extiende `apply_schema_patches` al arrancar (ahora aplica
+  `_PATCHES + DOSSIER_ENTITIES_PATCHES`). Una base nueva la extiende `alembic upgrade head`.
+  **No metas parches nuevos en `_PATCHES`**: la migración de línea base la itera en vivo y
+  dejaría de ser una foto fija. Cada tarea que toque el esquema debería tener su propia tupla
+  y su propia migración, como aquí.
+- **Nuevos fixtures en `tests/conftest.py`: `pg_vacia`, `alembic_cfg` y `sembrar_dossier`.**
+  Corren contra el Postgres de `TEST_DATABASE_URL`, que se define en la terminal y no en
+  `.env`. Recrean el esquema `public` en cada prueba, así que se niegan a correr si el nombre
+  de la base no contiene «test». En esta máquina existe `dossier_test`. S6.5 y S6.7 pueden
+  reutilizarlos tal cual.
+- **La CI no levanta Postgres**, así que ahí esas 9 pruebas se saltan. Es un hueco real en S1.5:
+  la integración de base de datos solo corre en local.
+- **`db/Migracion.md` no se tocó**, siguiendo la convención de los parches anteriores
+  (`dossier_shares`, `org_invites` tampoco están ahí). Hoy la fuente de verdad del esquema es
+  Migracion.md, más `schema_patches.py`, más las migraciones.
+- **Ruff marca 26 errores preexistentes** (scripts, `alembic/env.py`, pruebas antiguas). No
+  se corrigieron para no mezclar análisis estático con un cambio funcional. Detalle: como existe
+  `backend/alembic/`, ruff trata `alembic` como paquete local y exige importarlo después de
+  `sqlalchemy`.
+
+**Siguiente paso concreto.** Revisión de S4.5 por otro integrante (FD, por el cambio de
+diseño). Después, S6.5 (retención de 24 h) y S6.7 (aislamiento entre organizaciones) quedan
+desbloqueadas y pueden apoyarse en la cascada ya probada en
+`tests/security/test_dossier_entities_seguridad.py`.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-09-23 · S1.3 (frontend, omision cerrada) · FD (agente)
+
+**Hecho.** El commit `af49943` (S1.3) solo corrigio el backend; los 21 errores y 6 avisos de
+`npm run lint` en el frontend, documentados desde la auditoria del 07-09-2026 y con la nota
+explicita "se corrigen en S1.3" en `fix_plan.md`, habian quedado sin tocar. Detectado al
+preguntar si "los cientos de errores del principio" ya estaban en el informe de cierre de A3.
+Corregido en 17 archivos:
+
+- **21 errores `react-hooks/set-state-in-effect`** (regla nueva de eslint-plugin-react-hooks
+  que marca cualquier `setState` sincrono dentro del cuerpo de un `useEffect`). Todos son
+  patrones legitimos y repetidos en el codebase (cargar datos al montar, sincronizar con
+  localStorage, reflejar el estado de un job rastreado por un provider, recortar un valor
+  fuera de rango). Sin suite de pruebas E2E que cubra estos componentes, refactorizarlos de
+  verdad (mover a estado derivado, `useSyncExternalStore`, etc.) es riesgo de romper
+  comportamiento sin forma de verificarlo en esta sesion -- mismo criterio que los 23 BLE001
+  del backend en S1.3: se documentaron con `eslint-disable-next-line` y una razon puntual por
+  linea, no se suprimio la regla globalmente.
+- **2 `no-unused-vars` reales**: `enEntries` en `scripts/sync-i18n-keys.mjs` (variable y
+  funcion `extractEntries` sin ningun uso, eliminadas) y `handleRegeneratePerson` en
+  `CorporateDossierDetailView.tsx` (funcion completa sin conectar a ningun boton -- el flujo
+  de "regenerar" para personas navega a `/person-research` con precarga, no reenvia el job
+  desde esta vista; eliminada junto con los 4 imports que quedaron huerfanos).
+- **2 `react-hooks/exhaustive-deps`**: en `CorporateDossierGenerateView.tsx` se agrego `t` a
+  las dependencias (fix real: sin esto, el mensaje de error traducido podia quedar en el
+  idioma anterior si el usuario cambiaba de idioma con un job activo). En
+  `PreferencesProvider.tsx` se dejo `eslint-disable-next-line` justificado: la lista de
+  dependencias es parcial a proposito (solo los campos que viajan al backend), agregar el
+  objeto `preferences` completo dispararia el debounce en cada cambio de UI que no le importa
+  al servidor.
+- **2 `jsx-a11y/alt-text`** en `BrandLogo.tsx`: falso positivo -- el `alt` ya se pasaba via
+  `{...shared}` pero eslint no lo rastrea a traves de un spread. Se agrego `alt={shared.alt}`
+  explicito en cada `<Image>`, mismo valor, cero cambio de comportamiento.
+
+**Sin terminar.** Nada -- `npm run build` corrio en la maquina de FD el mismo dia y
+confirmo: 0/0, compilo, paso TypeScript, genero las 14 rutas. El primer intento fallo por una
+razon aparte: el `node_modules` de `frontend/` habia quedado con una instalacion a medias
+(`@next/swc` seguia en 16.2.6 mientras `next` ya estaba en 16.3.6 desde S1.4) -- mismo tipo de
+corrupcion en carpeta de red que ya se habia visto con `sharp-win32-x64`. Se resolvio con
+`Remove-Item -Recurse -Force node_modules` + `npm install` limpio.
+
+**Lo que hay que saber.** `npm run lint` y `npm test` (14/14) si se pudieron correr completos
+y quedaron en verde. El patron de "solo el primer `setState` de un `useEffect` se reporta,
+los siguientes en el mismo efecto no" costo una vuelta extra: un `eslint-disable-next-line`
+en la segunda ocurrencia del mismo efecto queda como "unused eslint-disable directive"
+(warning), hay que quitarlo. Tambien: `eslint-disable-next-line` solo desactiva la linea
+inmediatamente siguiente -- un comentario de justificacion envuelto en dos lineas hace que la
+directiva "salte" a la segunda linea del comentario en vez de a la linea de codigo real; hay
+que escribir la razon completa en una sola linea.
+
+**Siguiente paso concreto.** Ninguno para S1.3. Correr `npm run build` como verificacion final
+antes de comitear.
+
+**Rama.** `main` (sin comitear aun -- a peticion de FD, que hace los commits el mismo).
+**Estado.** done.
+
+---
+
+### 2026-09-23 · Hallazgo sin tarea S · FD (agente)
+
+**Hecho.** Investigadas y corregidas las 4 pruebas rojas preexistentes en
+`test_credit_policy.py` (listadas en `fix_plan.md` como hallazgo sin tarea asignada, no
+tocadas en S1.3 a propósito por ser corrección funcional y no análisis estático). Causa
+raíz: `dossier/api/app.py` llama `load_env()` a nivel de módulo (línea de import, no dentro
+de una función), y pruebas como `tests/integration/test_dossier_stream_route.py` y
+`tests/security/test_dossier_stream_seguridad.py` importan ese módulo durante la
+*recolección* de pytest — antes de que corra el fixture `autouse` de `conftest.py`. Eso
+cargaba el `backend/.env` real del desarrollador (con `DOSSIER_CHARGE_CREDITS=false`,
+legítimo para demos locales) directo a `os.environ`, y ahí quedaba para el resto de la
+sesión de pytest. Por eso las 4 pruebas pasaban solas (`pytest tests/test_credit_policy.py`)
+pero fallaban dentro de la suite completa — dependía de qué otro archivo se hubiera
+importado antes en esa ejecución. Fix de una línea en `tests/conftest.py`:
+`os.environ.pop("DOSSIER_CHARGE_CREDITS", None)` al inicio del fixture, para garantizar el
+"sin fijar" que el docstring del fixture ya prometía, sin importar quién la haya fijado
+antes. Ningún cambio en código de producción (`config.py`, `credit_policy.py` intactos).
+Verificado con la suite completa: **117 passed, 0 failed, 13 skipped** (antes: 113 passed,
+4 failed, 13 skipped). Commit `b3455dc`.
+
+De paso, se detectó y corrigió que el contenido real de **S1.4** (`requirements.txt`/
+`requirements-dev.txt` fijados con `==`, `next.js` 16.2.6→16.3.6) y de **S1.7**
+(`docs/sql/schema_project_dossier.sql` repoblado, `docs/dev/local-setup.md`, `README.md`)
+se había documentado como evidencia en el commit `e4b3347` pero nunca se había comiteado de
+verdad — quedaba como cambios sin confirmar en el árbol de trabajo. Comiteados ahora por
+separado: `b90ae4a` (S1.4) y `168e9c1` (S1.7). El estado `review` de esas dos tareas en
+`feature_list.json` seguía siendo correcto (el trabajo estaba hecho y probado), pero no
+estaba realmente en el historial de git hasta esta sesión.
+
+**Sin terminar.** Nada de esto específicamente.
+
+**Lo que hay que saber.** Vale la pena revisar `git log` vs. `git status` después de cerrar
+evidencia en `feature_list.json`/`progress.md`: el commit de harness (`e4b3347`) documentaba
+trabajo que técnicamente seguía sin comitear. No volvió a pasar aquí, pero es un paso fácil
+de saltarse cuando se cierran varias tareas seguidas.
+
+**Siguiente paso concreto.** Ninguna tarea `S` pendiente de Sprint 1 para `FD`. Quedan
+abiertos, sin tarea asignada: la actualización de `vitest`/`@vitest/coverage-v8` (2 críticas
++ 6 altas, solo dev, necesita disco local no montado por red para probar con seguridad) y
+`db/models.py` desincronizado de `db/Migracion.md` (ver `fix_plan.md`).
+
+**Rama.** `main` (commits locales directos, sin rama, sin push). **Estado.** done.
+
+---
+
+### 2026-09-23 · S1.7 · FD (agente)
+
+**Hecho.** `docs/dev/local-setup.md`: guía completa de arranque (prerrequisitos, backend,
+base de datos —con Alembic o SQL a mano—, frontend, verificación y problemas conocidos).
+De paso, corregido un hallazgo que arrastraba el proyecto desde la auditoría del
+07-09-2026: `docs/sql/schema_project_dossier.sql` estaba vacío (0 bytes) pese a que el
+README lo cita como el SQL a aplicar — repoblado con el DDL completo de `Migracion.md`.
+README.md actualizado para enlazar la guía nueva y no apuntar a un archivo vacío.
+
+**Sin terminar.** Nada de esta tarea específicamente.
+
+**Lo que hay que saber.** El SQL vacío era exactamente el tipo de cosa que solo se nota al
+intentar seguir la guía al pie de la letra — si alguien vuelve a tocar `docs/sql/` o
+`Migracion.md`, hay que mantener ambos sincronizados a mano (no hay generación automática
+entre ellos).
+
+**Siguiente paso concreto.** Ninguno pendiente de esta tarea.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.5 · FD (agente)
+
+**Hecho.** `.github/workflows/ci.yml`: job `backend` (ruff + mypy + pytest --cov) y job
+`frontend` (eslint + vitest + next build), en `push`/`pull_request` a `main`, sin
+`continue-on-error` en ningún paso. Posible recién ahora porque S1.3 dejó ruff y mypy en 0
+errores — antes, la CI habría nacido fallando en cada commit.
+
+**Sin terminar.** No se pudo probar corriendo de verdad en GitHub Actions (sesión local, sin
+push, pedido explícito del dueño del repo). Tampoco se configuró la regla de protección de
+rama en GitHub (Settings → Branches → Require status checks) que es la que de verdad
+impide el merge con el check en rojo — eso requiere push y permisos de administrador en
+GitHub, fuera del alcance de esta sesión.
+
+**Lo que hay que saber.** El archivo es válido (verificado con PyYAML) pero nunca se ejecutó
+contra runners reales de GitHub — quien haga el primer push debería revisar el primer run
+completo por si algo del entorno de CI (versiones exactas de Python/Node en `ubuntu-latest`,
+por ejemplo) se comporta distinto al venv local usado en esta sesión.
+
+**Siguiente paso concreto.** Tras el primer push: revisar que el workflow corra en verde, y
+configurar la regla de protección de rama en `main`.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.4 · FD (agente)
+
+**Hecho.** `backend/requirements.txt` y `requirements-dev.txt` fijados a versiones exactas
+(`==`), resueltas y ya probadas en el venv de S0.3. `frontend/package.json`: `next`
+16.2.6 → 16.3.6, cerrando las 3 CVEs críticas medidas en S0.3 (confirmado con `npm audit`:
+0 vulnerabilidades de `next` después del cambio).
+
+**Sin terminar.** Quedan 2 críticas + 6 altas en `vitest`/`@vitest/coverage-v8` — pero son
+dependencias de **testing**, no van a producción. No se forzó el upgrade (a vitest 5,
+versión mayor) porque `npm install` sobre esta carpeta —montada en red desde Windows—
+falla de forma intermitente (`ENOTEMPTY` al instalar paquetes con binarios nativos, p. ej.
+`sharp`), y sin poder correr la suite de tests de forma confiable no había manera segura de
+verificar que un cambio mayor de vitest no rompiera algo.
+
+**Lo que hay que saber.** `frontend/package.json` ya usaba versiones exactas para
+`next`/`react`/`react-dom`; el resto de dependencias sigue con `^`, pero el proyecto ya
+tiene `package-lock.json`, que es el mecanismo real de reproducibilidad de npm — equivalente
+a lo que a `requirements.txt` le faltaba (no tenía ningún lock file).
+
+**Siguiente paso concreto.** Desde una máquina con el proyecto en disco local (no en red):
+intentar `npm audit fix --force` (sube vitest a 5) y correr `npm test` para confirmar que
+nada se rompió antes de aceptar el cambio.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.3 · FD (agente)
+
+**Hecho.** `ruff check src/dossier`: 169 → 0 errores (167 automáticos con `--fix`; 23×
+`BLE001` marcados `# noqa: BLE001` con una razón corta cada uno — son límites de
+resiliencia deliberados: caché Redis que se degrada sin caer, llamadas a SEC/Companies
+House/DeepSeek que no deben tumbar el flujo, parsers tolerantes de respuestas OAuth;
+ninguno se reescribió a una excepción más específica porque angostarlo sí habría sido un
+cambio de comportamiento). `mypy src/dossier`: 45 → 0 errores — se agregó el plugin
+`pydantic.mypy` a `pyproject.toml` (resolvió 8 de un tiro: sin él, mypy no entiende los
+defaults de `BaseModel` y marca argumentos opcionales como "faltantes"); el resto, firmas
+corregidas donde el tipo declarado no reflejaba lo que la función realmente acepta/devuelve,
+o `# type: ignore` puntual y justificado donde la librería externa es más estricta de lo
+que el uso real requiere. `pytest` antes y después: idéntico, 113/4/13 — sin regresiones.
+
+**Sin terminar.** Los 4 tests en rojo de `test_credit_policy.py` (ya estaban así desde
+S0.3) quedan fuera a propósito — corregirlos junto con el análisis estático habría
+mezclado análisis estático con cambio funcional en el mismo commit (regla de
+`handoff.md` §8).
+
+**Lo que hay que saber.** Quien toque de nuevo alguno de los archivos con `# noqa: BLE001`
+o `# type: ignore` debería leer la razón en el propio comentario antes de "limpiarlo" — cada
+uno está ahí porque el catch genérico o la imprecisión de tipo es deliberada, no un
+descuido.
+
+**Siguiente paso concreto.** Investigar y corregir los 4 tests en rojo de
+`test_credit_policy.py` — no tiene tarea `S` asignada todavía en `feature_list.json`.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.1 · FD (agente)
+
+**Hecho.** Alembic adoptado (`backend/alembic/`, `alembic.ini`, `env.py`) y migración de línea
+base (`versions/a3f1c9e2b7d4_baseline_migracion_md.py`) escrita a mano desde el DDL completo de
+`db/Migracion.md`: 19 tablas, 2 vistas, 9 triggers/funciones (incluye el trigger real de cobro de
+créditos sobre `dossiers`), más los parches ya vigentes de `db/schema_patches.py` (reutilizando
+ese módulo, no duplicando su texto). Probada de punta a punta contra un Postgres temporal
+(`pgserver`, venv aislado 3.12 en `/tmp/audit-venv`): `upgrade` crea el esquema completo, un
+insert de organización/usuario/dossier confirma que el trigger descuenta créditos y escribe el
+ledger correctamente, `downgrade` limpia todo sin dejar tablas. Commit local `f5b3bf4`.
+
+**Sin terminar.** No se generó por `alembic revision --autogenerate` — ver "Lo que hay que saber".
+Falta correr la migración contra la base Postgres real del proyecto (no se pudo desde esta sesión:
+el puente al dispositivo llega a un contenedor Linux separado, sin acceso al `localhost:5432` de
+Windows donde corre la Postgres real). Alguien con acceso directo a esa base debe correr
+`alembic upgrade head` y confirmar que coincide con el esquema ya existente (debería ser un no-op
+si la base ya tiene el esquema de `Migracion.md` + `schema_patches.py` aplicado a mano).
+
+**Lo que hay que saber.** Los modelos ORM (`db/models.py`) solo declaran ~10 de las 19 tablas
+reales y cero triggers — confirmado cruzando con el SQL crudo que `account_service.py` ya hace
+contra `credit_ledger`/`dossier_alerts` porque no hay modelo para esas tablas. `alembic/env.py`
+usa `Base.metadata` (los modelos) como `target_metadata`. Mientras ese desfase no se corrija, un
+futuro `alembic revision --autogenerate` comparará contra metadata incompleta y puede proponer
+*borrar* las ~9 tablas y los 9 triggers que el ORM no conoce — **no correr `--autogenerate` a
+ciegas**. Hallazgo completo en `fix_plan.md` → Hallazgos sin tarea asignada.
+
+**Siguiente paso concreto.** Asignar tarea para sincronizar `db/models.py` con `Migracion.md`
+(agregar las ~9 tablas y mapear los triggers, al menos como comentario/documentación ya que
+SQLAlchemy no modela triggers de DB). Después de eso, correr `alembic upgrade head` contra la base
+real para confirmarla como no-op.
+
+**Rama.** `main` (commits locales directos, sin rama por tarea — sesión en modo simplificado
+pedido por el dueño del repo, sin push). **Estado.** review.
+
+---
+
+### 2026-09-23 · S1.2 · FD (agente)
+
+**Hecho.** `backend/pyproject.toml` con `[tool.ruff]` (select E,F,I,UP,B,BLE,SIM,C4,PIE,RUF;
+ignore B008/E501/RUF001-003) y `[tool.mypy]` (`explicit_package_bases`, `check_untyped_defs`,
+`ignore_missing_imports`, `warn_unused_ignores`, `warn_redundant_casts`). Corre limpio: `ruff
+check` y `mypy src/dossier` ejecutan con esta config sin errores de configuración. Commit local
+`664edc4`.
+
+**Sin terminar.** Corregir lo que la config reporta (192 errores de ruff, ~44-45 de mypy) es
+**S1.3**, deliberadamente fuera de esta tarea — no mezclar análisis estático con cambio funcional
+en el mismo PR (regla del `handoff.md`, riesgo R4 de `fix_plan.md`).
+
+**Lo que hay que saber.** Las cifras de ruff/mypy con esta config ya están medidas y quedaron como
+evidencia de **S0.3**, así que S1.3 puede arrancar directo sobre la lista en vez de tener que
+remedirla.
+
+**Siguiente paso concreto.** S1.3: corregir los 192 errores de ruff y ~44-45 de mypy, en un commit
+separado de cualquier cambio funcional.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
+### 2026-09-23 · S0.3 · FD (agente)
+
+**Hecho.** Línea base de deuda técnica medida en sesión local (venv aislado Python 3.12, ya que
+el backend requiere ≥3.11 y el entorno de la sesión traía 3.10): `pytest` → 130 pruebas (113 en
+verde, 4 en rojo, 13 en espera), cobertura 33%; `mypy src/dossier` → ~44-45 errores en 14
+archivos; `ruff check src/dossier` (con la config de S1.2) → 192 errores; `pip-audit --local` →
+sin vulnerabilidades conocidas en las dependencias de Python resueltas; `npm audit` (frontend) →
+**3 vulnerabilidades críticas** en `next@16.2.6` (variantes de RCE no autenticado / bypass de
+middleware), fix disponible en `next@16.3.6`.
+
+**Sin terminar.** Las cifras de pytest/mypy no cambiaron respecto a la auditoría del 07-09-2026
+(misma base de código, sirve de validación cruzada). El hallazgo nuevo es la severidad *crítica*
+de las CVEs de Next.js, que la auditoría anterior no había caracterizado así. No se actualizó
+Next.js en esta sesión — queda como hallazgo urgente sin tarea propia (ver `fix_plan.md`).
+
+**Lo que hay que saber.** Los 4 tests en rojo y el resto de esta línea base no se investigaron a
+fondo (estaba fuera del alcance de "medir", no "arreglar"); quien tome una tarea que dependa de
+S0.3 (**S1.4**, **S7.5**) debería revisar cuáles son los 4 antes de asumir que no le tocan.
+
+**Siguiente paso concreto.** Decidir si la actualización de Next.js se hace como parte de **S1.4**
+(fijar versiones) o se abre como tarea de seguridad aparte — es más urgente que el resto de esa
+tarea.
+
+**Rama.** `main` (commit local directo, sin rama). **Estado.** review.
+
+---
+
 ### 2026-09-12 · S3.1 · FO (agente)
 
 **Hecho.** Cliente HTTP del proveedor de noticias (ADR 0004): `backend/src/dossier/news/client.py`

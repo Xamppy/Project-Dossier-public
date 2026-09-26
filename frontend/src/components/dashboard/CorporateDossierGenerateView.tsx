@@ -141,6 +141,7 @@ export default function CorporateDossierGenerateView({
 
   useEffect(() => {
     if (!allowedDepths.includes(depth)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- corrige la profundidad seleccionada si dejo de ser valida para el plan actual.
       setDepth(defaultDepthForPlan(plan));
     }
   }, [allowedDepths, depth, plan]);
@@ -184,6 +185,7 @@ export default function CorporateDossierGenerateView({
     const job = jobs.find((j) => j.id === activeJobId);
     if (!job) return;
     if (job.status === "completed") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con el job rastreado por DossierJobsProvider (sistema externo).
       setActiveJobId(null);
     }
     if (job.status === "failed" || job.status === "cancelled") {
@@ -192,7 +194,7 @@ export default function CorporateDossierGenerateView({
         setError(translateDossierStatusMessage(job.error_message, t) ?? job.error_message);
       }
     }
-  }, [jobs, activeJobId]);
+  }, [jobs, activeJobId, t]);
 
   function buildPayload(trimmed: string): CreateCorporateDossierPayload {
     return {

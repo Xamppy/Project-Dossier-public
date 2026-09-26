@@ -28,11 +28,13 @@ export default function BrandLogo({ size = "md" }: BrandLogoProps) {
     <span className="brand-logo-wrap relative inline-flex w-full max-w-[240px] items-center justify-center">
       <Image
         {...shared}
+        alt={shared.alt}
         src="/tracelens-logo-dark.png"
         className={`${shared.className} brand-logo--dark`}
       />
       <Image
         {...shared}
+        alt={shared.alt}
         src="/tracelens-logo-light.png"
         className={`${shared.className} brand-logo--light`}
       />

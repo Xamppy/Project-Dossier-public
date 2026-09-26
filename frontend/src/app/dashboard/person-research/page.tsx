@@ -90,6 +90,7 @@ function PersonResearchPageContent() {
     const prefill = parsePersonResearchSearchParams(searchParams);
     if (!prefill.replaceDossierId && !prefill.fullName) return;
     prefillAppliedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- precarga el formulario desde datos externos (query/prefill), una sola vez por ref.
     if (prefill.replaceDossierId) setReplaceDossierId(prefill.replaceDossierId);
     if (prefill.fullName) setFullName(prefill.fullName);
     if (prefill.jobArea) setJobArea(prefill.jobArea);
@@ -107,6 +108,7 @@ function PersonResearchPageContent() {
     const job = jobs.find((j) => j.id === activeJobId);
     if (!job) return;
     if (job.status === "completed") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con el job rastreado por DossierJobsProvider (sistema externo).
       setActiveJobId(null);
     }
     if (job.status === "failed" || job.status === "cancelled") {

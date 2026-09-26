@@ -60,8 +60,27 @@ _PATCHES = (
     "CREATE INDEX IF NOT EXISTS idx_org_invites_status ON org_invites(status);",
 )
 
+# S4.5: extiende las tablas de la línea base al contrato de S4.1
+# (schemas/dossier_executive_payload.py). Separado de _PATCHES porque la
+# migración de línea base itera _PATCHES en vivo; lo aplica la migración 0002.
+ALERT_LEVELS = ("critical", "warning", "low", "medium", "high")
+
+DOSSIER_ENTITIES_PATCHES = (
+    "ALTER TABLE dossier_alerts ADD COLUMN IF NOT EXISTS title VARCHAR(255);",
+    "ALTER TABLE dossier_alerts ADD COLUMN IF NOT EXISTS sources JSONB NOT NULL DEFAULT '[]'::jsonb;",
+    "ALTER TABLE dossier_alerts DROP CONSTRAINT IF EXISTS dossier_alerts_level_check;",
+    "ALTER TABLE dossier_alerts ADD CONSTRAINT dossier_alerts_level_check CHECK (level IN ("
+    + ", ".join(f"'{nivel}'" for nivel in ALERT_LEVELS)
+    + "));",
+    "ALTER TABLE dossier_media_mentions ADD COLUMN IF NOT EXISTS source_citation JSONB;",
+    "ALTER TABLE dossier_media_mentions ADD COLUMN IF NOT EXISTS query_context VARCHAR(255);",
+    "ALTER TABLE dossier_career_entries ADD COLUMN IF NOT EXISTS start_date_text VARCHAR(50);",
+    "ALTER TABLE dossier_career_entries ADD COLUMN IF NOT EXISTS end_date_text VARCHAR(50);",
+    "ALTER TABLE dossier_career_entries ADD COLUMN IF NOT EXISTS source_citation JSONB;",
+)
+
 
 def apply_schema_patches(engine: Engine) -> None:
     with engine.begin() as conn:
-        for sql in _PATCHES:
+        for sql in _PATCHES + DOSSIER_ENTITIES_PATCHES:
             conn.execute(text(sql))

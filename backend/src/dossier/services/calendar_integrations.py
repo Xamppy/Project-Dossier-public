@@ -1,7 +1,7 @@
 """Persistencia de tokens OAuth de calendario (Microsoft Graph y Google Calendar)."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import select
@@ -43,7 +43,7 @@ def upsert_microsoft_calendar_tokens(
     if provider_subject is not None:
         provider_subject = str(provider_subject)[:255]
 
-    expires_at = datetime.now(timezone.utc) + timedelta(
+    expires_at = datetime.now(UTC) + timedelta(
         seconds=max(60, int(expires_in_seconds or 3600))
     )
 
@@ -106,7 +106,7 @@ def upsert_google_calendar_tokens(
     elif provider_email:
         provider_subject = str(provider_email)[:255]
 
-    expires_at = datetime.now(timezone.utc) + timedelta(
+    expires_at = datetime.now(UTC) + timedelta(
         seconds=max(60, int(expires_in_seconds or 3600))
     )
 
@@ -167,7 +167,7 @@ def revoke_calendar_integration_for_user(
     if row is None or row.revoked_at is not None or not row.is_enabled:
         raise LookupError("No hay una conexión activa con ese calendario.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     row.revoked_at = now
     row.is_enabled = False
     row.access_token_encrypted = None

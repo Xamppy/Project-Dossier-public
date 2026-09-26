@@ -42,8 +42,8 @@ class RegisterRequest(BaseModel):
         elif raw_wk is not None:
             out["workspace_kind"] = None
 
-        wk = out.get("workspace_kind")
-        if wk not in ("personal", "work"):
+        wk_final = out.get("workspace_kind")
+        if wk_final not in ("personal", "work"):
             cn = out.get("company_name")
             cn_str = cn.strip() if isinstance(cn, str) else ""
             out["workspace_kind"] = "work" if cn_str or has_invite else "personal"
