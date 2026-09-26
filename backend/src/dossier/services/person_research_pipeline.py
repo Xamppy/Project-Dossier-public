@@ -212,6 +212,10 @@ def run_person_research_and_persist(
             "lusha_diagnostics": lusha_diag,
             "output_language": out_lang,
         }
+        # S4.3: el contrato validado va junto al Markdown derivado de él; `format`,
+        # `body` y `billing` no cambian (los leen el dashboard y el trigger de cobro).
+        if result.get("executive_payload"):
+            dossier_data_body["executive_payload"] = result["executive_payload"]
         if existing is not None:
             prev = existing.dossier_data if isinstance(existing.dossier_data, dict) else {}
             dossier_data_body = _preserve_calendar_dossier_metadata(prev, dossier_data_body)

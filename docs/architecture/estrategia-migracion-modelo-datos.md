@@ -102,7 +102,17 @@ CREATE INDEX idx_dossier_press_dossier_id ON dossier_press_mentions(dossier_id);
 
 ## 3. Transición de `dossier_data` (JSONB)
 
-En lugar de reemplazar abruptamente la columna `dossier_data`, se adopta una migración no disruptiva de esquema:
+> **Decisión al implementar S4.3 (2026-09-26): el payload se agrega, no reemplaza.** Por ser
+> lo más económico y simple para el MVP, el usuario eligió una sola llamada al LLM (la JSON de
+> S4.2), con el Markdown generado por código desde ese JSON
+> (`services/executive_markdown.py`). `dossier_data` conserva `format: "markdown"`, `body` y
+> `billing` tal cual (los leen el dashboard y el trigger de cobro) y suma
+> `executive_payload` con el contrato validado. No se usa `format: "structured_json"` ni
+> `legacy_markdown_body`: habrían obligado a cambiar el frontend. Si el JSON no valida
+> tras el reintento asistido, se genera el informe Markdown de siempre y el dossier no lleva
+> `executive_payload`. La propuesta original queda abajo como referencia.
+
+Propuesta original: en lugar de reemplazar abruptamente la columna `dossier_data`, se adopta una migración no disruptiva de esquema:
 
 1. **Estructura v2.0 en `dossier_data`:**
    ```json

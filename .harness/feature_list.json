@@ -1051,7 +1051,7 @@
       "id": "S4.3",
       "sprint": 4,
       "title": "Sustituir el envoltorio Markdown por el contrato validado en dossier_data",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1068,8 +1068,13 @@
       ],
       "trello": "https://trello.com/c/KvzzlxAm",
       "branch": "FO",
-      "evidence": [],
-      "notes": "Tomada con S4.2 en review (decision del usuario: ruta critica MVP). Opcion mas economica elegida por el usuario: 1 llamada JSON + Markdown renderizado por codigo; dossier_data conserva format/body/billing y agrega executive_payload.",
+      "evidence": [
+        "backend/src/dossier/services/executive_markdown.py",
+        "backend/src/dossier/services/person_research_service.py (_synthesize_person_report) + person_research_pipeline.py (executive_payload en dossier_data) + person_dossier_dedup.py (cache)",
+        "backend/tests/test_executive_markdown.py + tests/integration/test_person_research_structured.py + tests/stress/test_executive_markdown_estres.py (12 pruebas; suite 168 passed con Postgres)",
+        "E2E real (DeepSeek + perfil ficticio + dossier_test): 1 llamada 30s, status complete, billing charged, saldo 10->9, executive_payload guardado"
+      ],
+      "notes": "Tomada con S4.2 en review (decision del usuario). Opcion mas economica: 1 llamada JSON + Markdown renderizado por codigo (services/executive_markdown.py). dossier_data conserva format/body/billing y agrega executive_payload; frontend sin cambios. Respaldo al informe Markdown solo si el JSON no valida. Validado de punta a punta con DeepSeek real, perfil ficticio y Postgres de pruebas.",
       "owner_session": "FO (agente)"
     },
     {

@@ -8,6 +8,50 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-26 · S4.3 · FO (agente)
+
+**Hecho.** Los dossiers de persona (vía PDL) ahora se generan con **una sola llamada JSON**
+(S4.2). El Markdown que ve el dashboard se renderiza por código desde ese JSON
+(`services/executive_markdown.py`, títulos en los 6 idiomas). `dossier_data` suma
+`executive_payload` (el contrato validado) y conserva `format: "markdown"`, `body` y
+`billing`. El frontend no cambió. La caché de Redis y el camino del calendario conservan el
+payload, porque todo pasa por `run_person_research`.
+
+12 pruebas nuevas; la suite da 168 passed con Postgres y 158 sin él. De punta a punta, con
+DeepSeek real, un perfil ficticio y `dossier_test`: 1 llamada (30 s), status `complete`,
+`billing: charged` y el trigger descontó el crédito (10 → 9).
+
+**Sin terminar.**
+- El dashboard todavía no **aprovecha** el JSON: muestra el Markdown derivado. Una vista
+  estructurada (tarjetas de alertas, línea de tiempo) sería trabajo de frontend nuevo.
+- La búsqueda por IA (`gemini_web`) y el grafo corporativo siguen generando Markdown directo,
+  sin payload.
+- No verifiqué el dashboard en el navegador con un dossier nuevo: habría requerido una
+  búsqueda PDL de una persona real o sembrar datos en la base de desarrollo.
+
+**Lo que hay que saber.**
+- **Se apartó de §3 del diseño (con acuerdo del usuario: lo más económico y simple).** No hay
+  `format: "structured_json"` ni `legacy_markdown_body`; el payload va **al lado** del
+  Markdown. Está documentado en `estrategia-migracion-modelo-datos.md` §3. Consecuencia para
+  S4.4 (compatibilidad de lectura): un dossier nuevo **sigue siendo** `format == "markdown"`,
+  así que `parse_dossier_payload` lo trata como histórico. Quien quiera el contrato debe leer
+  `dossier_data["executive_payload"]` cuando exista.
+- **Respaldo a Markdown solo ante JSON inválido** (`StructuredSynthesisError`), con un aviso en
+  `warnings`. Si el proveedor está caído no hay respaldo: la segunda llamada fallaría igual y
+  solo sumaría espera.
+- **El informe se volvió más corto y estructurado** que el Markdown de 8 secciones anterior:
+  ya no hay "nivel de confianza" ni recomendación final. Si el equipo extraña algo, el lugar
+  para agregarlo es el contrato de S4.1 más el renderizado, no el prompt.
+- El pipeline devuelve el dossier guardado en `result["saved_dossier"]`, no en `"saved"`.
+
+**Siguiente paso concreto.** Revisar S4.1 → S4.2 → S4.3 en ese orden (se tomaron
+encadenadas, con la anterior en `review`). Luego, en un navegador, generar un dossier de
+prueba y confirmar cómo se ve el Markdown derivado.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-26 · S4.2 · FO (agente)
 
 **Hecho.** La síntesis puede emitir el contrato de S4.1 validado.
