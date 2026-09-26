@@ -24,6 +24,8 @@ def _payload_json(resumen: str) -> str:
             "executive_summary": resumen,
             "participants": [],
             "conversation_starters": [],
+            "final_recommendation": {"overall_risk": "low", "decision": "proceed"},
+            "confidence_assessment": {"high_confidence": ["Cargo actual (PDL)."]},
         }
     )
 

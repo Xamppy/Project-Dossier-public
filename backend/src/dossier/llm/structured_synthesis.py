@@ -15,8 +15,12 @@ from pydantic import ValidationError
 from dossier.llm.client import chat_completion
 from dossier.schemas.dossier_executive_payload import (
     CareerPosition,
+    ConfidenceAssessment,
     ConversationStarter,
     DossierExecutivePayload,
+    FinalRecommendation,
+    OverallRiskLevel,
+    RecommendationDecision,
     RiskAlert,
     RiskSeverity,
     SourceCitation,
@@ -28,6 +32,13 @@ MAX_ERRORES_REINTENTO = 20
 MAX_ECO_RESPUESTA = 8_000
 
 _BLOQUE_DE_CODIGO = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
+
+
+class _PayloadSintetizado(DossierExecutivePayload):
+    """Opcionales en el contrato (payloads ya guardados), obligatorios al sintetizar (CA6)."""
+
+    final_recommendation: FinalRecommendation
+    confidence_assessment: ConfidenceAssessment
 
 
 class StructuredSynthesisError(RuntimeError):
@@ -79,6 +90,18 @@ def executive_payload_example() -> str:
             )
         ],
         data_sources_used=[cita],
+        final_recommendation=FinalRecommendation(
+            key_findings=["<hallazgo relevante, 3 a 5 en total>"],
+            overall_risk=OverallRiskLevel.low,
+            decision=RecommendationDecision.proceed,
+            next_steps=["<paso sugerido si hace falta investigar más>"],
+        ),
+        confidence_assessment=ConfidenceAssessment(
+            high_confidence=["<dato respaldado por datos verificados o registros públicos>"],
+            medium_confidence=["<dato respaldado por prensa de circulación general>"],
+            low_confidence=["<dato de redes sociales o fuentes sin autor verificable>"],
+            inferences=["<conclusión propia no respaldada por un dato directo>"],
+        ),
     )
     return ejemplo.model_dump_json()
 
@@ -97,7 +120,11 @@ def executive_payload_instructions() -> str:
         "- Cita solo fuentes que aparezcan en los datos entregados; nunca inventes URLs.\n"
         '- "retrieved_at" es la fecha y hora de consulta indicada en los datos, en ISO 8601 UTC.\n'
         "- Si no hay datos para una sección, deja su lista vacía en vez de suponer.\n"
-        '- Como máximo 3 elementos en "conversation_starters".'
+        '- Como máximo 3 elementos en "conversation_starters".\n'
+        '- Incluye siempre "final_recommendation" y "confidence_assessment". "overall_risk" es '
+        'low, medium, high o critical; "decision" es proceed, proceed_with_caution, '
+        "escalate_legal_review o do_not_proceed.\n"
+        '- Todo lo que no esté respaldado por un dato directo va en "inferences".'
     )
 
 
@@ -136,7 +163,7 @@ def synthesize_executive_payload(
     for _ in range(max_repairs + 1):
         raw = chat_completion(prompt, system_instruction=sistema, json_mode=True)
         try:
-            return DossierExecutivePayload.model_validate_json(_sin_bloque_de_codigo(raw))
+            return _PayloadSintetizado.model_validate_json(_sin_bloque_de_codigo(raw))
         except ValidationError as e:
             errores = _resumir_errores(e)
         prompt = _prompt_de_reparacion(user_prompt, raw, errores)

@@ -30,6 +30,8 @@ def _respuesta_valida() -> str:
             "executive_summary": "Ana Prueba dirige Empresa de Prueba SA desde 2019.",
             "participants": [{"name": "Ana Prueba"}],
             "conversation_starters": [],
+            "final_recommendation": {"overall_risk": "low", "decision": "proceed"},
+            "confidence_assessment": {"high_confidence": ["Cargo actual (PDL)."]},
         }
     )
 

@@ -21,12 +21,21 @@ from dossier.schemas.dossier_executive_payload import DossierExecutivePayload
 SISTEMA_BASE = "Eres un analista de due diligence."
 
 
+# Desde la ampliación de S0.9 (2026-09-26) una respuesta de síntesis válida
+# incluye la recomendación final y el nivel de confianza (CA6).
+CIERRE = {
+    "final_recommendation": {"overall_risk": "low", "decision": "proceed"},
+    "confidence_assessment": {"high_confidence": ["Cargo actual (PDL)."]},
+}
+
+
 def _payload_json(**overrides) -> str:
     base = {
         "meeting_context": {},
         "executive_summary": "Resumen ejecutivo suficientemente largo para validar.",
         "participants": [],
         "conversation_starters": [],
+        **CIERRE,
     }
     base.update(overrides)
     return json.dumps(base, ensure_ascii=False)
@@ -65,6 +74,27 @@ def test_instrucciones_traen_un_ejemplo_de_instancia_valida_no_solo_el_esquema()
     assert "$schema" not in ejemplo and '"properties"' not in ejemplo
     DossierExecutivePayload.model_validate_json(ejemplo)
     assert ejemplo in executive_payload_instructions()
+
+
+def test_el_ejemplo_incluye_recomendacion_y_confianza():
+    ejemplo = json.loads(executive_payload_example())
+
+    assert ejemplo["final_recommendation"]["decision"]
+    assert "high_confidence" in ejemplo["confidence_assessment"]
+
+
+@pytest.mark.parametrize("faltante", ["final_recommendation", "confidence_assessment"])
+def test_sin_recomendacion_o_confianza_el_reintento_pide_el_campo(llm_falso, faltante):
+    """CA6: opcionales en el contrato (CA5), obligatorios al sintetizar."""
+    sin_campo = json.loads(_payload_json())
+    del sin_campo[faltante]
+    llm = llm_falso(json.dumps(sin_campo), _payload_json())
+
+    payload = synthesize_executive_payload("datos", system_instruction=SISTEMA_BASE)
+
+    assert len(llm.llamadas) == 2
+    assert faltante in llm.llamadas[1]["prompt"]
+    assert getattr(payload, faltante) is not None
 
 
 # --- Bordes ------------------------------------------------------------------

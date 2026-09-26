@@ -72,6 +72,38 @@ class PressMention(BaseModel):
     source: SourceCitation
 
 
+class OverallRiskLevel(StrEnum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
+
+
+class RecommendationDecision(StrEnum):
+    proceed = "proceed"
+    proceed_with_caution = "proceed_with_caution"
+    escalate_legal_review = "escalate_legal_review"
+    do_not_proceed = "do_not_proceed"
+
+
+class FinalRecommendation(BaseModel):
+    """Sección 7 del informe Markdown anterior (ampliación de S0.9, 2026-09-26)."""
+
+    key_findings: list[str] = Field(default_factory=list, max_length=5)
+    overall_risk: OverallRiskLevel
+    decision: RecommendationDecision
+    next_steps: list[str] = Field(default_factory=list)
+
+
+class ConfidenceAssessment(BaseModel):
+    """Sección 8 del informe Markdown anterior: qué tan confiable es cada dato."""
+
+    high_confidence: list[str] = Field(default_factory=list)
+    medium_confidence: list[str] = Field(default_factory=list)
+    low_confidence: list[str] = Field(default_factory=list)
+    inferences: list[str] = Field(default_factory=list)
+
+
 class CorporateRecordCitation(BaseModel):
     """Un RegistroCorporativo (S1.9) con su cita de origen obligatoria (CA3)."""
 
@@ -90,6 +122,9 @@ class DossierExecutivePayload(BaseModel):
     risk_alerts: list[RiskAlert] = Field(default_factory=list)
     conversation_starters: list[ConversationStarter] = Field(max_length=3)
     data_sources_used: list[SourceCitation] = Field(default_factory=list)
+    # Opcionales para no invalidar payloads ya guardados (CA5); la síntesis los exige (CA6).
+    final_recommendation: FinalRecommendation | None = None
+    confidence_assessment: ConfidenceAssessment | None = None
 
 
 class LegacyMarkdownDossier(BaseModel):

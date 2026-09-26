@@ -9,9 +9,13 @@ from datetime import UTC, datetime
 
 from dossier.schemas.dossier_executive_payload import (
     CareerPosition,
+    ConfidenceAssessment,
     ConversationStarter,
     DossierExecutivePayload,
+    FinalRecommendation,
+    OverallRiskLevel,
     PressMention,
+    RecommendationDecision,
     RiskAlert,
     RiskSeverity,
     SourceCitation,
@@ -123,3 +127,48 @@ def test_fuente_sin_url_se_muestra_sin_enlace_roto():
 
     assert "People Data Labs" in md
     assert "]()" not in md and "(None)" not in md
+
+
+def _con_cierre(**overrides) -> DossierExecutivePayload:
+    return _payload(
+        final_recommendation=FinalRecommendation(
+            key_findings=["Cargo actual confirmado por PDL."],
+            overall_risk=OverallRiskLevel.medium,
+            decision=RecommendationDecision.proceed_with_caution,
+            next_steps=["Verificar el litigio en el registro judicial."],
+        ),
+        confidence_assessment=ConfidenceAssessment(
+            high_confidence=["Cargo y empresa actuales (PDL)."],
+            low_confidence=["Comentarios en redes sociales."],
+            inferences=["Interés en proveedores locales."],
+        ),
+        **overrides,
+    )
+
+
+def test_renderiza_la_recomendacion_final_y_el_nivel_de_confianza():
+    md = render_executive_markdown(_con_cierre(), "es")
+
+    for fragmento in (
+        "## Conclusión y recomendación",
+        "Proceder con cautela",
+        "Riesgo global: medio",
+        "Cargo actual confirmado por PDL.",
+        "Verificar el litigio en el registro judicial.",
+        "## Nivel de confianza",
+        "Cargo y empresa actuales (PDL).",
+        "Comentarios en redes sociales.",
+        "Interés en proveedores locales.",
+    ):
+        assert fragmento in md, fragmento
+    assert md.index("## Conclusión y recomendación") < md.index("## Fuentes consultadas")
+    assert "Confianza media" not in md  # niveles vacíos no se listan
+
+
+def test_recomendacion_y_confianza_en_el_idioma_de_salida():
+    md = render_executive_markdown(_con_cierre(), "en")
+
+    assert "## Conclusion and recommendation" in md
+    assert "Proceed with caution" in md
+    assert "## Confidence level" in md
+    assert "Proceder" not in md

@@ -29,6 +29,8 @@ def _respuesta_valida() -> str:
                     "suggested_opener": "¿Cómo va la expansión?",
                 }
             ],
+            "final_recommendation": {"overall_risk": "low", "decision": "proceed"},
+            "confidence_assessment": {"high_confidence": ["Cargo actual (PDL)."]},
         },
         ensure_ascii=False,
     )

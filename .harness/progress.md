@@ -8,6 +8,30 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-26 · S4.3 (recomendación y confianza) · FO (agente)
+
+**Hecho.** A pedido del usuario, el informe vuelve a traer las secciones 7 («Conclusión y
+recomendación») y 8 («Nivel de confianza») del Markdown anterior. Se agregaron al contrato
+(`FinalRecommendation` y `ConfidenceAssessment`) con la spec S0.9 ampliada (CA5 y CA6), y se
+renderizan en los 6 idiomas. Suite: 180 passed con Postgres. Con DeepSeek real: 1 llamada
+(19 s) y ambas secciones completas.
+
+**Lo que hay que saber.**
+- **Opcionales en el contrato, obligatorios al sintetizar.** Los payloads ya guardados siguen
+  validando (CA5). La síntesis valida contra `_PayloadSintetizado`, una subclase con los dos
+  campos obligatorios: si el modelo los omite, el reintento asistido los pide (CA6).
+- **Cambia qué cuenta como respuesta válida del LLM.** Por eso se actualizaron, a propósito,
+  los helpers `_payload_json` y `_respuesta_valida` de las pruebas de S4.2 y S4.3. Las pruebas
+  de S4.1 no se tocaron y siguen en verde.
+- **El modelo real escribió «Datos proporcionados» como fuente**, en vez de «People Data
+  Labs». Exigir fuentes precisas corresponde a S4.7.
+- Ojo al generar código con `\n` desde un heredoc de bash en esta máquina: aparece como salto
+  de línea real y rompe las cadenas. Usa el editor.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-26 · S4.3 · FO (agente)
 
 **Hecho.** Los dossiers de persona (vía PDL) ahora se generan con **una sola llamada JSON**
