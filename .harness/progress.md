@@ -8,6 +8,60 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-26 · S4.2 · FO (agente)
+
+**Hecho.** La síntesis puede emitir el contrato de S4.1 validado.
+`llm/structured_synthesis.py:synthesize_executive_payload()` hace cuatro cosas:
+- pide a DeepSeek modo `json_object` (nuevo parámetro `json_mode` en `chat_completion`);
+- inyecta un **ejemplo de instancia** más el JSON Schema;
+- valida con Pydantic;
+- si no valida, hace un reintento asistido que le devuelve al modelo los errores concretos
+  (acotados a 20 errores y 8.000 caracteres de eco).
+
+Si aun así falla, lanza `StructuredSynthesisError`. Para persona está
+`analyze_person_profile_bundle_structured()`. Hay 18 pruebas nuevas (unitarias, integración y
+estrés) y la suite da 147 passed. Validado contra DeepSeek real con datos ficticios, en español
+y en inglés: 1 llamada cada uno y payload válido.
+
+**Sin terminar.** No está conectado al pipeline: `person_research_pipeline.py` sigue
+persistiendo `{"format": "markdown"}`. Hacer ese cambio es S4.3. Tampoco cubre el grafo
+corporativo (`graphs/corporate_dossier_graph.py`), que tiene su propia síntesis.
+
+**Lo que hay que saber.**
+- **Se tomó con S4.1 todavía en `review`**, por decisión del usuario (ruta crítica del MVP).
+  `next.py --claim` la rechazaba; se marcó con `--set` y quedó anotado. Si la revisión de S4.1
+  cambia el contrato, hay que ajustar el ejemplo de `executive_payload_example()`. Ese ejemplo
+  se construye con los propios modelos, así que una prueba lo detecta.
+- **Las pruebas con el doble del LLM no bastan aquí; hay que probar contra el proveedor.** El
+  primer diseño reutilizaba los prompts del informe Markdown, más el esquema crudo. Pasaba las
+  15 pruebas, pero con DeepSeek real devolvía el **JSON Schema copiado seguido del informe en
+  Markdown**, incluso en modo `json_object`. Hubo dos correcciones, cada una con su prueba de
+  regresión:
+  1. Prompts propios, sin las instrucciones de secciones `##` (`person_structured_system_prompt`).
+  2. Un ejemplo de instancia además del esquema, con la advertencia de no copiarlo.
+- **El idioma tiene que ir también en el mensaje de usuario.** Con la directiva solo en el
+  sistema, una corrida en inglés salió en español.
+- **Una corrida en inglés tardó 143 s y no se repitió** (la siguiente tardó 14 s, con una sola
+  llamada). No quedó claro si fue latencia de DeepSeek o los reintentos internos de
+  `chat_completion`. Conviene medir esto en S4.3 con datos reales de volumen.
+- **Una prueba de integración se reescribió a conciencia**, según la política §2, regla 1.
+  Exigía reutilizar el prompt de sistema Markdown, y el proveedor real demostró que ese
+  requisito estaba mal. Además, el doble del SDK de OpenAI ahora descarta los argumentos `omit`,
+  igual que el SDK real. Así se envía `response_format` solo cuando se pide, sin romper mypy.
+- **Una prueba sobre el proveedor real no puede quedar en la suite**, porque `sin_red` lo
+  bloquea y costaría tokens en cada PR. El script del smoke test está en la conversación de
+  esta sesión, no en el repositorio; si se quiere repetir, conviene que viva en `scripts/`.
+
+**Siguiente paso concreto.** S4.3: en `person_research_pipeline.py:189`, usar
+`analyze_person_profile_bundle_structured` y guardar el payload con la estructura v2.0 de
+`estrategia-migracion-modelo-datos.md` §3. Hay que conservar `"billing"` en la raíz, porque de
+eso depende el trigger de cobro, y mantener `legacy_markdown_body` mientras el frontend lea
+Markdown.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-26 · S4.5 · FO (agente)
 
 **Hecho.** Las entidades de alertas, trayectoria y menciones de prensa cubren el contrato de

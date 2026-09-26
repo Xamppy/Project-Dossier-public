@@ -49,6 +49,7 @@ def chat_completion(
     system_instruction: str | None = None,
     model: str | None = None,
     max_retries: int = DEFAULT_MAX_RETRIES,
+    json_mode: bool = False,
 ) -> str:
     key = deepseek_api_key()
     if not key:
@@ -56,7 +57,7 @@ def chat_completion(
             "Falta DEEPSEEK_API_KEY en `.env` para la síntesis y análisis con IA."
         )
 
-    from openai import OpenAI
+    from openai import OpenAI, omit
 
     client = OpenAI(api_key=key, base_url=deepseek_base_url())
     m = deepseek_model(model)
@@ -74,6 +75,8 @@ def chat_completion(
                 model=m,
                 messages=messages,  # type: ignore[arg-type]  # dict plano vs TypedDicts del SDK
                 timeout=timeout,
+                # DeepSeek exige que el prompt mencione "json" para aceptar este modo.
+                response_format={"type": "json_object"} if json_mode else omit,
             )
             choice = response.choices[0] if response.choices else None
             text = (choice.message.content if choice and choice.message else None) or ""

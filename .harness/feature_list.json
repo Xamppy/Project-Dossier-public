@@ -1022,7 +1022,7 @@
       "id": "S4.2",
       "sprint": 4,
       "title": "Ajustar la capa de sintesis para emitir JSON conforme al esquema",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1037,8 +1037,14 @@
       ],
       "trello": "https://trello.com/c/AV6SiELu",
       "branch": "FO",
-      "evidence": [],
-      "notes": "Tomada con S4.1 aun en review, por decision del usuario (ruta critica del MVP). Si la revision de S4.1 cambia el contrato, S4.2 debe ajustarse.",
+      "evidence": [
+        "backend/src/dossier/llm/structured_synthesis.py",
+        "backend/src/dossier/services/person_gemini_analysis.py (analyze_person_profile_bundle_structured) + person_analysis_prompts.py (person_structured_system_prompt)",
+        "backend/src/dossier/llm/client.py (json_mode)",
+        "backend/tests/test_structured_synthesis.py + tests/integration/test_person_structured_synthesis.py + tests/stress/test_structured_synthesis_estres.py (18 pruebas; suite 147 passed)",
+        "Smoke real contra DeepSeek (datos ficticios): es 1 llamada 22s, en 1 llamada 14s, payload valido"
+      ],
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (ruta critica del MVP). synthesize_executive_payload (llm/structured_synthesis.py): JSON mode + ejemplo de instancia + esquema, reintento asistido con errores concretos; analyze_person_profile_bundle_structured con prompts propios sin formato Markdown. Validado contra DeepSeek real con datos ficticios (es/en). Aun no conectado al pipeline: eso es S4.3.",
       "owner_session": "FO (agente)"
     },
     {

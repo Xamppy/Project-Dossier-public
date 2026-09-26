@@ -6,11 +6,15 @@ import os
 from datetime import UTC, datetime
 from typing import Any
 
+from dossier.llm.structured_synthesis import synthesize_executive_payload
 from dossier.llm.text_generate import generate_text_with_llm
+from dossier.schemas.dossier_executive_payload import DossierExecutivePayload
 from dossier.services.lusha_profile_facts import format_lusha_verified_facts_block
+from dossier.services.output_language import dossier_language_instruction
 from dossier.services.person_analysis_prompts import (
     format_meeting_context_block,
     person_dossier_system_prompt,
+    person_structured_system_prompt,
 )
 from dossier.services.person_dossier_locales import (
     person_bundle_user_header,
@@ -43,6 +47,7 @@ def _build_user_prompt(
     lusha_verified_facts: dict[str, Any] | None = None,
     enrichment_provider: str = "lusha",
     output_language: str = "es",
+    instructions: str | None = None,
 ) -> str:
     fecha = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     cabecera = _header_line(filters)
@@ -58,7 +63,8 @@ def _build_user_prompt(
         header=cabecera,
         date=fecha,
     )
-    instructions = person_bundle_user_instructions(output_language, src)
+    if instructions is None:
+        instructions = person_bundle_user_instructions(output_language, src)
 
     return f"""{header_block}
 
@@ -66,6 +72,42 @@ def _build_user_prompt(
 
 {bundle_json}
 """
+
+
+_STRUCTURED_USER_INSTRUCTIONS = (
+    "Con estos datos, genera el dossier ejecutivo como un objeto JSON en el formato indicado."
+)
+
+
+def _person_user_prompt(
+    *,
+    filters: dict[str, Any],
+    profiles: list[dict[str, Any]],
+    posts_by_url: dict[str, Any],
+    meeting_context: dict[str, Any] | None,
+    lusha_verified_facts: dict[str, Any] | None,
+    enrichment_provider: str,
+    output_language: str,
+    instructions: str | None,
+) -> str:
+    """Datos investigados más las instrucciones de la variante (None = informe Markdown)."""
+    max_chars = int(os.getenv("DEEPSEEK_PERSON_MAX_JSON_CHARS", os.getenv("GEMINI_PERSON_MAX_JSON_CHARS", "120000")))
+    bundle: dict[str, Any] = {
+        "criterios_de_busqueda": filters,
+        "perfiles": profiles,
+        "publicaciones_por_url": posts_by_url or {},
+    }
+    if meeting_context:
+        bundle["contexto_reunion"] = meeting_context
+    return _build_user_prompt(
+        filters=filters,
+        bundle_json=_truncate_json(bundle, max_chars),
+        meeting_context=meeting_context,
+        lusha_verified_facts=lusha_verified_facts,
+        enrichment_provider=enrichment_provider,
+        output_language=output_language,
+        instructions=instructions,
+    )
 
 
 def analyze_person_profile_bundle(
@@ -78,26 +120,49 @@ def analyze_person_profile_bundle(
     enrichment_provider: str = "lusha",
     output_language: str = "es",
 ) -> str:
-    max_chars = int(os.getenv("DEEPSEEK_PERSON_MAX_JSON_CHARS", os.getenv("GEMINI_PERSON_MAX_JSON_CHARS", "120000")))
-    bundle: dict[str, Any] = {
-        "criterios_de_busqueda": filters,
-        "perfiles": profiles,
-        "publicaciones_por_url": posts_by_url or {},
-    }
-    if meeting_context:
-        bundle["contexto_reunion"] = meeting_context
-    bundle_json = _truncate_json(bundle, max_chars)
-    user_prompt = _build_user_prompt(
+    user_prompt = _person_user_prompt(
         filters=filters,
-        bundle_json=bundle_json,
+        profiles=profiles,
+        posts_by_url=posts_by_url,
         meeting_context=meeting_context,
         lusha_verified_facts=lusha_verified_facts,
         enrichment_provider=enrichment_provider,
         output_language=output_language,
+        instructions=None,
     )
     return generate_text_with_llm(
         user_prompt,
         system_instruction=person_dossier_system_prompt(
+            meeting_context=meeting_context,
+            output_language=output_language,
+        ),
+    )
+
+
+def analyze_person_profile_bundle_structured(
+    *,
+    filters: dict[str, Any],
+    profiles: list[dict[str, Any]],
+    posts_by_url: dict[str, Any],
+    meeting_context: dict[str, Any] | None = None,
+    lusha_verified_facts: dict[str, Any] | None = None,
+    enrichment_provider: str = "lusha",
+    output_language: str = "es",
+) -> DossierExecutivePayload:
+    """Igual que ``analyze_person_profile_bundle``, pero devuelve el contrato de S4.1 validado."""
+    user_prompt = _person_user_prompt(
+        filters=filters,
+        profiles=profiles,
+        posts_by_url=posts_by_url,
+        meeting_context=meeting_context,
+        lusha_verified_facts=lusha_verified_facts,
+        enrichment_provider=enrichment_provider,
+        output_language=output_language,
+        instructions=_STRUCTURED_USER_INSTRUCTIONS + dossier_language_instruction(output_language),
+    )
+    return synthesize_executive_payload(
+        user_prompt,
+        system_instruction=person_structured_system_prompt(
             meeting_context=meeting_context,
             output_language=output_language,
         ),

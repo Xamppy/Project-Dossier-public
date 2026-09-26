@@ -223,3 +223,36 @@ def sembrar_dossier():
         ).scalar_one()
 
     return _sembrar
+
+
+@pytest.fixture
+def llm_falso(monkeypatch):
+    """Reemplaza ``chat_completion`` de la síntesis estructurada por una cola de respuestas.
+
+        llm = llm_falso('{"...": 1}', ValueError("caído"))
+        llm.llamadas  # [{"prompt": ..., "system": ..., "json_mode": ...}, ...]
+
+    Cada elemento de la cola es el texto que "responde" el modelo, o una
+    excepción que se lanza en esa llamada.
+    """
+
+    class LLMFalso:
+        def __init__(self, respuestas):
+            self._respuestas = list(respuestas)
+            self.llamadas: list[dict] = []
+
+        def __call__(self, prompt, *, system_instruction=None, json_mode=False, **_):
+            self.llamadas.append(
+                {"prompt": prompt, "system": system_instruction, "json_mode": json_mode}
+            )
+            respuesta = self._respuestas.pop(0)
+            if isinstance(respuesta, BaseException):
+                raise respuesta
+            return respuesta(prompt) if callable(respuesta) else respuesta
+
+    def _instalar(*respuestas):
+        llm = LLMFalso(respuestas)
+        monkeypatch.setattr("dossier.llm.structured_synthesis.chat_completion", llm)
+        return llm
+
+    return _instalar
