@@ -43,10 +43,6 @@ function intlLocale(locale: Locale): string {
 
 /** Offset corto UTC para la etiqueta (ej. GMT-4). */
 export function formatTimezoneOffset(timeZone: string, locale: Locale): string {
-  // Node y los navegadores difieren en el offset corto para "UTC" ("GMT" vs
-  // "GMT+0"), lo que provoca un hydration mismatch en SSR. Es literal por
-  // definición, así que se fija sin pasar por Intl.
-  if (timeZone === "UTC") return "GMT";
   const bcp47 = intlLocale(locale);
   try {
     return (
