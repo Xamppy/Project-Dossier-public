@@ -645,7 +645,7 @@
       "id": "S2.1",
       "sprint": 2,
       "title": "Implementar el agente de registros corporativos europeos",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -660,9 +660,10 @@
         "S2.2"
       ],
       "trello": "https://trello.com/c/3pFm547I",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S1.8 y S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S2.2",
@@ -692,7 +693,7 @@
       "id": "S2.3",
       "sprint": 2,
       "title": "Adaptar los agentes de Reino Unido y Estados Unidos al modelo comun",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -706,9 +707,10 @@
         "S2.6"
       ],
       "trello": "https://trello.com/c/KgI9fxpR",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S2.4",
@@ -825,7 +827,7 @@
       "id": "S3.2",
       "sprint": 3,
       "title": "Implementar el agente de noticias con deduplicacion",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -840,9 +842,10 @@
         "S3.4"
       ],
       "trello": "https://trello.com/c/uV9I99pn",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S3.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S3.3",
@@ -1082,7 +1085,7 @@
       "id": "S4.4",
       "sprint": 4,
       "title": "Implementar compatibilidad de lectura para dossiers historicos en Markdown",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1094,9 +1097,10 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/97X0uVbA",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S4.3 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.5",
@@ -1132,7 +1136,7 @@
       "id": "S4.6",
       "sprint": 4,
       "title": "Incorporar alertas de riesgo e ideas para iniciar la conversacion",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1144,15 +1148,16 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/SrxaqZo5",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.7",
       "sprint": 4,
       "title": "Exigir origen y fecha de consulta en toda afirmacion estructurada",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1164,9 +1169,10 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/vScCHriV",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.8",
@@ -1198,7 +1204,7 @@
       "id": "S4.9",
       "sprint": 4,
       "title": "Emitir resultados parciales cuando un agente falla",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1213,9 +1219,10 @@
         "S7.2"
       ],
       "trello": "https://trello.com/c/r3JiXDVU",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S4.8 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.10",
