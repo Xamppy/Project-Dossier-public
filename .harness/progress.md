@@ -36,6 +36,67 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-09-28 · S2.1, S2.3, S3.2, S4.4, S4.6, S4.7, S4.9 · FO (agentes Sonnet en paralelo)
+
+**Hecho.** Siete tareas, cada una ejecutada por un subagente en un worktree aislado e
+integrada en `FO` con un commit por tarea:
+
+| Tarea | Qué quedó | Commit |
+|---|---|---|
+| S4.6 | `dossier_entities_writer.py`: el pipeline guarda las `risk_alerts` en `dossier_alerts` y los `conversation_starters` en `dossier_ice_breakers`, en la misma transacción que el dossier; al regenerar, reemplaza las filas | `2f03b34` |
+| S3.2 | `news/agent.py::collect_press_mentions`: GDELT y NewsAPI en paralelo, tolera la caída de uno, deduplica por URL normalizada y por titular+medio, devuelve `PressMention` | `a69aea5`, `d267acb` |
+| S2.3 | `companies_house/converters.py` y `sec_edgar/converters.py`: salida actual → `RegistroCorporativo` + `CorporateRecordCitation` (aditivo) | `432d706` |
+| S2.1 | `eu_registry/agent.py::run_eu_registry_agent`: Francia y Alemania en paralelo, deduplica y reporta errores por país | `f87e48b` |
+| S4.4 | `parse_dossier_payload` nunca falla (payload válido → estructurado; histórico o corrupto → Markdown); `GET /dossiers/{id}` agrega `content_kind` y `executive_payload` | `a48942b` |
+| S4.7 | `source_provenance.py`: las citas del payload y del Markdown usan la fuente y la hora reales de la consulta a PDL | `70c0496` |
+| S4.9 | Grafo corporativo con `agents_failed`/`agents_succeeded` (reducer); se persisten en `dossiers.agents_failed` y se emiten como eventos SSE (S4.8) | `41b762e` |
+
+Suite integrada: 298 passed con Postgres; mypy 0; `qa.py --full` en verde; ruff 25
+(uno preexistente corregido de paso).
+
+**Sin terminar.**
+- **Nada nuevo está conectado todavía al grafo ni al pipeline**: el agente de noticias
+  (S3.2), el europeo (S2.1) y los conversores UK/US (S2.3) son funciones listas para usar.
+  Conectarlos es S2.2 (europeo y conversores en el grafo) y, para noticias, un nodo nuevo
+  según S0.12. Hasta entonces, `press_mentions` sigue saliendo vacío.
+- El frontend no usa aún `content_kind` ni `executive_payload` (S4.4).
+
+**Lo que hay que saber.**
+- **Los worktrees de subagentes se crean desde `main` del repo principal, no desde la rama
+  actual.** Los 7 partieron de `203e61e`, 27 commits detrás de `FO`, y hubo que rebasarlos.
+  Al lanzar agentes con worktree, indícales primero `git merge-base --is-ancestor FO HEAD` o
+  crea tú los worktrees desde `FO`.
+- **S4.7 descarta afirmaciones que citan fuentes no consultadas** (por ejemplo, una alerta que
+  cita prensa cuando no se consultó prensa), en vez de "arreglarles" la cita. Conserva la URL
+  del modelo si el tipo de fuente coincide: una URL inventada con tipo `pdl` sobreviviría.
+  Endurecerlo queda pendiente.
+- **`normalize_person_report_text` reemplaza "People Data Labs" por "registros
+  profesionales"** en el Markdown (no en el JSON). Tenlo en cuenta al escribir aserciones.
+- **S4.6: `dossier_ice_breakers` no tiene modelo ORM** (se escribe con SQL directo) y solo
+  guarda `suggested_opener`; `topic` y `rationale` siguen solo en `executive_payload`. Hace
+  falta un `db.flush()` explícito antes del INSERT crudo. Una base creada solo con
+  `create_all` no tendría la tabla, pero tampoco la extensión `uuid-ossp` que exigen los
+  parches: toda base real sale de Migracion.md o de Alembic.
+- **S2.1: el mapeo alemán es provisional** hasta verificar en vivo el esquema real de
+  OffeneRegister.de. La prueba reservada «un proveedor lento respeta el tiempo límite»
+  quedó cubriendo solo que un país lento no retrasa al otro; el límite de tiempo real
+  corresponde a S2.4.
+- **S2.3: SEC no entrega estado, forma jurídica, fecha de constitución ni domicilio**, y
+  Companies House no trae directivos (falta el endpoint `/officers`). El modelo S1.9 alcanzó
+  para todo.
+- **S4.9: en el camino corporativo del calendario, el respaldo `agents_failed=["synthesize_llm"]`
+  para Markdown con error ya era código muerto**, porque `_markdown_is_persistable` descarta
+  antes todo `# Error`. Se dejó así para no mezclar limpieza con el cambio funcional.
+- En `FO`, ruff exige `datetime.UTC` (regla UP017), no `timezone.utc`.
+
+**Siguiente paso concreto.** Revisar S4.1 → S4.2 → S4.3 → las 7 de esta entrada (todas se
+tomaron con su dependencia en `review`). Después, S2.2: conectar al grafo corporativo el
+agente europeo, los conversores UK/US y el agente de noticias.
+
+**Rama.** `FO` · **Estado.** review (las 7)
+
+---
+
 ### 2026-09-26 · S4.3 (recomendación y confianza) · FO (agente)
 
 **Hecho.** A pedido del usuario, el informe vuelve a traer las secciones 7 («Conclusión y

@@ -645,7 +645,7 @@
       "id": "S2.1",
       "sprint": 2,
       "title": "Implementar el agente de registros corporativos europeos",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -661,7 +661,10 @@
       ],
       "trello": "https://trello.com/c/3pFm547I",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/eu_registry/agent.py + mapper.py (run_eu_registry_agent); 28 pruebas (commit f87e48b)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S1.8 y S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -693,7 +696,7 @@
       "id": "S2.3",
       "sprint": 2,
       "title": "Adaptar los agentes de Reino Unido y Estados Unidos al modelo comun",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -708,7 +711,10 @@
       ],
       "trello": "https://trello.com/c/KgI9fxpR",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "companies_house/converters.py + sec_edgar/converters.py (aditivos); 21 pruebas (commit 432d706)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -827,7 +833,7 @@
       "id": "S3.2",
       "sprint": 3,
       "title": "Implementar el agente de noticias con deduplicacion",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -843,7 +849,10 @@
       ],
       "trello": "https://trello.com/c/uV9I99pn",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/news/agent.py (collect_press_mentions); tests unit/integration/stress del agente (commits a69aea5, d267acb)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S3.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -1085,7 +1094,7 @@
       "id": "S4.4",
       "sprint": 4,
       "title": "Implementar compatibilidad de lectura para dossiers historicos en Markdown",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1098,7 +1107,10 @@
       "blocks": [],
       "trello": "https://trello.com/c/97X0uVbA",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "schemas/dossier_executive_payload.py (parse_dossier_payload, resumen_contenido_dossier) + GET /dossiers/{id} content_kind/executive_payload; tests/test_dossier_lectura_historica.py, integration y security (commit a48942b)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S4.3 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -1136,7 +1148,7 @@
       "id": "S4.6",
       "sprint": 4,
       "title": "Incorporar alertas de riesgo e ideas para iniciar la conversacion",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1149,7 +1161,10 @@
       "blocks": [],
       "trello": "https://trello.com/c/SrxaqZo5",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/services/dossier_entities_writer.py + person_research_pipeline.py; tests unit/integration/security de dossier_entities_writer (commit 2f03b34)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -1157,7 +1172,7 @@
       "id": "S4.7",
       "sprint": 4,
       "title": "Exigir origen y fecha de consulta en toda afirmacion estructurada",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1170,7 +1185,10 @@
       "blocks": [],
       "trello": "https://trello.com/c/vScCHriV",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/services/source_provenance.py (normalizar_procedencia_fuentes) + person_research_service.py; tests/test_source_provenance.py + tests/integration/test_person_research_source_provenance.py (commit 70c0496)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
@@ -1204,7 +1222,7 @@
       "id": "S4.9",
       "sprint": 4,
       "title": "Emitir resultados parciales cuando un agente falla",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1220,7 +1238,10 @@
       ],
       "trello": "https://trello.com/c/r3JiXDVU",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "graphs/corporate_dossier_graph.py (agents_failed/agents_succeeded con reducer, run_corporate_dossier_langgraph_detailed) + calendar_event_dossiers.py + dossier_generation_job_service.py; 28 pruebas (commit 41b762e)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
       "notes": "Tomada con S4.8 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
