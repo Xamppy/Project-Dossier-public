@@ -9,8 +9,10 @@ UK (Companies House) o solo USA (SEC) en el dashboard.
 from __future__ import annotations
 
 import logging
+import operator
 import re
-from typing import Any, Literal, TypedDict
+from dataclasses import dataclass
+from typing import Annotated, Any, Literal, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
@@ -61,6 +63,12 @@ class CorporateDossierState(TypedDict, total=False):
 
     agent_errors: list[str]
 
+    # Reducer `operator.add`: UK y USA corren en paralelo (mismo superpaso) y cada uno
+    # escribe su propia entrada; sin reducer, LangGraph rechaza dos escrituras concurrentes
+    # a la misma clave de estado (CA2 de S0.12).
+    agents_failed: Annotated[list[str], operator.add]
+    agents_succeeded: Annotated[list[str], operator.add]
+
 
 def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
     """Agente UK (Companies House)."""
@@ -81,9 +89,11 @@ def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
     except Exception as e:
         logger.exception("Fallo agente UK (Companies House)")
         bloque = f"## Reino Unido (Companies House)\n\n*Error interno al construir contexto: {e}*\n"
+        logger.info("LangGraph nodo agent_corporate_uk falló")
+        return {"uk_corporate_context": bloque, "agents_failed": ["agent_corporate_uk"]}
 
     logger.info("LangGraph nodo agent_corporate_uk completado")
-    return {"uk_corporate_context": bloque}
+    return {"uk_corporate_context": bloque, "agents_succeeded": ["agent_corporate_uk"]}
 
 
 def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
@@ -105,9 +115,11 @@ def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
     except Exception as e:
         logger.exception("Fallo agente USA (SEC)")
         bloque = f"## Estados Unidos (SEC EDGAR)\n\n*Error interno al construir contexto: {e}*\n"
+        logger.info("LangGraph nodo agent_corporate_usa falló")
+        return {"us_corporate_context": bloque, "agents_failed": ["agent_corporate_usa"]}
 
     logger.info("LangGraph nodo agent_corporate_usa completado")
-    return {"us_corporate_context": bloque}
+    return {"us_corporate_context": bloque, "agents_succeeded": ["agent_corporate_usa"]}
 
 
 def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
@@ -240,9 +252,10 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
         return {
             "final_dossier_markdown": f"# Error en síntesis\n\n{err}",
             "agent_errors": [*state.get("agent_errors", []), err],
+            "agents_failed": ["synthesize_llm"],
         }
 
-    return {"final_dossier_markdown": texto}
+    return {"final_dossier_markdown": texto, "agents_succeeded": ["synthesize_llm"]}
 
 
 def build_corporate_dossier_graph() -> StateGraph:
@@ -258,14 +271,23 @@ def build_corporate_dossier_graph() -> StateGraph:
     return graph
 
 
-def run_corporate_dossier_langgraph(
+@dataclass(frozen=True)
+class CorporateDossierResult:
+    """Markdown final más la telemetría de qué agentes fallaron o completaron (CA2 de S0.12)."""
+
+    markdown: str
+    agents_failed: list[str]
+    agents_succeeded: list[str]
+
+
+def run_corporate_dossier_langgraph_detailed(
     tema_reunion: str,
     participantes: str,
     descripcion: str = "",
     jurisdiction_scope: JurisdictionScope | None = None,
     output_language: str = "es",
-) -> str:
-    """Compila el grafo, infiere alcance UK/US (o usa el explícito) y devuelve Markdown."""
+) -> CorporateDossierResult:
+    """Compila el grafo, infiere alcance UK/US (o usa el explícito) y devuelve Markdown + agentes fallidos."""
     from dossier.services.output_language import normalize_output_language
 
     app = build_corporate_dossier_graph().compile()
@@ -279,6 +301,38 @@ def run_corporate_dossier_langgraph(
             "jurisdiction_scope": scope,
             "output_language": normalize_output_language(output_language),
             "agent_errors": [],
+            "agents_failed": [],
+            "agents_succeeded": [],
         }
     )
-    return str(result.get("final_dossier_markdown") or "").strip()
+    markdown = str(result.get("final_dossier_markdown") or "").strip()
+    agents_failed = list(result.get("agents_failed") or [])
+    if agents_failed:
+        logger.warning("Corporate dossier con agentes fallidos: %s", agents_failed)
+    return CorporateDossierResult(
+        markdown=markdown,
+        agents_failed=agents_failed,
+        agents_succeeded=list(result.get("agents_succeeded") or []),
+    )
+
+
+def run_corporate_dossier_langgraph(
+    tema_reunion: str,
+    participantes: str,
+    descripcion: str = "",
+    jurisdiction_scope: JurisdictionScope | None = None,
+    output_language: str = "es",
+) -> str:
+    """Compatibilidad hacia atrás: solo el Markdown final.
+
+    Ver ``run_corporate_dossier_langgraph_detailed`` para obtener también qué agentes
+    fallaron (``agents_failed``); esta función existe porque hay llamadores que solo
+    esperan el ``str`` (p. ej. ``api/dossier_routes.py``).
+    """
+    return run_corporate_dossier_langgraph_detailed(
+        tema_reunion,
+        participantes,
+        descripcion,
+        jurisdiction_scope,
+        output_language,
+    ).markdown
