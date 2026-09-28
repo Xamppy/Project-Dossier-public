@@ -41,6 +41,7 @@ from dossier.graphs.corporate_dossier_graph import (
     run_corporate_dossier_langgraph,
 )
 from dossier.org_dossier_context import format_dossier_context_for_prompt
+from dossier.schemas.dossier_executive_payload import resumen_contenido_dossier
 from dossier.schemas.dossier_generation import (
     DEPTH_CREDITS,
     CreateCorporateDossierRequest,
@@ -361,6 +362,7 @@ def get_dossier_by_id(
         organization_id=org.id,
         role=role,
     )
+    contenido = resumen_contenido_dossier(d.dossier_data)
     return {
         "id": str(d.id),
         "organization_id": str(d.organization_id),
@@ -373,6 +375,9 @@ def get_dossier_by_id(
         "created_at": d.created_at.isoformat() if d.created_at else None,
         "updated_at": d.updated_at.isoformat() if d.updated_at else None,
         "dossier_data": d.dossier_data,
+        # S4.4: aditivo, no sustituye `dossier_data` (el frontend sigue leyendo `.body`).
+        "content_kind": contenido["content_kind"],
+        "executive_payload": contenido["executive_payload"],
         "alerts": d.alerts,
         "agents_activated": list(d.agents_activated or []),
         "agents_failed": list(d.agents_failed or []),
