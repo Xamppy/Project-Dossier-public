@@ -124,12 +124,11 @@ def collect_press_mentions(
         },
     )
 
-    # Se lee `globals()` (y no la tupla `_PROVEEDORES`, fijada al importar el
-    # modulo) para que los tests puedan monkeypatchear
-    # `agent.search_gdelt_articles` / `agent.search_newsapi_articles`.
+    # Nombres resueltos al llamar (no la tupla `_PROVEEDORES`, fijada al importar),
+    # así las pruebas pueden sustituir `agent.search_gdelt_articles`.
     funciones_actuales: dict[str, _ArticulosProveedor] = {
-        "gdelt_news": globals()["search_gdelt_articles"],
-        "news_api": globals()["search_newsapi_articles"],
+        "gdelt_news": search_gdelt_articles,
+        "news_api": search_newsapi_articles,
     }
     tipos_por_proveedor = {nombre: tipo for nombre, _, tipo, _ in _PROVEEDORES}
 
