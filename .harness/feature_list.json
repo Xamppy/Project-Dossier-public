@@ -1886,6 +1886,29 @@
       ],
       "notes": "Evaluación solicitada por el usuario el 2026-10-02, adicional a las 77 tareas. Borradores documentados; pendiente revisión y priorización. Sprint 0 identifica el diseño, no programa la implementación. FullCalendar Standard recomendado; lectura por rango y paginación necesarias. Sin cambios runtime, PR ni tarjeta. La implementación se asignará tras consolidar Sprint 1 salvo instrucción expresa. No se marca done por el propio autor.",
       "owner_session": null
+    },
+    {
+      "id": "UX-CAL-02",
+      "sprint": 0,
+      "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",
+      "status": "claimed",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A2",
+      "objective": "OE6",
+      "gap": null,
+      "due": null,
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-CAL-01-calendario-visual",
+      "evidence": [
+        "specs/proposals/UX-CAL-01-calendario-visual.md",
+        "docs/exec-plans/active/UX-CAL-01-calendario-visual.md",
+        "docs/architecture/decisions/0007-calendario-visual.md"
+      ],
+      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Fuera de alcance: crear/editar/mover citas, calendarios secundarios, SSE, cambios de esquema. No se marca done por el propio autor.",
+      "owner_session": "DG (agente)"
     }
   ]
 }
