@@ -6,6 +6,20 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-02 · UX-CAL-01 · DG (agente, evaluación y planificación)
+
+**Hecho.** Revisado el módulo de calendario de punta a punta y comparadas FullCalendar, Schedule-X y React Big Calendar con documentación oficial. Propuesta: FullCalendar Standard, semana/mes/día y detalle con generación de dossier. Creada ADR 0007 propuesta, especificación `specs/proposals/UX-CAL-01-calendario-visual.md` y plan `docs/exec-plans/active/UX-CAL-01-calendario-visual.md`. Solo documentación; se conservan los cambios previos del harness.
+
+**Sin terminar.** Implementación no iniciada; sin instalación de dependencias, validación runtime, PR ni tarjeta Trello. La entrada nueva queda pendiente de revisión/priorización; no acredita una función terminada.
+
+**Lo que hay que saber.** `AutomationCalendarPreview` solicita 14 eventos por proveedor; el backend limita `top` a 50 y no recorre páginas. Una cuadrícula sin lectura por rango mostraría meses incompletos. Graph ya tiene helper de rango. Su normalizador fuerza UTC, por lo que día completo necesita revisión específica. Los listados no aplican los filtros de reuniones de trabajo de la automatización. El frontend tiene siete locales y Next 16.3.6, aunque documentación histórica mencione cinco y 16.2.6. Jobs buscan id sin proveedor; planificar aislamiento de esa asociación.
+
+**Siguiente paso concreto.** Revisar alcance y prioridad, validar la versión de FullCalendar con Next/React y asignar implementación conforme al protocolo de handoff y la consolidación de Sprint 1. Estimación inicial 5–7 días de desarrollo, sin fecha comprometida.
+
+**Rama.** `dario` (documentación local) · **Estado.** borrador, implementación pendiente
+
+---
+
 ### 2026-09-26 · BUG-2026-09-26-01 · DG (agente)
 
 **Hecho.** En `person-research`, el campo de texto País / región se reemplazó por un selector accesible con los 249 países y territorios ISO 3166-1 alpha-2, con nombres localizados para los siete idiomas de la interfaz. Los nombres de país se convierten al nombre inglés antes de construir `country` en el payload; los prefills de dossiers convierten nombres habituales y localizados a su código ISO.
