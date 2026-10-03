@@ -85,6 +85,38 @@ def normalizar_evento_google(evento: dict) -> dict:
     }
 
 
+def _correos_google(evento: dict) -> list[str]:
+    """Direcciones reales del evento (organizador y asistentes), en minúsculas y sin repetir."""
+    vistos: list[str] = []
+    org = evento.get("organizer")
+    candidatos = [org.get("email")] if isinstance(org, dict) else []
+    candidatos += [a.get("email") for a in evento.get("attendees") or [] if isinstance(a, dict)]
+    for c in candidatos:
+        if isinstance(c, str) and "@" in c and c.strip().lower() not in vistos:
+            vistos.append(c.strip().lower())
+    return vistos
+
+
+def _respuesta_usuario_google(evento: dict) -> str | None:
+    for a in evento.get("attendees") or []:
+        if isinstance(a, dict) and a.get("self") is True:
+            r = a.get("responseStatus")
+            return r if r == "declined" else None
+    return None
+
+
+def normalizar_evento_google_rango(evento: dict) -> dict:
+    """Como ``normalizar_evento_google`` más lo que necesitan los indicadores (solo ruta por intervalo)."""
+    out = normalizar_evento_google(evento)
+    uid = evento.get("iCalUID")
+    if isinstance(uid, str) and uid.strip():
+        out["ical_uid"] = uid.strip()
+    out["correos"] = _correos_google(evento)
+    if _respuesta_usuario_google(evento) == "declined":
+        out["respuesta_usuario"] = "declined"
+    return out
+
+
 def listar_reuniones_google(
     access_token: str,
     top: int = 10,
@@ -186,7 +218,7 @@ def listar_reuniones_google_rango(
         paginas += 1
         for evento in datos.get("items") or []:
             if isinstance(evento, dict) and evento.get("status") != "cancelled":
-                resultado.reuniones.append(normalizar_evento_google(evento))
+                resultado.reuniones.append(normalizar_evento_google_rango(evento))
         page_token = datos.get("nextPageToken") or None
         if not page_token:
             break
