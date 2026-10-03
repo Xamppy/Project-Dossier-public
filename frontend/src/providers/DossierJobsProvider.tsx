@@ -37,6 +37,7 @@ import {
   translateDossierStatusMessage,
 } from "@/lib/translate-backend-message";
 import { resolveDossierOutputLanguage } from "@/lib/resolve-output-language";
+import { findJobForEvent, isEventJobActive } from "@/lib/calendar-jobs";
 import { formatCalendarMeetingInstant } from "@/lib/format";
 import type { TranslationKey } from "@/i18n/types";
 import { usePreferences, useTranslation } from "@/providers/PreferencesProvider";
@@ -63,8 +64,12 @@ type DossierJobsContextValue = {
     creditsEstimated?: number,
   ) => Promise<string>;
   cancelJob: (jobId: string) => Promise<void>;
-  isEventGenerating: (eventId: string | undefined | null) => boolean;
-  getJobForEvent: (eventId: string | undefined | null) => TrackedJob | undefined;
+  /** Con `provider`, solo cuentan los jobs de ese calendario (dos proveedores pueden repetir un id). */
+  isEventGenerating: (eventId: string | undefined | null, provider?: CalendarProvider) => boolean;
+  getJobForEvent: (
+    eventId: string | undefined | null,
+    provider?: CalendarProvider,
+  ) => TrackedJob | undefined;
   getActivePersonJob: () => TrackedJob | undefined;
   getActiveCorporateJob: () => TrackedJob | undefined;
   dismissToast: (jobId: string) => void;
@@ -487,22 +492,14 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
   }, [jobs]);
 
   const isEventGenerating = useCallback(
-    (eventId: string | undefined | null) => {
-      if (!eventId) return false;
-      return jobs.some(
-        (j) =>
-          j.external_event_id === eventId &&
-          (j.status === "queued" || j.status === "running"),
-      );
-    },
+    (eventId: string | undefined | null, provider?: CalendarProvider) =>
+      isEventJobActive(jobs, eventId, provider),
     [jobs],
   );
 
   const getJobForEvent = useCallback(
-    (eventId: string | undefined | null) => {
-      if (!eventId) return undefined;
-      return jobs.find((j) => j.external_event_id === eventId);
-    },
+    (eventId: string | undefined | null, provider?: CalendarProvider) =>
+      findJobForEvent(jobs, eventId, provider),
     [jobs],
   );
 

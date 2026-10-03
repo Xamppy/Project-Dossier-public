@@ -14,6 +14,7 @@ import {
   patchCalendarAutomationSettings,
 } from "@/lib/dossier-api";
 import { normalizePlanTier } from "@/lib/plans";
+import { calendarUiLabels } from "@/i18n/calendar-ui-labels";
 import { useTranslation } from "@/providers/PreferencesProvider";
 import MutatorGuard from "@/components/auth/MutatorGuard";
 import type { TranslationKey } from "@/i18n/types";
@@ -36,7 +37,8 @@ const selectStyle = {
 };
 
 export default function AutomationPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const ui = calendarUiLabels(locale);
   const [beforeMinutes, setBeforeMinutes] = useState("20");
   const [externalOnly, setExternalOnly] = useState(false);
   const [hasCalendars, setHasCalendars] = useState(false);
@@ -136,17 +138,28 @@ export default function AutomationPage() {
         </UiAlert>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <DashboardCard
-            title={t("automation.connected_calendars")}
-            action={<CalendarFormatGuideAnyAction />}
-          >
-            <AutomationCalendarPreview />
-          </DashboardCard>
-        </div>
+      <DashboardCard
+        title={t("automation.connected_calendars")}
+        action={<CalendarFormatGuideAnyAction />}
+      >
+        <AutomationCalendarPreview />
+      </DashboardCard>
 
-        <DashboardCard title={t("automation.rules_title")}>
+      <details
+        className="group mt-6 rounded-xl border"
+        style={{ borderColor: "var(--border-default)" }}
+      >
+        <summary
+          className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4 text-base font-semibold"
+          style={{ color: "var(--text-primary)" }}
+        >
+          <span>{ui.rulesToggleSummary}</span>
+          <span className="flex items-center gap-3 text-xs font-normal" style={{ color: "var(--text-muted)" }}>
+            {load === "ready" ? (enabled ? t("automation.status_on") : t("automation.status_off")) : null}
+            <span aria-hidden className="transition-transform group-open:rotate-180">▾</span>
+          </span>
+        </summary>
+        <div className="px-6 pb-6">
           <div className="flex flex-col gap-4">
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>
               {t("automation.rules_desc")}
@@ -245,8 +258,8 @@ export default function AutomationPage() {
               </div>
             ) : null}
           </div>
-        </DashboardCard>
-      </div>
+        </div>
+      </details>
     </>
     </MutatorGuard>
   );

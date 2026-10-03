@@ -1,7 +1,7 @@
 "use client";
 
-import CalendarMeetingsList from "@/components/dashboard/CalendarMeetingsList";
+import MeetingsCalendarSection from "@/components/dashboard/MeetingsCalendarSection";
 
 export default function AutomationCalendarPreview() {
-  return <CalendarMeetingsList showProviderConnections top={14} />;
+  return <MeetingsCalendarSection />;
 }
