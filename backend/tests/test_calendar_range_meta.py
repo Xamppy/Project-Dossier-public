@@ -139,3 +139,26 @@ def test_graph_pide_los_campos_nuevos_al_proveedor():
 def test_el_normalizador_legado_no_cambia_de_forma(normalizar, evento):
     r = normalizar(evento)
     assert not {"ical_uid", "correos", "respuesta_usuario"} & set(r)
+
+
+# ── el resumen distingue «hay que reconectar» de «el proveedor falló» ─────────
+
+
+@pytest.mark.parametrize(
+    "modulo,funcion,estado,reautenticar",
+    [
+        (google, "listar_reuniones_google_rango", 401, True),
+        (google, "listar_reuniones_google_rango", 503, False),
+        (graph, "listar_reuniones_rango", 401, True),
+        (graph, "listar_reuniones_rango", 500, False),
+    ],
+)
+def test_el_error_del_proveedor_indica_si_hay_que_reconectar(
+    monkeypatch, modulo, funcion, estado, reautenticar
+):
+    from dossier.services.calendar_range import ErrorProveedorCalendario
+
+    monkeypatch.setattr(modulo.requests, "get", lambda *a, **k: _Resp({}, status=estado))
+    with pytest.raises(ErrorProveedorCalendario) as e:
+        getattr(modulo, funcion)("tok", RANGO)
+    assert e.value.reautenticar is reautenticar

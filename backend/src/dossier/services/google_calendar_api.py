@@ -212,7 +212,7 @@ def listar_reuniones_google_rango(
                     if estado == 401
                     else f"Google Calendar respondió con error ({estado})."
                 )
-                raise ErrorProveedorCalendario(502, detalle)
+                raise ErrorProveedorCalendario(502, detalle, reautenticar=estado == 401)
             resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
             break
         paginas += 1
