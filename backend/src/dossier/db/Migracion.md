@@ -1191,6 +1191,52 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS is_platform_admin BOOLEAN NOT NULL DE
 -- UPDATE users SET is_platform_admin = TRUE WHERE lower(email) = lower('tu-admin@dominio.com');
 
 
+
+-- =============================================================================
+-- SECCIÓN 17: EVIDENCIA DE GENERACIÓN PARA INDICADORES (UX-KPI-01, migración 0003)
+-- Hechos mínimos de cada resultado exitoso: sobreviven a la retención del dossier.
+-- Sin cuerpos, nombres, correos ni descripciones. DDL vivo: schema_patches.PREP_EVIDENCE_PATCHES.
+-- Se aplica con `alembic upgrade head` (revisión c5a9e3b7d1f2, rellena desde dossiers vigentes)
+-- o, sin Alembic, al arrancar por parches (sin relleno). Decisión: ADR 0008.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS dossier_generation_facts (
+    id                  UUID            PRIMARY KEY DEFAULT uuid_generate_v4(),
+    result_key          VARCHAR(200)    NOT NULL UNIQUE,
+    -- Corrida (id del job manual o de la carpeta) + rol. Un reintento de persistencia
+    -- no duplica; una regeneración es otra corrida y cuenta de nuevo.
+
+    organization_id     UUID            NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    user_id             UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    -- Quien inició la generación. Se borra con la cuenta o la organización.
+
+    provider            VARCHAR(20)     NOT NULL,
+    calendar_key        VARCHAR(500)    NOT NULL DEFAULT 'primary',
+    external_event_id   VARCHAR(512)    NOT NULL,
+    -- Identidad de la ocurrencia: proveedor + calendario + evento. Ids iguales de otro
+    -- proveedor, calendario o usuario no se mezclan.
+
+    role_key            VARCHAR(40)     NOT NULL,            -- 'corporate' | 'person:N'
+    origin              VARCHAR(12)     NOT NULL,            -- 'manual' | 'automatic'
+    dossier_id          UUID,                                -- sin FK: borrar el documento no borra el hecho
+    expected_keys       TEXT[],                              -- conjunto esperado al generar
+    meeting_starts_at   TIMESTAMPTZ,                         -- inicio observado; NULL si era ilegible
+    generation_completed_at TIMESTAMPTZ NOT NULL,            -- finalización real (no updated_at)
+    dossier_deleted_at  TIMESTAMPTZ,                         -- primera marca de borrado; no se reescribe
+    created_at          TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    CONSTRAINT dossier_generation_facts_origin_check CHECK (origin IN ('manual', 'automatic'))
+);
+CREATE INDEX IF NOT EXISTS idx_gen_facts_scope ON dossier_generation_facts (organization_id, user_id, generation_completed_at);
+CREATE INDEX IF NOT EXISTS idx_gen_facts_dossier ON dossier_generation_facts (dossier_id) WHERE dossier_id IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS prep_evidence_meta (
+    id                      SMALLINT    PRIMARY KEY,
+    recording_started_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    -- Desde cuándo se registra la evidencia: límite de lo verificable del historial.
+    CONSTRAINT prep_evidence_meta_singleton CHECK (id = 1)
+);
+INSERT INTO prep_evidence_meta (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
 -- =============================================================================
 -- FIN DEL SCHEMA
 -- Total de tablas: 16 principales + 2 vistas

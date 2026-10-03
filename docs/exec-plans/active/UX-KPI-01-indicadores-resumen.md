@@ -1,7 +1,7 @@
 # UX-KPI-01 · Reemplazar las tarjetas de Resumen con métricas reales
 
 - **Fecha:** 2026-10-02.
-- **Estado:** plan preparado; implementación pendiente.
+- **Estado:** implementado y verificado por su autor el 2026-10-03; falta la revisión del segundo integrante, el PR y la evidencia Trello. Ver [reporte](../../../specs/reports/UX-KPI-01-indicadores-resumen.md).
 - **Especificación:** [UX-KPI-01](../../../specs/proposals/UX-KPI-01-indicadores-resumen.md).
 - **Responsable propuesto:** DG, soporte backend FO y revisión FD.
 - **Rama propuesta para implementación:** `codex/UX-KPI-01-indicadores-resumen`.
@@ -117,3 +117,10 @@ No se requiere instalar una biblioteca de gráficos ni crear un panel analítico
 y persistencia de evidencia. No se modificó código de aplicación ni esquema, no se consultaron
 calendarios reales y no se ejecutaron pruebas runtime. El plan y la spec son borradores para la
 pasada de implementación, conforme al flujo SDD del repositorio.
+
+2026-10-03: implementación completa con TDD. Rama `codex/UX-KPI-01-indicadores-resumen`. Migración
+`c5a9e3b7d1f2` con relleno, evidencia de generación, `GET /dashboard/summary`, cuatro tarjetas y siete
+idiomas. Se reutilizaron los helpers de lectura por rango de UX-CAL-02 (sin su interfaz). Desviaciones
+respecto al plan: `partial` solo se usa para evidencia de historial (una lectura de calendario incompleta
+es `unavailable`, no un porcentaje parcial); los dossiers compartidos por otros no cuentan para la
+cobertura; el reporte lista las limitaciones.

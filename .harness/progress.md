@@ -6,6 +6,29 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación terminada, pendiente de revisión)
+
+**Hecho.** Las cuatro tarjetas de Resumen usan datos reales. Backend: lectura por rango con metadatos (iCalUID, correos, rechazo), lógica pura de elegibilidad/preparación/puntualidad, tablas `dossier_generation_facts` y `prep_evidence_meta` con migración `c5a9e3b7d1f2` y relleno, registro de evidencia al persistir (manual/automático, corrida idempotente), marca de borrado, purga, `GET /dashboard/summary` con caché e invalidación. Frontend: cliente tipado, `useDashboardSummary`, `OverviewKpiCards`, `StatCard` ampliado, siete idiomas. 155 pruebas de backend y 47 de frontend nuevas; backend 434 verdes con Postgres real, mypy limpio. Verificado visualmente con datos ficticios y un servidor real. Reporte por CA1–CA14: `specs/reports/UX-KPI-01-indicadores-resumen.md`; decisiones: `docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md`.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia en Trello (no se marca `done`). Sin validar contra Google/Microsoft reales ni contra la base de despliegue.
+
+**Lo que hay que saber.**
+- **`dossier_generation_jobs` no existe ni en `Migracion.md` ni en Alembic**: solo como modelo ORM, y lo crea `create_all` en desarrollo. Con `DATABASE_AUTO_CREATE_TABLES=0` y solo Alembic, los jobs fallan. Las pruebas de registro la crean a mano. No se corrigió aquí.
+- Las pruebas de Postgres se **omiten sin `TEST_DATABASE_URL`** (una base cuyo nombre contenga «test»): 71 de las nuevas. No hay CI que la levante.
+- Si ya hay un `next dev` en `frontend/`, un segundo falla en silencio (cerrojo de Next 16): para verificar contra otra API se copió `frontend/` a un directorio temporal con `node_modules` enlazado.
+- El `.env` real del backend fija `CORS_ORIGINS`; un servidor de pruebas que lo cargue necesita `CORS_ORIGINS` explícito y `DATABASE_URL` propio (`load_dotenv` no pisa lo ya definido).
+- El ORM aplica el valor por defecto (30) a `User(dossier_retention_days=None)`; para «sin retención» hay que escribir NULL con SQL.
+- `Migracion.md` §17 documenta las tablas; `docs/sql/schema_project_dossier.sql` es una copia antigua y no se actualizó.
+- El shell de `/dashboard` no es responsive (barra lateral fija). No se tocó.
+- Alembic pasó a tener cabeza `c5a9e3b7d1f2`; `test_dossier_entities_schema.py` se adaptó a «cadena lineal, una cabeza».
+- Una carpeta residual `src/dossier/gemini/` (solo `__pycache__` ignorado) hacía fallar `test_gemini_dir_no_existe`; se eliminó.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, correr `TEST_DATABASE_URL=... python scripts/qa.py --full`, abrir el PR y adjuntar la evidencia. Si se despliega, ejecutar `alembic upgrade head` y revisar «Historial parcial» durante 30 días.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
 ### 2026-10-03 · UX-KPI-01 · DG (agente, implementación) · AVISO DE CAMBIO DE ESQUEMA
 
 **Hecho.** Tarea reclamada (`claimed`) y rama `codex/UX-KPI-01-indicadores-resumen` creada desde `codex/UX-CAL-01-calendario-visual` (hereda los helpers de lectura por rango de UX-CAL-02, que aún no están en `main`). Implementación en curso con TDD.

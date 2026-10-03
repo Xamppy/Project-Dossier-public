@@ -2,7 +2,7 @@
 
 - **Tarea:** UX-KPI-01, ampliación solicitada por el usuario el 2026-10-02.
 - **Responsable propuesto:** DG, con soporte backend FO y revisión FD.
-- **Estado:** borrador; planificación documentada, implementación pendiente.
+- **Estado:** implementada y verificada por su autor (2026-10-03); pendiente de revisión del segundo integrante. Evidencia por criterio: [reporte](../reports/UX-KPI-01-indicadores-resumen.md). Decisiones de datos: [ADR 0008](../../docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md).
 - **Plan:** [secuencia de implementación](../../docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md).
 
 ## Problema y evidencia
@@ -163,32 +163,32 @@ no sumar un nuevo canal SSE ni otro sondeo continuo a este alcance.
 
 ## Criterios de aceptación
 
-- [ ] **CA1** — 5 reuniones futuras elegibles, 3 preparadas: tarjetas muestran 2 pendientes y 60 %.
-- [ ] **CA2** — 8 reuniones pasadas elegibles, 6 preparadas manualmente a tiempo y 11 resultados
+- [x] **CA1** — 5 reuniones futuras elegibles, 3 preparadas: tarjetas muestran 2 pendientes y 60 %.
+- [x] **CA2** — 8 reuniones pasadas elegibles, 6 preparadas manualmente a tiempo y 11 resultados
       manuales dentro del período: 75 %, 6/8 y 11 dossiers, usando fixtures con evidencia completa.
-- [ ] **CA3** — Un dossier automático, compartido por otro usuario, fallido, cancelado, aún en
+- [x] **CA3** — Un dossier automático, compartido por otro usuario, fallido, cancelado, aún en
       proceso o completado en/después del inicio no acredita preparación manual a tiempo.
-- [ ] **CA4** — Dos dossiers en una carpeta cuentan como dos dossiers y una reunión. Solicitudes
+- [x] **CA4** — Dos dossiers en una carpeta cuentan como dos dossiers y una reunión. Solicitudes
       repetidas y reintentos de persistencia no duplican resultados ya registrados.
-- [ ] **CA5** — Más de 80 dossiers y múltiples páginas de calendario producen los totales completos;
+- [x] **CA5** — Más de 80 dossiers y múltiples páginas de calendario producen los totales completos;
       un fallo en una página no entrega un porcentaje aparentemente definitivo.
-- [ ] **CA6** — Un resultado manual legado con metadatos inequívocos se asocia al evento correcto;
+- [x] **CA6** — Un resultado manual legado con metadatos inequívocos se asocia al evento correcto;
       ids iguales de Google/Microsoft o de otros usuarios no se mezclan.
-- [ ] **CA7** — Dos dossiers esperados y solo uno completo mantienen la reunión pendiente;
+- [x] **CA7** — Dos dossiers esperados y solo uno completo mantienen la reunión pendiente;
       un módulo no incluido en el plan no se exige para darla por preparada.
-- [ ] **CA8** — Retención a 7 días no reduce hechos históricos demostrados de hace 20 días. Borrar
+- [x] **CA8** — Retención a 7 días no reduce hechos históricos demostrados de hace 20 días. Borrar
       antes de la reunión elimina disponibilidad futura y evita acreditar preparación inexistente.
-- [ ] **CA9** — Historia ya purgada sin evidencia indica el período verificable. No se fabrican
+- [x] **CA9** — Historia ya purgada sin evidencia indica el período verificable. No se fabrican
       generaciones ni timestamps, ni se sustituye `generation_completed_at` por `updated_at`.
-- [ ] **CA10** — Límites de períodos, DST, reprogramaciones, recurrencias y cancelaciones se evalúan
+- [x] **CA10** — Límites de períodos, DST, reprogramaciones, recurrencias y cancelaciones se evalúan
       por ocurrencia, con instantes coherentes y sin duplicación entre calendarios verificablemente iguales.
-- [ ] **CA11** — Sin reuniones, sin integración y error de consulta son estados distintos; créditos
+- [x] **CA11** — Sin reuniones, sin integración y error de consulta son estados distintos; créditos
       siguen visibles si su fuente responde. No se muestran números ficticios ni ceros por error.
-- [ ] **CA12** — Usuario/organización se resuelven de la sesión: ni admin ni viewer acceden a los
+- [x] **CA12** — Usuario/organización se resuelven de la sesión: ni admin ni viewer acceden a los
       calendarios o actividad personal de otro miembro mediante parámetros o caché compartida.
-- [ ] **CA13** — Completar una generación actualiza las tarjetas al volver a Resumen; una respuesta
+- [x] **CA13** — Completar una generación actualiza las tarjetas al volver a Resumen; una respuesta
       antigua no sobrescribe datos de una sesión/organización nueva. Leer el resumen no crea jobs.
-- [ ] **CA14** — Las cuatro tarjetas funcionan en escritorio y móvil, temas e idiomas configurados;
+- [x] **CA14** — Las cuatro tarjetas funcionan en escritorio y móvil, temas e idiomas configurados;
       no introducen acciones, navegación o vistas de detalle. Actividad y calendario siguen operativos.
 
 ## Pruebas y entrega

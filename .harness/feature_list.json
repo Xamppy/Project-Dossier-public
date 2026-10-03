@@ -1890,10 +1890,10 @@
     {
       "id": "UX-KPI-01",
       "sprint": 0,
-      "title": "Planificar el reemplazo de indicadores de Resumen con datos reales",
+      "title": "Reemplazar las tarjetas de Resumen con indicadores reales (reuniones por preparar, cobertura, preparadas a tiempo, créditos)",
       "status": "in_progress",
       "owner": "DG",
-      "area": "docs",
+      "area": "frontend",
       "activity": "A2",
       "objective": "OE6",
       "gap": null,
@@ -1901,12 +1901,14 @@
       "depends_on": [],
       "blocks": [],
       "trello": null,
-      "branch": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
       "evidence": [
         "specs/proposals/UX-KPI-01-indicadores-resumen.md",
-        "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md"
+        "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md",
+        "specs/reports/UX-KPI-01-indicadores-resumen.md",
+        "docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md"
       ],
-      "notes": "Implementación iniciada 2026-10-03: tarjetas de Resumen con datos reales. Aviso de cambio de esquema en progress.md.",
+      "notes": "Implementado y verificado por su autor el 2026-10-03: GET /dashboard/summary, migración c5a9e3b7d1f2 (dossier_generation_facts, prep_evidence_meta) con relleno, registro de evidencia en la generación y cuatro tarjetas de Resumen en siete idiomas. Backend 434 pasan (155 nuevas; 71 requieren TEST_DATABASE_URL), frontend 47 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md.",
       "owner_session": "DG (agente)"
     },
     {
