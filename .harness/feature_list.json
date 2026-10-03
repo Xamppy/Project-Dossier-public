@@ -1888,6 +1888,28 @@
       "owner_session": null
     },
     {
+      "id": "UX-KPI-01",
+      "sprint": 0,
+      "title": "Planificar el reemplazo de indicadores de Resumen con datos reales",
+      "status": "pending",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A2",
+      "objective": "OE6",
+      "gap": null,
+      "due": null,
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [
+        "specs/proposals/UX-KPI-01-indicadores-resumen.md",
+        "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md"
+      ],
+      "notes": "Plan solicitado el 2026-10-02 y ampliado por el usuario para resolver los datos de los KPI. Cuatro tarjetas en Resumen, sin nuevas vistas ni módulos de detalle. Incluye lectura completa por rango, asociación manual con evento/usuario, endpoint agregado e historial mínimo resistente a la purga de dossiers. Distingue últimos 30 días de mes calendario. Coordinar helpers de calendario con UX-CAL-01 sin incorporar su UI. Solo planificación y especificación; implementación, pruebas runtime, PR y evidencia Trello pendientes. Sprint 0 identifica diseño, no fecha de implementación. Revisar consolidación de Sprint 1 antes de reclamar código.",
+      "owner_session": null
+    },
+    {
       "id": "UX-CAL-02",
       "sprint": 0,
       "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",

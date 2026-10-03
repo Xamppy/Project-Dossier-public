@@ -6,6 +6,20 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-02 · UX-KPI-01 · DG (agente, planificación)
+
+**Hecho.** Preparados `specs/proposals/UX-KPI-01-indicadores-resumen.md` y `docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md`. El usuario amplió el plan visual para que las cuatro tarjetas tengan datos reales: reuniones por preparar, cobertura próxima, preparación manual a tiempo y créditos. Registrada la tarea adicional en feature_list, conservando los cambios previos del harness.
+
+**Sin terminar.** Implementación, migraciones, pruebas runtime, PR, revisión de segundo integrante y evidencia Trello. Esta pasada entrega planificación; no cambia código de aplicación ni consulta calendarios reales.
+
+**Lo que hay que saber.** Resumen calcula sobre 80 dossiers como máximo y agrupa carpetas. Los clientes de calendario actuales no completan páginas y la automatización sincroniza solo tres días. El job manual pasa `trigger_source=manual` pero no `calendar_event_id` al persistir; el JSON conserva proveedor/id externo para recuperación verificable. Una retención de 7/14 días impide reconstruir 30 días completos desde dossiers vigentes: el plan requiere evidencia estadística mínima y un período fiable explícito para históricos ya purgados. La generación a tiempo exige finalización anterior al inicio, no `updated_at`. UX-CAL-01 también necesita lectura por rango: compartir helpers, sin implementar su calendario visual dentro de esta tarea.
+
+**Siguiente paso concreto.** Reclamar implementación conforme al handoff y la consolidación de Sprint 1; fijar la migración mínima a partir de la spec y comenzar con pruebas en rojo de rango/paginación, identidad y completitud. El alcance de interfaz sigue limitado a las cuatro tarjetas informativas de Resumen.
+
+**Estado.** borrador documentado; implementación pendiente.
+
+---
+
 ### 2026-10-02 · UX-CAL-02 · DG (agente, implementación)
 
 **Hecho.** Calendario visual en `/dashboard/automation` (FullCalendar 7.1.0) con lectura por intervalo en el backend. Backend: `desde`/`hasta` en los tres GET de eventos, paginación de Google y Graph con tope de 10 páginas, 20 s y aviso `completo:false`, día completo de Outlook como fecha civil, `nextLink` validado. Frontend: Día/Semana/Mes, filtros con etiqueta, detalle accesible, caché por sesión, respuestas tardías descartadas, jobs por proveedor, reglas en bloque plegable. 99 pruebas nuevas de backend y 129 de frontend. Reporte con evidencia por CA1–CA11: `specs/reports/UX-CAL-02-calendario-visual.md`.
