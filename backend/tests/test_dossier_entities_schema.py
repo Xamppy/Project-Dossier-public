@@ -106,11 +106,22 @@ def test_parches_de_entidades_son_idempotentes_en_texto():
             assert "IF NOT EXISTS" in sql.upper(), sql
 
 
-def test_migracion_s45_es_la_unica_cabeza_y_sigue_a_la_linea_base():
+S45 = "b7e2d4f1a9c3"
+KPI_EVIDENCIA = "c5a9e3b7d1f2"
+
+
+def test_las_migraciones_forman_una_cadena_lineal_con_una_sola_cabeza():
+    """Una sola cabeza y sin ramas: línea base → S4.5 → evidencia de UX-KPI-01.
+
+    Antes la cabeza era S4.5; cada migración nueva desplaza la cabeza, pero el invariante
+    (historia lineal, una cabeza, S4.5 siguiendo a la línea base) se conserva.
+    """
     cfg = Config()
     cfg.set_main_option("script_location", str(BACKEND_ROOT / "alembic"))
     scripts = ScriptDirectory.from_config(cfg)
 
     cabezas = scripts.get_heads()
-    assert len(cabezas) == 1
-    assert scripts.get_revision(cabezas[0]).down_revision == LINEA_BASE
+    assert cabezas == [KPI_EVIDENCIA]
+    assert scripts.get_revision(KPI_EVIDENCIA).down_revision == S45
+    assert scripts.get_revision(S45).down_revision == LINEA_BASE
+    assert scripts.get_revision(LINEA_BASE).down_revision is None

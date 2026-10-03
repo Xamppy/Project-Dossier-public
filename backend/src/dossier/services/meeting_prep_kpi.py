@@ -19,59 +19,51 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from dossier.billing.entitlements import plan_allows_calendar_corporate_dossier
 from dossier.services.calendar_event_dossiers import parse_calendar_event_for_dossiers
 from dossier.services.calendar_event_filters import has_external_attendee, is_work_meeting
+from dossier.services.meeting_identity import (
+    ORIGEN_AUTOMATICO,
+    ORIGEN_MANUAL,
+    ROL_CORPORATIVO,
+    Fact,
+    expected_roles_from_parsed,
+    meeting_key,
+    parse_start,
+    role_for_person,
+)
+
+__all__ = [
+    "ORIGEN_AUTOMATICO",
+    "ORIGEN_MANUAL",
+    "ROL_CORPORATIVO",
+    "CalendarEntry",
+    "CalendarSnapshot",
+    "Fact",
+    "HistoryResult",
+    "Meeting",
+    "UpcomingResult",
+    "collect_meetings",
+    "expected_roles",
+    "meeting_key",
+    "parse_start",
+    "role_for_person",
+    "summarize_history",
+    "summarize_upcoming",
+]
 
 PERIODO_FUTURO = timedelta(days=7)
 PERIODO_HISTORIAL = timedelta(days=30)
 
-ORIGEN_MANUAL = "manual"
-ORIGEN_AUTOMATICO = "automatic"
-
-ROL_CORPORATIVO = "corporate"
-
-
-def role_for_person(index: int | None) -> str:
-    return f"person:{index if index else 1}"
-
-
-def meeting_key(provider: str, external_event_id: str, calendar_key: str = "primary") -> str:
-    """Identidad de una ocurrencia: el mismo id en otro proveedor o calendario no se mezcla."""
-    return f"{provider}|{calendar_key}|{external_event_id}"
-
-
-def parse_start(valor: Any) -> datetime | None:
-    """Instante UTC de un inicio RFC3339 con offset; ``None`` si falta hora u offset."""
-    if not isinstance(valor, str) or not valor.strip():
-        return None
-    s = valor.strip()
-    if "T" not in s:
-        return None
-    if s[-1] in "zZ":
-        s = s[:-1] + "+00:00"
-    try:
-        dt = datetime.fromisoformat(s)
-    except ValueError:
-        return None
-    if dt.tzinfo is None or dt.utcoffset() is None:
-        return None
-    return dt.astimezone(UTC)
-
-
 def expected_roles(reunion: dict[str, Any], plan: str | None) -> frozenset[str]:
     """Dossiers que la solicitud de la reunión produce con el parser actual y el plan dado."""
-    parsed = parse_calendar_event_for_dossiers(reunion)
-    roles: set[str] = set()
-    if parsed.get("company_corporate") and plan_allows_calendar_corporate_dossier(plan):
-        roles.add(ROL_CORPORATIVO)
-    for posicion, persona in enumerate(parsed.get("persons") or [], start=1):
-        if len((persona.get("full_name") or "").strip()) >= 2:
-            roles.add(role_for_person(persona.get("index") or posicion))
-    return frozenset(roles)
+    return expected_roles_from_parsed(
+        parse_calendar_event_for_dossiers(reunion),
+        include_corporate=plan_allows_calendar_corporate_dossier(plan),
+    )
 
 
 @dataclass(frozen=True)
@@ -175,20 +167,6 @@ def summarize_upcoming(
             preparadas += 1
     total = len(elegibles)
     return UpcomingResult(total, preparadas, total - preparadas, _percent(preparadas, total))
-
-
-@dataclass(frozen=True)
-class Fact:
-    """Un resultado exitoso de generación. Sin cuerpos, nombres ni correos."""
-
-    result_key: str
-    meeting_key: str
-    role_key: str
-    origin: str
-    completed_at: datetime
-    meeting_starts_at: datetime | None
-    expected_keys: frozenset[str] | None
-    deleted_at: datetime | None
 
 
 @dataclass(frozen=True)

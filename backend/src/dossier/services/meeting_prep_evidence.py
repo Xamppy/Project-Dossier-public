@@ -14,7 +14,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from dossier.db.models import DossierGenerationFact, PrepEvidenceMeta
-from dossier.services.meeting_prep_kpi import Fact, meeting_key
+from dossier.services.meeting_identity import Fact, meeting_key
 
 #: Un hecho se conserva mientras su reunión pueda caer en el historial de 30 días con margen
 #: para preparaciones anticipadas (el calendario se lee hasta 62 días).

@@ -56,6 +56,14 @@ from dossier.services.calendar_meeting_labels import (
     SUBJECT_CON,
 )
 from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
+from dossier.services.meeting_identity import (
+    ROL_CORPORATIVO,
+    expected_roles_from_parsed,
+    parse_start,
+    resolve_generation_origin,
+    role_for_person,
+)
+from dossier.services.meeting_prep_evidence import record_generation_fact
 from dossier.services.output_language import normalize_output_language
 from dossier.services.person_dossier_dedup import (
     person_research_cache_payload_from_result,
@@ -996,9 +1004,17 @@ def persist_calendar_dossiers(
     depth: str = "standard",
     charge_credits: bool = True,
     trigger_source: str = "calendar",
+    generation_origin: str | None = None,
+    generation_run_key: str | None = None,
 ) -> dict[str, Any]:
     """
     Guarda dossier corporativo y/o persona en ``dossiers`` (Mis Dossiers).
+
+    Cada resultado exitoso deja además un hecho mínimo en ``dossier_generation_facts``
+    (UX-KPI-01), en la misma transacción. ``generation_origin`` (manual/automatic) dice quién
+    inició la generación; si no se indica se deduce del disparador y, si no es demostrable,
+    no se registra. ``generation_run_key`` identifica la corrida (el id del job manual): con
+    la misma clave un reintento de persistencia no duplica hechos.
     """
     parsed = result.get("parse") or {}
     reunion = result.get("reunion") or {}
@@ -1024,6 +1040,37 @@ def persist_calendar_dossiers(
     person_cache_hit = bool(result.get("person_cache_hit"))
     cache_expires = cached_until_from_now()
     output_lang = normalize_output_language(result.get("output_language"))
+
+    origin = resolve_generation_origin(
+        generation_origin, trigger_source=trigger_source, calendar_event_id=calendar_event_id
+    )
+    ext_event_id = str(reunion.get("id") or "").strip()
+    can_record = bool(origin and ext_event_id and calendar_provider in ("google", "microsoft"))
+    expected_keys = sorted(
+        expected_roles_from_parsed(
+            parsed, include_corporate=not result.get("corporate_skipped_plan_free")
+        )
+    )
+    meeting_starts_at = parse_start(reunion.get("inicio"))
+    run_key = generation_run_key or str(folder_id)
+
+    def _record_fact(role_key: str, dossier_id: UUID) -> None:
+        if not can_record or origin is None:
+            return
+        record_generation_fact(
+            db,
+            result_key=f"{run_key}:{role_key}",
+            organization_id=org_id,
+            user_id=user_id,
+            provider=calendar_provider,
+            external_event_id=ext_event_id[:512],
+            role_key=role_key,
+            origin=origin,
+            dossier_id=dossier_id,
+            expected_keys=expected_keys or None,
+            meeting_starts_at=meeting_starts_at,
+            completed_at=now,
+        )
 
     corporate_md = result.get("dossier_corporativo")
     if _markdown_is_persistable(corporate_md):
@@ -1081,6 +1128,8 @@ def persist_calendar_dossiers(
             dossier_folder_id=folder_id,
         )
         db.add(dossier)
+        if status == "complete":
+            _record_fact(ROL_CORPORATIVO, dossier_id)
         saved["corporate"] = {
             "id": str(dossier_id),
             "status": status,
@@ -1204,6 +1253,8 @@ def persist_calendar_dossiers(
             dossier_folder_id=folder_id,
         )
         db.add(dossier)
+        if status == "complete":
+            _record_fact(role_for_person(pentry.get("index")), dossier_id)
         person_ref = {
             "id": str(dossier_id),
             "status": status,

@@ -19,7 +19,13 @@ from dossier.billing.credit_policy import (
     person_research_credit_cost,
 )
 from dossier.billing.entitlements import assert_depth_allowed, plan_allows_calendar_corporate_dossier
-from dossier.db.models import DossierGenerationJob, Organization, User
+from dossier.db.models import (
+    CalendarEvent,
+    CalendarIntegration,
+    DossierGenerationJob,
+    Organization,
+    User,
+)
 from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.dossier_generation import DEPTH_CREDITS, DossierDepth
 from dossier.schemas.person_research import PersonResearchRequest
@@ -86,6 +92,35 @@ def estimate_reunion_credits(
         person_count=person_count,
         depth=depth,
     )
+
+
+def find_internal_calendar_event_id(
+    db: Session,
+    *,
+    user_id: UUID,
+    provider: str,
+    external_event_id: str | None,
+) -> UUID | None:
+    """Evento interno de la automatización que corresponde a la reunión, si existe.
+
+    La identidad es proveedor + evento externo **del propio usuario**: el mismo id de otro
+    usuario o de otro proveedor nunca se enlaza. No crea eventos: consultar no programa nada.
+    """
+    ext = (external_event_id or "").strip()
+    if not ext:
+        return None
+    stmt = (
+        select(CalendarEvent.id)
+        .join(CalendarIntegration, CalendarEvent.calendar_integration_id == CalendarIntegration.id)
+        .where(
+            CalendarEvent.user_id == user_id,
+            CalendarIntegration.user_id == user_id,
+            CalendarIntegration.provider == provider,
+            CalendarEvent.external_event_id == ext,
+        )
+        .limit(1)
+    )
+    return db.scalars(stmt).first()
 
 
 def find_active_job_for_event(
@@ -433,6 +468,14 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         depth=depth,
         charge_credits=charge,
         trigger_source="manual",
+        calendar_event_id=find_internal_calendar_event_id(
+            db,
+            user_id=user.id,
+            provider=job.calendar_provider or "microsoft",
+            external_event_id=job.external_event_id,
+        ),
+        generation_origin="manual",
+        generation_run_key=str(job.id),
     )
 
     saved = item.get("saved_dossiers") or {}

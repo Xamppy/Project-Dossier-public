@@ -537,6 +537,7 @@ def process_due_calendar_events(db: Session) -> dict[str, int]:
                 calendar_provider=integration.provider,
                 generation_duration_ms=elapsed_ms,
                 calendar_event_id=event.id,
+                generation_origin="automatic",
             )
             saved = result.get("saved_dossiers") or {}
             if saved:

@@ -16,6 +16,7 @@ from dossier.services.dossier_deletion_service import (
     delete_dossier_record,
     finalize_dossier_deletions,
 )
+from dossier.services.meeting_prep_evidence import purge_expired_facts
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +94,8 @@ def _worker_loop(stop: threading.Event) -> None:
         db = _factory()()
         try:
             purge_expired_dossiers(db)
+            purge_expired_facts(db)
+            db.commit()
         except Exception:
             logger.exception("Error en worker de retención de dossiers")
             db.rollback()
