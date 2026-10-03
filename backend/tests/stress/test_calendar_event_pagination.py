@@ -187,7 +187,7 @@ def test_proveedor_lento_no_excede_el_presupuesto(monkeypatch):
     monkeypatch.setattr(google.requests, "get", fake_get)
     try:
         google.listar_reuniones_google_rango("tok", RANGO, reloj=lambda: t["v"])
-    except Exception as e:  # noqa: BLE001 - se verifica el tipo abajo
+    except Exception as e:
         assert getattr(e, "status_code", None) == 504
     assert sum(esperas) <= 20.0 + 1e-9
 

@@ -49,7 +49,7 @@ export default function MeetingsCalendarSection() {
   const [connecting, setConnecting] = useState<CalendarProvider | null>(null);
   const [connectErr, setConnectErr] = useState<string | null>(null);
   const [diagnose, setDiagnose] = useState<{ loading: boolean; text: string | null }>({ loading: false, text: null });
-  const regionRef = useRef<HTMLDivElement>(null);
+  const regionRef = useRef<HTMLDivElement | null>(null);
 
   const calendar = useCalendarEvents({
     window: ready ? (range?.window ?? null) : null,
@@ -65,11 +65,13 @@ export default function MeetingsCalendarSection() {
   );
   const eventsByKey = useMemo(() => new Map(calendar.events.map((e) => [e.key, e])), [calendar.events]);
 
-  // Vista inicial según el ancho real; solo se calcula cuando ya estamos en el cliente.
-  const initialView = useMemo(
-    () => initialViewForWidth(ready && typeof window !== "undefined" ? window.innerWidth : 1024),
-    [ready],
-  );
+  // Vista inicial según el ancho real del calendario; se mide una vez, antes de montarlo.
+  const [width, setWidth] = useState<number | null>(null);
+  const attachRegion = useCallback((el: HTMLDivElement | null) => {
+    regionRef.current = el;
+    if (el) setWidth((w) => w ?? el.clientWidth);
+  }, []);
+  const initialView = initialViewForWidth(width ?? 0);
 
   const handleSelect = useCallback(
     (key: string, trigger: HTMLElement) => {
@@ -260,16 +262,18 @@ export default function MeetingsCalendarSection() {
         </div>
       ) : null}
 
-      <div ref={regionRef} tabIndex={-1} className="outline-none">
-        <MeetingsCalendar
-          events={visibleEvents}
-          locale={locale}
-          timezone={effectiveTimezone}
-          labels={ui}
-          initialView={initialView}
-          onRangeChange={setRange}
-          onSelectEvent={handleSelect}
-        />
+      <div ref={attachRegion} data-calendar-container tabIndex={-1} className="outline-none">
+        {width !== null ? (
+          <MeetingsCalendar
+            events={visibleEvents}
+            locale={locale}
+            timezone={effectiveTimezone}
+            labels={ui}
+            initialView={initialView}
+            onRangeChange={setRange}
+            onSelectEvent={handleSelect}
+          />
+        ) : null}
       </div>
 
       {selected ? (

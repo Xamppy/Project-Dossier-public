@@ -13,10 +13,10 @@
 |---|---|
 | Backend | Lectura por intervalo con paginación en Google y Outlook; contrato legado intacto |
 | Frontend | Calendario Día/Semana/Mes (FullCalendar 7.1.0), filtros, detalle accesible, jobs por proveedor |
-| Pruebas nuevas | Backend **99** (unit 49, integración 31, seguridad 12, estrés 7) · Frontend **128** |
-| Suites completas | Backend 268 pasan · Frontend 148 pasan |
+| Pruebas nuevas | Backend **99** (unit 49, integración 31, seguridad 12, estrés 7) · Frontend **129** |
+| Suites completas | Backend 268 pasan · Frontend 149 pasan |
 | Fallos preexistentes (no introducidos) | `test_llm_canonical_line::test_gemini_dir_no_existe` (backend) y `TimezoneSelect … UTC (GMT+0)` (frontend). Ya fallaban antes del primer cambio de esta tarea |
-| Build | `next build` correcto; `python scripts/qa.py --full` solo falla por los dos preexistentes |
+| Build y análisis estático | `next build`, `eslint` y `tsc` correctos; `ruff` y `mypy` limpios sobre los archivos nuevos del backend; `python scripts/qa.py --full` solo falla por los dos preexistentes |
 
 ## Evidencia por criterio
 
@@ -35,19 +35,18 @@ el navegador integrado contra una API ficticia local con datos inventados (ver *
 | **8** Evento sin id / fecha inválida / HTML | ✅ | `calendar-events.test.ts` (descartados contados, sin id visible y sin generación, sin fin válido no se inventa hora, HTML a texto, scripts/handlers eliminados) · `CalendarEventDetails.test.tsx` (texto, nunca marcado) · visual (`baddata`) |
 | **9** Contrato y 422 | ✅ | `test_calendar_event_range.py` (`parse_rango`) · `test_calendar_event_routes.py` (modo legado idéntico, pares incompletos, sin offset, inverso, >62 días, mezcla con `top`/`dias`/`incluir_pasadas` → 422 sin llamar al proveedor) |
 | **10** Aislamiento y tokens | ✅ | `test_calendar_event_access.py`: dos identidades usan su propio token y ven solo sus reuniones; ninguna respuesta (éxito o error) contiene tokens ni enlaces de paginación; 401 sin llamar al proveedor; `nextLink` solo hacia `https://graph.microsoft.com` y rutas `calendarView`. Verificado por mutación (ver H5) |
-| **11** Teclado, accesibilidad, locales, temas, tamaños | ⚠️ parcial | Teclado: Enter abre, Escape cierra y devuelve el foco (jsdom **y** navegador real), trampa de Tab, nombres accesibles, `aria-pressed`, título `aria-live` · Siete locales: etiquetas verificadas por prueba (`calendar-ui-labels.test.ts`); visual solo es y de · Temas: oscuro y claro, visual · Tamaños: 1440 y 375 px visuales; **768 px no se revisó**; a 375 px el calendario funciona pero el shell del dashboard no (ver H2) |
+| **11** Teclado, accesibilidad, locales, temas, tamaños | ✅ con la salvedad de H2 | Teclado: Enter abre, Escape cierra y devuelve el foco (jsdom **y** navegador real), trampa de Tab, nombres accesibles, `aria-pressed`, título `aria-live` · Siete locales: etiquetas por prueba (`calendar-ui-labels.test.ts`) y comprobados en el navegador (capturas en es, de, fr y pt; texto de la interfaz y primer día de la semana en it, en y en-gb: `en` empieza en domingo, el resto en lunes) · Temas: oscuro y claro · Tamaños: 1440, 1100, 768 y 375 px visuales; a 375 px el calendario funciona pero el shell del dashboard no (ver H2) |
 
 ## Alcance de la verificación
 
-**Se hizo:** suites de pruebas; `next build`; revisión visual en el navegador integrado contra una API
-ficticia local (escritorio 1440 px y móvil 375 px; temas oscuro y claro; idiomas es y de; zonas
-Santiago y Londres; seis escenarios de estado); medición del chunk del calendario.
+**Se hizo:** suites de pruebas; `next build`; `eslint`, `tsc`, `ruff` y `mypy`; revisión visual en el navegador
+integrado contra una API ficticia local (1440, 1100, 768 y 375 px; temas oscuro y claro; los siete idiomas;
+zonas Santiago y Londres; seis escenarios de estado); medición del chunk del calendario.
 
 **No se hizo:**
 - Ninguna consulta a Google, Microsoft ni a la base de datos reales; ni cuentas reales.
 - Generación real de un dossier desde el panel (POST) ni cobro de créditos reales.
-- Ancho 768 px, idiomas en/en-gb/pt/it/fr visualmente, lector de pantalla, anillo de foco visible con Tab real.
-- `ruff` y `mypy` (tarea S1.2 no cerrada; el `pip install` de ambos no terminó en esta sesión).
+- Lector de pantalla y anillo de foco visible con Tab real.
 - Escenarios k6 de carga HTTP real (no bloquean el PR; la política los deja a mano).
 - Medición de rendimiento más allá del tamaño del chunk.
 
@@ -93,6 +92,18 @@ pasó de texto a `{ status, message }` porque el componente necesita el estado H
 **H7 · Harness.** `UX-CAL-01` queda como evaluación; la implementación es `UX-CAL-02`. `next.py --check`
 ya marcaba que `DG (agente)` tenía dos tareas activas; mientras UX-CAL-02 estuvo en curso fueron tres (instrucción expresa del usuario); en `review` vuelven a ser las dos previas.
 
+**H9 · La vista inicial se decide por el ancho del calendario, no del viewport.** La revisión a 768 px mostró
+que, con el menú lateral, el calendario solo dispone de ~414 px y siete columnas de ~55 px no se leen (días
+reducidos a una letra, reuniones truncadas). El criterio pasó a: calendario ≥ 640 px → Semana; menos → Día.
+En un escritorio normal (≥ ~1000 px) sigue siendo Semana; en móvil y en tableta con menú lateral es Día. Es
+una interpretación más estricta que «Día en móvil» de la especificación; se midió con una ref antes de montar.
+También: los eventos simultáneos se colocan lado a lado (`slotEventOverlap` desactivado) y la tipografía del
+calendario baja a 12,5 px para que quepa el nombre del día.
+
+**H10 · Análisis estático.** `pyproject.toml` ya configura `ruff` y `mypy`. Sobre los archivos nuevos del backend
+quedaron limpios (se corrigió un orden de importaciones que yo había introducido en `api/app.py`). Hay 11
+avisos de `ruff` en pruebas ajenas, preexistentes, que no se tocaron.
+
 **H8 · Cambios de comportamiento colaterales (acotados).**
 - `getJobForEvent` ahora prefiere el job activo y, si no hay, el más reciente (antes devolvía el primero).
   Su único consumidor era el listado eliminado.
@@ -105,5 +116,5 @@ ya marcaba que `DG (agente)` tenía dos tareas activas; mientras UX-CAL-02 estuv
 1. Revisión por un segundo integrante y evidencia en Trello (sin tarjeta asignada).
 2. Validar H3 con una cuenta de Outlook de prueba; validar generación real de dossier desde el panel.
 3. Decidir la tarea de shell responsive (H2).
-4. Revisión visual de 768 px y de los idiomas restantes; prueba con lector de pantalla.
-5. Cuando S1.2 cierre, pasar `ruff`/`mypy` sobre los archivos nuevos del backend.
+4. Prueba con lector de pantalla y con Tab real sobre el anillo de foco.
+5. Los 11 avisos de `ruff` en pruebas ajenas (preexistentes) los corrige quien corresponda a S1.2.

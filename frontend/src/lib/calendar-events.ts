@@ -186,10 +186,15 @@ function isValidTimeZone(tz: string): boolean {
   }
 }
 
-export const MOBILE_BREAKPOINT_PX = 768;
+/** Ancho mínimo del calendario para que siete columnas de la semana sigan siendo legibles. */
+export const WEEK_MIN_WIDTH_PX = 640;
 
 export type CalendarViewType = "timeGridDay" | "timeGridWeek" | "dayGridMonth";
 
+/**
+ * Vista inicial según el ancho **del calendario**, no del viewport: con el menú lateral una tableta de
+ * 768 px deja ~414 px útiles, donde la semana no se lee. Escritorio: Semana; móvil o estrecho: Día.
+ */
 export function initialViewForWidth(width: number): CalendarViewType {
-  return width < MOBILE_BREAKPOINT_PX ? "timeGridDay" : "timeGridWeek";
+  return width < WEEK_MIN_WIDTH_PX ? "timeGridDay" : "timeGridWeek";
 }

@@ -19,7 +19,6 @@ from dossier.services.calendar_range import (
     parse_rango,
 )
 
-
 # ── Utilidades de prueba ─────────────────────────────────────────────────────
 
 

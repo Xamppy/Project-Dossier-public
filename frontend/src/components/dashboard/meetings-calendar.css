@@ -52,7 +52,10 @@
 .dossier-cal__surface {
   height: clamp(540px, 74vh, 860px);
   min-width: 0;
-  font-size: 13px;
+}
+/* El tema fija 16 px en la raíz; más compacto cabe el nombre completo del día en columnas estrechas. */
+.dossier-cal .dossier-cal__surface > * {
+  font-size: 12.5px;
 }
 
 .dossier-cal [role="button"][tabindex="0"]:focus-visible {

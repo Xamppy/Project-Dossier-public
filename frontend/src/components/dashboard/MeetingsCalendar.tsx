@@ -170,7 +170,7 @@ export default function MeetingsCalendar({
           nowIndicator
           scrollTime="07:00:00"
           dayMaxEvents={3}
-          slotEventOverlap
+          slotEventOverlap={false}
           displayEventEnd={false}
           eventDisplay="block"
           events={fcEvents}

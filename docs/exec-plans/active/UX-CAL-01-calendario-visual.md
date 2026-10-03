@@ -50,8 +50,8 @@ se conservan. Los nuevos documentos son borradores, no evidencia de una función
 - [x] Dejar especificación y decisión propuesta, con criterios verificables.
 - [x] Fijar prioridad y versión, reclamar implementación y abrir su rama (UX-CAL-02, FullCalendar 7.1.0).
 - [x] Ejecutar TDD de cada criterio y guardar evidencia RED → GREEN (seguridad y estrés del backend: ver H5 del reporte).
-- [x] Ejecutar suite frontend/backend relevante y análisis estático (eslint y tsc sí; ruff/mypy no disponibles).
-- [ ] Revisar visualmente navegador, móvil, teclado, temas y siete locales con datos ficticios. **Parcial:** 1440 y 375 px, temas, es/de; falta 768 px y resto de idiomas; el shell no es responsive (H2).
+- [x] Ejecutar suite frontend/backend relevante y análisis estático (eslint, tsc, ruff y mypy sobre los archivos nuevos).
+- [x] Revisar visualmente navegador, móvil, teclado, temas y siete locales con datos ficticios (1440/1100/768/375 px, ambos temas, siete idiomas). Salvedad: el shell no es responsive (H2); falta lector de pantalla.
 - [x] Ejecutar `python scripts/qa.py` antes de commit y `python scripts/qa.py --full` antes de push (solo fallan los dos preexistentes).
 - [ ] Adjuntar capturas y resultados al PR y a Trello; obtener revisión de otro integrante.
 - [x] Completar reporte contra CA1–CA11 ([reporte](../../../specs/reports/UX-CAL-02-calendario-visual.md)); solo el revisor marca la implementación `done`.

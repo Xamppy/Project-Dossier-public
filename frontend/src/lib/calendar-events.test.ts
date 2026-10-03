@@ -220,11 +220,14 @@ describe("windowFromCivilDates", () => {
   });
 });
 
-describe("initialViewForWidth", () => {
-  it("Día en móvil y Semana en escritorio", () => {
+describe("initialViewForWidth (ancho del calendario, no del viewport)", () => {
+  it("Día cuando el calendario es estrecho y Semana cuando caben siete columnas legibles", () => {
+    expect(initialViewForWidth(0)).toBe("timeGridDay");
     expect(initialViewForWidth(360)).toBe("timeGridDay");
-    expect(initialViewForWidth(767)).toBe("timeGridDay");
-    expect(initialViewForWidth(768)).toBe("timeGridWeek");
-    expect(initialViewForWidth(1440)).toBe("timeGridWeek");
+    expect(initialViewForWidth(414)).toBe("timeGridDay"); // tableta de 768 px con el menú lateral
+    expect(initialViewForWidth(639)).toBe("timeGridDay");
+    expect(initialViewForWidth(640)).toBe("timeGridWeek");
+    expect(initialViewForWidth(672)).toBe("timeGridWeek"); // escritorio de 1024 px
+    expect(initialViewForWidth(1088)).toBe("timeGridWeek"); // escritorio de 1440 px
   });
 });

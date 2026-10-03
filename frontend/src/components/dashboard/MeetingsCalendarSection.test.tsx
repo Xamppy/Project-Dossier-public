@@ -47,6 +47,9 @@ vi.mock("@/providers/DossierJobsProvider", () => ({
   }),
 }));
 
+/** Ancho que "mide" el contenedor del calendario (jsdom no tiene layout). */
+const medida = { ancho: 1100 };
+
 const SEMANA = { desde: "2026-10-05T00:00:00-03:00", hasta: "2026-10-12T00:00:00-03:00" };
 
 function respuesta(reuniones: Record<string, unknown>[], extra: Partial<CalendarEventosRangoResponse> = {}): CalendarEventosRangoResponse {
@@ -83,7 +86,11 @@ beforeEach(() => {
   state.ready = true;
   clearCalendarEventsCache();
   persistAuthToken("jwt-ana", true);
-  Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: 1440 });
+  medida.ancho = 1100;
+  const original = Object.getOwnPropertyDescriptor(Element.prototype, "clientWidth");
+  vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function (this: HTMLElement) {
+    return this.hasAttribute("data-calendar-container") ? medida.ancho : (original?.get?.call(this) ?? 0);
+  });
 });
 afterEach(() => vi.useRealTimers());
 
@@ -112,8 +119,8 @@ describe("MeetingsCalendarSection", () => {
     );
   });
 
-  it("en móvil la vista inicial es Día", async () => {
-    Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: 360 });
+  it("si el calendario es estrecho (móvil o tableta con menú lateral) la vista inicial es Día", async () => {
+    medida.ancho = 414;
     porProveedor(() => respuesta([]), () => respuesta([]));
     render(<MeetingsCalendarSection />);
     await waitFor(() => expect(fetchRango).toHaveBeenCalled());
@@ -122,6 +129,15 @@ describe("MeetingsCalendarSection", () => {
       hasta: "2026-10-08T00:00:00-03:00",
     });
     expect(screen.getByRole("button", { name: "Día" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("con ancho suficiente (≥ 640 px) la vista inicial es Semana", async () => {
+    medida.ancho = 700;
+    porProveedor(() => respuesta([]), () => respuesta([]));
+    render(<MeetingsCalendarSection />);
+    await waitFor(() => expect(fetchRango).toHaveBeenCalled());
+    expect(fetchRango.mock.calls[0][1]).toEqual(SEMANA);
+    expect(screen.getByRole("button", { name: "Semana" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("no monta ni consulta hasta que las preferencias están listas", () => {
