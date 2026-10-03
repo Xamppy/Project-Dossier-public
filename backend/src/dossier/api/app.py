@@ -33,6 +33,7 @@ from dossier.api.auth_routes import (
 from dossier.api.auth_routes import (
     router as auth_router,
 )
+from dossier.api.dashboard_routes import router as dashboard_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
 from dossier.api.dossier_routes import router as dossiers_router
 from dossier.api.dossier_stream_routes import router as dossier_stream_router
@@ -229,6 +230,7 @@ app.include_router(admin_router)
 app.include_router(dossiers_router)
 app.include_router(dossier_jobs_router)
 app.include_router(dossier_stream_router)
+app.include_router(dashboard_router)
 app.include_router(integrations_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
