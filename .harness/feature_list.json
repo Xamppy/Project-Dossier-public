@@ -1891,7 +1891,7 @@
       "id": "UX-CAL-02",
       "sprint": 0,
       "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",
-      "status": "claimed",
+      "status": "review",
       "owner": "DG",
       "area": "frontend",
       "activity": "A2",
@@ -1903,11 +1903,12 @@
       "trello": null,
       "branch": "codex/UX-CAL-01-calendario-visual",
       "evidence": [
+        "specs/reports/UX-CAL-02-calendario-visual.md",
         "specs/proposals/UX-CAL-01-calendario-visual.md",
         "docs/exec-plans/active/UX-CAL-01-calendario-visual.md",
         "docs/architecture/decisions/0007-calendario-visual.md"
       ],
-      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Fuera de alcance: crear/editar/mover citas, calendarios secundarios, SSE, cambios de esquema. No se marca done por el propio autor.",
+      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 128 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor.",
       "owner_session": "DG (agente)"
     }
   ]

@@ -1,6 +1,6 @@
 # UX-CAL-01 · Sustituir lista por calendario visual
 
-- **Estado:** planificación preparada; implementación pendiente
+- **Estado:** planificación preparada; implementación en UX-CAL-02 (rama abierta, pendiente de revisión)
 - **Fecha:** 2026-10-02
 - **Responsable propuesto:** DG, con soporte FO y revisión FD
 - **Rama de implementación propuesta:** `codex/UX-CAL-01-calendario-visual`
@@ -48,13 +48,13 @@ se conservan. Los nuevos documentos son borradores, no evidencia de una función
 
 - [x] Revisar frontend, rutas, clientes y preferencias; comparar bibliotecas con fuentes oficiales.
 - [x] Dejar especificación y decisión propuesta, con criterios verificables.
-- [ ] Fijar prioridad y versión, reclamar implementación y abrir su rama.
-- [ ] Ejecutar TDD de cada criterio y guardar evidencia RED → GREEN.
-- [ ] Ejecutar suite frontend/backend relevante y análisis estático.
-- [ ] Revisar visualmente navegador, móvil, teclado, temas y siete locales con datos ficticios.
-- [ ] Ejecutar `python scripts/qa.py` antes de commit y `python scripts/qa.py --full` antes de push.
+- [x] Fijar prioridad y versión, reclamar implementación y abrir su rama (UX-CAL-02, FullCalendar 7.1.0).
+- [x] Ejecutar TDD de cada criterio y guardar evidencia RED → GREEN (seguridad y estrés del backend: ver H5 del reporte).
+- [x] Ejecutar suite frontend/backend relevante y análisis estático (eslint y tsc sí; ruff/mypy no disponibles).
+- [ ] Revisar visualmente navegador, móvil, teclado, temas y siete locales con datos ficticios. **Parcial:** 1440 y 375 px, temas, es/de; falta 768 px y resto de idiomas; el shell no es responsive (H2).
+- [x] Ejecutar `python scripts/qa.py` antes de commit y `python scripts/qa.py --full` antes de push (solo fallan los dos preexistentes).
 - [ ] Adjuntar capturas y resultados al PR y a Trello; obtener revisión de otro integrante.
-- [ ] Completar reporte contra CA1–CA11; solo el revisor marca la implementación `done`.
+- [x] Completar reporte contra CA1–CA11 ([reporte](../../../specs/reports/UX-CAL-02-calendario-visual.md)); solo el revisor marca la implementación `done`.
 
 ## Riesgos y decisiones prácticas
 
@@ -80,3 +80,8 @@ pruebas runtime. Se prepara la siguiente pasada de implementación, separada de 
 Verificación documental: `git diff --check` pasa y los enlaces locales de los tres documentos
 resuelven. `.harness/next.py --check` reporta una inconsistencia preexistente: `DG (agente)` tiene
 dos tareas activas (`BUG-2026-09-24-01` y `BUG-2026-09-26-01`). No se alteraron sus estados.
+
+2026-10-02 (implementación, UX-CAL-02): backend con lectura por intervalo y paginación; frontend con
+calendario, detalle y jobs por proveedor; reporte de aceptación con hallazgos H1–H8. Dos supuestos del plan
+se corrigieron con evidencia: FullCalendar 7 no comparte API con la 6 (H1) y el shell del dashboard no es
+responsive, lo que limita el uso móvil real (H2).

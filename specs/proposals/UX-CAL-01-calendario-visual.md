@@ -1,6 +1,7 @@
 # UX-CAL-01 · Vista de calendario para reuniones
 
-- **Estado:** borrador; evaluación solicitada, implementación pendiente
+- **Estado:** implementada en UX-CAL-02, pendiente de revisión. Evidencia por criterio en
+  [specs/reports/UX-CAL-02-calendario-visual.md](../reports/UX-CAL-02-calendario-visual.md)
 - **Responsable propuesto:** DG; colaboración backend FO y revisión QA FD
 - **Brecha:** mejora de presentación adicional; no cierra B1–B5
 - **Trello:** pendiente de priorización, sin tarjeta creada

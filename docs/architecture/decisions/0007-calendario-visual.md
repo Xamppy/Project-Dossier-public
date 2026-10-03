@@ -1,9 +1,9 @@
 # 0007 · Calendario visual para reuniones
 
 - **Fecha:** 2026-10-02
-- **Estado:** propuesta, sin dependencias instaladas
+- **Estado:** adoptada en la implementación UX-CAL-02, pendiente de revisión por un segundo integrante
 - **Propone:** DG (agente), a solicitud de Darío
-- **Tarea:** UX-CAL-01 · evaluación y planificación adicional al plan original
+- **Tarea:** UX-CAL-01 · evaluación y planificación adicional al plan original; implementación en UX-CAL-02
 
 ## Contexto
 
@@ -46,6 +46,20 @@ verificada en esta evaluación.
   fuera de esta propuesta. La consulta y la generación de dossiers conservan sus permisos.
 - No se prevén cambios de base de datos ni nuevas credenciales para la biblioteca.
 - Adoptar la recomendación depende de verificar build, accesibilidad y zonas horarias en el proyecto.
+
+## Verificación en el repositorio (2026-10-02)
+
+- **Versión fijada:** `@fullcalendar/react` y `@fullcalendar/core` **7.1.0** exactos, con `temporal-polyfill`
+  1.0.5. Next 16.3.6 y React 19.2.4: `next build` y las pruebas de componentes pasan; revisión visual hecha
+  contra una API ficticia (ver [reporte](../../../specs/reports/UX-CAL-02-calendario-visual.md)).
+- **No es una 6 con otro número.** `npm` mantiene `daygrid`/`timegrid` 6.1.21 como `latest`; en la 7 las
+  vistas salen de subrutas de `@fullcalendar/react` (`/daygrid`, `/timegrid`, `/locales/*`,
+  `/themes/classic`). Ningún paquete 6.x está instalado. El evento usa `className`, no `classNames`.
+- **Tema:** `classic`, con sus variables `--fc-classic-*` enlazadas a los tokens de Dossier
+  (`meetings-calendar.css`), de modo que sigue los temas claro y oscuro sin código adicional.
+- **Peso:** chunk exclusivo de `/dashboard/automation`, ≈334 KB sin comprimir y ≈97 KB gzip.
+- **Pendiente de esta decisión:** accesibilidad con lector de pantalla y zonas horarias de Outlook con una
+  cuenta real (hallazgo H3 del reporte).
 
 ## Fuentes oficiales consultadas
 
