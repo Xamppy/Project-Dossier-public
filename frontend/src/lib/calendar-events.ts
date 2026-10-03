@@ -155,7 +155,7 @@ export function toFullCalendarEvent(e: CalendarEventModel) {
     start: e.start,
     ...(e.end ? { end: e.end } : {}),
     allDay: e.allDay,
-    classNames: ["dossier-ev", `dossier-ev--${e.provider}`],
+    className: `dossier-ev dossier-ev--${e.provider}`,
     extendedProps: { provider: e.provider },
   };
 }

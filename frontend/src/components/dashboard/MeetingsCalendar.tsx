@@ -131,7 +131,7 @@ export default function MeetingsCalendar({
 
         <h3
           aria-live="polite"
-          className="order-first w-full text-base font-semibold capitalize sm:order-none sm:w-auto"
+          className="order-first w-full text-base font-semibold first-letter:uppercase sm:order-none sm:w-auto"
           style={{ color: "var(--text-primary)" }}
         >
           {title}
@@ -171,6 +171,8 @@ export default function MeetingsCalendar({
           scrollTime="07:00:00"
           dayMaxEvents={3}
           slotEventOverlap
+          displayEventEnd={false}
+          eventDisplay="block"
           events={fcEvents}
           datesSet={handleDatesSet}
           eventClick={(info) => latest.current.onSelectEvent(info.event.id, info.el)}

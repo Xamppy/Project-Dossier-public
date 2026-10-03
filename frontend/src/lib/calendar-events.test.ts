@@ -181,7 +181,7 @@ describe("toFullCalendarEvent", () => {
     const fc = toFullCalendarEvent(events[0]);
     expect(fc.id).toBe("microsoft:ev1");
     expect(fc).not.toHaveProperty("end");
-    expect(fc.classNames).toContain("dossier-ev--microsoft");
+    expect(fc.className).toBe("dossier-ev dossier-ev--microsoft"); // v7: `className`, no `classNames`
     expect(fc.extendedProps).toMatchObject({ provider: "microsoft" });
   });
 });

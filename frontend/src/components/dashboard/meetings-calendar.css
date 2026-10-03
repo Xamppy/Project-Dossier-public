@@ -82,6 +82,7 @@
   align-items: flex-start;
   gap: 4px;
   padding: 1px 4px;
+  font-size: 12px;
   overflow: hidden;
   min-width: 0;
   line-height: 1.25;

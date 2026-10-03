@@ -165,6 +165,15 @@ describe("MeetingsCalendar · eventos", () => {
     expect(screen.getAllByText("Outlook").length).toBeGreaterThan(0);
   });
 
+  it("cada evento lleva la clase de su proveedor en el DOM real (color + etiqueta)", async () => {
+    const { onRangeChange } = setup();
+    await waitFor(() => expect(onRangeChange).toHaveBeenCalled());
+    const g = (await screen.findByText("Reunión Acme")).closest(".dossier-ev");
+    const m = screen.getByText("Revisión Globex").closest(".dossier-ev");
+    expect(g).toHaveClass("dossier-ev--google");
+    expect(m).toHaveClass("dossier-ev--microsoft");
+  });
+
   it("pulsar o activar con teclado un evento informa su clave y el elemento", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { onSelectEvent, onRangeChange } = setup();
