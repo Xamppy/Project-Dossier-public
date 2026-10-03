@@ -6,6 +6,23 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación) · AVISO DE CAMBIO DE ESQUEMA
+
+**Hecho.** Tarea reclamada (`claimed`) y rama `codex/UX-KPI-01-indicadores-resumen` creada desde `codex/UX-CAL-01-calendario-visual` (hereda los helpers de lectura por rango de UX-CAL-02, que aún no están en `main`). Implementación en curso con TDD.
+
+**Cambio de DB previsto (aviso previo, handoff §4).** Dos tablas nuevas, ninguna columna existente cambia:
+`dossier_generation_facts` (un hecho por resultado exitoso: usuario, org, proveedor, evento externo, rol `corporate`/`person:N`, origen manual/automático, finalización real, inicio de la reunión, conjunto esperado, `dossier_deleted_at`; sin cuerpos, nombres ni correos) y `prep_evidence_meta` (una fila: desde cuándo se registra). Migración Alembic `c5a9e3b7d1f2` (encima de `b7e2d4f1a9c3`) con DDL en `schema_patches.PREP_EVIDENCE_PATCHES` (el mismo patrón de S4.5: `_PATCHES` no se toca porque la línea base lo importa en vivo) y relleno desde dossiers vigentes. Documentado en `db/Migracion.md` §17. Nada se aplica sobre bases reales.
+
+**Sin terminar.** Todo lo demás de la tarea.
+
+**Lo que hay que saber.** Antes de cambiar nada, línea base medida: backend 268 pasan y 1 falla (`test_gemini_dir_no_existe`: queda una carpeta `src/dossier/gemini/` con solo `__pycache__` ignorado por git; es un residuo local, no un defecto del código); frontend 149 pasan y 1 falla (`timezones.test.ts`, depende del ICU de Node local); eslint limpio (0 errores: la advertencia de «21 errores» ya no vale).
+
+**Siguiente paso concreto.** Pruebas en rojo de la lógica pura (elegibilidad, conjunto esperado, preparación, a tiempo), luego evidencia y migración, endpoint, tarjetas.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress
+
+---
+
 ### 2026-10-02 · UX-KPI-01 · DG (agente, planificación)
 
 **Hecho.** Preparados `specs/proposals/UX-KPI-01-indicadores-resumen.md` y `docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md`. El usuario amplió el plan visual para que las cuatro tarjetas tengan datos reales: reuniones por preparar, cobertura próxima, preparación manual a tiempo y créditos. Registrada la tarea adicional en feature_list, conservando los cambios previos del harness.
