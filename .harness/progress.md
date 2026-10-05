@@ -170,6 +170,53 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-10-05 · S2.2 y seguimiento de S4.8 (SSE) · FO (agente)
+
+**Hecho.**
+- **S2.2.** El grafo corporativo corre en paralelo cuatro agentes: UK, USA, Europa (FR/DE) y
+  prensa. Hay un alcance nuevo, `eu_only`, y `agents_skipped` (CA1 y CA3 de S0.12). Europa y
+  prensa reciben `empresa_objetivo`: la API la toma de la resolución o de la consulta, y el
+  calendario de la empresa del evento. Verificado contra el registro francés, GDELT y NewsAPI
+  reales con «Danone».
+- **Seguridad (prompt injection).** Una revisión automática del commit 3c328bf detectó que
+  los textos de prensa y registros entraban crudos al prompt. Ahora se pasan a una línea, sin
+  marcas de bloque y acotados, y el sistema los declara dato no confiable (26cbb5c).
+- **SSE, solo backend.** S5.1, el frontend, queda para DG por decisión del usuario. El
+  worker publica cada cambio de estado en el bus y el stream lo espera; la base queda como
+  respaldo cada 10 s (4ee1198). Se corrigieron tres defectos de S4.8: retención de conexiones
+  del pool, CA1 para clientes nuevos y `Last-Event-ID` tras reinicio.
+
+Suite: 549 passed con Postgres; `qa.py --full` en verde.
+
+**Sin terminar.** S5.1 (DG): conectar `DossierJobsProvider` al stream. El backend ya entrega
+el estado al conectar y en tiempo real.
+
+**Lo que hay que saber.**
+- **`dossier_generation_jobs` no existe en el esquema de Alembic** (ni en Migracion.md ni en
+  los parches): solo la crea el ORM con `create_all` al arrancar. Una base creada con
+  `alembic upgrade head` y `DATABASE_AUTO_CREATE_TABLES=0` (lo que recomienda
+  `docs/dev/local-setup.md`) **no tiene la cola de trabajos**, así que la generación asíncrona
+  falla. Es la única tabla del ORM en esa situación. No se corrigió aquí: necesita su propia
+  migración y es el frente de S1.1 (FD).
+- **La búsqueda francesa es difusa**: con «Danone» devolvía empresarios individuales homónimos
+  («OLIVIA DANON»). El nodo europeo filtra por palabras del nombre. Un filtro con más
+  señales es S3.3.
+- **OffeneRegister.de (Alemania) devolvía 502** durante la verificación; el nodo lo tolera y
+  lo indica con «Sin respuesta de: DE».
+- **El bus SSE sigue siendo de un solo proceso.** Si el servicio escala a varios procesos, el
+  tiempo real entre procesos baja a la latencia del respaldo (10 s), hasta que haya Redis
+  pub/sub.
+- **Los conectores de claude.ai, entre ellos Trello, están desactivados en las sesiones de
+  Claude Code** porque hay un `ANTHROPIC_API_KEY` u otra credencial definida, que tiene
+  prioridad sobre el login de claude.ai. Por eso no se pudo actualizar el tablero.
+
+**Siguiente paso concreto.** Revisión de S2.2 y del seguimiento de S4.8. Después: la
+migración de `dossier_generation_jobs` (FD) y S5.1 (DG).
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-09-28 · S2.1, S2.3, S3.2, S4.4, S4.6, S4.7, S4.9 · FO (agentes Sonnet en paralelo)
 
 **Hecho.** Siete tareas, cada una ejecutada por un subagente en un worktree aislado e

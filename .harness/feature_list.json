@@ -672,7 +672,7 @@
       "id": "S2.2",
       "sprint": 2,
       "title": "Integrar el agente europeo al orquestador con seleccion de jurisdiccion",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -689,7 +689,10 @@
       ],
       "trello": "https://trello.com/c/iGmajDD0",
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/graphs/corporate_dossier_graph.py: nodos agent_corporate_eu y agent_news, alcance eu_only, agents_skipped, empresa_objetivo (commits 3c328bf, 26cbb5c)",
+        "tests/test_corporate_graph_eu_news.py + integration + stress (32 pruebas); verificado contra registro FR, GDELT y NewsAPI reales"
+      ],
       "notes": "Tomada con S2.1 aun en review (decision del usuario, MVP). Incluye tambien el nodo de noticias (S3.2) en el grafo, segun CA1 de S0.12.",
       "owner_session": "FO (agente)"
     },
@@ -1214,7 +1217,8 @@
       "trello": "https://trello.com/c/ht5AxvMH",
       "branch": "FO",
       "evidence": [
-        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py"
+        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py",
+        "Seguimiento 2026-10-05 (commit 4ee1198): canal por eventos del worker con respaldo por base cada 10s; lector sin retener conexion del pool; CA1 para clientes nuevos y tras reinicio"
       ],
       "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. agent_progress por-agente (CA2) no implementado: requiere instrumentar LangGraph.",
       "owner_session": "FO (agente)"
