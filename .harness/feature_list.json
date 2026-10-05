@@ -1993,7 +1993,7 @@
       "id": "BUG-2026-10-05-01",
       "sprint": 1,
       "title": "Agregar dossier_generation_jobs al esquema versionado (Alembic y parches de arranque)",
-      "status": "claimed",
+      "status": "review",
       "owner": "FO",
       "area": "db",
       "activity": "A3",
@@ -2006,7 +2006,9 @@
       "blocks": [],
       "trello": null,
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/alembic/versions/c4d8a2f6b1e9_bug_2026_10_05_01_cola_de_trabajos.py + schema_patches.JOB_QUEUE_PATCHES; tests unit/integration/security de la cola; suite 558 passed con Postgres (commit 1a9682d)"
+      ],
       "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD).",
       "owner_session": "FO (agente)"
     }

@@ -170,6 +170,28 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-10-05 · BUG-2026-10-05-01 · FO (agente)
+
+**Hecho.** `dossier_generation_jobs` entra al esquema versionado. El DDL idempotente está en
+`schema_patches.JOB_QUEUE_PATCHES` (copiado del que genera el ORM); la app lo aplica al
+arrancar y la migración `c4d8a2f6b1e9` lo reutiliza (patrón de S4.5). Sobre las bases reales,
+que ya tienen la tabla porque la creó `create_all`, no hace nada. Suite: 558 passed con
+Postgres.
+
+**Lo que hay que saber.**
+- **Cada tarea de esquema agrega su propia tupla en `schema_patches.py` y su migración**,
+  que la reutiliza. No se agregan sentencias a las tuplas anteriores: sus migraciones las leen
+  en vivo y dejarían de ser fijas. Hay una prueba que vigila esto.
+- **La prueba de S4.5 que exigía que su migración fuera la cabeza se reescribió**: ahora exige
+  una cadena lineal. Cada migración nueva debe probar lo mismo, sin fijar la cabeza.
+- **`local-setup.md` ya estaba desactualizado**: decía 19 tablas y Alembic creaba 21. Ahora
+  dice 22, con el desglose para que el número no vuelva a desfasarse sin que se note.
+- `downgrade` de `c4d8a2f6b1e9` borra la tabla con sus trabajos.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-10-05 · S2.2 y seguimiento de S4.8 (SSE) · FO (agente)
 
 **Hecho.**
