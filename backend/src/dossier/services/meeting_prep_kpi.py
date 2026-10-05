@@ -1,8 +1,8 @@
 """
-Indicadores de Resumen (UX-KPI-01): lógica pura de elegibilidad, preparación y puntualidad.
+Indicadores de Resumen (UX-KPI-01): lógica pura de elegibilidad, preparación y costo estimado.
 
-No toca la base de datos ni la red: recibe reuniones ya leídas del calendario y hechos ya
-cargados, y devuelve conteos. Así se prueba sin infraestructura y el servicio de resumen
+No toca la base de datos ni la red: recibe reuniones ya leídas del calendario y los dossiers
+disponibles, y devuelve conteos. Así se prueba sin infraestructura y el servicio de resumen
 (`dashboard_summary.py`) solo se ocupa de reunir los datos.
 
 Reglas (spec UX-KPI-01):
@@ -17,19 +17,18 @@ Reglas (spec UX-KPI-01):
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
-from dossier.billing.entitlements import plan_allows_calendar_corporate_dossier
+from dossier.billing.credit_policy import PERSON_IDENTITY_CREDITS
+from dossier.billing.entitlements import default_depth_for_plan, plan_allows_calendar_corporate_dossier
+from dossier.schemas.dossier_generation import DEPTH_CREDITS
 from dossier.services.calendar_event_dossiers import parse_calendar_event_for_dossiers
 from dossier.services.calendar_event_filters import has_external_attendee, is_work_meeting
 from dossier.services.meeting_identity import (
-    ORIGEN_AUTOMATICO,
-    ORIGEN_MANUAL,
     ROL_CORPORATIVO,
-    Fact,
     expected_roles_from_parsed,
     meeting_key,
     parse_start,
@@ -37,26 +36,23 @@ from dossier.services.meeting_identity import (
 )
 
 __all__ = [
-    "ORIGEN_AUTOMATICO",
-    "ORIGEN_MANUAL",
     "ROL_CORPORATIVO",
     "CalendarEntry",
     "CalendarSnapshot",
-    "Fact",
-    "HistoryResult",
     "Meeting",
+    "PreparationCostResult",
     "UpcomingResult",
     "collect_meetings",
     "expected_roles",
     "meeting_key",
     "parse_start",
+    "preparation_role_cost",
     "role_for_person",
-    "summarize_history",
+    "summarize_preparation_cost",
     "summarize_upcoming",
 ]
 
 PERIODO_FUTURO = timedelta(days=7)
-PERIODO_HISTORIAL = timedelta(days=30)
 
 def expected_roles(reunion: dict[str, Any], plan: str | None) -> frozenset[str]:
     """Dossiers que la solicitud de la reunión produce con el parser actual y el plan dado."""
@@ -88,8 +84,6 @@ class Meeting:
 @dataclass
 class CalendarSnapshot:
     meetings: list[Meeting] = field(default_factory=list)
-    #: clave → inicio de TODO evento leído con inicio válido, sea elegible o no
-    seen: dict[str, datetime] = field(default_factory=dict)
 
 
 def _is_eligible(reunion: dict[str, Any], owner_domain: str | None) -> bool:
@@ -117,7 +111,6 @@ def collect_meetings(entries: list[CalendarEntry], *, plan: str | None) -> Calen
         if not ext_id or inicio is None:
             continue
         clave = meeting_key(e.provider, ext_id, e.calendar_key)
-        snap.seen[clave] = inicio
         if not _is_eligible(e.reunion, e.owner_domain):
             continue
         uid = str(e.reunion.get("ical_uid") or "").strip()
@@ -169,80 +162,50 @@ def summarize_upcoming(
     return UpcomingResult(total, preparadas, total - preparadas, _percent(preparadas, total))
 
 
-@dataclass(frozen=True)
-class HistoryResult:
-    eligible: int
-    on_time_meetings: int
-    percent: float | None
-    on_time_dossiers: int
+def preparation_role_cost(plan: str | None) -> Callable[[str], int]:
+    """Créditos que cuesta generar cada rol con las reglas actuales de cobro.
 
-
-def _was_available_at_start(fact: Fact, start: datetime) -> bool:
-    """Terminó antes del inicio y su documento no se borró antes de la reunión."""
-    if fact.completed_at >= start:
-        return False
-    return fact.deleted_at is None or fact.deleted_at >= start
-
-
-def summarize_history(
-    meetings: list[Meeting],
-    seen: Mapping[str, datetime],
-    facts: list[Fact],
-    *,
-    measured_from: datetime,
-    as_of: datetime,
-    fetched_from: datetime | None = None,
-    fetched_to: datetime | None = None,
-) -> HistoryResult:
-    """Puntualidad manual de las reuniones con inicio en [measured_from, as_of).
-
-    ``fetched_from``/``fetched_to`` es lo que el calendario leyó completo (por omisión
-    30 días atrás y 7 adelante): sirve para decidir si un hecho cuyo inicio registrado cae
-    ahí y cuya reunión no aparece corresponde a una reunión cancelada o movida.
+    Empresa: la profundidad por defecto del plan (la que usa la generación desde calendario).
+    Persona: créditos del módulo de identidad.
     """
-    leido_desde = fetched_from if fetched_from is not None else as_of - PERIODO_HISTORIAL
-    leido_hasta = fetched_to if fetched_to is not None else as_of + PERIODO_FUTURO
+    corporativo = DEPTH_CREDITS[default_depth_for_plan(plan)]
 
-    manuales: dict[str, Fact] = {}
-    for f in facts:
-        if f.origin == ORIGEN_MANUAL:
-            manuales.setdefault(f.result_key, f)  # idempotente: un resultado, un hecho
-    por_reunion: dict[str, list[Fact]] = {}
-    for f in manuales.values():
-        por_reunion.setdefault(f.meeting_key, []).append(f)
+    def _costo(rol: str) -> int:
+        return corporativo if rol == ROL_CORPORATIVO else PERSON_IDENTITY_CREDITS
 
-    pasadas = [m for m in meetings if measured_from <= m.starts_at < as_of]
-    a_tiempo = 0
-    for m in pasadas:
-        candidatos = [f for k in m.keys for f in por_reunion.get(k, [])]
-        validos = sorted(
-            (f for f in candidatos if _was_available_at_start(f, m.starts_at)),
-            key=lambda f: f.completed_at,
-        )
-        if not validos:
+    return _costo
+
+
+@dataclass(frozen=True)
+class PreparationCostResult:
+    meetings_to_generate: int
+    estimated_credits: int
+
+
+def summarize_preparation_cost(
+    meetings: list[Meeting],
+    available: Mapping[str, frozenset[str]],
+    *,
+    as_of: datetime,
+    role_cost: Callable[[str], int],
+) -> PreparationCostResult:
+    """Costo estimado de completar las reuniones de [as_of, as_of+7d) que no están preparadas.
+
+    Solo suma los dossiers esperados que faltan: lo ya generado no se cobra de nuevo. Una
+    reunión con conjunto esperado vacío no tiene nada que generar y no suma. Es un máximo:
+    un resultado recuperado de caché puede costar menos.
+    """
+    fin = as_of + PERIODO_FUTURO
+    reuniones = 0
+    total = 0
+    for m in meetings:
+        if not (as_of <= m.starts_at < fin):
             continue
-        esperado = validos[-1].expected_keys
-        if esperado is None:
-            esperado = m.expected
-        cubiertos = {f.role_key for f in validos}
-        if esperado and esperado <= cubiertos:
-            a_tiempo += 1
-
-    por_clave = {k: m for m in meetings for k in m.keys}
-    dossiers = 0
-    for f in manuales.values():
-        if not (measured_from <= f.completed_at < as_of):
-            continue
-        reunion = por_clave.get(f.meeting_key)
-        if reunion is not None:
-            inicio: datetime | None = reunion.starts_at
-        elif f.meeting_key in seen:
-            inicio = None  # la reunión existe pero no es elegible
-        elif f.meeting_starts_at is None or leido_desde <= f.meeting_starts_at < leido_hasta:
-            inicio = None  # sin reunión asociada, o cancelada/movida dentro de lo leído
-        else:
-            inicio = f.meeting_starts_at
-        if inicio is not None and _was_available_at_start(f, inicio):
-            dossiers += 1
-
-    return HistoryResult(len(pasadas), a_tiempo, _percent(a_tiempo, len(pasadas)), dossiers)
+        disponible: set[str] = set()
+        for k in m.keys:
+            disponible |= available.get(k, frozenset())
+        faltan = m.expected - disponible
+        if faltan:
+            reuniones += 1
+            total += sum(role_cost(r) for r in faltan)
+    return PreparationCostResult(reuniones, total)

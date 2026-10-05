@@ -1,12 +1,12 @@
 """
 Resumen de indicadores de /dashboard (UX-KPI-01).
 
-Reúne los datos —calendarios conectados, dossiers vigentes, hechos de generación, saldo— y
+Reúne los datos —calendarios conectados, dossiers vigentes, reglas de cobro, saldo— y
 delega las reglas en ``meeting_prep_kpi``. Consultar es de solo lectura: no genera dossiers,
 no programa automatizaciones, no cobra créditos y no crea eventos internos.
 
 Un fallo nunca se esconde detrás de un número: sin calendario conectado, lectura incompleta,
-proveedor caído y evidencia ausente son estados distintos, y los créditos siguen visibles
+y proveedor caído son estados distintos, y los créditos siguen visibles
 mientras su fuente (la fila de la organización) responda.
 """
 from __future__ import annotations
@@ -15,14 +15,14 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from dossier.billing.credit_policy import credit_charging_enabled, enterprise_unlimited
 from dossier.db.models import CalendarIntegration, Dossier, Organization, User
 from dossier.services.calendar_event_filters import owner_email_domain
 from dossier.services.calendar_range import ErrorProveedorCalendario, RangoConsulta, ResultadoRango
@@ -30,14 +30,13 @@ from dossier.services.google_calendar_api import listar_reuniones_google_rango
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import listar_reuniones_rango
 from dossier.services.meeting_identity import meeting_key, role_for_person
-from dossier.services.meeting_prep_evidence import FACT_RETENTION_DAYS, load_facts, recording_started_at
 from dossier.services.meeting_prep_kpi import (
     PERIODO_FUTURO,
-    PERIODO_HISTORIAL,
     CalendarEntry,
     Meeting,
     collect_meetings,
-    summarize_history,
+    preparation_role_cost,
+    summarize_preparation_cost,
     summarize_upcoming,
 )
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
@@ -61,8 +60,6 @@ R_REAUTENTICAR = "calendar_reauth_required"
 R_NO_DISPONIBLE = "calendar_unavailable"
 R_INCOMPLETO = "calendar_incomplete"
 R_OCUPADO = "calendar_busy"
-R_HISTORIAL_PARCIAL = "history_partial_evidence"
-R_SIN_EVIDENCIA = "evidence_unavailable"
 
 _PRIORIDAD_MOTIVOS = (R_REAUTENTICAR, R_INCOMPLETO, R_NO_DISPONIBLE)
 
@@ -202,7 +199,7 @@ def _roles_vigentes(
     return {k: frozenset(v) for k, v in disponible.items()}
 
 
-def _seccion_no_calculable(lectura: _Lectura, desde: datetime, hasta: datetime, campos: dict) -> dict:
+def _seccion_no_calculable(lectura: _Lectura, desde: datetime, hasta: datetime, campos: tuple) -> dict:
     return {
         "state": lectura.estado,
         "reason": lectura.motivo,
@@ -215,54 +212,48 @@ def _seccion_no_calculable(lectura: _Lectura, desde: datetime, hasta: datetime, 
 
 
 _CAMPOS_FUTURO = ("eligible_meetings", "prepared_meetings", "pending_meetings", "coverage_percent")
-_CAMPOS_HISTORIAL = (
-    "eligible_meetings",
-    "manually_prepared_on_time_meetings",
-    "on_time_percent",
-    "manual_on_time_dossiers",
-)
+_CAMPOS_COSTO = ("estimated_credits", "meetings_to_generate")
 
 
-def _reliable_since(user: User, db: Session) -> datetime | None:
-    """Desde cuándo hay evidencia fiable; ``None`` = sin límite por purga.
-
-    Quien conserva sus dossiers indefinidamente no perdió nada por retención. Con retención
-    numérica, lo anterior al inicio del registro pudo purgarse sin dejar rastro.
-    """
-    if user.dossier_retention_days is None:
-        return None
-    return recording_started_at(db)
+def _billing(org: Organization) -> str:
+    """Cómo se cobra hoy en esta organización: decide si el estimado tiene costo real."""
+    if not credit_charging_enabled():
+        return "disabled"
+    if enterprise_unlimited(org):
+        return "unlimited"
+    return "charged"
 
 
 def _compute_calendar_sections(db: Session, user: User, org: Organization, as_of: datetime) -> tuple[dict, bool]:
+    """Lo que depende del calendario (cacheable). El saldo se añade fuera, siempre fresco."""
     f_ini, f_fin = as_of, as_of + PERIODO_FUTURO
-    h_ini, h_fin = as_of - PERIODO_HISTORIAL, as_of
-    if not _CUPO.acquire(timeout=ESPERA_CUPO_SEGUNDOS):
-        ocupado = _Lectura("unavailable", R_OCUPADO)
+    billing = _billing(org)
+
+    def _no_calculable(lectura: _Lectura) -> dict:
         return {
-            "upcoming": _seccion_no_calculable(ocupado, f_ini, f_fin, dict.fromkeys(_CAMPOS_FUTURO)),
-            "history": _seccion_no_calculable(ocupado, h_ini, h_fin, dict.fromkeys(_CAMPOS_HISTORIAL)),
-        }, True
+            "upcoming": _seccion_no_calculable(lectura, f_ini, f_fin, _CAMPOS_FUTURO),
+            "preparation_cost": {**_seccion_no_calculable(lectura, f_ini, f_fin, _CAMPOS_COSTO), "billing": billing},
+        }
+
+    if not _CUPO.acquire(timeout=ESPERA_CUPO_SEGUNDOS):
+        return _no_calculable(_Lectura("unavailable", R_OCUPADO)), True
     try:
-        lectura = _leer_calendarios(db, user, RangoConsulta(desde=h_ini, hasta=f_fin))
+        lectura = _leer_calendarios(db, user, RangoConsulta(desde=f_ini, hasta=f_fin))
     finally:
         _CUPO.release()
-
     if lectura.estado != "ok":
-        return {
-            "upcoming": _seccion_no_calculable(lectura, f_ini, f_fin, dict.fromkeys(_CAMPOS_FUTURO)),
-            "history": _seccion_no_calculable(lectura, h_ini, h_fin, dict.fromkeys(_CAMPOS_HISTORIAL)),
-        }, lectura.estado == "unavailable"
+        return _no_calculable(lectura), lectura.estado == "unavailable"
 
     snap = collect_meetings(lectura.entradas or [], plan=org.plan)
-
-    # próximas reuniones: dossiers vigentes del propio usuario
     futuras = [m for m in snap.meetings if f_ini <= m.starts_at < f_fin]
     disponible = _roles_vigentes(db, org_id=org.id, user_id=user.id, meetings=futuras)
+
     up = summarize_upcoming(snap.meetings, disponible, as_of=as_of)
+    estado = "ok" if up.eligible else "empty"
+    motivo = None if up.eligible else R_SIN_REUNIONES
     upcoming = {
-        "state": "ok" if up.eligible else "empty",
-        "reason": None if up.eligible else R_SIN_REUNIONES,
+        "state": estado,
+        "reason": motivo,
         "measured_from": _iso(f_ini),
         "measured_to": _iso(f_fin),
         "from": _iso(f_ini),
@@ -273,54 +264,21 @@ def _compute_calendar_sections(db: Session, user: User, org: Organization, as_of
         "coverage_percent": up.percent,
     }
 
-    # historial: hechos de generación (sobreviven a la retención del documento)
-    def _historial_sin_evidencia() -> tuple[dict, bool]:
-        sin_evidencia = _Lectura("unavailable", R_SIN_EVIDENCIA)
-        return {
-            "upcoming": upcoming,
-            "history": _seccion_no_calculable(sin_evidencia, h_ini, h_fin, dict.fromkeys(_CAMPOS_HISTORIAL)),
-        }, True
-
-    try:
-        fiable = _reliable_since(user, db)
-        hechos = load_facts(
-            db,
-            organization_id=org.id,
-            user_id=user.id,
-            since=as_of - timedelta(days=FACT_RETENTION_DAYS),
-        )
-    except SQLAlchemyError:
-        db.rollback()
-        logger.warning("Resumen: evidencia de generación no disponible", exc_info=True)
-        return _historial_sin_evidencia()
-    if user.dossier_retention_days is not None and fiable is None:
-        return _historial_sin_evidencia()  # sin fecha de inicio del registro no hay intervalo verificable
-    medido_desde = max(h_ini, fiable) if fiable is not None else h_ini
-
-    h = summarize_history(
-        snap.meetings, snap.seen, hechos, measured_from=medido_desde, as_of=as_of,
-        fetched_from=h_ini, fetched_to=f_fin,
+    costo = summarize_preparation_cost(
+        snap.meetings, disponible, as_of=as_of, role_cost=preparation_role_cost(org.plan)
     )
-    parcial = medido_desde > h_ini
-    if h.eligible == 0:
-        estado, motivo = "empty", R_SIN_REUNIONES
-    elif parcial:
-        estado, motivo = "partial", R_HISTORIAL_PARCIAL
-    else:
-        estado, motivo = "ok", None
-    history = {
+    preparation_cost = {
         "state": estado,
         "reason": motivo,
-        "measured_from": _iso(medido_desde),
-        "measured_to": _iso(h_fin),
-        "from": _iso(h_ini),
-        "to": _iso(h_fin),
-        "eligible_meetings": h.eligible,
-        "manually_prepared_on_time_meetings": h.on_time_meetings,
-        "on_time_percent": h.percent,
-        "manual_on_time_dossiers": h.on_time_dossiers,
+        "measured_from": _iso(f_ini),
+        "measured_to": _iso(f_fin),
+        "from": _iso(f_ini),
+        "to": _iso(f_fin),
+        "estimated_credits": costo.estimated_credits if billing == "charged" else 0,
+        "meetings_to_generate": costo.meetings_to_generate,
+        "billing": billing,
     }
-    return {"upcoming": upcoming, "history": history}, False
+    return {"upcoming": upcoming, "preparation_cost": preparation_cost}, False
 
 
 def build_dashboard_summary(
@@ -330,17 +288,25 @@ def build_dashboard_summary(
     secciones = SUMMARY_CACHE.get_or_compute(
         (user.id, org.id), lambda: _compute_calendar_sections(db, user, org, as_of)
     )
+    saldo = int(org.credits_balance)
+    costo = dict(secciones["preparation_cost"])
+    estimado = costo.get("estimated_credits")
+    # Con el saldo de esta consulta (no el de la caché): ¿alcanza para preparar lo que falta?
+    if isinstance(estimado, int):
+        costo["exceeds_balance"] = costo["billing"] == "charged" and estimado > saldo
+    else:
+        costo["exceeds_balance"] = None
     return {
         "as_of": _iso(as_of),
         "timezone": user.timezone or "UTC",
         "upcoming": secciones["upcoming"],
-        "history": secciones["history"],
+        "preparation_cost": costo,
         "credits": {
             "state": "ok",
             "reason": None,
             "measured_from": None,
             "measured_to": None,
-            "balance": int(org.credits_balance),
+            "balance": saldo,
             "monthly_limit": int(org.credits_monthly_limit),
         },
     }

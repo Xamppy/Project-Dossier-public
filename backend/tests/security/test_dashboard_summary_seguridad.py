@@ -34,10 +34,10 @@ def _resumen_falso(**extra):
                      "measured_to": None, "from": "2026-10-03T15:00:00Z", "to": "2026-10-10T15:00:00Z",
                      "eligible_meetings": 0, "prepared_meetings": 0, "pending_meetings": 0,
                      "coverage_percent": None},
-        "history": {"state": "empty", "reason": "no_meetings_in_period", "measured_from": None,
-                    "measured_to": None, "from": "2026-09-03T15:00:00Z", "to": "2026-10-03T15:00:00Z",
-                    "eligible_meetings": 0, "manually_prepared_on_time_meetings": 0, "on_time_percent": None,
-                    "manual_on_time_dossiers": 0},
+        "preparation_cost": {"state": "empty", "reason": "no_meetings_in_period", "measured_from": None,
+                             "measured_to": None, "from": "2026-10-03T15:00:00Z", "to": "2026-10-10T15:00:00Z",
+                             "estimated_credits": 0, "meetings_to_generate": 0, "billing": "charged",
+                             "exceeds_balance": False},
         "credits": {"state": "ok", "reason": None, "measured_from": None, "measured_to": None,
                     "balance": 5, "monthly_limit": 10},
     }
@@ -113,7 +113,7 @@ def test_la_respuesta_no_filtra_campos_fuera_del_contrato(cliente, monkeypatch):
     texto = json.dumps(cuerpo)
     for secreto in ("ana@tesla.test", "Reunión secreta", "user_id", "lista_de_reuniones", "cus_123", "ev1"):
         assert secreto not in texto
-    assert set(cuerpo) == {"as_of", "timezone", "upcoming", "history", "credits"}
+    assert set(cuerpo) == {"as_of", "timezone", "upcoming", "preparation_cost", "credits"}
 
 
 @pytest.mark.parametrize("metodo", ["post", "put", "patch", "delete"])

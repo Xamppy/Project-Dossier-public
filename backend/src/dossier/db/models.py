@@ -23,7 +23,6 @@ from sqlalchemy import (
     Index,
     Integer,
     Numeric,
-    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -438,76 +437,6 @@ class DossierGenerationJob(Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
-    )
-
-
-class DossierGenerationFact(Base):
-    """Evidencia estadística mínima de un resultado de generación exitoso (UX-KPI-01).
-
-    Un hecho por resultado persistido. Sin cuerpos, nombres ni correos: solo claves de
-    ámbito y evento, origen, finalización real y el conjunto esperado de la solicitud.
-    ``dossier_id`` no es una FK a propósito: borrar el documento no debe borrar el hecho.
-    DDL: ``schema_patches.PREP_EVIDENCE_PATCHES`` (migración 0003); ver ``Migracion.md`` §17.
-    """
-
-    __tablename__ = "dossier_generation_facts"
-    __table_args__ = (
-        CheckConstraint(
-            "origin IN ('manual', 'automatic')", name="dossier_generation_facts_origin_check"
-        ),
-        Index(
-            "idx_gen_facts_scope",
-            "organization_id",
-            "user_id",
-            "generation_completed_at",
-        ),
-        Index(
-            "idx_gen_facts_dossier",
-            "dossier_id",
-            postgresql_where=text("dossier_id IS NOT NULL"),
-        ),
-    )
-
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-    result_key: Mapped[str] = mapped_column(String(200), unique=True)
-    organization_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE")
-    )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")
-    )
-    provider: Mapped[str] = mapped_column(String(20))
-    calendar_key: Mapped[str] = mapped_column(
-        String(500), nullable=False, server_default=text("'primary'")
-    )
-    external_event_id: Mapped[str] = mapped_column(String(512))
-    role_key: Mapped[str] = mapped_column(String(40))
-    origin: Mapped[str] = mapped_column(String(12))
-    dossier_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
-    expected_keys: Mapped[list[str] | None] = mapped_column(ARRAY(Text), nullable=True)
-    meeting_starts_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    generation_completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    dossier_deleted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-
-
-class PrepEvidenceMeta(Base):
-    """Fila única: desde cuándo se registra la evidencia (límite de lo verificable)."""
-
-    __tablename__ = "prep_evidence_meta"
-    __table_args__ = (CheckConstraint("id = 1", name="prep_evidence_meta_singleton"),)
-
-    id: Mapped[int] = mapped_column(SmallInteger, primary_key=True, default=1)
-    recording_started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
     )
 
 

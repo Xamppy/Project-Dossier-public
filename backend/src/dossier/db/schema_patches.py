@@ -80,46 +80,7 @@ DOSSIER_ENTITIES_PATCHES = (
 )
 
 
-# UX-KPI-01: evidencia mínima para los indicadores de Resumen. Separado de _PATCHES por la
-# misma razón que S4.5 (la línea base itera _PATCHES en vivo); lo aplica la migración 0003.
-# El relleno desde dossiers vigentes NO va aquí: es de una sola vez y vive en la migración.
-PREP_EVIDENCE_PATCHES = (
-    """
-    CREATE TABLE IF NOT EXISTS dossier_generation_facts (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        result_key VARCHAR(200) NOT NULL UNIQUE,
-        organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        provider VARCHAR(20) NOT NULL,
-        calendar_key VARCHAR(500) NOT NULL DEFAULT 'primary',
-        external_event_id VARCHAR(512) NOT NULL,
-        role_key VARCHAR(40) NOT NULL,
-        origin VARCHAR(12) NOT NULL,
-        dossier_id UUID,
-        expected_keys TEXT[],
-        meeting_starts_at TIMESTAMPTZ,
-        generation_completed_at TIMESTAMPTZ NOT NULL,
-        dossier_deleted_at TIMESTAMPTZ,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        CONSTRAINT dossier_generation_facts_origin_check CHECK (origin IN ('manual', 'automatic'))
-    );
-    """,
-    "CREATE INDEX IF NOT EXISTS idx_gen_facts_scope ON dossier_generation_facts "
-    "(organization_id, user_id, generation_completed_at);",
-    "CREATE INDEX IF NOT EXISTS idx_gen_facts_dossier ON dossier_generation_facts (dossier_id) "
-    "WHERE dossier_id IS NOT NULL;",
-    """
-    CREATE TABLE IF NOT EXISTS prep_evidence_meta (
-        id SMALLINT PRIMARY KEY,
-        recording_started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        CONSTRAINT prep_evidence_meta_singleton CHECK (id = 1)
-    );
-    """,
-    "INSERT INTO prep_evidence_meta (id) VALUES (1) ON CONFLICT (id) DO NOTHING;",
-)
-
-
 def apply_schema_patches(engine: Engine) -> None:
     with engine.begin() as conn:
-        for sql in _PATCHES + DOSSIER_ENTITIES_PATCHES + PREP_EVIDENCE_PATCHES:
+        for sql in _PATCHES + DOSSIER_ENTITIES_PATCHES:
             conn.execute(text(sql))

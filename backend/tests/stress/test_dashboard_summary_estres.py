@@ -13,11 +13,11 @@ from types import SimpleNamespace
 
 from dossier.services import dashboard_summary as ds
 from dossier.services.calendar_range import ErrorProveedorCalendario, RangoConsulta, ResultadoRango
-from dossier.services.meeting_identity import Fact, meeting_key
 from dossier.services.meeting_prep_kpi import (
     CalendarEntry,
     collect_meetings,
-    summarize_history,
+    preparation_role_cost,
+    summarize_preparation_cost,
     summarize_upcoming,
 )
 
@@ -36,23 +36,21 @@ def _reunion(i, inicio):
 # ── volumen ──────────────────────────────────────────────────────────────────
 
 
-def test_volumen_miles_de_reuniones_y_hechos_se_resuelven_completos_y_rapido():
-    n = 3000
+def test_volumen_miles_de_reuniones_se_resuelven_completas_y_rapido():
+    n = 2500  # el máximo que entrega un proveedor (10 páginas de 250)
     entradas = [
-        CalendarEntry("google", "primary", "mi-empresa.test", _reunion(i, AS_OF - timedelta(minutes=10 * (i + 1))))
+        CalendarEntry("google", "primary", "mi-empresa.test", _reunion(i, AS_OF + timedelta(minutes=3 * (i + 1))))
         for i in range(n)
     ]
     t0 = time.perf_counter()
     snap = collect_meetings(entradas, plan="pro")
-    hechos = []
-    for i in range(n):
-        inicio = AS_OF - timedelta(minutes=10 * (i + 1))
-        for rol in ("corporate", "person:1"):
-            hechos.append(Fact(f"r{i}:{rol}", meeting_key("google", f"ev{i}"), rol, "manual",
-                               inicio - timedelta(hours=1), inicio, frozenset({"corporate", "person:1"}), None))
-    r = summarize_history(snap.meetings, snap.seen, hechos, measured_from=AS_OF - timedelta(days=30), as_of=AS_OF)
+    disponible = {m.keys[0]: frozenset({"corporate"}) for m in snap.meetings[: n // 2]}
+    up = summarize_upcoming(snap.meetings, disponible, as_of=AS_OF)
+    costo = summarize_preparation_cost(snap.meetings, disponible, as_of=AS_OF, role_cost=preparation_role_cost("pro"))
     assert time.perf_counter() - t0 < 5
-    assert (r.eligible, r.on_time_meetings, r.on_time_dossiers) == (n, n, 2 * n)
+    assert (up.eligible, up.prepared) == (n, 0)  # a ninguna le alcanza solo la empresa
+    assert costo.meetings_to_generate == n
+    assert costo.estimated_credits == (n // 2) * 1 + (n - n // 2) * (3 + 1)
 
 
 def test_volumen_mas_de_ochenta_reuniones_futuras_no_se_truncan():

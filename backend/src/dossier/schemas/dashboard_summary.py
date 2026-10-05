@@ -28,15 +28,18 @@ class UpcomingMetrics(MetricContext):
     coverage_percent: float | None = None
 
 
-class HistoryMetrics(MetricContext):
+class PreparationCostMetrics(MetricContext):
+    """Créditos estimados para generar lo que falta en las reuniones de los próximos 7 días."""
+
     model_config = ConfigDict(populate_by_name=True)
 
     from_: str = Field(alias="from")
     to: str
-    eligible_meetings: int | None = None
-    manually_prepared_on_time_meetings: int | None = None
-    on_time_percent: float | None = None
-    manual_on_time_dossiers: int | None = None
+    estimated_credits: int | None = None
+    meetings_to_generate: int | None = None
+    #: charged = se cobra; unlimited = Enterprise sin bloqueo; disabled = cobro desactivado
+    billing: Literal["charged", "unlimited", "disabled"]
+    exceeds_balance: bool | None = None
 
 
 class CreditsMetrics(MetricContext):
@@ -48,5 +51,5 @@ class DashboardSummary(BaseModel):
     as_of: str
     timezone: str
     upcoming: UpcomingMetrics
-    history: HistoryMetrics
+    preparation_cost: PreparationCostMetrics
     credits: CreditsMetrics

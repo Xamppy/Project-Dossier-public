@@ -1,4 +1,4 @@
-"""UX-KPI-01 · GET /dashboard/summary contra Postgres real (CA1–CA5, CA10–CA13).
+"""UX-KPI-01 · GET /dashboard/summary contra Postgres real (CA1–CA13).
 
 El calendario es simulado (páginas de Google/Graph); la base de datos y la autenticación
 son reales. Requiere ``TEST_DATABASE_URL`` (fixture ``pg_vacia``).
@@ -28,7 +28,6 @@ from dossier.db.models import (
 from dossier.security.jwt_tokens import create_access_token
 from dossier.services import dashboard_summary as ds
 from dossier.services.calendar_range import ErrorProveedorCalendario, ResultadoRango
-from dossier.services.meeting_prep_evidence import record_generation_fact
 
 AHORA = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
 
@@ -95,7 +94,7 @@ class Mundo:
         self.calendarios[provider] = ResultadoRango(reuniones=list(reuniones), completo=completo,
                                                     motivo_incompleto=motivo)
 
-    # dossiers y hechos --------------------------------------------------------
+    # dossiers ---------------------------------------------------------------
     def dossier_vivo(self, user, org, ext, rol="corporate", indice=None, provider="google",
                      status="complete"):
         data = {"billing": "none", "calendar_folder_role": rol,
@@ -109,29 +108,11 @@ class Mundo:
         )
         self.s.commit()
 
-    def hecho(self, user, org, i, rol, completado, inicio, *, origen="manual", clave=None,
-              esperado=("corporate",), provider="google", borrado=None):
-        record_generation_fact(
-            self.s, result_key=clave or f"{uuid.uuid4()}", organization_id=org.id, user_id=user.id,
-            provider=provider, external_event_id=f"ev{i}", role_key=rol, origin=origen,
-            dossier_id=None, expected_keys=list(esperado), meeting_starts_at=inicio,
-            completed_at=completado,
-        )
-        if borrado is not None:
-            self.s.execute(text("UPDATE dossier_generation_facts SET dossier_deleted_at = :b "
-                                "WHERE result_key = :k"), {"b": borrado, "k": clave})
-        self.s.commit()
-
-
 @pytest.fixture
 def mundo(pg_vacia, alembic_cfg, monkeypatch):
     command.upgrade(alembic_cfg, "head")
     DossierGenerationJob.__table__.create(bind=pg_vacia, checkfirst=True)
     m = Mundo(pg_vacia, monkeypatch)
-    # el historial es fiable desde mucho antes: salvo en las pruebas que lo cambian expresamente
-    m.s.execute(text("UPDATE prep_evidence_meta SET recording_started_at = :t"),
-                {"t": AHORA - timedelta(days=120)})
-    m.s.commit()
     ds.SUMMARY_CACHE.clear()
     monkeypatch.setattr(ds, "_utcnow", lambda: AHORA)
 
@@ -183,14 +164,14 @@ def test_el_contrato_tiene_las_tres_secciones_y_ningun_dato_personal(client, mun
     mundo.integracion(mundo.user, mundo.org)
     mundo.calendario("google", [])
     cuerpo = _pedir(client, mundo)
-    assert set(cuerpo) == {"as_of", "timezone", "upcoming", "history", "credits"}
+    assert set(cuerpo) == {"as_of", "timezone", "upcoming", "preparation_cost", "credits"}
     assert set(cuerpo["upcoming"]) == {
         "state", "reason", "measured_from", "measured_to", "from", "to",
         "eligible_meetings", "prepared_meetings", "pending_meetings", "coverage_percent",
     }
-    assert set(cuerpo["history"]) == {
-        "state", "reason", "measured_from", "measured_to", "from", "to", "eligible_meetings",
-        "manually_prepared_on_time_meetings", "on_time_percent", "manual_on_time_dossiers",
+    assert set(cuerpo["preparation_cost"]) == {
+        "state", "reason", "measured_from", "measured_to", "from", "to",
+        "estimated_credits", "meetings_to_generate", "billing", "exceeds_balance",
     }
     assert set(cuerpo["credits"]) == {"state", "reason", "measured_from", "measured_to", "balance", "monthly_limit"}
     assert "yo@mi-empresa.test" not in json.dumps(cuerpo)  # sin correos ni títulos
@@ -251,84 +232,79 @@ def test_borrar_un_dossier_antes_de_la_reunion_la_devuelve_a_pendiente(client, m
     assert _pedir(client, mundo)["upcoming"]["pending_meetings"] == 1
 
 
-# ── CA2/CA3/CA8: historial ───────────────────────────────────────────────────
+# ── CA2/CA3/CA4/CA9: créditos para preparar ─────────────────────────────────
 
 
-def _pasadas(mundo, n=8):
-    inicios = [AHORA - timedelta(days=2 + i) for i in range(n)]
-    mundo.calendario("google", [mundo.reunion(i, t) for i, t in enumerate(inicios)])
-    return inicios
-
-
-def test_ca2_ocho_pasadas_seis_a_tiempo_once_dossiers_setenta_y_cinco_por_ciento(client, mundo):
+def _dos_pendientes(mundo):
+    """CA2: 5 futuras; 3 preparadas; la cuarta sin nada; a la quinta le falta la persona."""
     mundo.integracion(mundo.user, mundo.org)
-    inicios = _pasadas(mundo)
-    for i in range(5):
-        mundo.hecho(mundo.user, mundo.org, i, "corporate", inicios[i] - timedelta(hours=3), inicios[i],
-                    esperado=("corporate", "person:1"))
-        mundo.hecho(mundo.user, mundo.org, i, "person:1", inicios[i] - timedelta(hours=2), inicios[i],
-                    esperado=("corporate", "person:1"))
-    mundo.hecho(mundo.user, mundo.org, 5, "corporate", inicios[5] - timedelta(hours=3), inicios[5])
-    h = _pedir(client, mundo)["history"]
-    assert (h["state"], h["eligible_meetings"], h["manually_prepared_on_time_meetings"], h["on_time_percent"],
-            h["manual_on_time_dossiers"]) == ("ok", 8, 6, 75.0, 11)
-    assert h["from"] == "2026-09-03T15:00:00Z" and h["measured_from"] == h["from"]
+    mundo.calendario("google", [mundo.reunion(i, AHORA + timedelta(days=1, hours=i)) for i in range(5)])
+    for i in range(3):
+        mundo.dossier_vivo(mundo.user, mundo.org, f"ev{i}", "corporate")
+        mundo.dossier_vivo(mundo.user, mundo.org, f"ev{i}", "person", indice=1)
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev4", "corporate")
 
 
-def test_ca3_automatico_de_otro_usuario_o_posterior_al_inicio_no_acredita(client, mundo):
-    mundo.integracion(mundo.user, mundo.org)
-    inicios = _pasadas(mundo, 4)
-    otro = mundo.usuario(mundo.org, "otro")
-    mundo.hecho(mundo.user, mundo.org, 0, "corporate", inicios[0] - timedelta(hours=1), inicios[0], origen="automatic")
-    mundo.hecho(otro, mundo.org, 1, "corporate", inicios[1] - timedelta(hours=1), inicios[1])  # lo generó otra persona
-    mundo.hecho(mundo.user, mundo.org, 2, "corporate", inicios[2] + timedelta(minutes=1), inicios[2])  # tarde
-    h = _pedir(client, mundo)["history"]
-    assert (h["manually_prepared_on_time_meetings"], h["manual_on_time_dossiers"], h["on_time_percent"]) == (0, 0, 0.0)
+def test_ca2_estima_solo_lo_que_falta_en_las_pendientes(client, mundo):
+    _dos_pendientes(mundo)
+    c = _pedir(client, mundo)["preparation_cost"]
+    assert (c["state"], c["estimated_credits"], c["meetings_to_generate"], c["billing"],
+            c["exceeds_balance"]) == ("ok", 3 + 1 + 1, 2, "charged", False)
+    assert c["from"] == "2026-10-03T15:00:00Z" and c["to"] == "2026-10-10T15:00:00Z"
 
 
-def test_ca8_documento_borrado_despues_de_la_reunion_conserva_el_hecho(client, mundo):
-    mundo.integracion(mundo.user, mundo.org)
-    inicios = _pasadas(mundo, 2)
-    mundo.hecho(mundo.user, mundo.org, 0, "corporate", inicios[0] - timedelta(hours=1), inicios[0], clave="a",
-                borrado=inicios[0] + timedelta(days=7))
-    mundo.hecho(mundo.user, mundo.org, 1, "corporate", inicios[1] - timedelta(hours=1), inicios[1], clave="b",
-                borrado=inicios[1] - timedelta(minutes=30))  # borrado antes de la reunión
-    h = _pedir(client, mundo)["history"]
-    assert (h["manually_prepared_on_time_meetings"], h["manual_on_time_dossiers"]) == (1, 1)
-
-
-def test_ca9_historial_parcial_declara_el_intervalo_realmente_medido(client, mundo):
-    mundo.integracion(mundo.user, mundo.org)
-    mundo.user.dossier_retention_days = 7  # los dossiers viejos ya se purgaron: no hay evidencia previa
+def test_ca9_avisa_cuando_el_estimado_supera_el_saldo(client, mundo):
+    mundo.s.execute(text("UPDATE organizations SET credits_balance = 4 WHERE id = :o"), {"o": mundo.org.id})
     mundo.s.commit()
-    desde = AHORA - timedelta(days=5)
-    mundo.s.execute(text("UPDATE prep_evidence_meta SET recording_started_at = :t"), {"t": desde})
-    mundo.s.commit()
-    mundo.calendario("google", [mundo.reunion(0, AHORA - timedelta(days=20)), mundo.reunion(1, AHORA - timedelta(days=2))])
-    h = _pedir(client, mundo)["history"]
-    assert h["state"] == "partial" and h["reason"] == "history_partial_evidence"
-    assert h["measured_from"] == "2026-09-28T15:00:00Z" and h["from"] == "2026-09-03T15:00:00Z"
-    assert h["eligible_meetings"] == 1  # la reunión de hace 20 días queda fuera de lo verificable
+    _dos_pendientes(mundo)
+    assert _pedir(client, mundo)["preparation_cost"]["exceeds_balance"] is True
 
 
-def test_sin_retencion_el_historial_es_fiable_aunque_la_evidencia_sea_reciente(client, mundo):
-    mundo.integracion(mundo.user, mundo.org)
-    mundo.s.execute(text("UPDATE prep_evidence_meta SET recording_started_at = :t"), {"t": AHORA - timedelta(days=2)})
-    mundo.s.commit()
-    mundo.calendario("google", [mundo.reunion(0, AHORA - timedelta(days=20))])
-    h = _pedir(client, mundo)["history"]
-    assert h["state"] == "ok" and h["eligible_meetings"] == 1
-
-
-def test_sin_tabla_de_evidencia_el_historial_no_se_inventa_pero_lo_demas_responde(client, mundo):
+def test_ca3_un_dossier_fallido_se_vuelve_a_cobrar(client, mundo):
     mundo.integracion(mundo.user, mundo.org)
     mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
-    mundo.s.execute(text("DROP TABLE dossier_generation_facts"))
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "corporate", status="failed")
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "person", indice=1)
+    assert _pedir(client, mundo)["preparation_cost"]["estimated_credits"] == 3
+
+
+def test_ca4_plan_free_no_exige_ni_cobra_el_corporativo(client, mundo):
+    mundo.s.execute(text("UPDATE organizations SET plan = 'free' WHERE id = :o"), {"o": mundo.org.id})
     mundo.s.commit()
-    cuerpo = _pedir(client, mundo)
-    assert cuerpo["history"]["state"] == "unavailable" and cuerpo["history"]["reason"] == "evidence_unavailable"
-    assert cuerpo["history"]["on_time_percent"] is None
-    assert cuerpo["upcoming"]["state"] == "ok" and cuerpo["credits"]["balance"] == 42
+    mundo.integracion(mundo.user, mundo.org)
+    mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
+    c = _pedir(client, mundo)["preparation_cost"]
+    assert (c["estimated_credits"], c["meetings_to_generate"]) == (1, 1)
+
+
+def test_ca4_enterprise_no_tiene_costo_y_lo_declara(client, mundo):
+    mundo.s.execute(text("UPDATE organizations SET plan = 'enterprise' WHERE id = :o"), {"o": mundo.org.id})
+    mundo.s.commit()
+    mundo.integracion(mundo.user, mundo.org)
+    mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
+    c = _pedir(client, mundo)["preparation_cost"]
+    assert (c["estimated_credits"], c["meetings_to_generate"], c["billing"], c["exceeds_balance"]) == (
+        0, 1, "unlimited", False)
+
+
+def test_ca4_con_el_cobro_desactivado_no_hay_costo(client, mundo, monkeypatch):
+    monkeypatch.setenv("DOSSIER_CHARGE_CREDITS", "0")
+    mundo.integracion(mundo.user, mundo.org)
+    mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
+    c = _pedir(client, mundo)["preparation_cost"]
+    assert (c["estimated_credits"], c["billing"]) == (0, "disabled")
+
+
+def test_ca8_borrar_un_dossier_antes_de_la_reunion_vuelve_a_sumar_su_costo(client, mundo):
+    mundo.integracion(mundo.user, mundo.org)
+    mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "corporate")
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "person", indice=1)
+    assert _pedir(client, mundo)["preparation_cost"]["estimated_credits"] == 0
+    mundo.s.execute(text("DELETE FROM dossiers WHERE dossier_data->>'calendar_folder_role' = 'corporate'"))
+    mundo.s.commit()
+    ds.SUMMARY_CACHE.clear()
+    assert _pedir(client, mundo)["preparation_cost"]["estimated_credits"] == 3
 
 
 # ── CA5: volumen y paginación ────────────────────────────────────────────────
@@ -350,9 +326,10 @@ def test_ca5_una_pagina_incompleta_no_entrega_un_porcentaje_aparentemente_defini
     mundo.integracion(mundo.user, mundo.org)
     mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))], completo=False, motivo="error_proveedor")
     cuerpo = _pedir(client, mundo)
-    for k in ("upcoming", "history"):
+    for k in ("upcoming", "preparation_cost"):
         assert cuerpo[k]["state"] == "unavailable" and cuerpo[k]["reason"] == "calendar_incomplete"
-    assert cuerpo["upcoming"]["coverage_percent"] is None and cuerpo["history"]["on_time_percent"] is None
+    assert cuerpo["upcoming"]["coverage_percent"] is None
+    assert cuerpo["preparation_cost"]["estimated_credits"] is None
     assert cuerpo["upcoming"]["eligible_meetings"] is None
     assert cuerpo["credits"]["state"] == "ok"
 
@@ -363,7 +340,7 @@ def test_ca5_una_pagina_incompleta_no_entrega_un_porcentaje_aparentemente_defini
 def test_ca11_sin_calendario_conectado_no_afirma_cero_reuniones(client, mundo):
     cuerpo = _pedir(client, mundo)
     assert cuerpo["upcoming"]["state"] == "not_connected" and cuerpo["upcoming"]["reason"] == "no_calendar_connected"
-    assert cuerpo["upcoming"]["eligible_meetings"] is None and cuerpo["history"]["state"] == "not_connected"
+    assert cuerpo["upcoming"]["eligible_meetings"] is None and cuerpo["preparation_cost"]["state"] == "not_connected"
     assert cuerpo["credits"] == {"state": "ok", "reason": None, "measured_from": None, "measured_to": None,
                                  "balance": 42, "monthly_limit": 500}
 
@@ -372,10 +349,10 @@ def test_ca11_conectado_sin_reuniones_es_empty_con_porcentaje_null(client, mundo
     mundo.integracion(mundo.user, mundo.org)
     mundo.calendario("google", [])
     cuerpo = _pedir(client, mundo)
-    for k in ("upcoming", "history"):
+    for k in ("upcoming", "preparation_cost"):
         assert cuerpo[k]["state"] == "empty" and cuerpo[k]["reason"] == "no_meetings_in_period"
-        assert cuerpo[k]["eligible_meetings"] == 0
-    assert cuerpo["upcoming"]["coverage_percent"] is None and cuerpo["history"]["on_time_percent"] is None
+    assert cuerpo["upcoming"]["eligible_meetings"] == 0 and cuerpo["upcoming"]["coverage_percent"] is None
+    assert cuerpo["preparation_cost"]["estimated_credits"] == 0  # nada que generar: cero real
 
 
 def test_ca11_un_cero_real_requiere_denominador_positivo(client, mundo):
@@ -448,30 +425,28 @@ def test_ids_iguales_de_proveedores_distintos_no_se_mezclan(client, mundo):
 # ── CA12: aislamiento ────────────────────────────────────────────────────────
 
 
-def test_ca12_dossiers_y_hechos_de_otro_usuario_u_organizacion_no_se_ven(client, mundo):
+def test_ca12_dossiers_de_otro_usuario_u_organizacion_no_cuentan(client, mundo):
     mundo.integracion(mundo.user, mundo.org)
-    inicios = _pasadas(mundo, 2)
-    mundo.calendarios["google"].reuniones.append(mundo.reunion(7, AHORA + timedelta(days=1)))
+    mundo.calendario("google", [mundo.reunion(7, AHORA + timedelta(days=1))])
     otro = mundo.usuario(mundo.org, "otro")
     otra_org = mundo.org_nueva()
     ajeno = mundo.usuario(otra_org, "ajeno")
     for u, o in ((otro, mundo.org), (ajeno, otra_org)):
         mundo.dossier_vivo(u, o, "ev7", "corporate")
         mundo.dossier_vivo(u, o, "ev7", "person", indice=1)
-        mundo.hecho(u, o, 0, "corporate", inicios[0] - timedelta(hours=1), inicios[0])
     cuerpo = _pedir(client, mundo)
     assert cuerpo["upcoming"]["prepared_meetings"] == 0
-    assert cuerpo["history"]["manual_on_time_dossiers"] == 0
+    assert cuerpo["preparation_cost"]["estimated_credits"] == 4
 
 
 def test_un_admin_sigue_viendo_solo_sus_propios_indicadores_personales(client, mundo):
     admin = mundo.usuario(mundo.org, "admin", role="admin")
-    mundo.integracion(mundo.user, mundo.org)
     mundo.integracion(admin, mundo.org)
-    inicios = _pasadas(mundo, 1)
-    mundo.hecho(mundo.user, mundo.org, 0, "corporate", inicios[0] - timedelta(hours=1), inicios[0])
+    mundo.calendario("google", [mundo.reunion(0, AHORA + timedelta(days=1))])
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "corporate")  # de otro miembro
+    mundo.dossier_vivo(mundo.user, mundo.org, "ev0", "person", indice=1)
     cuerpo = _pedir(client, mundo, user=admin, org=mundo.org, role="admin")
-    assert cuerpo["history"]["manual_on_time_dossiers"] == 0
+    assert cuerpo["upcoming"]["prepared_meetings"] == 0
     assert cuerpo["credits"]["balance"] == 42  # el saldo sí es de la organización
 
 
@@ -540,7 +515,7 @@ def test_generar_un_dossier_invalida_la_cache_del_usuario(client, mundo):
     parsed = parse_calendar_event_for_dossiers(reunion)
     persist_calendar_dossiers(
         mundo.s, user_id=mundo.user.id, org_id=mundo.org.id, calendar_provider="google",
-        generation_duration_ms=1, charge_credits=False, trigger_source="manual", generation_origin="manual",
+        generation_duration_ms=1, charge_credits=False, trigger_source="manual",
         result={"reunion": reunion, "parse": parsed, "dossier_corporativo": "# Tesla\ncuerpo",
                 "dossier_personas": [], "errors": [], "output_language": "es"},
     )
@@ -569,8 +544,8 @@ def test_los_estados_de_error_no_se_quedan_en_cache_mucho_tiempo(client, mundo):
     assert _pedir(client, mundo)["upcoming"]["state"] == "empty"
 
 
-def test_el_periodo_es_movil_y_no_mes_calendario(client, mundo):
+def test_el_periodo_es_movil_de_siete_dias(client, mundo):
     mundo.integracion(mundo.user, mundo.org)
     mundo.calendario("google", [])
-    h = _pedir(client, mundo)["history"]
-    assert h["from"] == "2026-09-03T15:00:00Z" and h["to"] == "2026-10-03T15:00:00Z"
+    c = _pedir(client, mundo)["preparation_cost"]
+    assert c["from"] == "2026-10-03T15:00:00Z" and c["to"] == "2026-10-10T15:00:00Z"

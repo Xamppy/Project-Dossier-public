@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 from dossier.cache.corporate_dossier_redis import delete_dossier_redis_cache
 from dossier.db.models import Dossier
 from dossier.services.calendar_automation import suppress_calendar_event_if_no_dossiers_remain
-from dossier.services.meeting_prep_evidence import mark_dossiers_deleted
 from dossier.services.summary_cache import SUMMARY_CACHE
 
 logger = logging.getLogger(__name__)
@@ -32,9 +31,7 @@ def delete_dossier_record(db: Session, dossier: Dossier) -> UUID | None:
     """
     calendar_event_id = dossier.calendar_event_id
     invalidate_dossier_redis_cache(dossier)
-    # El hecho de generación sobrevive al documento; solo anota cuándo dejó de existir (UX-KPI-01).
-    mark_dossiers_deleted(db, [dossier.id])
-    # Se invalida después del commit (no antes): un cálculo intermedio vería aún el dossier.
+    # Indicadores de Resumen: se invalida después del commit; antes, un cálculo vería aún el dossier.
     event.listen(
         db, "after_commit", lambda _s, uid=dossier.requested_by_user_id: SUMMARY_CACHE.invalidate(uid), once=True
     )

@@ -1,16 +1,11 @@
 """
-Identidad de reuniones y hechos de generación (UX-KPI-01). Módulo hoja, sin dependencias del
-resto de servicios, para que lo compartan la persistencia de dossiers, la evidencia y el
-cálculo de indicadores sin importaciones circulares.
+Identidad de reuniones y conjunto esperado de dossiers (UX-KPI-01). Módulo hoja, sin
+dependencias del resto de servicios.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
-
-ORIGEN_MANUAL = "manual"
-ORIGEN_AUTOMATICO = "automatic"
 
 ROL_CORPORATIVO = "corporate"
 
@@ -51,33 +46,3 @@ def expected_roles_from_parsed(parsed: dict[str, Any], *, include_corporate: boo
         if len((persona.get("full_name") or "").strip()) >= 2:
             roles.add(role_for_person(persona.get("index") or posicion))
     return frozenset(roles)
-
-
-def resolve_generation_origin(
-    explicit: str | None,
-    *,
-    trigger_source: str | None,
-    calendar_event_id: object | None,
-) -> str | None:
-    """Origen demostrable de una generación; ``None`` si no se puede afirmar quién la inició."""
-    if explicit in (ORIGEN_MANUAL, ORIGEN_AUTOMATICO):
-        return explicit
-    if trigger_source == "manual":
-        return ORIGEN_MANUAL
-    if trigger_source == "calendar" and calendar_event_id is not None:
-        return ORIGEN_AUTOMATICO
-    return None
-
-
-@dataclass(frozen=True)
-class Fact:
-    """Un resultado exitoso de generación. Sin cuerpos, nombres ni correos."""
-
-    result_key: str
-    meeting_key: str
-    role_key: str
-    origin: str
-    completed_at: datetime
-    meeting_starts_at: datetime | None
-    expected_keys: frozenset[str] | None
-    deleted_at: datetime | None

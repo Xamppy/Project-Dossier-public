@@ -1,7 +1,7 @@
-"""UX-KPI-01 · lógica pura de los indicadores de Resumen (CA1–CA4, CA6–CA8, CA10).
+"""UX-KPI-01 · lógica pura de los indicadores de Resumen (CA1–CA4, CA6, CA7, CA10).
 
-Sin base de datos ni red: la elegibilidad, el conjunto esperado, la preparación y la
-puntualidad se calculan sobre datos ya leídos. Cada prueba nombra el criterio que cubre.
+Sin base de datos ni red: la elegibilidad, el conjunto esperado, la preparación y el costo
+estimado de lo que falta se calculan sobre datos ya leídos. Cada prueba nombra su criterio.
 """
 from __future__ import annotations
 
@@ -11,18 +11,17 @@ import pytest
 
 from dossier.services.meeting_prep_kpi import (
     CalendarEntry,
-    Fact,
     Meeting,
     collect_meetings,
     expected_roles,
     meeting_key,
     parse_start,
-    summarize_history,
+    preparation_role_cost,
+    summarize_preparation_cost,
     summarize_upcoming,
 )
 
 AS_OF = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
-DESDE_30 = AS_OF - timedelta(days=30)
 OWNER = "mi-empresa.test"
 
 
@@ -56,20 +55,6 @@ def _meeting(i, inicio, expected=("corporate", "person:1"), provider="google") -
         keys=(meeting_key(provider, f"ev{i}"),),
         starts_at=inicio,
         expected=frozenset(expected),
-    )
-
-
-def _hecho(i, rol, completado, *, origen="manual", inicio=None, run="r1", provider="google",
-           esperado=("corporate", "person:1"), borrado=None) -> Fact:
-    return Fact(
-        result_key=f"{run}:{i}:{rol}",
-        meeting_key=meeting_key(provider, f"ev{i}"),
-        role_key=rol,
-        origin=origen,
-        completed_at=completado,
-        meeting_starts_at=inicio,
-        expected_keys=frozenset(esperado) if esperado is not None else None,
-        deleted_at=borrado,
     )
 
 
@@ -133,7 +118,6 @@ def test_solo_las_reuniones_elegibles_entran():
     ]
     snap = collect_meetings(entradas, plan="pro")
     assert [m.keys for m in snap.meetings] == [(meeting_key("google", "ev1"),)]
-    assert set(snap.seen) == {meeting_key("google", f"ev{i}") for i in (1, 2, 3, 4)}
 
 
 def test_los_filtros_de_automatizacion_no_excluyen_una_reunion_preparable_a_mano():
@@ -250,193 +234,62 @@ def test_los_limites_se_miden_en_instantes_utc_aunque_la_zona_cambie_por_dst():
     assert summarize_upcoming(ms, {}, as_of=as_of).eligible == 1
 
 
-# ── historial: preparadas a tiempo por el usuario (CA2, CA3, CA4, CA8) ────────
+# ── créditos para preparar (CA2, CA3, CA4, CA7) ──────────────────────────────
+
+COSTO_PRO = {"corporate": 3, "person:1": 1, "person:2": 1}.__getitem__
 
 
-def test_ca2_ocho_pasadas_seis_a_tiempo_y_once_dossiers():
-    def inicio(i):
-        return AS_OF - timedelta(days=2 + i)
-
-    ms = [_meeting(i, inicio(i)) for i in range(8)]
-    hechos = []
-    for i in range(5):  # cinco reuniones con empresa y contacto: 10 dossiers
-        hechos.append(_hecho(i, "corporate", inicio(i) - timedelta(hours=3), inicio=inicio(i)))
-        hechos.append(_hecho(i, "person:1", inicio(i) - timedelta(hours=2), inicio=inicio(i)))
-    # una sexta cuyo conjunto esperado era solo la empresa: 1 dossier más = 11
-    hechos.append(_hecho(5, "corporate", inicio(5) - timedelta(hours=3), inicio=inicio(5), esperado=("corporate",)))
-    # las reuniones 6 y 7 no tienen resultados manuales
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert (r.eligible, r.on_time_meetings, r.percent, r.on_time_dossiers) == (8, 6, 75.0, 11)
+def test_el_costo_por_rol_sale_del_plan():
+    pro, free, ent = preparation_role_cost("pro"), preparation_role_cost("free"), preparation_role_cost("enterprise")
+    assert (pro("corporate"), pro("person:1"), pro("person:7")) == (3, 1, 1)  # estándar = 3, identidad = 1
+    assert free("corporate") == 1  # profundidad básica por defecto en Free
+    assert ent("corporate") == 3
 
 
-def test_ca3_automatico_fallido_o_posterior_al_inicio_no_acredita():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(i, inicio, expected=("corporate",)) for i in range(4)]
-    hechos = [
-        _hecho(0, "corporate", inicio - timedelta(hours=1), origen="automatic", inicio=inicio, esperado=("corporate",)),
-        _hecho(1, "corporate", inicio, inicio=inicio, esperado=("corporate",)),  # termina justo al inicio
-        _hecho(2, "corporate", inicio + timedelta(minutes=5), inicio=inicio, esperado=("corporate",)),
-        # ev3 sin hechos: falló, está en proceso o lo generó otra persona
-    ]
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_meetings == 0 and r.eligible == 4 and r.percent == 0.0
+def test_ca2_dos_pendientes_suman_lo_que_falta_de_cada_una():
+    ms = _futuras(5)
+    disponible = {m.keys[0]: frozenset({"corporate", "person:1"}) for m in ms[:3]}
+    disponible[ms[4].keys[0]] = frozenset({"corporate"})  # a la quinta solo le falta la persona
+    r = summarize_preparation_cost(ms, disponible, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert (r.meetings_to_generate, r.estimated_credits) == (2, 3 + 1 + 1)
 
 
-def test_un_resultado_automatico_no_cuenta_como_dossier_manual_a_tiempo():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio, expected=("corporate",))]
-    h = _hecho(0, "corporate", inicio - timedelta(hours=1), origen="automatic", inicio=inicio, esperado=("corporate",))
-    r = summarize_history(ms, {}, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 0
+def test_ca3_un_dossier_completo_no_suma_y_una_reunion_preparada_no_cuenta():
+    ms = _futuras(2)
+    disponible = {k: frozenset({"corporate", "person:1"}) for m in ms for k in m.keys}
+    r = summarize_preparation_cost(ms, disponible, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert (r.meetings_to_generate, r.estimated_credits) == (0, 0)
 
 
-def test_ca4_dos_dossiers_de_una_reunion_son_dos_dossiers_y_una_reunion():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio)]
-    hechos = [
-        _hecho(0, "corporate", inicio - timedelta(hours=3), inicio=inicio),
-        _hecho(0, "person:1", inicio - timedelta(hours=2), inicio=inicio),
-    ]
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert (r.on_time_meetings, r.on_time_dossiers) == (1, 2)
+def test_ca3_conjunto_esperado_vacio_no_suma_ni_cuenta_como_a_generar():
+    ms = [_meeting(0, AS_OF + timedelta(days=1), expected=())]
+    r = summarize_preparation_cost(ms, {}, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert (r.meetings_to_generate, r.estimated_credits) == (0, 0)
 
 
-def test_ca4_una_regeneracion_con_resultado_nuevo_cuenta_una_vez_mas():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio, expected=("corporate",))]
-    hechos = [
-        _hecho(0, "corporate", inicio - timedelta(hours=5), inicio=inicio, run="r1", esperado=("corporate",)),
-        _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, run="r2", esperado=("corporate",)),
-    ]
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert (r.on_time_meetings, r.on_time_dossiers) == (1, 2)
+def test_ca7_varios_contactos_suman_uno_por_contacto_faltante():
+    ms = [_meeting(0, AS_OF + timedelta(days=1), expected=("corporate", "person:1", "person:2"))]
+    r = summarize_preparation_cost(ms, {ms[0].keys[0]: frozenset({"person:1"})}, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert r.estimated_credits == 3 + 1
 
 
-def test_el_mismo_resultado_repetido_no_se_duplica():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio, expected=("corporate",))]
-    h = _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, esperado=("corporate",))
-    r = summarize_history(ms, {}, [h, h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 1
+def test_el_costo_solo_cuenta_reuniones_del_periodo():
+    dentro = _meeting(0, AS_OF + timedelta(days=1))
+    pasada = _meeting(1, AS_OF - timedelta(hours=1))
+    fuera = _meeting(2, AS_OF + timedelta(days=7))
+    r = summarize_preparation_cost([dentro, pasada, fuera], {}, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert (r.meetings_to_generate, r.estimated_credits) == (1, 4)
 
 
-def test_resultado_parcial_y_reintento_posterior_al_inicio_no_prepara_a_tiempo():
-    """Persona 1 salió antes del inicio; la corporativa se reintentó cuando la reunión ya había empezado."""
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio)]
-    hechos = [
-        _hecho(0, "person:1", inicio - timedelta(hours=2), inicio=inicio, run="r1"),
-        _hecho(0, "corporate", inicio + timedelta(hours=1), inicio=inicio, run="r2"),
-    ]
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_meetings == 0
-    assert r.on_time_dossiers == 1  # solo el de persona terminó antes del inicio
+def test_lo_disponible_en_cualquier_alias_de_la_reunion_no_se_cobra():
+    clave_g, clave_m = meeting_key("google", "a"), meeting_key("microsoft", "b")
+    m = Meeting(keys=(clave_g, clave_m), starts_at=AS_OF + timedelta(days=1),
+                expected=frozenset({"corporate", "person:1"}))
+    r = summarize_preparation_cost([m], {clave_m: frozenset({"corporate"})}, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert r.estimated_credits == 1
 
 
-def test_reintento_que_completa_antes_del_inicio_si_prepara():
-    inicio = AS_OF - timedelta(days=1)
-    ms = [_meeting(0, inicio)]
-    hechos = [
-        _hecho(0, "person:1", inicio - timedelta(hours=4), inicio=inicio, run="r1"),
-        _hecho(0, "corporate", inicio - timedelta(hours=1), inicio=inicio, run="r2"),
-    ]
-    assert summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF).on_time_meetings == 1
+def test_sin_reuniones_el_costo_es_cero_real():
+    r = summarize_preparation_cost([], {}, as_of=AS_OF, role_cost=COSTO_PRO)
+    assert (r.meetings_to_generate, r.estimated_credits) == (0, 0)
 
-
-def test_ca8_borrado_antes_del_inicio_no_acredita_y_despues_no_reescribe():
-    inicio = AS_OF - timedelta(days=20)
-    ms = [_meeting(0, inicio, expected=("corporate",)), _meeting(1, inicio, expected=("corporate",))]
-    hechos = [
-        # ev0: el documento se borró antes de la reunión → no estaba disponible
-        _hecho(0, "corporate", inicio - timedelta(hours=3), inicio=inicio, esperado=("corporate",),
-               borrado=inicio - timedelta(hours=1)),
-        # ev1: se borró (p. ej. retención de 7 días) después de la reunión → el hecho se mantiene
-        _hecho(1, "corporate", inicio - timedelta(hours=3), inicio=inicio, esperado=("corporate",),
-               borrado=inicio + timedelta(days=7)),
-    ]
-    r = summarize_history(ms, {}, hechos, measured_from=DESDE_30, as_of=AS_OF)
-    assert (r.on_time_meetings, r.on_time_dossiers) == (1, 1)
-
-
-def test_la_puntualidad_usa_el_inicio_actual_si_la_reunion_se_reprogramo():
-    """CA10 — la reunión se movió después de generar: manda el inicio vigente del calendario."""
-    inicio_nuevo = AS_OF - timedelta(days=1)
-    inicio_viejo = inicio_nuevo - timedelta(days=3)
-    ms = [_meeting(0, inicio_nuevo, expected=("corporate",))]
-    generado = inicio_viejo - timedelta(hours=1)
-    h = _hecho(0, "corporate", generado, inicio=inicio_viejo, esperado=("corporate",))
-    assert summarize_history(ms, {}, [h], measured_from=DESDE_30, as_of=AS_OF).on_time_meetings == 1
-    # y si se adelantó a antes de la generación, ya no llegó a tiempo
-    ms2 = [_meeting(0, generado - timedelta(hours=2), expected=("corporate",))]
-    assert summarize_history(ms2, {}, [h], measured_from=DESDE_30, as_of=AS_OF).on_time_meetings == 0
-
-
-def test_se_usa_el_conjunto_esperado_registrado_y_no_el_del_plan_actual():
-    """«Sin reinterpretar hechos pasados»: hoy el evento exige más, pero entonces bastaba corporate."""
-    inicio = AS_OF - timedelta(days=2)
-    ms = [_meeting(0, inicio, expected=("corporate", "person:1", "person:2"))]
-    h = _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, esperado=("corporate",))
-    assert summarize_history(ms, {}, [h], measured_from=DESDE_30, as_of=AS_OF).on_time_meetings == 1
-
-
-def test_sin_conjunto_registrado_se_cae_al_que_el_parser_deduce_del_evento():
-    inicio = AS_OF - timedelta(days=2)
-    ms = [_meeting(0, inicio, expected=("corporate", "person:1"))]
-    h = _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, esperado=None)
-    assert summarize_history(ms, {}, [h], measured_from=DESDE_30, as_of=AS_OF).on_time_meetings == 0
-
-
-def test_el_historial_solo_mide_reuniones_dentro_del_intervalo_medido():
-    medido_desde = AS_OF - timedelta(days=10)
-    dentro = _meeting(0, AS_OF - timedelta(days=5), expected=("corporate",))
-    fuera = _meeting(1, AS_OF - timedelta(days=20), expected=("corporate",))  # antes de lo verificable
-    futura = _meeting(2, AS_OF + timedelta(days=1), expected=("corporate",))
-    r = summarize_history([dentro, fuera, futura], {}, [], measured_from=medido_desde, as_of=AS_OF)
-    assert r.eligible == 1
-
-
-def test_sin_reuniones_pasadas_el_porcentaje_es_null():
-    r = summarize_history([], {}, [], measured_from=DESDE_30, as_of=AS_OF)
-    assert (r.eligible, r.percent, r.on_time_dossiers) == (0, None, 0)
-
-
-# ── conteo de dossiers manuales: periodo por finalización, reunión asociada ───
-
-
-def test_el_conteo_de_dossiers_se_acota_por_finalizacion_no_por_inicio():
-    """Un dossier preparado antes del periodo acredita la reunión pero no es una generación del periodo."""
-    inicio = AS_OF - timedelta(days=2)
-    ms = [_meeting(0, inicio, expected=("corporate",))]
-    h = _hecho(0, "corporate", DESDE_30 - timedelta(days=1), inicio=inicio, esperado=("corporate",))
-    r = summarize_history(ms, {}, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_meetings == 1
-    assert r.on_time_dossiers == 0
-
-
-def test_un_dossier_para_una_reunion_futura_lejana_cuenta_con_su_inicio_registrado():
-    inicio = AS_OF + timedelta(days=20)
-    h = _hecho(0, "corporate", AS_OF - timedelta(days=1), inicio=inicio, esperado=("corporate",))
-    r = summarize_history([], {}, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 1
-
-
-def test_un_dossier_sin_inicio_de_reunion_conocido_no_permite_afirmar_a_tiempo():
-    h = _hecho(0, "corporate", AS_OF - timedelta(days=1), inicio=None, esperado=("corporate",))
-    r = summarize_history([], {}, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 0
-
-
-def test_un_dossier_de_una_reunion_que_ya_no_esta_en_el_calendario_no_cuenta():
-    """Su inicio registrado cae dentro de lo leído y la reunión no aparece: cancelada o movida."""
-    inicio = AS_OF - timedelta(days=3)
-    h = _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, esperado=("corporate",))
-    r = summarize_history([], {}, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 0
-
-
-def test_un_dossier_de_una_reunion_vista_pero_no_elegible_no_cuenta():
-    inicio = AS_OF - timedelta(days=3)
-    h = _hecho(0, "corporate", inicio - timedelta(hours=2), inicio=inicio, esperado=("corporate",))
-    visto = {meeting_key("google", "ev0"): inicio}
-    r = summarize_history([], visto, [h], measured_from=DESDE_30, as_of=AS_OF)
-    assert r.on_time_dossiers == 0

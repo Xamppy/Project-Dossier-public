@@ -1067,7 +1067,6 @@ def _run_calendar_dossier_batch(
             calendar_provider=calendar_provider,
             generation_duration_ms=elapsed_ms,
             depth=depth_key,
-            generation_origin="manual",
         )
         dossiers.append(item)
     return dossiers

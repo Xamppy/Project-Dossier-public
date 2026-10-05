@@ -124,3 +124,11 @@ idiomas. Se reutilizaron los helpers de lectura por rango de UX-CAL-02 (sin su i
 respecto al plan: `partial` solo se usa para evidencia de historial (una lectura de calendario incompleta
 es `unavailable`, no un porcentaje parcial); los dossiers compartidos por otros no cuentan para la
 cobertura; el reporte lista las limitaciones.
+
+2026-10-04: **enmienda del usuario.** La tercera tarjeta pasa de «Reuniones preparadas a tiempo» a
+«Créditos para preparar» (estimado de lo que falta generar en las reuniones de los próximos 7 días),
+para que las cuatro tarjetas miren lo que viene. Se retira la evidencia histórica (tabla de hechos,
+`prep_evidence_meta`, migración `c5a9e3b7d1f2`, relleno, registro en la generación, enlace manual con
+el evento interno, purga) porque solo servía a ese indicador. Se conservan la lectura por rango con
+metadatos, la lógica de preparación, el endpoint, la caché y las tarjetas. La spec recoge el contrato
+nuevo (`preparation_cost` reemplaza `history`).
