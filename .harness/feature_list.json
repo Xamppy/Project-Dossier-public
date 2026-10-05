@@ -1988,6 +1988,27 @@
       ],
       "notes": "Corregido por instrucción del usuario: solo aportes de sus compañeros, sin cambios de Darío. Word de 4 páginas sobre los 20 commits más recientes de Xamppy/Felipe Orellana y Felipe Docmac del historial local: 8 de FO y 12 de FD, del 23 al 26 de septiembre de 2026. Incluye avances por persona, utilidad, limitaciones, evidencia histórica y tabla de los 20 commits enlazados. Se contrastaron autores, diffs y documentación; todas las referencias a commits son de FO/FD. Render y revisión visual de las 4 páginas. Solo documentación, sin ejecución de suites de aplicación. Documento listo; pendiente revisión documental e integración, sin PR ni tarjeta creados. Se conservan cambios locales previos; no se marca done por el autor.",
       "owner_session": "DG (Codex, resumen documental)"
+    },
+    {
+      "id": "BUG-2026-10-05-01",
+      "sprint": 1,
+      "title": "Agregar dossier_generation_jobs al esquema versionado (Alembic y parches de arranque)",
+      "status": "claimed",
+      "owner": "FO",
+      "area": "db",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-05",
+      "depends_on": [
+        "S1.1"
+      ],
+      "blocks": [],
+      "trello": null,
+      "branch": "FO",
+      "evidence": [],
+      "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD).",
+      "owner_session": "FO (agente)"
     }
   ]
 }
