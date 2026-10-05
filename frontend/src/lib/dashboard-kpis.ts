@@ -3,7 +3,7 @@ import type { DashboardMetricContext, DashboardSummary } from "@/lib/dossier-api
 
 type Translate = (key: TranslationKey, params?: Record<string, string | number>) => string;
 
-export type KpiCardId = "pending" | "coverage" | "on_time" | "credits";
+export type KpiCardId = "pending" | "coverage" | "cost" | "credits";
 
 export type KpiCardModel = {
   id: KpiCardId;
@@ -46,7 +46,6 @@ const REASON_KEYS: Record<string, TranslationKey> = {
   calendar_unavailable: "stat.reason_unavailable",
   calendar_incomplete: "stat.reason_incomplete",
   calendar_busy: "stat.reason_busy",
-  evidence_unavailable: "stat.reason_evidence",
 };
 
 function reasonText(ctx: DashboardMetricContext, t: Translate): string {
@@ -60,8 +59,6 @@ type BuildInput = {
   status: KpiStatus;
   t: Translate;
   locale: Locale;
-  /** Fecha legible en las preferencias de la persona (zona y formato). */
-  formatDate: (iso: string) => string;
   /** Saldo ya conocido por otra vía si la consulta del resumen falló. */
   fallbackCredits?: { balance?: number | null; limit?: number | null } | null;
 };
@@ -83,11 +80,11 @@ function creditsCard(
 }
 
 /** Las cuatro tarjetas de Resumen. Nunca convierte «sin datos» o «falló» en un cero. */
-export function buildKpiCards({ summary, status, t, locale, formatDate, fallbackCredits }: BuildInput): KpiCardModel[] {
+export function buildKpiCards({ summary, status, t, locale, fallbackCredits }: BuildInput): KpiCardModel[] {
   const labels = {
     pending: t("stat.prep_pending_label"),
     coverage: t("stat.prep_coverage_label"),
-    on_time: t("stat.prep_on_time_label"),
+    cost: t("stat.prep_cost_label"),
   };
 
   if (!summary) {
@@ -105,13 +102,13 @@ export function buildKpiCards({ summary, status, t, locale, formatDate, fallback
     return [
       sinDato("pending", labels.pending),
       sinDato("coverage", labels.coverage),
-      sinDato("on_time", labels.on_time),
+      sinDato("cost", labels.cost),
       credits,
     ];
   }
 
   const up = summary.upcoming;
-  const hist = summary.history;
+  const cost = summary.preparation_cost;
 
   // ── reuniones por preparar y cobertura
   const upOk = up.state === "ok" || up.state === "empty" || up.state === "partial";
@@ -141,31 +138,28 @@ export function buildKpiCards({ summary, status, t, locale, formatDate, fallback
         : upNote,
   };
 
-  // ── preparadas a tiempo (reuniones y dossiers son cosas distintas)
-  const hOk = hist.state === "ok" || hist.state === "empty" || hist.state === "partial";
-  const onTimeDetails: string[] = [];
-  if (hist.state === "empty") {
-    onTimeDetails.push(t("stat.reason_no_meetings"));
-  } else if (hOk) {
-    onTimeDetails.push(
-      t("stat.prep_on_time_meetings", {
-        count: hist.manually_prepared_on_time_meetings ?? 0,
-        total: hist.eligible_meetings ?? 0,
-      }),
-      t("stat.prep_on_time_dossiers", { count: hist.manual_on_time_dossiers ?? 0 }),
-    );
+  // ── créditos para preparar: lo que falta generar en las mismas reuniones
+  const cOk = cost.state === "ok" || cost.state === "empty" || cost.state === "partial";
+  const costDetails: string[] = [];
+  if (!cOk) {
+    costDetails.push(reasonText(cost, t));
+  } else if (cost.state === "empty") {
+    costDetails.push(t("stat.reason_no_meetings"));
+  } else if (cost.billing === "unlimited") {
+    costDetails.push(t("stat.prep_cost_unlimited"));
+  } else if (cost.billing === "disabled") {
+    costDetails.push(t("stat.prep_cost_disabled"));
   } else {
-    onTimeDetails.push(reasonText(hist, t));
+    costDetails.push(t("stat.prep_cost_detail", { count: cost.meetings_to_generate ?? 0 }));
+    if (cost.exceeds_balance) costDetails.push(t("stat.prep_cost_exceeds"));
   }
-  if (hist.state === "partial" && hist.measured_from) {
-    onTimeDetails.push(t("stat.history_partial", { date: formatDate(hist.measured_from) }));
-  }
-  const onTime: KpiCardModel = {
-    id: "on_time",
-    label: labels.on_time,
-    value: hOk && hist.on_time_percent != null ? formatPercent(hist.on_time_percent, locale) : NO_VALUE,
-    details: onTimeDetails,
-    description: t("stat.prep_on_time_explain"),
+  const costCard: KpiCardModel = {
+    id: "cost",
+    label: labels.cost,
+    value: cOk ? num(cost.estimated_credits) : NO_VALUE,
+    details: costDetails,
+    description: t("stat.prep_cost_explain"),
+    trendVariant: cOk && cost.exceeds_balance ? "warning" : "default",
   };
 
   const credits = creditsCard(summary.credits.balance, summary.credits.monthly_limit, t, false);
@@ -173,5 +167,5 @@ export function buildKpiCards({ summary, status, t, locale, formatDate, fallback
     credits.details = [reasonText(summary.credits, t)];
   }
 
-  return [pending, coverage, onTime, credits];
+  return [pending, coverage, costCard, credits];
 }

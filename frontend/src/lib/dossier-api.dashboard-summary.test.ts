@@ -6,8 +6,8 @@ const RESUMEN = {
   timezone: "UTC",
   upcoming: { state: "ok", reason: null, measured_from: null, measured_to: null, from: "a", to: "b",
     eligible_meetings: 5, prepared_meetings: 3, pending_meetings: 2, coverage_percent: 60 },
-  history: { state: "ok", reason: null, measured_from: null, measured_to: null, from: "a", to: "b",
-    eligible_meetings: 8, manually_prepared_on_time_meetings: 6, on_time_percent: 75, manual_on_time_dossiers: 11 },
+  preparation_cost: { state: "ok", reason: null, measured_from: null, measured_to: null, from: "a", to: "b", estimated_credits: 5, meetings_to_generate: 2,
+    billing: "charged" as const, exceeds_balance: false },
   credits: { state: "ok", reason: null, measured_from: null, measured_to: null, balance: 42, monthly_limit: 500 },
 };
 
@@ -30,7 +30,7 @@ describe("fetchDashboardSummary", () => {
     expect((init as RequestInit).headers).toMatchObject({ Authorization: "Bearer jwt-de-prueba" });
     expect((init as RequestInit).method ?? "GET").toBe("GET");
     expect(r.upcoming.pending_meetings).toBe(2);
-    expect(r.history.manual_on_time_dossiers).toBe(11);
+    expect(r.preparation_cost.estimated_credits).toBe(5);
   });
 
   it("sin sesión falla sin llamar a la red", async () => {

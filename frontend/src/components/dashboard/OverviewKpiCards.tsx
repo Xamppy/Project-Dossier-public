@@ -3,7 +3,6 @@
 import StatCard from "@/components/dashboard/StatCard";
 import { buildKpiCards, type KpiStatus } from "@/lib/dashboard-kpis";
 import type { DashboardSummary } from "@/lib/dossier-api";
-import { formatDate } from "@/lib/format";
 import { useTranslation } from "@/providers/PreferencesProvider";
 
 type Props = {
@@ -15,16 +14,15 @@ type Props = {
 
 /**
  * Las cuatro tarjetas de Resumen: reuniones por preparar, cobertura de próximas reuniones,
- * reuniones preparadas a tiempo y créditos. Solo informativas: sin enlaces ni acciones.
+ * créditos para preparar y créditos disponibles. Solo informativas: sin enlaces ni acciones.
  */
 export default function OverviewKpiCards({ summary, status, fallbackCredits }: Props) {
-  const { t, locale, preferences } = useTranslation();
+  const { t, locale } = useTranslation();
   const cards = buildKpiCards({
     summary,
     status,
     t,
     locale,
-    formatDate: (iso) => formatDate(iso, preferences),
     fallbackCredits,
   });
   return (

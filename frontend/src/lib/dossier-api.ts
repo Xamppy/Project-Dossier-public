@@ -688,13 +688,15 @@ export type DashboardSummary = {
     pending_meetings: number | null;
     coverage_percent: number | null;
   };
-  history: DashboardMetricContext & {
+  /** Créditos estimados para generar lo que falta en las reuniones de los próximos 7 días. */
+  preparation_cost: DashboardMetricContext & {
     from: string;
     to: string;
-    eligible_meetings: number | null;
-    manually_prepared_on_time_meetings: number | null;
-    on_time_percent: number | null;
-    manual_on_time_dossiers: number | null;
+    estimated_credits: number | null;
+    meetings_to_generate: number | null;
+    /** `unlimited` = Enterprise sin bloqueo por saldo; `disabled` = cobro desactivado. */
+    billing: "charged" | "unlimited" | "disabled";
+    exceeds_balance: boolean | null;
   };
   credits: DashboardMetricContext & {
     balance: number | null;
@@ -708,7 +710,7 @@ export type DashboardSummary = {
  */
 export async function fetchDashboardSummary(): Promise<DashboardSummary> {
   const data = await getJsonWithAuth<Partial<DashboardSummary> | null>("/dashboard/summary");
-  if (!data || !data.upcoming || !data.history || !data.credits) {
+  if (!data || !data.upcoming || !data.preparation_cost || !data.credits) {
     throw new DossierApiError(502, "Respuesta inválida de /dashboard/summary.", data);
   }
   return data as DashboardSummary;

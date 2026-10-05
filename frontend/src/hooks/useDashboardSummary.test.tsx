@@ -17,8 +17,8 @@ function resumen(pendientes: number): DashboardSummary {
     as_of: "2026-10-03T15:00:00Z", timezone: "UTC",
     upcoming: { ...ctx, from: "a", to: "b", eligible_meetings: 5, prepared_meetings: 5 - pendientes,
       pending_meetings: pendientes, coverage_percent: 60 },
-    history: { ...ctx, from: "a", to: "b", eligible_meetings: 0, manually_prepared_on_time_meetings: 0,
-      on_time_percent: null, manual_on_time_dossiers: 0 },
+    preparation_cost: { ...ctx, from: "a", to: "b", estimated_credits: 5, meetings_to_generate: 2,
+    billing: "charged" as const, exceeds_balance: false },
     credits: { ...ctx, balance: 1, monthly_limit: 2 },
   };
 }

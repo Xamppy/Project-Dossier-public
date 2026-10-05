@@ -17,7 +17,8 @@ const resumen: DashboardSummary = {
   as_of: "2026-10-03T15:00:00Z",
   timezone: "UTC",
   upcoming: { ...ctx, from: "a", to: "b", eligible_meetings: 5, prepared_meetings: 3, pending_meetings: 2, coverage_percent: 60 },
-  history: { ...ctx, from: "a", to: "b", eligible_meetings: 8, manually_prepared_on_time_meetings: 6, on_time_percent: 75, manual_on_time_dossiers: 11 },
+  preparation_cost: { ...ctx, from: "a", to: "b", estimated_credits: 5, meetings_to_generate: 2,
+    billing: "charged" as const, exceeds_balance: false },
   credits: { ...ctx, balance: 42, monthly_limit: 500 },
 };
 
@@ -28,9 +29,8 @@ describe("OverviewKpiCards", () => {
     expect(grupos).toHaveLength(4);
     expect(within(grupos[0]).getByText("2")).toBeInTheDocument();
     expect(within(grupos[1]).getByText(/60\s?%/)).toBeInTheDocument();
-    expect(within(grupos[2]).getByText(/75\s?%/)).toBeInTheDocument();
-    expect(within(grupos[2]).getByText(/Reuniones: 6 de 8/)).toBeInTheDocument();
-    expect(within(grupos[2]).getByText(/Dossiers generados por ti a tiempo: 11/)).toBeInTheDocument();
+    expect(within(grupos[2]).getByText("5")).toBeInTheDocument();
+    expect(within(grupos[2]).getByText("Créditos para preparar")).toBeInTheDocument();
     expect(within(grupos[3]).getByText("42")).toBeInTheDocument();
   });
 
@@ -57,11 +57,11 @@ describe("OverviewKpiCards", () => {
     expect(screen.queryByText("0")).toBeNull();
   });
 
-  it("el texto accesible de la tarjeta de puntualidad distingue reuniones de dossiers", () => {
+  it("el texto accesible de créditos para preparar explica que es una estimación", () => {
     render(<OverviewKpiCards summary={resumen} status="ready" />);
-    const g = screen.getByRole("group", { name: "Preparadas a tiempo" });
+    const g = screen.getByRole("group", { name: "Créditos para preparar" });
     const id = g.getAttribute("aria-describedby")!;
-    expect(document.getElementById(id)?.textContent).toMatch(/Conteo de dossiers/);
+    expect(document.getElementById(id)?.textContent).toMatch(/[Ee]stimación/);
   });
 });
 
