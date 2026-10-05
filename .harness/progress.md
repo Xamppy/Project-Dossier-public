@@ -128,6 +128,18 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 
 ---
 
+### 2026-10-01 · S0.11 · DG (agente, resumen documental)
+
+**Hecho.** Creado `docs/architecture/resumen-conexion-frontend-backend.md` a petición del usuario para compartir con el equipo y los encargados: conexión HTTP/JSON actual, polling, SSE existente y evaluación de WebSockets. Registrada la referencia en `feature_list.json`, sin cambiar estados de tareas.
+
+**Sin terminar.** Integración SSE en frontend y validación del despliegue, fuera del alcance de este resumen.
+
+**Lo que hay que saber.** El canal SSE ya existe, aunque parte de la documentación histórica afirma lo contrario. Sigue sondeando PostgreSQL cada segundo por conexión y no publica progreso por agente. El resumen mantiene la recomendación del ADR 0006, sin adoptar una nueva decisión técnica. Solo documentación; no se ejecutaron pruebas de aplicación para este cambio.
+
+**Siguiente paso concreto.** Compartir el resumen y acordar la prioridad de estabilizar e integrar SSE, conforme a S4.8 y S5.1–S5.4.
+
+---
+
 ### 2026-09-26 · BUG-2026-09-26-01 · DG (agente)
 
 **Hecho.** En `person-research`, el campo de texto País / región se reemplazó por un selector accesible con los 249 países y territorios ISO 3166-1 alpha-2, con nombres localizados para los siete idiomas de la interfaz. Los nombres de país se convierten al nombre inglés antes de construir `country` en el payload; los prefills de dossiers convierten nombres habituales y localizados a su código ISO.

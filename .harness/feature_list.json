@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-02",
+  "updated": "2026-10-04",
   "status_values": [
     "pending",
     "claimed",
@@ -325,7 +325,7 @@
       "evidence": [
         "specs/reports/sprint0-verificacion.md"
       ],
-      "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados",
+      "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados. Resumen para revisión del equipo y encargados (2026-10-01): docs/architecture/resumen-conexion-frontend-backend.md; no modifica el ADR ni acredita la integración frontend.",
       "owner_session": "FO (agente)"
     },
     {
@@ -1934,6 +1934,27 @@
       ],
       "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 129 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor.",
       "owner_session": "DG (agente)"
+    },
+    {
+      "id": "DOC-2026-10-04-01",
+      "sprint": 0,
+      "title": "Resumen comprensible de los últimos 20 commits de Felipe Orellana y Felipe Docmac",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "evidence": [
+        "docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx"
+      ],
+      "notes": "Corregido por instrucción del usuario: solo aportes de sus compañeros, sin cambios de Darío. Word de 4 páginas sobre los 20 commits más recientes de Xamppy/Felipe Orellana y Felipe Docmac del historial local: 8 de FO y 12 de FD, del 23 al 26 de septiembre de 2026. Incluye avances por persona, utilidad, limitaciones, evidencia histórica y tabla de los 20 commits enlazados. Se contrastaron autores, diffs y documentación; todas las referencias a commits son de FO/FD. Render y revisión visual de las 4 páginas. Solo documentación, sin ejecución de suites de aplicación. Documento listo; pendiente revisión documental e integración, sin PR ni tarjeta creados. Se conservan cambios locales previos; no se marca done por el autor.",
+      "owner_session": "DG (Codex, resumen documental)"
     }
   ]
 }
