@@ -4,6 +4,9 @@ Todo el sistema en un solo servidor: **Caddy** (HTTPS automático) delante del *
 Next.js y de la **API** FastAPI, más **PostgreSQL** y **Redis**. Los archivos están en
 [`deploy/`](../../deploy); las imágenes, en `backend/Dockerfile` y `frontend/Dockerfile`.
 
+**¿Usas Dokploy?** Ve directo al [§7](#7-desplegar-con-dokploy-desde-github): usa otro compose,
+sin Caddy, y el dominio se configura en la interfaz de Dokploy.
+
 ```
 internet ──443──► Caddy ──/api/*──► backend:8000 (FastAPI + workers) ──► postgres, redis
                         └──resto───► frontend:3000 (Next.js)
@@ -169,3 +172,57 @@ docker compose up -d --build
 ```
 
 Desde ahí, cada migración nueva se aplica sola al actualizar.
+
+---
+
+## 7. Desplegar con Dokploy desde GitHub
+
+[Dokploy](https://docs.dokploy.com) trae su propio Traefik, que ya ocupa los puertos 80 y 443 y
+emite los certificados. Por eso usa otro compose:
+[`deploy/docker-compose.dokploy.yml`](../../deploy/docker-compose.dokploy.yml). Es el mismo
+stack **sin Caddy**: los servicios usan `expose` en vez de `ports` y se unen a
+`dokploy-network`.
+
+### 7.1 Crear la aplicación
+
+1. En Dokploy: **Projects → Create Project**, y dentro **Create Service → Compose**.
+2. Pestaña **General → Provider**: **GitHub** (conecta la GitHub App de Dokploy al repositorio
+   `Xamppy/Project-Dossier`) o **Git** con la URL del repositorio.
+   - **Branch:** la rama que quieras desplegar (`FO`, o `main` tras fusionar).
+   - **Compose Path:** `./deploy/docker-compose.dokploy.yml`
+   - **Compose Type:** Docker Compose.
+
+### 7.2 Variables de entorno
+
+Pestaña **Environment**. Pega el contenido de [`deploy/.env.example`](../../deploy/.env.example)
+con tus valores reales. `ACME_EMAIL` no hace falta: los certificados los maneja Dokploy. Dokploy
+guarda esto como un `.env` junto al compose, y de ahí lo leen tanto `${DOMAIN}` como el
+`env_file` de la API.
+
+### 7.3 Dominios (los dos sobre el mismo host)
+
+Pestaña **Domains → Add Domain**, dos veces:
+
+| Service | Host | Path | Container Port | Strip Path | HTTPS |
+|---|---|---|---|---|---|
+| `frontend` | `DOMAIN` | `/` | `3000` | no | sí, Let's Encrypt |
+| `backend` | `DOMAIN` | `/api` | `8000` | **sí** | sí, Let's Encrypt |
+
+**Strip Path** quita `/api` antes de llegar a la API. Sin eso, las rutas no coinciden
+(la API sirve `/health`, no `/api/health`).
+
+### 7.4 Desplegar y verificar
+
+**Deploy**. La primera vez compila ambas imágenes, lo que tarda unos minutos y exige la RAM del
+§1 en el servidor de Dokploy. Luego:
+
+```bash
+curl https://DOMAIN/api/health   # {"status": "ok", ...}, con Postgres y Redis
+curl -I https://DOMAIN/login     # 200
+```
+
+En **Logs** del servicio `backend` deben verse las migraciones aplicadas y
+`Application startup complete`.
+
+Para redesplegar en cada push, activa **Auto Deploy** (webhook de GitHub). Si cambias `DOMAIN`,
+redespliega: la URL de la API se incrusta al compilar el frontend.
