@@ -1,15 +1,15 @@
 # Project Dossier en Dokploy (app de tipo Docker Compose).
 # Dokploy pone el HTTPS y el ruteo con su Traefik: aquí no hay Caddy ni puertos publicados.
+# Las imágenes NO se compilan en el servidor: las publica .github/workflows/imagenes.yml en
+# ghcr.io tras cada CI en verde sobre main. pull_policy: always baja la última en cada deploy.
 # Dominios a crear en la pestaña Domains de Dokploy (guía: docs/dev/despliegue-vps.md §7):
 #   DOMAIN  path "/"     -> servicio frontend, puerto 3000
 #   DOMAIN  path "/api"  -> servicio backend,  puerto 8000, con Strip Path activado
 
 services:
   frontend:
-    build:
-      context: ../frontend
-      args:
-        NEXT_PUBLIC_API_URL: https://${DOMAIN:?Define DOMAIN en Environment de Dokploy}/api
+    image: ghcr.io/xamppy/project-dossier-frontend:${IMAGE_TAG:-latest}
+    pull_policy: always
     restart: unless-stopped
     expose:
       - "3000"
@@ -20,7 +20,8 @@ services:
       - dokploy-network
 
   backend:
-    build: ../backend
+    image: ghcr.io/xamppy/project-dossier-backend:${IMAGE_TAG:-latest}
+    pull_policy: always
     restart: unless-stopped
     env_file: .env
     # Estas tienen prioridad sobre .env: la conexión la fija el compose.
@@ -30,7 +31,7 @@ services:
       DATABASE_URL: ""
       DATABASE_AUTO_CREATE_TABLES: "0"
       REDIS_URL: redis://redis:6379/0
-      FRONTEND_URL: https://${DOMAIN}
+      FRONTEND_URL: https://${DOMAIN:?Define DOMAIN en Environment de Dokploy}
       CORS_ORIGINS: https://${DOMAIN}
     expose:
       - "8000"
