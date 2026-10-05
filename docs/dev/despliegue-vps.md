@@ -21,7 +21,7 @@ frontend y API comparten origen, no hay problemas de CORS.
 
 | Recurso | Mínimo | Por qué |
 |---|---|---|
-| RAM | 2 GB **más 2 GB de swap**, o 4 GB | Compilar el frontend (`next build`) consume cerca de 1,5 GB |
+| RAM | 2 GB **más 2 GB de swap**, o 4 GB | Compilar el frontend (`next build`) consume cerca de 1,5 GB. Con Dokploy (§7) no se compila en el servidor: basta con 2 GB y swap para correr el stack |
 | Disco | 20 GB | Imágenes, base de datos y respaldos |
 | SO | Linux con Docker Engine 24+ y el plugin Compose v2 | — |
 | Red | Puertos **80** y **443** abiertos (TCP; 443 también UDP) | Caddy los necesita para emitir y renovar el certificado |
@@ -183,23 +183,54 @@ emite los certificados. Por eso usa otro compose:
 stack **sin Caddy**: los servicios usan `expose` en vez de `ports` y se unen a
 `dokploy-network`.
 
-### 7.1 Crear la aplicación
+**Las imágenes no se compilan en el VPS.** Compilar el frontend exige cerca de 1,5 GB de RAM;
+en un servidor chico el build muere sin mensaje y Dokploy lo marca como cancelado. Por eso:
 
-1. En Dokploy: **Projects → Create Project**, y dentro **Create Service → Compose**.
-2. Pestaña **General → Provider**: **GitHub** (conecta la GitHub App de Dokploy al repositorio
-   `Xamppy/Project-Dossier`) o **Git** con la URL del repositorio.
-   - **Branch:** la rama que quieras desplegar (`FO`, o `main` tras fusionar).
+```
+push a main ──► CI (pruebas) ──verde──► imagenes.yml: compila y publica en ghcr.io ──► Dokploy redespliega
+```
+
+[`.github/workflows/imagenes.yml`](../../.github/workflows/imagenes.yml) publica
+`ghcr.io/xamppy/project-dossier-backend` y `…-frontend`, con las etiquetas `latest` y el SHA
+del commit. El compose las descarga con `pull_policy: always`.
+
+El frontend se compila con `NEXT_PUBLIC_API_URL=/api` (ruta relativa): como comparte dominio
+con la API, **la misma imagen sirve para cualquier dominio**. Cambiar `DOMAIN` no exige
+recompilar.
+
+### 7.1 Una sola vez en el VPS: acceso a las imágenes
+
+El repositorio es privado, así que sus imágenes en ghcr.io también lo son. Crea en GitHub un
+token *classic* con solo el permiso `read:packages` (Settings → Developer settings → Personal
+access tokens) y, en el VPS:
+
+```bash
+echo "TOKEN_READ_PACKAGES" | docker login ghcr.io -u Xamppy --password-stdin
+```
+
+Docker guarda la credencial, y Dokploy la usa al hacer `pull`.
+
+### 7.2 Crear la aplicación en Dokploy
+
+1. **Projects → Create Project**, y dentro **Create Service → Compose**.
+2. Pestaña **General → Provider**: **GitHub** con el repositorio `Xamppy/Project-Dossier`.
+   - **Branch:** `main`
    - **Compose Path:** `./deploy/docker-compose.dokploy.yml`
    - **Compose Type:** Docker Compose.
+3. **Desactiva Auto Deploy.** Lo dispara el workflow cuando las imágenes ya están publicadas;
+   el webhook de Dokploy desplegaría antes y arrancaría las imágenes anteriores.
 
-### 7.2 Variables de entorno
+### 7.3 Variables de entorno
 
 Pestaña **Environment**. Pega el contenido de [`deploy/.env.example`](../../deploy/.env.example)
 con tus valores reales. `ACME_EMAIL` no hace falta: los certificados los maneja Dokploy. Dokploy
 guarda esto como un `.env` junto al compose, y de ahí lo leen tanto `${DOMAIN}` como el
 `env_file` de la API.
 
-### 7.3 Dominios (los dos sobre el mismo host)
+Opcional: `IMAGE_TAG=<sha de un commit>` fija una versión concreta, por ejemplo para volver
+atrás. Sin ella se usa `latest`.
+
+### 7.4 Dominios (los dos sobre el mismo host)
 
 Pestaña **Domains → Add Domain**, dos veces:
 
@@ -211,10 +242,25 @@ Pestaña **Domains → Add Domain**, dos veces:
 **Strip Path** quita `/api` antes de llegar a la API. Sin eso, las rutas no coinciden
 (la API sirve `/health`, no `/api/health`).
 
-### 7.4 Desplegar y verificar
+### 7.5 Conectar GitHub con Dokploy (redespliegue automático)
 
-**Deploy**. La primera vez compila ambas imágenes, lo que tarda unos minutos y exige la RAM del
-§1 en el servidor de Dokploy. Luego:
+1. En Dokploy: **Settings → Profile → API/CLI**, genera un token.
+2. Obtén el `composeId` de la app: aparece en la URL de la app en Dokploy, o con
+   `curl -H "x-api-key: TOKEN" https://DOKPLOY/api/project.all`.
+3. En GitHub, **Settings → Secrets and variables → Actions**, crea tres secretos:
+
+| Secreto | Valor |
+|---|---|
+| `DOKPLOY_URL` | URL del panel de Dokploy, por ejemplo `https://dokploy.midominio.com` |
+| `DOKPLOY_API_KEY` | el token del paso 1 |
+| `DOKPLOY_COMPOSE_ID` | el `composeId` del paso 2 |
+
+Sin esos secretos, el workflow publica las imágenes igual, pero el deploy lo lanzas a mano.
+
+### 7.6 Desplegar y verificar
+
+La primera vez: **Actions → Imágenes Docker → Run workflow** (o un push a `main`). Cuando
+termine, si configuraste el §7.5 Dokploy redespliega solo; si no, presiona **Deploy**. Luego:
 
 ```bash
 curl https://DOMAIN/api/health   # {"status": "ok", ...}, con Postgres y Redis
@@ -224,5 +270,4 @@ curl -I https://DOMAIN/login     # 200
 En **Logs** del servicio `backend` deben verse las migraciones aplicadas y
 `Application startup complete`.
 
-Para redesplegar en cada push, activa **Auto Deploy** (webhook de GitHub). Si cambias `DOMAIN`,
-redespliega: la URL de la API se incrusta al compilar el frontend.
+Si el *pull* falla con `denied` o `unauthorized`, falta el `docker login` del §7.1.
