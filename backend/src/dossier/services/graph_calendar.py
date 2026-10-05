@@ -5,11 +5,25 @@ Normalizado al mismo shape que ``google_calendar_api.normalizar_evento_google``.
 
 from __future__ import annotations
 
+import time
 from datetime import UTC, datetime, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import requests
 
+from dossier.services.calendar_range import (
+    MAX_PAGINAS,
+    MOTIVO_ERROR_PROVEEDOR,
+    MOTIVO_LIMITE_PAGINAS,
+    MOTIVO_TIEMPO_AGOTADO,
+    POR_PAGINA,
+    ErrorProveedorCalendario,
+    Presupuesto,
+    RangoConsulta,
+    Reloj,
+    ResultadoRango,
+)
 from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
 
 GRAPH_EVENTS_URL = "https://graph.microsoft.com/v1.0/me/calendar/events"
@@ -19,7 +33,62 @@ GRAPH_CALENDAR_EVENT_BY_ID_URL = "https://graph.microsoft.com/v1.0/me/calendar/e
 
 _SELECT = "id,subject,body,bodyPreview,start,end,attendees,organizer,location,isAllDay"
 
+_SELECT_RANGO = _SELECT + ",isCancelled,type,originalStartTimeZone,originalEndTimeZone"
+
 _MAX_DESCRIPCION = 2000
+
+_GRAPH_HOST = "graph.microsoft.com"
+_NEXT_LINK_RUTAS = ("/v1.0/me/calendar/calendarView", "/v1.0/me/calendarView")
+
+# Nombres de zona de Windows (los que usa Outlook) → IANA, para los usos habituales.
+# Lo que no esté aquí se intenta como nombre IANA y, si tampoco resuelve, se usa
+# la medianoche más cercana (ver ``_fecha_civil_todo_el_dia``).
+_WINDOWS_A_IANA = {
+    "UTC": "UTC",
+    "GMT Standard Time": "Europe/London",
+    "Greenwich Standard Time": "Atlantic/Reykjavik",
+    "W. Europe Standard Time": "Europe/Berlin",
+    "Romance Standard Time": "Europe/Paris",
+    "Central Europe Standard Time": "Europe/Budapest",
+    "Central European Standard Time": "Europe/Warsaw",
+    "E. Europe Standard Time": "Europe/Chisinau",
+    "GTB Standard Time": "Europe/Bucharest",
+    "FLE Standard Time": "Europe/Kiev",
+    "Russian Standard Time": "Europe/Moscow",
+    "Turkey Standard Time": "Europe/Istanbul",
+    "Israel Standard Time": "Asia/Jerusalem",
+    "South Africa Standard Time": "Africa/Johannesburg",
+    "Arabian Standard Time": "Asia/Dubai",
+    "India Standard Time": "Asia/Kolkata",
+    "China Standard Time": "Asia/Shanghai",
+    "Singapore Standard Time": "Asia/Singapore",
+    "Tokyo Standard Time": "Asia/Tokyo",
+    "Korea Standard Time": "Asia/Seoul",
+    "AUS Eastern Standard Time": "Australia/Sydney",
+    "E. Australia Standard Time": "Australia/Brisbane",
+    "New Zealand Standard Time": "Pacific/Auckland",
+    "Hawaiian Standard Time": "Pacific/Honolulu",
+    "Alaskan Standard Time": "America/Anchorage",
+    "Pacific Standard Time": "America/Los_Angeles",
+    "Mountain Standard Time": "America/Denver",
+    "US Mountain Standard Time": "America/Phoenix",
+    "Central Standard Time": "America/Chicago",
+    "Canada Central Standard Time": "America/Regina",
+    "Eastern Standard Time": "America/New_York",
+    "Atlantic Standard Time": "America/Halifax",
+    "Newfoundland Standard Time": "America/St_Johns",
+    "Mexico Standard Time": "America/Mexico_City",
+    "Central America Standard Time": "America/Guatemala",
+    "SA Pacific Standard Time": "America/Bogota",
+    "Venezuela Standard Time": "America/Caracas",
+    "SA Western Standard Time": "America/La_Paz",
+    "Paraguay Standard Time": "America/Asuncion",
+    "Pacific SA Standard Time": "America/Santiago",
+    "Argentina Standard Time": "America/Argentina/Buenos_Aires",
+    "E. South America Standard Time": "America/Sao_Paulo",
+    "SA Eastern Standard Time": "America/Cayenne",
+    "Montevideo Standard Time": "America/Montevideo",
+}
 
 
 def _headers(access_token: str) -> dict[str, str]:
@@ -346,6 +415,158 @@ def diagnostico_microsoft_calendar(access_token: str) -> dict:
     except requests.RequestException as e:
         resultado["errors"].append(f"GET /me/calendar/events → {e}")
 
+    return resultado
+
+
+def _zona_original(nombre: str | None) -> ZoneInfo | None:
+    n = (nombre or "").strip()
+    if not n:
+        return None
+    try:
+        return ZoneInfo(_WINDOWS_A_IANA.get(n, n))
+    except (ZoneInfoNotFoundError, ValueError, OSError):
+        return None
+
+
+def _medianoche_mas_cercana(dt_utc: datetime) -> str:
+    """Fecha civil de la medianoche (UTC) más próxima al instante.
+
+    Solo se usa cuando la zona original del evento es desconocida: un día completo
+    es medianoche local, y para offsets entre −12 h y +12 h la medianoche UTC más
+    cercana corresponde a la fecha civil correcta.
+    """
+    dia = dt_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    if dt_utc - dia >= timedelta(hours=12):
+        dia += timedelta(days=1)
+    return dia.date().isoformat()
+
+
+def _fecha_civil_todo_el_dia(valor: str, zona: str | None) -> str:
+    """Convierte el instante UTC de un evento de día completo en su fecha ``YYYY-MM-DD``.
+
+    Graph entrega ``start``/``end`` convertidos a UTC por ``Prefer: outlook.timezone``;
+    el día civil original es la medianoche en ``originalStartTimeZone``. No se recorta
+    el timestamp a fecha: se vuelve a la zona de origen (o, sin ella, a la medianoche
+    más cercana).
+    """
+    iso = _graph_datetime_to_utc_iso(valor)
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except ValueError:
+        return str(valor).strip()[:10]
+    tz = _zona_original(zona)
+    if tz is not None:
+        local = dt.astimezone(tz)
+        if (local.hour, local.minute, local.second) == (0, 0, 0):
+            return local.date().isoformat()
+    return _medianoche_mas_cercana(dt)
+
+
+def normalizar_evento_rango(evento: dict) -> dict:
+    """Como ``normalizar_evento``, pero resuelve los días completos como fechas civiles."""
+    out = normalizar_evento(evento)
+    if evento.get("isAllDay"):
+        zona_ini = evento.get("originalStartTimeZone")
+        zona_fin = evento.get("originalEndTimeZone") or zona_ini
+        inicio_raw = (evento.get("start") or {}).get("dateTime", "")
+        fin_raw = (evento.get("end") or {}).get("dateTime", "")
+        if inicio_raw:
+            out["inicio"] = _fecha_civil_todo_el_dia(inicio_raw, zona_ini)
+        if fin_raw:
+            out["fin"] = _fecha_civil_todo_el_dia(fin_raw, zona_fin)
+    return out
+
+
+def _next_link_valido(enlace: object) -> bool:
+    if not isinstance(enlace, str):
+        return False
+    try:
+        u = urlsplit(enlace)
+        puerto = u.port
+    except ValueError:
+        return False
+    return (
+        u.scheme == "https"
+        and u.hostname == _GRAPH_HOST
+        and u.username is None
+        and puerto in (None, 443)
+        and u.path in _NEXT_LINK_RUTAS
+    )
+
+
+def listar_reuniones_rango(
+    access_token: str,
+    rango: RangoConsulta,
+    *,
+    reloj: Reloj = time.monotonic,
+    por_pagina: int = POR_PAGINA,
+    max_paginas: int = MAX_PAGINAS,
+) -> ResultadoRango:
+    """Eventos de ``calendarView`` que se solapan con ``[desde, hasta)``.
+
+    Sigue ``@odata.nextLink`` solo hacia el host y las rutas esperadas de Graph (el
+    token nunca se envía a otra dirección) y con límites de páginas y de tiempo.
+    ``calendarView`` ya expande las recurrencias; las ocurrencias canceladas se excluyen.
+    """
+    presupuesto = Presupuesto(reloj)
+    resultado = ResultadoRango()
+    url: str = GRAPH_CALENDAR_VIEW_URL
+    params: dict | None = {
+        "startDateTime": _iso_utc(rango.desde),
+        "endDateTime": _iso_utc(rango.hasta),
+        "$top": por_pagina,
+        "$orderby": "start/dateTime",
+        "$select": _SELECT_RANGO,
+    }
+    paginas = 0
+    while True:
+        if paginas > 0 and presupuesto.agotado():
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_TIEMPO_AGOTADO
+            break
+        try:
+            r = requests.get(
+                url,
+                headers=_headers(access_token),
+                params=params,
+                timeout=presupuesto.timeout_peticion(),
+            )
+            ok = r.ok
+            datos = r.json() if ok else None
+            estado = r.status_code
+        except requests.Timeout as e:
+            if paginas == 0:
+                raise ErrorProveedorCalendario(504, "Outlook tardó demasiado en responder.") from e
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_TIEMPO_AGOTADO
+            break
+        except (requests.RequestException, ValueError) as e:
+            if paginas == 0:
+                raise ErrorProveedorCalendario(502, "No se pudo consultar Outlook.") from e
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
+            break
+        if not ok or not isinstance(datos, dict):
+            if paginas == 0:
+                detalle = (
+                    "Token inválido o expirado. Vuelve a conectar Outlook desde la app."
+                    if estado == 401
+                    else f"Microsoft Graph respondió con error ({estado})."
+                )
+                raise ErrorProveedorCalendario(502, detalle)
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
+            break
+        paginas += 1
+        for evento in datos.get("value") or []:
+            if isinstance(evento, dict) and not evento.get("isCancelled"):
+                resultado.reuniones.append(normalizar_evento_rango(evento))
+        siguiente = datos.get("@odata.nextLink")
+        if not siguiente:
+            break
+        if not _next_link_valido(siguiente):
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
+            break
+        if paginas >= max_paginas:
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_LIMITE_PAGINAS
+            break
+        url, params = siguiente, None
     return resultado
 
 

@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-09-26",
+  "updated": "2026-10-02",
   "status_values": [
     "pending",
     "claimed",
@@ -1862,6 +1862,53 @@
         "frontend/src/lib/countries.test.ts"
       ],
       "notes": "Selector con los 249 códigos ISO 3166-1 alpha-2. Payload mantiene country como nombre en inglés, compatible con PersonResearchRequest.country (str | None, max_length=120). Vitest y TypeScript pasan; falta PR, revisión y evidencia en Trello.",
+      "owner_session": "DG (agente)"
+    },
+    {
+      "id": "UX-CAL-01",
+      "sprint": 0,
+      "title": "Evaluar y planificar una vista de calendario visual para reuniones",
+      "status": "pending",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A2",
+      "objective": "OE6",
+      "gap": null,
+      "due": null,
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [
+        "docs/architecture/decisions/0007-calendario-visual.md",
+        "specs/proposals/UX-CAL-01-calendario-visual.md",
+        "docs/exec-plans/active/UX-CAL-01-calendario-visual.md"
+      ],
+      "notes": "Evaluación solicitada por el usuario el 2026-10-02, adicional a las 77 tareas. Borradores documentados; pendiente revisión y priorización. Sprint 0 identifica el diseño, no programa la implementación. FullCalendar Standard recomendado; lectura por rango y paginación necesarias. Sin cambios runtime, PR ni tarjeta. La implementación se asignará tras consolidar Sprint 1 salvo instrucción expresa. No se marca done por el propio autor.",
+      "owner_session": null
+    },
+    {
+      "id": "UX-CAL-02",
+      "sprint": 0,
+      "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",
+      "status": "review",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A2",
+      "objective": "OE6",
+      "gap": null,
+      "due": null,
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-CAL-01-calendario-visual",
+      "evidence": [
+        "specs/reports/UX-CAL-02-calendario-visual.md",
+        "specs/proposals/UX-CAL-01-calendario-visual.md",
+        "docs/exec-plans/active/UX-CAL-01-calendario-visual.md",
+        "docs/architecture/decisions/0007-calendario-visual.md"
+      ],
+      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 129 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor.",
       "owner_session": "DG (agente)"
     }
   ]

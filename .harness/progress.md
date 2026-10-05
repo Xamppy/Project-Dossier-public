@@ -6,6 +6,41 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-02 · UX-CAL-02 · DG (agente, implementación)
+
+**Hecho.** Calendario visual en `/dashboard/automation` (FullCalendar 7.1.0) con lectura por intervalo en el backend. Backend: `desde`/`hasta` en los tres GET de eventos, paginación de Google y Graph con tope de 10 páginas, 20 s y aviso `completo:false`, día completo de Outlook como fecha civil, `nextLink` validado. Frontend: Día/Semana/Mes, filtros con etiqueta, detalle accesible, caché por sesión, respuestas tardías descartadas, jobs por proveedor, reglas en bloque plegable. 99 pruebas nuevas de backend y 129 de frontend. Reporte con evidencia por CA1–CA11: `specs/reports/UX-CAL-02-calendario-visual.md`.
+
+**Sin terminar.** Revisión de un segundo integrante y tarjeta de Trello. Validar con Outlook real un día completo en zona no UTC (H3), generación real desde el panel y lector de pantalla.
+
+**Lo que hay que saber.**
+- FullCalendar 7 no comparte API con la 6: `daygrid`/`timegrid` 6.x siguen siendo `latest` en npm; en la 7 las vistas salen de subrutas de `@fullcalendar/react` y el evento usa `className` (no `classNames`). Eso lo detectó la revisión visual, no las pruebas de jsdom.
+- **El shell del dashboard no es responsive** (`Sidebar` fija `w-64` y `main ml-64`): a 375 px cualquier página queda recortada. El calendario elige Día y funciona, pero el uso móvil real depende de arreglar el shell (tarea aparte).
+- `backend/.venv` no traía `pytest` ni `alembic`; hay que instalar `requirements-dev.txt`. Los puertos 8000 y 3000 pueden estar ocupados por otros procesos.
+- Dos fallos preexistentes ajenos: `test_gemini_dir_no_existe` (backend) y `TimezoneSelect` (frontend, "GMT" vs "GMT+0").
+- Las pruebas de seguridad y estrés del backend se escribieron con el código ya hecho; se validaron por mutación.
+- La vista inicial (Semana/Día) se decide por el **ancho del calendario** (≥ 640 px → Semana), no del viewport: a 768 px con el menú lateral solo quedan ~414 px y la semana no se lee. `ruff` y `mypy` quedaron limpios sobre los archivos nuevos del backend; 11 avisos de `ruff` en pruebas ajenas son preexistentes.
+- `next.py --check` ya avisaba que DG tenía dos tareas activas; durante UX-CAL-02 fueron tres por instrucción expresa del usuario; en `review` vuelven a las dos previas.
+
+**Siguiente paso concreto.** Revisar el PR; validar H3 con una cuenta de Outlook de prueba; decidir la tarea de shell responsive.
+
+**Rama.** `codex/UX-CAL-01-calendario-visual` · **Estado.** review
+
+---
+
+### 2026-10-02 · UX-CAL-01 · DG (agente, evaluación y planificación)
+
+**Hecho.** Revisado el módulo de calendario de punta a punta y comparadas FullCalendar, Schedule-X y React Big Calendar con documentación oficial. Propuesta: FullCalendar Standard, semana/mes/día y detalle con generación de dossier. Creada ADR 0007 propuesta, especificación `specs/proposals/UX-CAL-01-calendario-visual.md` y plan `docs/exec-plans/active/UX-CAL-01-calendario-visual.md`. Solo documentación; se conservan los cambios previos del harness.
+
+**Sin terminar.** Implementación no iniciada; sin instalación de dependencias, validación runtime, PR ni tarjeta Trello. La entrada nueva queda pendiente de revisión/priorización; no acredita una función terminada.
+
+**Lo que hay que saber.** `AutomationCalendarPreview` solicita 14 eventos por proveedor; el backend limita `top` a 50 y no recorre páginas. Una cuadrícula sin lectura por rango mostraría meses incompletos. Graph ya tiene helper de rango. Su normalizador fuerza UTC, por lo que día completo necesita revisión específica. Los listados no aplican los filtros de reuniones de trabajo de la automatización. El frontend tiene siete locales y Next 16.3.6, aunque documentación histórica mencione cinco y 16.2.6. Jobs buscan id sin proveedor; planificar aislamiento de esa asociación.
+
+**Siguiente paso concreto.** Revisar alcance y prioridad, validar la versión de FullCalendar con Next/React y asignar implementación conforme al protocolo de handoff y la consolidación de Sprint 1. Estimación inicial 5–7 días de desarrollo, sin fecha comprometida.
+
+**Rama.** `dario` (documentación local) · **Estado.** borrador, implementación pendiente
+
+---
+
 ### 2026-09-26 · BUG-2026-09-26-01 · DG (agente)
 
 **Hecho.** En `person-research`, el campo de texto País / región se reemplazó por un selector accesible con los 249 países y territorios ISO 3166-1 alpha-2, con nombres localizados para los siete idiomas de la interfaz. Los nombres de país se convierten al nombre inglés antes de construir `country` en el payload; los prefills de dossiers convierten nombres habituales y localizados a su código ISO.

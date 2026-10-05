@@ -1,0 +1,117 @@
+/*
+ * Calendario de reuniones (FullCalendar v7, tema «classic»).
+ * El tema se alimenta de variables --fc-classic-*; aquí se enlazan con los
+ * tokens de Dossier para que sigan los temas claro/oscuro sin código extra.
+ */
+.dossier-cal {
+  --dossier-google: #0f9d58;
+  --dossier-outlook: #2a7de1;
+
+  --fc-classic-primary: var(--accent-from);
+  --fc-classic-primary-foreground: #fff;
+  --fc-classic-event: var(--accent-from);
+  --fc-classic-event-contrast: var(--text-primary);
+  --fc-classic-background-event: var(--accent-from);
+  --fc-classic-background-event-opacity: 12%;
+  --fc-classic-background-event-foreground-opacity: 50%;
+  --fc-classic-highlight: color-mix(in srgb, var(--accent-from) 18%, transparent);
+  --fc-classic-today: color-mix(in srgb, var(--accent-from) 10%, transparent);
+  --fc-classic-now: #ef4444;
+  --fc-classic-small-dot-width: 8px;
+  --fc-classic-large-dot-width: 10px;
+  --fc-classic-background: transparent;
+  --fc-classic-faint: var(--bg-surface);
+  --fc-classic-muted: var(--bg-surface-strong);
+  --fc-classic-strong: var(--bg-surface-hover);
+  --fc-classic-foreground: var(--text-primary);
+  --fc-classic-faint-foreground: var(--text-subtle);
+  --fc-classic-muted-foreground: var(--text-muted);
+  --fc-classic-border: var(--border-default);
+  --fc-classic-strong-border: var(--text-subtle);
+}
+
+.dossier-cal button[data-variant] {
+  border-color: var(--border-default);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.dossier-cal button[data-variant]:hover {
+  background-color: var(--bg-surface-hover);
+}
+.dossier-cal button[data-variant]:focus-visible {
+  outline-color: var(--accent-from);
+}
+.dossier-cal button[aria-pressed="true"] {
+  border-color: var(--accent-from);
+  color: var(--accent-from);
+  background-color: color-mix(in srgb, var(--accent-from) 12%, var(--bg-surface));
+}
+
+/* Altura: ocupa el viewport sin desbordar; el grid horario scrollea por dentro. */
+.dossier-cal__surface {
+  height: clamp(540px, 74vh, 860px);
+  min-width: 0;
+}
+/* El tema fija 16 px en la raíz; más compacto cabe el nombre completo del día en columnas estrechas. */
+.dossier-cal .dossier-cal__surface > * {
+  font-size: 12.5px;
+}
+
+.dossier-cal [role="button"][tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent-from);
+  outline-offset: 1px;
+}
+
+/* Eventos: fondo tintado + filo del color del proveedor; el texto usa el color primario. */
+.dossier-ev {
+  --ev-color: var(--accent-from);
+  background-color: color-mix(in srgb, var(--ev-color) 22%, var(--bg-page)) !important;
+  border: 0 !important;
+  border-inline-start: 3px solid var(--ev-color) !important;
+  border-radius: 6px !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+}
+.dossier-ev--google {
+  --ev-color: var(--dossier-google);
+}
+.dossier-ev--microsoft {
+  --ev-color: var(--dossier-outlook);
+}
+
+.dossier-ev__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 1px 4px;
+  font-size: 12px;
+  overflow: hidden;
+  min-width: 0;
+  line-height: 1.25;
+}
+.dossier-ev__tag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  background-color: var(--ev-color);
+}
+.dossier-ev__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dossier-ev__time {
+  font-weight: 600;
+  opacity: 0.85;
+}
+.dossier-ev__title {
+  font-weight: 500;
+}
