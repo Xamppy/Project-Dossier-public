@@ -1,0 +1,18 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	# La API vive bajo /api; Caddy quita el prefijo y uvicorn lo conoce por --root-path.
+	handle_path /api/* {
+		reverse_proxy backend:8000 {
+			# Sin buffer: el canal SSE de progreso tiene que llegar evento a evento.
+			flush_interval -1
+		}
+	}
+
+	handle {
+		encode zstd gzip
+		reverse_proxy frontend:3000
+	}
+}

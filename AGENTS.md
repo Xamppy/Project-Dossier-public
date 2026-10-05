@@ -94,7 +94,7 @@ Detalle heredado: [docs/estructura.md](docs/estructura.md)
 | Base de datos | [docs/postgresql.md](docs/postgresql.md) · [docs/sql/](docs/sql/) |
 | Calendario OAuth | [docs/calendario-oauth-operaciones.md](docs/calendario-oauth-operaciones.md) |
 | Orquestador | [docs/langgraph-dossier.md](docs/langgraph-dossier.md) |
-| Despliegue | [docs/render-deploy.md](docs/render-deploy.md) · [docs/vercel-frontend.md](docs/vercel-frontend.md) |
+| Despliegue | [docs/dev/despliegue-vps.md](docs/dev/despliegue-vps.md) (VPS con Docker Compose) · [docs/render-deploy.md](docs/render-deploy.md) · [docs/vercel-frontend.md](docs/vercel-frontend.md) |
 
 ## Definición de Terminado
 
