@@ -672,7 +672,7 @@
       "id": "S2.2",
       "sprint": 2,
       "title": "Integrar el agente europeo al orquestador con seleccion de jurisdiccion",
-      "status": "pending",
+      "status": "claimed",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -688,9 +688,10 @@
         "S3.5"
       ],
       "trello": "https://trello.com/c/iGmajDD0",
-      "branch": null,
+      "branch": "FO",
       "evidence": [],
-      "notes": ""
+      "notes": "Tomada con S2.1 aun en review (decision del usuario, MVP). Incluye tambien el nodo de noticias (S3.2) en el grafo, segun CA1 de S0.12.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S2.3",
