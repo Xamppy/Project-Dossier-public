@@ -1906,9 +1906,9 @@
         "specs/proposals/UX-KPI-01-indicadores-resumen.md",
         "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md",
         "specs/reports/UX-KPI-01-indicadores-resumen.md",
-        "docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md"
+        "docs/architecture/decisions/0008-indicador-creditos-para-preparar.md"
       ],
-      "notes": "Implementado y verificado por su autor el 2026-10-03: GET /dashboard/summary, migración c5a9e3b7d1f2 (dossier_generation_facts, prep_evidence_meta) con relleno, registro de evidencia en la generación y cuatro tarjetas de Resumen en siete idiomas. Backend 434 pasan (155 nuevas; 71 requieren TEST_DATABASE_URL), frontend 47 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md.",
+      "notes": "Implementado y verificado por su autor (2026-10-03, enmienda 2026-10-04): GET /dashboard/summary y cuatro tarjetas de Resumen (reuniones por preparar, cobertura, créditos para preparar, créditos disponibles) en siete idiomas. La enmienda del usuario reemplazó «Preparadas a tiempo» y retiró la evidencia histórica: sin cambios de esquema. Backend 388 verdes (109 nuevas; 36 requieren TEST_DATABASE_URL), frontend 50 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md.",
       "owner_session": "DG (agente)"
     },
     {

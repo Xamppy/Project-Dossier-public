@@ -6,6 +6,39 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-04 · DOC-2026-10-04-01 · DG (Codex, resumen documental)
+
+**Hecho.** Preparado y corregido `docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx`: cuatro páginas en lenguaje simple, exclusivamente sobre Felipe Orellana y Felipe Docmac. El usuario precisó que no quería sus propios cambios; la selección final es los últimos 20 commits de los compañeros en el historial local (8 de Xamppy/FO y 12 de Felipe Docmac/FD, del 23 al 26 de septiembre de 2026). Se eliminaron del informe los avances de Darío, incluidos calendario visual, indicadores y selector de países. Incluye aportes por compañero, beneficios, límites, evidencia histórica y documentación enlazada.
+
+**Sin terminar.** Revisión documental por otro integrante e integración del artefacto; no se abrió PR ni tarjeta de Trello. No se modifican estados de las tareas de implementación analizadas.
+
+**Lo que hay que saber.** Las pruebas citadas son resultados históricos de los autores, no nuevas ejecuciones. Se preservaron los cambios locales previos en el harness y no se cambió código de aplicación. Se renderizó el Word y se revisaron sus cuatro páginas. La tabla coincide con los 20 commits filtrados por autores; todos los commits enlazados pertenecen a FO/FD y los documentos enlazados existen en la versión referenciada. No se acredita despliegue ni aprobación remota.
+
+**Siguiente paso concreto.** Leer y compartir el documento para revisar los pendientes señalados con los compañeros.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento listo para revisión, sin PR)
+
+---
+
+### 2026-10-04 · UX-KPI-01 · DG (agente, enmienda «Créditos para preparar»)
+
+**Hecho.** A pedido del usuario, la tercera tarjeta de Resumen pasó de «Reuniones preparadas a tiempo» a «Créditos para preparar» (créditos estimados para generar lo que falta en las reuniones de los próximos 7 días, con aviso si supera el saldo y «Sin costo» explicado en Enterprise o con el cobro desactivado). Spec, plan, ADR 0008 y reporte actualizados primero; pruebas en rojo antes del código. Backend 388 verdes con Postgres real; frontend 199 verdes (falla solo `TimezoneSelect.test.tsx`, preexistente). Verificado visualmente con datos ficticios, tema oscuro y claro, español e inglés.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia Trello. Sin validar con Google/Microsoft reales.
+
+**Lo que hay que saber.**
+- **El aviso de cambio de esquema de la entrada del 2026-10-03 queda anulado**: se retiró la evidencia histórica (tablas `dossier_generation_facts` y `prep_evidence_meta`, migración `c5a9e3b7d1f2`, relleno, registro en la generación, enlace manual con el evento interno, purga). UX-KPI-01 ya no toca `models.py`, `schema_patches.py`, `Migracion.md` ni Alembic. Si alguien aplicó la migración en una base local, `alembic downgrade b7e2d4f1a9c3` antes de cambiar de rama la deshace; la cabeza vuelve a ser S4.5.
+- La versión retirada sigue en el historial de la rama (`0871e80`, `99c328c`) por si un día se quiere medir puntualidad.
+- Una API arrancada antes de esta rama responde 404 en `/dashboard/summary` y las tarjetas muestran «No se pudieron cargar los indicadores»: hay que reiniciarla (`main.py` no usa `--reload`).
+- `exceeds_balance` se calcula con el saldo de cada petición, fuera de la caché; el resto del resumen sí se cachea 60 s.
+- `StatCard` solo colorea la línea `trend`: las advertencias van ahí, no en `details`.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, `TEST_DATABASE_URL=... python scripts/qa.py --full --since d90a78e`, abrir PR y adjuntar evidencia.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
 ### 2026-10-03 · UX-KPI-01 · DG (agente, implementación terminada, pendiente de revisión)
 
 **Hecho.** Las cuatro tarjetas de Resumen usan datos reales. Backend: lectura por rango con metadatos (iCalUID, correos, rechazo), lógica pura de elegibilidad/preparación/puntualidad, tablas `dossier_generation_facts` y `prep_evidence_meta` con migración `c5a9e3b7d1f2` y relleno, registro de evidencia al persistir (manual/automático, corrida idempotente), marca de borrado, purga, `GET /dashboard/summary` con caché e invalidación. Frontend: cliente tipado, `useDashboardSummary`, `OverviewKpiCards`, `StatCard` ampliado, siete idiomas. 155 pruebas de backend y 47 de frontend nuevas; backend 434 verdes con Postgres real, mypy limpio. Verificado visualmente con datos ficticios y un servidor real. Reporte por CA1–CA14: `specs/reports/UX-KPI-01-indicadores-resumen.md`; decisiones: `docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md`.
