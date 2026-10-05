@@ -22,7 +22,16 @@ concurrency:
 jobs:
   publicar:
     name: Publicar ${{ matrix.servicio }}
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Este job tiene packages:write y los secretos de Dokploy. Solo corre sobre código ya
+    # fusionado en main de este repositorio: la CI también corre en pull requests (incluidos
+    # forks), y el filtro `branches` de workflow_run compara solo el nombre de la rama.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     strategy:
       matrix:
