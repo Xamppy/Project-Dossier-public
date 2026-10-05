@@ -33,6 +33,7 @@ export default function OverviewKpiCards({ summary, status, fallbackCredits }: P
           value={c.value}
           label={c.label}
           details={c.details}
+          trend={c.trend}
           description={c.description}
           trendVariant={c.trendVariant}
           busy={c.busy}

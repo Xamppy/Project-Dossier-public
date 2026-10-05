@@ -44,7 +44,8 @@ describe("buildKpiCards · valores reales", () => {
     s.preparation_cost = { ...s.preparation_cost, estimated_credits: 50, exceeds_balance: true };
     const c = tarjeta(entrada(s), "cost");
     expect(c.trendVariant).toBe("warning");
-    expect((c.details ?? []).join(" ")).toMatch(/supera/i);
+    expect(c.trend).toMatch(/supera/i); // va en la línea coloreada de advertencia, no entre los detalles
+    expect((c.details ?? []).join(" ")).not.toMatch(/supera/i);
   });
 
   it("el texto accesible explica que es una estimación máxima de lo que falta", () => {
@@ -165,7 +166,7 @@ describe("buildKpiCards · idiomas", () => {
     const s = base();
     s.preparation_cost = { ...s.preparation_cost, exceeds_balance: true };
     const cards = buildKpiCards({ summary: s, status: "ready", t: createTranslator(locale), locale });
-    const textos = cards.flatMap((c) => [c.label, ...(c.details ?? []), c.description ?? ""]);
+    const textos = cards.flatMap((c) => [c.label, ...(c.details ?? []), c.description ?? "", c.trend ?? ""]);
     expect(new Set(cards.map((c) => c.label)).size).toBe(4);
     for (const x of textos) {
       expect(x).not.toMatch(/^stat\./);

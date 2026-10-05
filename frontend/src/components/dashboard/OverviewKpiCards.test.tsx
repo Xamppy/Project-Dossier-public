@@ -73,3 +73,13 @@ describe("Resumen no calcula los indicadores con la lista de dossiers", () => {
     expect(fuente).toContain("OverviewKpiCards");
   });
 });
+
+describe("OverviewKpiCards · advertencia de saldo", () => {
+  it("si el estimado supera el saldo, la advertencia se muestra con el color de advertencia", () => {
+    const excede = { ...resumen, preparation_cost: { ...resumen.preparation_cost, estimated_credits: 50, exceeds_balance: true } };
+    render(<OverviewKpiCards summary={excede} status="ready" />);
+    const aviso = screen.getByText("Supera tu saldo disponible");
+    expect(aviso).toHaveStyle({ color: "var(--status-warning)" });
+  });
+});
+

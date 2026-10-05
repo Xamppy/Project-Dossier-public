@@ -11,6 +11,8 @@ export type KpiCardModel = {
   value: string;
   /** Líneas auxiliares bajo el valor (periodo, conteos, causa del estado). */
   details?: string[];
+  /** Línea resaltada con el color de `trendVariant` (p. ej. una advertencia). */
+  trend?: string;
   /** Texto que lee el lector de pantalla además del rótulo. */
   description?: string;
   trendVariant?: "default" | "positive" | "warning";
@@ -151,7 +153,6 @@ export function buildKpiCards({ summary, status, t, locale, fallbackCredits }: B
     costDetails.push(t("stat.prep_cost_disabled"));
   } else {
     costDetails.push(t("stat.prep_cost_detail", { count: cost.meetings_to_generate ?? 0 }));
-    if (cost.exceeds_balance) costDetails.push(t("stat.prep_cost_exceeds"));
   }
   const costCard: KpiCardModel = {
     id: "cost",
@@ -159,6 +160,7 @@ export function buildKpiCards({ summary, status, t, locale, fallbackCredits }: B
     value: cOk ? num(cost.estimated_credits) : NO_VALUE,
     details: costDetails,
     description: t("stat.prep_cost_explain"),
+    trend: cOk && cost.billing === "charged" && cost.exceeds_balance ? t("stat.prep_cost_exceeds") : undefined,
     trendVariant: cOk && cost.exceeds_balance ? "warning" : "default",
   };
 
