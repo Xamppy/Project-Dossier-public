@@ -16,9 +16,6 @@ from dossier.services import dossier_progress_events as bus
 @pytest.fixture
 def job_en_cola(pg_vacia, alembic_cfg):
     command.upgrade(alembic_cfg, "head")
-    # `dossier_generation_jobs` no está en Alembic ni en Migracion.md: solo la crea el ORM
-    # con create_all al arrancar la app (hallazgo registrado en progress.md). Se replica aquí.
-    DossierGenerationJob.__table__.create(pg_vacia, checkfirst=True)
     with pg_vacia.begin() as conn:
         org_id = conn.execute(
             text("INSERT INTO organizations (name, slug) VALUES ('Org', 'org-sse') RETURNING id")

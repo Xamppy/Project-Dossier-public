@@ -80,7 +80,46 @@ DOSSIER_ENTITIES_PATCHES = (
 )
 
 
+# BUG-2026-10-05-01: la cola de trabajos solo la creaba create_all del ORM, así que una base
+# hecha con Alembic y DATABASE_AUTO_CREATE_TABLES=0 no la tenía. Mismo DDL que genera el ORM
+# (db/models.py:DossierGenerationJob); lo reutiliza la migración c4d8a2f6b1e9.
+JOB_QUEUE_PATCHES = (
+    """
+    CREATE TABLE IF NOT EXISTS dossier_generation_jobs (
+        id UUID NOT NULL,
+        organization_id UUID NOT NULL,
+        requested_by_user_id UUID NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        job_type VARCHAR(40) NOT NULL,
+        calendar_provider VARCHAR(20),
+        external_event_id VARCHAR(512),
+        reunion_snapshot JSONB,
+        depth_level VARCHAR(10) NOT NULL,
+        meeting_label VARCHAR(512),
+        credits_estimated INTEGER NOT NULL,
+        credits_consumed INTEGER NOT NULL,
+        result_payload JSONB,
+        error_message TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+        started_at TIMESTAMP WITH TIME ZONE,
+        completed_at TIMESTAMP WITH TIME ZONE,
+        PRIMARY KEY (id),
+        FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE,
+        FOREIGN KEY (requested_by_user_id) REFERENCES users (id)
+    );
+    """,
+    "CREATE INDEX IF NOT EXISTS ix_dossier_generation_jobs_organization_id "
+    "ON dossier_generation_jobs (organization_id);",
+    "CREATE INDEX IF NOT EXISTS ix_dossier_generation_jobs_requested_by_user_id "
+    "ON dossier_generation_jobs (requested_by_user_id);",
+    "CREATE INDEX IF NOT EXISTS ix_dossier_generation_jobs_status "
+    "ON dossier_generation_jobs (status);",
+    "CREATE INDEX IF NOT EXISTS ix_dossier_generation_jobs_external_event_id "
+    "ON dossier_generation_jobs (external_event_id);",
+)
+
+
 def apply_schema_patches(engine: Engine) -> None:
     with engine.begin() as conn:
-        for sql in _PATCHES + DOSSIER_ENTITIES_PATCHES:
+        for sql in _PATCHES + DOSSIER_ENTITIES_PATCHES + JOB_QUEUE_PATCHES:
             conn.execute(text(sql))
