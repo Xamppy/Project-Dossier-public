@@ -6,6 +6,140 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-04 · DOC-2026-10-04-01 · DG (Codex, resumen documental)
+
+**Hecho.** Preparado y corregido `docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx`: cuatro páginas en lenguaje simple, exclusivamente sobre Felipe Orellana y Felipe Docmac. El usuario precisó que no quería sus propios cambios; la selección final es los últimos 20 commits de los compañeros en el historial local (8 de Xamppy/FO y 12 de Felipe Docmac/FD, del 23 al 26 de septiembre de 2026). Se eliminaron del informe los avances de Darío, incluidos calendario visual, indicadores y selector de países. Incluye aportes por compañero, beneficios, límites, evidencia histórica y documentación enlazada.
+
+**Sin terminar.** Revisión documental por otro integrante e integración del artefacto; no se abrió PR ni tarjeta de Trello. No se modifican estados de las tareas de implementación analizadas.
+
+**Lo que hay que saber.** Las pruebas citadas son resultados históricos de los autores, no nuevas ejecuciones. Se preservaron los cambios locales previos en el harness y no se cambió código de aplicación. Se renderizó el Word y se revisaron sus cuatro páginas. La tabla coincide con los 20 commits filtrados por autores; todos los commits enlazados pertenecen a FO/FD y los documentos enlazados existen en la versión referenciada. No se acredita despliegue ni aprobación remota.
+
+**Siguiente paso concreto.** Leer y compartir el documento para revisar los pendientes señalados con los compañeros.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento listo para revisión, sin PR)
+
+---
+
+### 2026-10-04 · UX-KPI-01 · DG (agente, enmienda «Créditos para preparar»)
+
+**Hecho.** A pedido del usuario, la tercera tarjeta de Resumen pasó de «Reuniones preparadas a tiempo» a «Créditos para preparar» (créditos estimados para generar lo que falta en las reuniones de los próximos 7 días, con aviso si supera el saldo y «Sin costo» explicado en Enterprise o con el cobro desactivado). Spec, plan, ADR 0008 y reporte actualizados primero; pruebas en rojo antes del código. Backend 388 verdes con Postgres real; frontend 199 verdes (falla solo `TimezoneSelect.test.tsx`, preexistente). Verificado visualmente con datos ficticios, tema oscuro y claro, español e inglés.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia Trello. Sin validar con Google/Microsoft reales.
+
+**Lo que hay que saber.**
+- **El aviso de cambio de esquema de la entrada del 2026-10-03 queda anulado**: se retiró la evidencia histórica (tablas `dossier_generation_facts` y `prep_evidence_meta`, migración `c5a9e3b7d1f2`, relleno, registro en la generación, enlace manual con el evento interno, purga). UX-KPI-01 ya no toca `models.py`, `schema_patches.py`, `Migracion.md` ni Alembic. Si alguien aplicó la migración en una base local, `alembic downgrade b7e2d4f1a9c3` antes de cambiar de rama la deshace; la cabeza vuelve a ser S4.5.
+- La versión retirada sigue en el historial de la rama (`0871e80`, `99c328c`) por si un día se quiere medir puntualidad.
+- Una API arrancada antes de esta rama responde 404 en `/dashboard/summary` y las tarjetas muestran «No se pudieron cargar los indicadores»: hay que reiniciarla (`main.py` no usa `--reload`).
+- `exceeds_balance` se calcula con el saldo de cada petición, fuera de la caché; el resto del resumen sí se cachea 60 s.
+- `StatCard` solo colorea la línea `trend`: las advertencias van ahí, no en `details`.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, `TEST_DATABASE_URL=... python scripts/qa.py --full --since d90a78e`, abrir PR y adjuntar evidencia.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación terminada, pendiente de revisión)
+
+**Hecho.** Las cuatro tarjetas de Resumen usan datos reales. Backend: lectura por rango con metadatos (iCalUID, correos, rechazo), lógica pura de elegibilidad/preparación/puntualidad, tablas `dossier_generation_facts` y `prep_evidence_meta` con migración `c5a9e3b7d1f2` y relleno, registro de evidencia al persistir (manual/automático, corrida idempotente), marca de borrado, purga, `GET /dashboard/summary` con caché e invalidación. Frontend: cliente tipado, `useDashboardSummary`, `OverviewKpiCards`, `StatCard` ampliado, siete idiomas. 155 pruebas de backend y 47 de frontend nuevas; backend 434 verdes con Postgres real, mypy limpio. Verificado visualmente con datos ficticios y un servidor real. Reporte por CA1–CA14: `specs/reports/UX-KPI-01-indicadores-resumen.md`; decisiones: `docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md`.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia en Trello (no se marca `done`). Sin validar contra Google/Microsoft reales ni contra la base de despliegue.
+
+**Lo que hay que saber.**
+- **`dossier_generation_jobs` no existe ni en `Migracion.md` ni en Alembic**: solo como modelo ORM, y lo crea `create_all` en desarrollo. Con `DATABASE_AUTO_CREATE_TABLES=0` y solo Alembic, los jobs fallan. Las pruebas de registro la crean a mano. No se corrigió aquí.
+- Las pruebas de Postgres se **omiten sin `TEST_DATABASE_URL`** (una base cuyo nombre contenga «test»): 71 de las nuevas. No hay CI que la levante.
+- Si ya hay un `next dev` en `frontend/`, un segundo falla en silencio (cerrojo de Next 16): para verificar contra otra API se copió `frontend/` a un directorio temporal con `node_modules` enlazado.
+- El `.env` real del backend fija `CORS_ORIGINS`; un servidor de pruebas que lo cargue necesita `CORS_ORIGINS` explícito y `DATABASE_URL` propio (`load_dotenv` no pisa lo ya definido).
+- El ORM aplica el valor por defecto (30) a `User(dossier_retention_days=None)`; para «sin retención» hay que escribir NULL con SQL.
+- `Migracion.md` §17 documenta las tablas; `docs/sql/schema_project_dossier.sql` es una copia antigua y no se actualizó.
+- El shell de `/dashboard` no es responsive (barra lateral fija). No se tocó.
+- Alembic pasó a tener cabeza `c5a9e3b7d1f2`; `test_dossier_entities_schema.py` se adaptó a «cadena lineal, una cabeza».
+- Una carpeta residual `src/dossier/gemini/` (solo `__pycache__` ignorado) hacía fallar `test_gemini_dir_no_existe`; se eliminó.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, correr `TEST_DATABASE_URL=... python scripts/qa.py --full`, abrir el PR y adjuntar la evidencia. Si se despliega, ejecutar `alembic upgrade head` y revisar «Historial parcial» durante 30 días.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación) · AVISO DE CAMBIO DE ESQUEMA
+
+**Hecho.** Tarea reclamada (`claimed`) y rama `codex/UX-KPI-01-indicadores-resumen` creada desde `codex/UX-CAL-01-calendario-visual` (hereda los helpers de lectura por rango de UX-CAL-02, que aún no están en `main`). Implementación en curso con TDD.
+
+**Cambio de DB previsto (aviso previo, handoff §4).** Dos tablas nuevas, ninguna columna existente cambia:
+`dossier_generation_facts` (un hecho por resultado exitoso: usuario, org, proveedor, evento externo, rol `corporate`/`person:N`, origen manual/automático, finalización real, inicio de la reunión, conjunto esperado, `dossier_deleted_at`; sin cuerpos, nombres ni correos) y `prep_evidence_meta` (una fila: desde cuándo se registra). Migración Alembic `c5a9e3b7d1f2` (encima de `b7e2d4f1a9c3`) con DDL en `schema_patches.PREP_EVIDENCE_PATCHES` (el mismo patrón de S4.5: `_PATCHES` no se toca porque la línea base lo importa en vivo) y relleno desde dossiers vigentes. Documentado en `db/Migracion.md` §17. Nada se aplica sobre bases reales.
+
+**Sin terminar.** Todo lo demás de la tarea.
+
+**Lo que hay que saber.** Antes de cambiar nada, línea base medida: backend 268 pasan y 1 falla (`test_gemini_dir_no_existe`: queda una carpeta `src/dossier/gemini/` con solo `__pycache__` ignorado por git; es un residuo local, no un defecto del código); frontend 149 pasan y 1 falla (`timezones.test.ts`, depende del ICU de Node local); eslint limpio (0 errores: la advertencia de «21 errores» ya no vale).
+
+**Siguiente paso concreto.** Pruebas en rojo de la lógica pura (elegibilidad, conjunto esperado, preparación, a tiempo), luego evidencia y migración, endpoint, tarjetas.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress
+
+---
+
+### 2026-10-02 · UX-KPI-01 · DG (agente, planificación)
+
+**Hecho.** Preparados `specs/proposals/UX-KPI-01-indicadores-resumen.md` y `docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md`. El usuario amplió el plan visual para que las cuatro tarjetas tengan datos reales: reuniones por preparar, cobertura próxima, preparación manual a tiempo y créditos. Registrada la tarea adicional en feature_list, conservando los cambios previos del harness.
+
+**Sin terminar.** Implementación, migraciones, pruebas runtime, PR, revisión de segundo integrante y evidencia Trello. Esta pasada entrega planificación; no cambia código de aplicación ni consulta calendarios reales.
+
+**Lo que hay que saber.** Resumen calcula sobre 80 dossiers como máximo y agrupa carpetas. Los clientes de calendario actuales no completan páginas y la automatización sincroniza solo tres días. El job manual pasa `trigger_source=manual` pero no `calendar_event_id` al persistir; el JSON conserva proveedor/id externo para recuperación verificable. Una retención de 7/14 días impide reconstruir 30 días completos desde dossiers vigentes: el plan requiere evidencia estadística mínima y un período fiable explícito para históricos ya purgados. La generación a tiempo exige finalización anterior al inicio, no `updated_at`. UX-CAL-01 también necesita lectura por rango: compartir helpers, sin implementar su calendario visual dentro de esta tarea.
+
+**Siguiente paso concreto.** Reclamar implementación conforme al handoff y la consolidación de Sprint 1; fijar la migración mínima a partir de la spec y comenzar con pruebas en rojo de rango/paginación, identidad y completitud. El alcance de interfaz sigue limitado a las cuatro tarjetas informativas de Resumen.
+
+**Estado.** borrador documentado; implementación pendiente.
+
+---
+
+### 2026-10-02 · UX-CAL-02 · DG (agente, implementación)
+
+**Hecho.** Calendario visual en `/dashboard/automation` (FullCalendar 7.1.0) con lectura por intervalo en el backend. Backend: `desde`/`hasta` en los tres GET de eventos, paginación de Google y Graph con tope de 10 páginas, 20 s y aviso `completo:false`, día completo de Outlook como fecha civil, `nextLink` validado. Frontend: Día/Semana/Mes, filtros con etiqueta, detalle accesible, caché por sesión, respuestas tardías descartadas, jobs por proveedor, reglas en bloque plegable. 99 pruebas nuevas de backend y 129 de frontend. Reporte con evidencia por CA1–CA11: `specs/reports/UX-CAL-02-calendario-visual.md`.
+
+**Sin terminar.** Revisión de un segundo integrante y tarjeta de Trello. Validar con Outlook real un día completo en zona no UTC (H3), generación real desde el panel y lector de pantalla.
+
+**Lo que hay que saber.**
+- FullCalendar 7 no comparte API con la 6: `daygrid`/`timegrid` 6.x siguen siendo `latest` en npm; en la 7 las vistas salen de subrutas de `@fullcalendar/react` y el evento usa `className` (no `classNames`). Eso lo detectó la revisión visual, no las pruebas de jsdom.
+- **El shell del dashboard no es responsive** (`Sidebar` fija `w-64` y `main ml-64`): a 375 px cualquier página queda recortada. El calendario elige Día y funciona, pero el uso móvil real depende de arreglar el shell (tarea aparte).
+- `backend/.venv` no traía `pytest` ni `alembic`; hay que instalar `requirements-dev.txt`. Los puertos 8000 y 3000 pueden estar ocupados por otros procesos.
+- Dos fallos preexistentes ajenos: `test_gemini_dir_no_existe` (backend) y `TimezoneSelect` (frontend, "GMT" vs "GMT+0").
+- Las pruebas de seguridad y estrés del backend se escribieron con el código ya hecho; se validaron por mutación.
+- La vista inicial (Semana/Día) se decide por el **ancho del calendario** (≥ 640 px → Semana), no del viewport: a 768 px con el menú lateral solo quedan ~414 px y la semana no se lee. `ruff` y `mypy` quedaron limpios sobre los archivos nuevos del backend; 11 avisos de `ruff` en pruebas ajenas son preexistentes.
+- `next.py --check` ya avisaba que DG tenía dos tareas activas; durante UX-CAL-02 fueron tres por instrucción expresa del usuario; en `review` vuelven a las dos previas.
+
+**Siguiente paso concreto.** Revisar el PR; validar H3 con una cuenta de Outlook de prueba; decidir la tarea de shell responsive.
+
+**Rama.** `codex/UX-CAL-01-calendario-visual` · **Estado.** review
+
+---
+
+### 2026-10-02 · UX-CAL-01 · DG (agente, evaluación y planificación)
+
+**Hecho.** Revisado el módulo de calendario de punta a punta y comparadas FullCalendar, Schedule-X y React Big Calendar con documentación oficial. Propuesta: FullCalendar Standard, semana/mes/día y detalle con generación de dossier. Creada ADR 0007 propuesta, especificación `specs/proposals/UX-CAL-01-calendario-visual.md` y plan `docs/exec-plans/active/UX-CAL-01-calendario-visual.md`. Solo documentación; se conservan los cambios previos del harness.
+
+**Sin terminar.** Implementación no iniciada; sin instalación de dependencias, validación runtime, PR ni tarjeta Trello. La entrada nueva queda pendiente de revisión/priorización; no acredita una función terminada.
+
+**Lo que hay que saber.** `AutomationCalendarPreview` solicita 14 eventos por proveedor; el backend limita `top` a 50 y no recorre páginas. Una cuadrícula sin lectura por rango mostraría meses incompletos. Graph ya tiene helper de rango. Su normalizador fuerza UTC, por lo que día completo necesita revisión específica. Los listados no aplican los filtros de reuniones de trabajo de la automatización. El frontend tiene siete locales y Next 16.3.6, aunque documentación histórica mencione cinco y 16.2.6. Jobs buscan id sin proveedor; planificar aislamiento de esa asociación.
+
+**Siguiente paso concreto.** Revisar alcance y prioridad, validar la versión de FullCalendar con Next/React y asignar implementación conforme al protocolo de handoff y la consolidación de Sprint 1. Estimación inicial 5–7 días de desarrollo, sin fecha comprometida.
+
+**Rama.** `dario` (documentación local) · **Estado.** borrador, implementación pendiente
+
+---
+
+### 2026-10-01 · S0.11 · DG (agente, resumen documental)
+
+**Hecho.** Creado `docs/architecture/resumen-conexion-frontend-backend.md` a petición del usuario para compartir con el equipo y los encargados: conexión HTTP/JSON actual, polling, SSE existente y evaluación de WebSockets. Registrada la referencia en `feature_list.json`, sin cambiar estados de tareas.
+
+**Sin terminar.** Integración SSE en frontend y validación del despliegue, fuera del alcance de este resumen.
+
+**Lo que hay que saber.** El canal SSE ya existe, aunque parte de la documentación histórica afirma lo contrario. Sigue sondeando PostgreSQL cada segundo por conexión y no publica progreso por agente. El resumen mantiene la recomendación del ADR 0006, sin adoptar una nueva decisión técnica. Solo documentación; no se ejecutaron pruebas de aplicación para este cambio.
+
+**Siguiente paso concreto.** Compartir el resumen y acordar la prioridad de estabilizar e integrar SSE, conforme a S4.8 y S5.1–S5.4.
+
+---
+
 ### 2026-09-26 · BUG-2026-09-26-01 · DG (agente)
 
 **Hecho.** En `person-research`, el campo de texto País / región se reemplazó por un selector accesible con los 249 países y territorios ISO 3166-1 alpha-2, con nombres localizados para los siete idiomas de la interfaz. Los nombres de país se convierten al nombre inglés antes de construir `country` en el payload; los prefills de dossiers convierten nombres habituales y localizados a su código ISO.

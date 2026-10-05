@@ -8,6 +8,7 @@
  */
 
 import type { Locale } from "@/i18n/types";
+import { clearCalendarEventsCache } from "@/lib/calendar-events-cache";
 
 /** Clave donde guardamos el JWT tras login o registro (localStorage o sessionStorage). */
 export const AUTH_TOKEN_STORAGE_KEY = "dossier_access_token";
@@ -664,6 +665,57 @@ async function getJsonWithAuth<T>(path: string): Promise<T> {
   return parsed as T;
 }
 
+/** Estado de un indicador de Resumen: cada uno es una situación distinta, no un cero. */
+export type DashboardMetricState = "ok" | "empty" | "partial" | "unavailable" | "not_connected";
+
+export type DashboardMetricContext = {
+  state: DashboardMetricState;
+  /** Código estable que el cliente traduce (p. ej. `calendar_incomplete`). */
+  reason: string | null;
+  /** La evidencia es fiable desde esta fecha (ISO 8601). */
+  measured_from: string | null;
+  measured_to: string | null;
+};
+
+export type DashboardSummary = {
+  as_of: string;
+  timezone: string;
+  upcoming: DashboardMetricContext & {
+    from: string;
+    to: string;
+    eligible_meetings: number | null;
+    prepared_meetings: number | null;
+    pending_meetings: number | null;
+    coverage_percent: number | null;
+  };
+  /** Créditos estimados para generar lo que falta en las reuniones de los próximos 7 días. */
+  preparation_cost: DashboardMetricContext & {
+    from: string;
+    to: string;
+    estimated_credits: number | null;
+    meetings_to_generate: number | null;
+    /** `unlimited` = Enterprise sin bloqueo por saldo; `disabled` = cobro desactivado. */
+    billing: "charged" | "unlimited" | "disabled";
+    exceeds_balance: boolean | null;
+  };
+  credits: DashboardMetricContext & {
+    balance: number | null;
+    monthly_limit: number | null;
+  };
+};
+
+/**
+ * Indicadores de Resumen (`GET /dashboard/summary`). Usuario y organización salen del JWT:
+ * no se envía ningún identificador. Solo lectura: no genera dossiers ni consume créditos.
+ */
+export async function fetchDashboardSummary(): Promise<DashboardSummary> {
+  const data = await getJsonWithAuth<Partial<DashboardSummary> | null>("/dashboard/summary");
+  if (!data || !data.upcoming || !data.preparation_cost || !data.credits) {
+    throw new DossierApiError(502, "Respuesta inválida de /dashboard/summary.", data);
+  }
+  return data as DashboardSummary;
+}
+
 async function patchJsonWithAuth<T>(
   path: string,
   body: unknown,
@@ -816,6 +868,7 @@ export function getStoredAccessToken(): string | null {
 
 /** Quita JWT y vista previa de usuario en local y session (cerrar sesión). */
 export function clearAuthSession(): void {
+  clearCalendarEventsCache();
   if (typeof window === "undefined") return;
   localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
   sessionStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
@@ -1720,6 +1773,73 @@ export async function fetchOutlookCalendarEventos(options?: {
   const total = typeof o.total === "number" ? o.total : reuniones.length;
   const mensaje = o.mensaje === null || typeof o.mensaje === "string" ? (o.mensaje as string | null) : null;
   return { total, reuniones, mensaje };
+}
+
+export type CalendarIncompleteReason = "limite_paginas" | "tiempo_agotado" | "error_proveedor";
+
+export type CalendarEventosRangoResponse = {
+  total: number;
+  reuniones: OutlookReunionApi[];
+  mensaje: string | null;
+  rango: { desde: string; hasta: string } | null;
+  /** `false` = el servidor devolvió solo una parte; nunca se debe presentar como la agenda completa. */
+  completo: boolean;
+  motivoIncompleto: CalendarIncompleteReason | null;
+};
+
+const INCOMPLETE_REASONS: CalendarIncompleteReason[] = ["limite_paginas", "tiempo_agotado", "error_proveedor"];
+
+/**
+ * Reuniones que se solapan con ``[desde, hasta)`` (RFC3339 con offset, máx. 62 días).
+ * Solo se envían ``desde`` y ``hasta``: el servidor rechaza mezclarlos con ``top``/``dias``.
+ */
+export async function fetchCalendarEventosPorIntervalo(
+  provider: CalendarProvider,
+  range: { desde: string; hasta: string },
+  options?: { signal?: AbortSignal },
+): Promise<CalendarEventosRangoResponse> {
+  const token = getStoredAccessToken();
+  if (!token) {
+    throw new DossierApiError(401, "No hay sesión. Inicia sesión de nuevo.");
+  }
+  const path = provider === "google" ? "/calendario/eventos-google" : "/calendario/eventos-outlook";
+  const qs = new URLSearchParams({ desde: range.desde, hasta: range.hasta }).toString();
+  let res: Response;
+  try {
+    res = await fetch(`${getApiBaseUrl()}${path}?${qs}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      signal: options?.signal,
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throwFetchFailed();
+  }
+  const text = await res.text();
+  let parsed: unknown = null;
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch {
+    parsed = { detail: text.slice(0, 500) };
+  }
+  if (!res.ok) {
+    const msg = parseFastApiDetail(parsed) || res.statusText || "HTTP_ERROR";
+    throw new DossierApiError(res.status, msg, parsed);
+  }
+  if (!parsed || typeof parsed !== "object") {
+    throw new DossierApiError(502, `Respuesta inválida de ${path}.`, parsed);
+  }
+  const o = parsed as Record<string, unknown>;
+  const reuniones = Array.isArray(o.reuniones) ? (o.reuniones as OutlookReunionApi[]) : [];
+  const rango = o.rango && typeof o.rango === "object" ? (o.rango as { desde: string; hasta: string }) : null;
+  const motivo = INCOMPLETE_REASONS.find((r) => r === o.motivo_incompleto) ?? null;
+  return {
+    total: typeof o.total === "number" ? o.total : reuniones.length,
+    reuniones,
+    mensaje: typeof o.mensaje === "string" ? o.mensaje : null,
+    rango,
+    completo: o.completo !== false,
+    motivoIncompleto: motivo,
+  };
 }
 
 /** Lista eventos de Google Calendar (JWT + tokens en servidor). */

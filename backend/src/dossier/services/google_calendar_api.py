@@ -4,11 +4,24 @@ shape que ``graph_calendar.normalizar_evento`` para reutilizar dossiers.
 """
 from __future__ import annotations
 
+import time
 from datetime import UTC, datetime, timedelta
 from urllib.parse import quote
 
 import requests
 
+from dossier.services.calendar_range import (
+    MAX_PAGINAS,
+    MOTIVO_ERROR_PROVEEDOR,
+    MOTIVO_LIMITE_PAGINAS,
+    MOTIVO_TIEMPO_AGOTADO,
+    POR_PAGINA,
+    ErrorProveedorCalendario,
+    Presupuesto,
+    RangoConsulta,
+    Reloj,
+    ResultadoRango,
+)
 from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
 
 _EVENTS_BASE = "https://www.googleapis.com/calendar/v3/calendars/primary/events"
@@ -72,6 +85,38 @@ def normalizar_evento_google(evento: dict) -> dict:
     }
 
 
+def _correos_google(evento: dict) -> list[str]:
+    """Direcciones reales del evento (organizador y asistentes), en minúsculas y sin repetir."""
+    vistos: list[str] = []
+    org = evento.get("organizer")
+    candidatos = [org.get("email")] if isinstance(org, dict) else []
+    candidatos += [a.get("email") for a in evento.get("attendees") or [] if isinstance(a, dict)]
+    for c in candidatos:
+        if isinstance(c, str) and "@" in c and c.strip().lower() not in vistos:
+            vistos.append(c.strip().lower())
+    return vistos
+
+
+def _respuesta_usuario_google(evento: dict) -> str | None:
+    for a in evento.get("attendees") or []:
+        if isinstance(a, dict) and a.get("self") is True:
+            r = a.get("responseStatus")
+            return r if r == "declined" else None
+    return None
+
+
+def normalizar_evento_google_rango(evento: dict) -> dict:
+    """Como ``normalizar_evento_google`` más lo que necesitan los indicadores (solo ruta por intervalo)."""
+    out = normalizar_evento_google(evento)
+    uid = evento.get("iCalUID")
+    if isinstance(uid, str) and uid.strip():
+        out["ical_uid"] = uid.strip()
+    out["correos"] = _correos_google(evento)
+    if _respuesta_usuario_google(evento) == "declined":
+        out["respuesta_usuario"] = "declined"
+    return out
+
+
 def listar_reuniones_google(
     access_token: str,
     top: int = 10,
@@ -102,6 +147,82 @@ def listar_reuniones_google(
     if incluir_pasadas:
         reuniones.sort(key=lambda r: r.get("inicio") or "", reverse=True)
     return reuniones[:top]
+
+
+def listar_reuniones_google_rango(
+    access_token: str,
+    rango: RangoConsulta,
+    *,
+    reloj: Reloj = time.monotonic,
+    por_pagina: int = POR_PAGINA,
+    max_paginas: int = MAX_PAGINAS,
+) -> ResultadoRango:
+    """Eventos del calendario principal que se solapan con ``[desde, hasta)``.
+
+    Recorre ``nextPageToken`` con límite de páginas y presupuesto de tiempo. Si un
+    límite se agota o falla una página posterior devuelve lo recuperado con
+    ``completo=False``; si falla la primera, lanza ``ErrorProveedorCalendario``.
+    ``singleEvents`` expande las recurrencias; las ocurrencias canceladas se excluyen.
+    """
+    presupuesto = Presupuesto(reloj)
+    base: dict[str, str | int | bool] = {
+        "timeMin": _iso_z(rango.desde),
+        "timeMax": _iso_z(rango.hasta),
+        "maxResults": por_pagina,
+        "singleEvents": True,
+        "orderBy": "startTime",
+    }
+    resultado = ResultadoRango()
+    page_token: str | None = None
+    paginas = 0
+    while True:
+        if paginas >= max_paginas:
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_LIMITE_PAGINAS
+            break
+        if paginas > 0 and presupuesto.agotado():
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_TIEMPO_AGOTADO
+            break
+        params = dict(base)
+        if page_token:
+            params["pageToken"] = page_token
+        try:
+            r = requests.get(
+                _EVENTS_BASE,
+                headers=_headers(access_token),
+                params=params,
+                timeout=presupuesto.timeout_peticion(),
+            )
+            ok = r.ok
+            datos = r.json() if ok else None
+            estado = r.status_code
+        except requests.Timeout as e:
+            if paginas == 0:
+                raise ErrorProveedorCalendario(504, "Google Calendar tardó demasiado en responder.") from e
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_TIEMPO_AGOTADO
+            break
+        except (requests.RequestException, ValueError) as e:
+            if paginas == 0:
+                raise ErrorProveedorCalendario(502, "No se pudo consultar Google Calendar.") from e
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
+            break
+        if not ok or not isinstance(datos, dict):
+            if paginas == 0:
+                detalle = (
+                    "Token de Google inválido o expirado. Vuelve a conectar Google Calendar."
+                    if estado == 401
+                    else f"Google Calendar respondió con error ({estado})."
+                )
+                raise ErrorProveedorCalendario(502, detalle, reautenticar=estado == 401)
+            resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
+            break
+        paginas += 1
+        for evento in datos.get("items") or []:
+            if isinstance(evento, dict) and evento.get("status") != "cancelled":
+                resultado.reuniones.append(normalizar_evento_google_rango(evento))
+        page_token = datos.get("nextPageToken") or None
+        if not page_token:
+            break
+    return resultado
 
 
 def diagnostico_google_calendar(access_token: str) -> dict:

@@ -4,12 +4,13 @@ from __future__ import annotations
 import logging
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import event, select
 from sqlalchemy.orm import Session
 
 from dossier.cache.corporate_dossier_redis import delete_dossier_redis_cache
 from dossier.db.models import Dossier
 from dossier.services.calendar_automation import suppress_calendar_event_if_no_dossiers_remain
+from dossier.services.summary_cache import SUMMARY_CACHE
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,10 @@ def delete_dossier_record(db: Session, dossier: Dossier) -> UUID | None:
     """
     calendar_event_id = dossier.calendar_event_id
     invalidate_dossier_redis_cache(dossier)
+    # Indicadores de Resumen: se invalida después del commit; antes, un cálculo vería aún el dossier.
+    event.listen(
+        db, "after_commit", lambda _s, uid=dossier.requested_by_user_id: SUMMARY_CACHE.invalidate(uid), once=True
+    )
     db.delete(dossier)
     return calendar_event_id
 

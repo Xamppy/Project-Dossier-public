@@ -69,6 +69,7 @@ from dossier.services.person_dossier_dedup import (
 )
 from dossier.services.person_research_config import default_person_research_source
 from dossier.services.person_research_service import run_person_research
+from dossier.services.summary_cache import SUMMARY_CACHE
 from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
 
 logger = logging.getLogger(__name__)
@@ -1246,6 +1247,7 @@ def persist_calendar_dossiers(
 
     if saved:
         db.commit()
+        SUMMARY_CACHE.invalidate(user_id)  # los indicadores de Resumen cambian con cada resultado
 
     result["saved_dossiers"] = saved
     return result

@@ -33,6 +33,7 @@ from dossier.api.auth_routes import (
 from dossier.api.auth_routes import (
     router as auth_router,
 )
+from dossier.api.dashboard_routes import router as dashboard_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
 from dossier.api.dossier_routes import router as dossiers_router
 from dossier.api.dossier_stream_routes import router as dossier_stream_router
@@ -74,6 +75,13 @@ from dossier.services.calendar_integrations import (
     upsert_google_calendar_tokens,
     upsert_microsoft_calendar_tokens,
 )
+from dossier.services.calendar_range import (
+    ErrorProveedorCalendario,
+    RangoConsulta,
+    RangoInvalido,
+    ResultadoRango,
+    parse_rango,
+)
 from dossier.services.dossier_generation_job_service import (
     enqueue_calendar_dossier_job,
     estimate_reunion_credits,
@@ -83,12 +91,14 @@ from dossier.services.dossier_retention_worker import start_dossier_retention_wo
 from dossier.services.google_calendar_api import (
     diagnostico_google_calendar,
     listar_reuniones_google,
+    listar_reuniones_google_rango,
     obtener_reunion_google_por_id,
 )
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import (
     coerce_reunion_payload,
     diagnostico_microsoft_calendar,
+    listar_reuniones_rango,
 )
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
 from dossier.services.output_language import effective_output_language
@@ -220,6 +230,7 @@ app.include_router(admin_router)
 app.include_router(dossiers_router)
 app.include_router(dossier_jobs_router)
 app.include_router(dossier_stream_router)
+app.include_router(dashboard_router)
 app.include_router(integrations_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
@@ -261,6 +272,8 @@ _CALENDAR_GET_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {"description": "Token de calendario inválido o error al consultar el proveedor."},
     404: {"description": "Evento o reunión no encontrada."},
     422: {"description": "Parámetros de consulta inválidos."},
+    502: {"description": "Modo intervalo: el proveedor no entregó ninguna página válida."},
+    504: {"description": "Modo intervalo: el proveedor no respondió a tiempo."},
 }
 
 _OAUTH_CALLBACK_RESPONSES: dict[int | str, dict[str, Any]] = {
@@ -772,9 +785,66 @@ def callback_google(
     raise HTTPException(status_code=500, detail="FRONTEND_URL no configurada.")
 
 
+_PARAMS_LEGADOS_DE_LISTADO = ("top", "dias", "incluir_pasadas")
+
+_MENSAJES_CARGA_INCOMPLETA = {
+    "limite_paginas": "Hay más reuniones de las que se pueden cargar de una vez. Reduce el intervalo.",
+    "tiempo_agotado": "El proveedor tardó demasiado y la carga quedó incompleta. Reintenta o reduce el intervalo.",
+    "error_proveedor": "El proveedor falló a mitad de la carga y la lista está incompleta. Reintenta.",
+}
+
+
+def _rango_de_la_consulta(
+    request: Request,
+    desde: str | None,
+    hasta: str | None,
+) -> RangoConsulta | None:
+    """``None`` = modo legado. Con intervalo no se aceptan ``top``/``dias``/``incluir_pasadas``."""
+    if desde is None and hasta is None:
+        return None
+    mezclados = [p for p in _PARAMS_LEGADOS_DE_LISTADO if p in request.query_params]
+    if mezclados:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "No combines «desde»/«hasta» con "
+                + ", ".join(f"«{p}»" for p in mezclados)
+                + ": el intervalo ya define qué reuniones se devuelven."
+            ),
+        )
+    try:
+        return parse_rango(desde, hasta)
+    except RangoInvalido as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+def _respuesta_por_intervalo(rango: RangoConsulta, resultado: ResultadoRango, reuniones: list) -> dict:
+    """Misma forma que el modo legado más ``rango``, ``completo`` y ``motivo_incompleto``."""
+    if not resultado.completo:
+        mensaje = _MENSAJES_CARGA_INCOMPLETA.get(resultado.motivo_incompleto or "")
+    elif not reuniones:
+        mensaje = "No hay reuniones en el intervalo consultado."
+    else:
+        mensaje = None
+    return {
+        "total": len(reuniones),
+        "reuniones": reuniones,
+        "mensaje": mensaje,
+        "rango": rango.como_dict(),
+        "completo": resultado.completo,
+        "motivo_incompleto": resultado.motivo_incompleto,
+    }
+
+
 @app.get("/calendario/eventos", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 @app.get("/calendario/eventos-outlook", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_listar_eventos_calendario(
+    request: Request,
+    desde: str | None = Query(
+        None,
+        description="RFC3339 con offset, inicio inclusivo. Va junto con «hasta»; máximo 62 días.",
+    ),
+    hasta: str | None = Query(None, description="RFC3339 con offset, final exclusivo."),
     top: int = Query(10, ge=1, le=50, description="Cantidad máxima de reuniones"),
     dias: int = Query(90, ge=1, le=365, description="Días hacia adelante a buscar"),
     incluir_pasadas: bool = Query(
@@ -788,8 +858,23 @@ def api_listar_eventos_calendario(
     authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
-    """Lista reuniones de Outlook: JWT de la app + tokens en BD, o ``?access_token=`` para pruebas."""
+    """Lista reuniones de Outlook: JWT de la app + tokens en BD, o ``?access_token=`` para pruebas.
+
+    Con ``desde``/``hasta`` devuelve las reuniones que se solapan con ese intervalo
+    (recorriendo la paginación de Graph); sin ellos conserva el comportamiento legado.
+    """
+    rango = _rango_de_la_consulta(request, desde, hasta)
     token = _graph_token_for_calendar_route(db, authorization, access_token)
+    if rango is not None:
+        try:
+            resultado = listar_reuniones_rango(token, rango)
+        except ErrorProveedorCalendario as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detalle) from e
+        reuniones = _filter_reuniones_for_app_user(
+            db, authorization, access_token, "microsoft", resultado.reuniones,
+            skip_internal_meetings=False,
+        )
+        return _respuesta_por_intervalo(rango, resultado, reuniones)
     try:
         reuniones = listar_reuniones(
             token,
@@ -822,6 +907,12 @@ def api_listar_eventos_calendario(
 
 @app.get("/calendario/eventos-google", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_listar_eventos_google_calendar(
+    request: Request,
+    desde: str | None = Query(
+        None,
+        description="RFC3339 con offset, inicio inclusivo. Va junto con «hasta»; máximo 62 días.",
+    ),
+    hasta: str | None = Query(None, description="RFC3339 con offset, final exclusivo."),
     top: int = Query(10, ge=1, le=50, description="Cantidad máxima de eventos"),
     dias: int = Query(90, ge=1, le=365, description="Días hacia adelante a buscar"),
     incluir_pasadas: bool = Query(
@@ -835,8 +926,23 @@ def api_listar_eventos_google_calendar(
     authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
-    """Lista eventos del calendario principal de Google: JWT de la app + tokens en BD."""
+    """Lista eventos del calendario principal de Google: JWT de la app + tokens en BD.
+
+    Con ``desde``/``hasta`` devuelve los eventos que se solapan con ese intervalo
+    (recorriendo ``nextPageToken``); sin ellos conserva el comportamiento legado.
+    """
+    rango = _rango_de_la_consulta(request, desde, hasta)
     token = _google_token_for_calendar_route(db, authorization, access_token)
+    if rango is not None:
+        try:
+            resultado = listar_reuniones_google_rango(token, rango)
+        except ErrorProveedorCalendario as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detalle) from e
+        reuniones = _filter_reuniones_for_app_user(
+            db, authorization, access_token, "google", resultado.reuniones,
+            skip_internal_meetings=False,
+        )
+        return _respuesta_por_intervalo(rango, resultado, reuniones)
     try:
         reuniones = listar_reuniones_google(
             token,

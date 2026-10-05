@@ -64,3 +64,4 @@ Sin estas seis escritas, **el Sprint 0 no está cerrado**:
 4. [0004 · Proveedor de búsqueda de noticias](0004-proveedor-noticias.md) (S0.7)
 5. [0005 · Proveedor de correo transaccional y entrega de dossiers](0005-proveedor-correo.md) (S0.8)
 6. [0006 · Protocolo de estados progresivos (SSE vs WebSockets)](0006-protocolo-estados-progresivos.md) (S0.11)
+7. [0007 · Calendario visual para reuniones](0007-calendario-visual.md) (UX-CAL-01, propuesta)
