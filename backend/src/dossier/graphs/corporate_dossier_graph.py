@@ -1,24 +1,36 @@
 """
-Grafo LangGraph — dossier corporativo (UK + USA en paralelo → síntesis Gemini).
+Grafo LangGraph — dossier corporativo (spec S0.12).
 
-Topología: UK y US en paralelo desde START → síntesis (fan-in).
+Topología: UK, USA, Europa (FR/DE) y prensa en paralelo desde START → síntesis (fan-in).
 
 El alcance ``jurisdiction_scope`` evita mezclar datos cuando el usuario eligió solo
-UK (Companies House) o solo USA (SEC) en el dashboard.
+UK (Companies House) o solo USA (SEC) en el dashboard. Europa y prensa necesitan
+``empresa_objetivo`` (nombre limpio); sin él se omiten y el grafo se comporta como antes.
 """
 from __future__ import annotations
 
 import logging
 import operator
 import re
-from dataclasses import dataclass
+import unicodedata
+from dataclasses import dataclass, field
 from typing import Annotated, Any, Literal, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
 logger = logging.getLogger(__name__)
 
-JurisdictionScope = Literal["uk_only", "us_only", "dual"]
+# "dual" = sin registro elegido: corren UK, USA y Europa. "eu_only" = solo Europa.
+JurisdictionScope = Literal["uk_only", "us_only", "dual", "eu_only"]
+
+# Tope de menciones de prensa que se pasan al LLM (el agente puede traer cientos).
+MAX_MENCIONES_PROMPT = 15
+
+_NOTA_FUENTES_ADICIONALES = (
+    " Si el mensaje incluye registros mercantiles europeos o menciones de prensa, úsalos como "
+    "fuentes adicionales. Las menciones de prensa pueden referirse a homónimos: no las atribuyas "
+    "a la empresa sin una coincidencia clara de nombre y contexto."
+)
 
 # Instrucciones de tono: el Markdown final va a clientes; no deben aparecer metadatos de ingeniería.
 _CLIENT_EXECUTIVE_STYLE = (
@@ -55,9 +67,13 @@ class CorporateDossierState(TypedDict, total=False):
     descripcion: str
     jurisdiction_scope: JurisdictionScope
     output_language: str
+    # Nombre limpio de la empresa para Europa y prensa (el brief es texto libre con marcas).
+    empresa_objetivo: str
 
     uk_corporate_context: str
     us_corporate_context: str
+    eu_corporate_context: str
+    news_context: str
 
     final_dossier_markdown: str
 
@@ -68,19 +84,22 @@ class CorporateDossierState(TypedDict, total=False):
     # a la misma clave de estado (CA2 de S0.12).
     agents_failed: Annotated[list[str], operator.add]
     agents_succeeded: Annotated[list[str], operator.add]
+    # Fuera de alcance: no consultaron la red (CA3 de S0.12).
+    agents_skipped: Annotated[list[str], operator.add]
 
 
 def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
     """Agente UK (Companies House)."""
     scope = state.get("jurisdiction_scope", "dual")
-    if scope == "us_only":
+    if scope in ("us_only", "eu_only"):
+        origen = "un **emisor estadounidense (SEC)**" if scope == "us_only" else "una **empresa europea**"
         bloque = (
             "## Reino Unido (Companies House)\n\n"
-            "*No aplica: el brief corresponde a un **emisor estadounidense (SEC)**. "
+            f"*No aplica: el brief corresponde a {origen}. "
             "No se consultó Companies House para no mezclar datos con una posible homónima en el Reino Unido.*\n"
         )
-        logger.info("LangGraph agent_corporate_uk omitido (alcance SEC únicamente)")
-        return {"uk_corporate_context": bloque}
+        logger.info("LangGraph agent_corporate_uk omitido (alcance %s)", scope)
+        return {"uk_corporate_context": bloque, "agents_skipped": ["agent_corporate_uk"]}
 
     from dossier.services.corporate_registry_context import build_uk_corporate_context_markdown
 
@@ -99,14 +118,19 @@ def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
 def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
     """Agente USA (SEC EDGAR)."""
     scope = state.get("jurisdiction_scope", "dual")
-    if scope == "uk_only":
+    if scope in ("uk_only", "eu_only"):
+        origen = (
+            "una **empresa del Reino Unido (Companies House)**"
+            if scope == "uk_only"
+            else "una **empresa europea**"
+        )
         bloque = (
             "## Estados Unidos (SEC EDGAR)\n\n"
-            "*No aplica: el brief corresponde a una **empresa del Reino Unido (Companies House)**. "
+            f"*No aplica: el brief corresponde a {origen}. "
             "No se consultó la SEC para no mezclar datos con una posible homónima en EE. UU.*\n"
         )
-        logger.info("LangGraph agent_corporate_usa omitido (alcance UK únicamente)")
-        return {"us_corporate_context": bloque}
+        logger.info("LangGraph agent_corporate_usa omitido (alcance %s)", scope)
+        return {"us_corporate_context": bloque, "agents_skipped": ["agent_corporate_usa"]}
 
     from dossier.services.corporate_registry_context import build_us_corporate_context_markdown
 
@@ -120,6 +144,117 @@ def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
 
     logger.info("LangGraph nodo agent_corporate_usa completado")
     return {"us_corporate_context": bloque, "agents_succeeded": ["agent_corporate_usa"]}
+
+
+def _palabras(texto: str) -> set[str]:
+    sin_tildes = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    return set(re.findall(r"[a-z0-9]+", sin_tildes.lower()))
+
+
+def _coincide_con_empresa(razon_social: str, empresa: str) -> bool:
+    """La búsqueda europea es difusa: exige que la razón social contenga todas las palabras buscadas.
+
+    ponytail: coincidencia por palabras; un filtro de homónimos con más señales es S3.3.
+    """
+    buscadas = _palabras(empresa)
+    return bool(buscadas) and buscadas <= _palabras(razon_social)
+
+
+def _registro_europeo_markdown(cita: Any) -> str:
+    r = cita.record
+    datos = [
+        f"jurisdicción {r.jurisdiccion.value.upper()}",
+        f"identificador {r.identificador_registro}",
+        f"estado {r.estado}" if r.estado else "",
+        r.forma_juridica or "",
+        f"constituida {r.fecha_constitucion}" if r.fecha_constitucion else "",
+    ]
+    linea = f"- **{r.razon_social}** ({', '.join(d for d in datos if d)})"
+    if r.domicilio and (r.domicilio.localidad or r.domicilio.pais):
+        linea += f"\n  Domicilio: {', '.join(p for p in (r.domicilio.localidad, r.domicilio.pais) if p)}"
+    if r.directivos:
+        linea += "\n  Directivos: " + ", ".join(d.nombre for d in r.directivos[:5])
+    if r.url_fuente:
+        linea += f"\n  Registro: {r.url_fuente}"
+    return linea
+
+
+def _node_agent_corporate_eu(state: CorporateDossierState) -> dict[str, Any]:
+    """Agente Europa (registros FR/DE). Se omite si el usuario ya eligió un registro UK o US."""
+    scope = state.get("jurisdiction_scope", "dual")
+    empresa = (state.get("empresa_objetivo") or "").strip()
+    if scope in ("uk_only", "us_only") or not empresa:
+        logger.info("LangGraph agent_corporate_eu omitido (alcance %s)", scope)
+        return {"eu_corporate_context": "", "agents_skipped": ["agent_corporate_eu"]}
+
+    from dossier.eu_registry import agent as agente_europeo
+
+    try:
+        resultado = agente_europeo.run_eu_registry_agent(empresa)
+    except Exception as e:
+        logger.exception("Fallo agente Europa (registros FR/DE)")
+        bloque = f"## Registros mercantiles europeos\n\n*Error interno al consultar: {e}*\n"
+        return {"eu_corporate_context": bloque, "agents_failed": ["agent_corporate_eu"]}
+
+    if resultado.errores and not resultado.citas:
+        bloque = "## Registros mercantiles europeos\n\n*No se pudieron consultar los registros europeos.*\n"
+        return {"eu_corporate_context": bloque, "agents_failed": ["agent_corporate_eu"]}
+
+    lineas = [
+        _registro_europeo_markdown(c)
+        for c in resultado.citas
+        if _coincide_con_empresa(c.record.razon_social, empresa)
+    ]
+    cuerpo = "\n".join(lineas) or "*Sin coincidencias en los registros europeos consultados.*"
+    if resultado.errores:
+        cuerpo += "\n\n*Sin respuesta de: " + ", ".join(sorted(resultado.errores)).upper() + ".*"
+    logger.info("LangGraph nodo agent_corporate_eu completado (%d registros)", len(lineas))
+    return {
+        "eu_corporate_context": f"## Registros mercantiles europeos\n\n{cuerpo}\n",
+        "agents_succeeded": ["agent_corporate_eu"],
+    }
+
+
+def _node_agent_news(state: CorporateDossierState) -> dict[str, Any]:
+    """Agente de prensa (GDELT y NewsAPI). Corre en cualquier alcance si hay empresa."""
+    empresa = (state.get("empresa_objetivo") or "").strip()
+    if not empresa:
+        return {"news_context": "", "agents_skipped": ["agent_news"]}
+
+    from dossier.news import agent as agente_noticias
+
+    try:
+        resultado = agente_noticias.collect_press_mentions(empresa)
+    except Exception as e:
+        logger.exception("Fallo agente de prensa")
+        return {
+            "news_context": f"## Menciones de prensa recientes\n\n*Error interno al consultar: {e}*\n",
+            "agents_failed": ["agent_news"],
+        }
+
+    if not resultado.mentions and len(resultado.failed_providers) >= 2:
+        bloque = "## Menciones de prensa recientes\n\n*No se pudo consultar la prensa.*\n"
+        return {"news_context": bloque, "agents_failed": ["agent_news"]}
+
+    lineas = []
+    for m in resultado.mentions[:MAX_MENCIONES_PROMPT]:
+        fecha = f", {m.published_date}" if m.published_date else ""
+        lineas.append(f"- **{m.headline}** — {m.publisher}{fecha}. {m.summary} ({m.url})")
+    cuerpo = "\n".join(lineas) or "*Sin menciones de prensa recientes.*"
+    logger.info("LangGraph nodo agent_news completado (%d menciones)", len(lineas))
+    return {
+        "news_context": f"## Menciones de prensa recientes\n\n{cuerpo}\n",
+        "agents_succeeded": ["agent_news"],
+    }
+
+
+def _contexto_adicional(state: CorporateDossierState) -> str:
+    """Bloques de Europa y prensa para el mensaje de síntesis (vacío si no hay)."""
+    bloques = [
+        (state.get("eu_corporate_context") or "").strip(),
+        (state.get("news_context") or "").strip(),
+    ]
+    return "".join(f"---\n{b}\n\n" for b in bloques if b)
 
 
 def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
@@ -142,8 +277,36 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
     scope = state.get("jurisdiction_scope", "dual")
     output_language = normalize_output_language(state.get("output_language"))
     delivery = corporate_dossier_delivery_instructions(output_language)
+    extra = _contexto_adicional(state)
 
-    if scope == "uk_only":
+    if scope == "eu_only":
+        system = (
+            "Eres un analista corporativo de empresas de **Europa continental**. Redactas en español, en Markdown. "
+            "Te basas en los registros mercantiles europeos y, si las hay, en las menciones de prensa del mensaje. "
+            "Los bloques UK y USA indican que no aplican: **no** los uses. No inventes hechos ajenos al contexto. "
+            "Extensión total del dossier: **breve** (orientación: equivalente a ~1–1,5 páginas de texto como máximo). "
+            + _CLIENT_EXECUTIVE_STYLE
+        )
+        user = f"""Preparación de reunión (**Europa continental**)
+
+**Tema:** {tema}
+**Brief / participantes:** {participantes}
+**Descripción adicional:** {descripcion or "(ninguna)"}
+
+---
+### Bloques UK y USA (marcados como no aplicables por el sistema)
+
+{uk}
+
+{us}
+
+{extra}---
+### Tu entrega
+
+{delivery}
+"""
+
+    elif scope == "uk_only":
         system = (
             "Eres un analista corporativo del Reino Unido. Redactas en español, en Markdown. "
             "Te basas **solo** en el contexto de **Companies House** (perfil, historial y, si existe, "
@@ -169,7 +332,7 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
 
 {us}
 
----
+{extra}---
 ### Tu entrega
 
 {delivery}
@@ -201,7 +364,7 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
 
 {us}
 
----
+{extra}---
 ### Tu entrega
 
 {delivery}
@@ -234,7 +397,7 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
 
 {us}
 
----
+{extra}---
 ### Tu entrega
 
 {corporate_dual_scope_note(output_language)}
@@ -242,6 +405,8 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
 {delivery}
 """
 
+    if extra:
+        system += _NOTA_FUENTES_ADICIONALES
     system = apply_output_language_to_system_prompt(system, output_language)
 
     try:
@@ -262,11 +427,14 @@ def build_corporate_dossier_graph() -> StateGraph:
     graph = StateGraph(CorporateDossierState)
     graph.add_node("agent_corporate_uk", _node_agent_corporate_uk)
     graph.add_node("agent_corporate_usa", _node_agent_corporate_usa)
+    graph.add_node("agent_corporate_eu", _node_agent_corporate_eu)
+    graph.add_node("agent_news", _node_agent_news)
     graph.add_node("synthesize_llm", _node_synthesize_llm)
 
-    graph.add_edge(START, "agent_corporate_uk")
-    graph.add_edge(START, "agent_corporate_usa")
-    graph.add_edge(["agent_corporate_uk", "agent_corporate_usa"], "synthesize_llm")
+    agentes = ["agent_corporate_uk", "agent_corporate_usa", "agent_corporate_eu", "agent_news"]
+    for agente in agentes:
+        graph.add_edge(START, agente)
+    graph.add_edge(agentes, "synthesize_llm")
     graph.add_edge("synthesize_llm", END)
     return graph
 
@@ -278,6 +446,7 @@ class CorporateDossierResult:
     markdown: str
     agents_failed: list[str]
     agents_succeeded: list[str]
+    agents_skipped: list[str] = field(default_factory=list)
 
 
 def run_corporate_dossier_langgraph_detailed(
@@ -286,6 +455,7 @@ def run_corporate_dossier_langgraph_detailed(
     descripcion: str = "",
     jurisdiction_scope: JurisdictionScope | None = None,
     output_language: str = "es",
+    empresa_objetivo: str | None = None,
 ) -> CorporateDossierResult:
     """Compila el grafo, infiere alcance UK/US (o usa el explícito) y devuelve Markdown + agentes fallidos."""
     from dossier.services.output_language import normalize_output_language
@@ -300,9 +470,11 @@ def run_corporate_dossier_langgraph_detailed(
             "descripcion": descripcion or "",
             "jurisdiction_scope": scope,
             "output_language": normalize_output_language(output_language),
+            "empresa_objetivo": (empresa_objetivo or "").strip(),
             "agent_errors": [],
             "agents_failed": [],
             "agents_succeeded": [],
+            "agents_skipped": [],
         }
     )
     markdown = str(result.get("final_dossier_markdown") or "").strip()
@@ -313,6 +485,7 @@ def run_corporate_dossier_langgraph_detailed(
         markdown=markdown,
         agents_failed=agents_failed,
         agents_succeeded=list(result.get("agents_succeeded") or []),
+        agents_skipped=list(result.get("agents_skipped") or []),
     )
 
 
@@ -322,6 +495,7 @@ def run_corporate_dossier_langgraph(
     descripcion: str = "",
     jurisdiction_scope: JurisdictionScope | None = None,
     output_language: str = "es",
+    empresa_objetivo: str | None = None,
 ) -> str:
     """Compatibilidad hacia atrás: solo el Markdown final.
 
@@ -335,4 +509,5 @@ def run_corporate_dossier_langgraph(
         descripcion,
         jurisdiction_scope,
         output_language,
+        empresa_objetivo,
     ).markdown

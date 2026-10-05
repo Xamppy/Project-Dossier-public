@@ -172,6 +172,11 @@ def person_professional_research(
         raise HTTPException(status_code=503, detail=str(e)) from e
 
 
+def empresa_objetivo_de_solicitud(body: CreateCorporateDossierRequest) -> str:
+    """Nombre limpio para los agentes de Europa y prensa: el registro elegido o la consulta."""
+    return body.resolution.title if body.resolution is not None else body.subject_query
+
+
 @router.post("/dossiers/corporate/generate")
 def generate_corporate_dossier(
     body: CreateCorporateDossierRequest,
@@ -249,6 +254,7 @@ def generate_corporate_dossier(
                 descripcion=descripcion_neutral,
                 jurisdiction_scope=explicit_scope,
                 output_language=out_lang,
+                empresa_objetivo=empresa_objetivo_de_solicitud(body),
             )
             if not md.lstrip().startswith("# Error"):
                 set_corporate_cached_markdown(key_hash, md)

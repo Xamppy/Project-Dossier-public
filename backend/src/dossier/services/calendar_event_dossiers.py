@@ -537,6 +537,7 @@ def _corporate_md_from_cache_or_langgraph(
     scope: JurisdictionScope,
     depth: str,
     output_language: str = "es",
+    empresa_objetivo: str | None = None,
 ) -> tuple[str | None, bool, str | None, list[str] | None]:
     """Devuelve (markdown, cache_hit, cache_key_redis, agents_failed).
 
@@ -573,6 +574,7 @@ def _corporate_md_from_cache_or_langgraph(
             descripcion="",
             jurisdiction_scope=scope,
             output_language=out_lang,
+            empresa_objetivo=empresa_objetivo,
         )
         if not generado.markdown.lstrip().startswith("# Error"):
             set_corporate_cached_markdown(key_hash, generado.markdown)
@@ -799,6 +801,7 @@ def generate_dossiers_from_calendar_event(
                 scope=scope,
                 depth=depth_key,
                 output_language=out_lang,
+                empresa_objetivo=company_corporate,
             )
         except Exception as e:
             logger.exception("Fallo dossier corporativo desde calendario")
