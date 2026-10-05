@@ -20,7 +20,6 @@ import pytest
 
 from dossier.billing.credit_policy import person_research_credit_cost
 
-
 # --------------------------------------------------------------------------
 # Volumen: ¿qué pasa cuando la entrada es grande?
 # --------------------------------------------------------------------------
@@ -113,10 +112,32 @@ def test_degradacion_fallo_de_un_agente_no_aborta_el_dossier():
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="Se habilita con S2.1 — agente de registros europeos")
-def test_degradacion_proveedor_lento_respeta_el_tiempo_limite():
-    """Un proveedor que tarda 30 s no debe colgar la generación completa."""
-    raise NotImplementedError
+def test_degradacion_proveedor_lento_respeta_el_tiempo_limite(monkeypatch):
+    """Un proveedor que tarda no debe colgar la generación completa.
+
+    Implementado con el agente europeo (S2.1): la consulta a cada país corre
+    en su propio hilo, así que un proveedor lento no bloquea a los demás ni
+    retrasa el resultado combinado más allá de su propia demora. El límite
+    duro por request (20 s) ya lo aplica ``eu_registry/client.py``; aquí se
+    verifica que el agente no le suma una espera en serie encima.
+    """
+    import time
+
+    from dossier.eu_registry import agent
+
+    def lenta(q, *, limite=5):
+        time.sleep(0.3)
+        return [{"siren": "1", "nom_complet": "Lenta SA"}]
+
+    monkeypatch.setattr(agent, "search_france_companies", lenta)
+    monkeypatch.setattr(agent, "search_germany_companies", lambda q, *, limite=5: [])
+
+    inicio = time.perf_counter()
+    resultado = agent.run_eu_registry_agent("Acme")
+    transcurrido = time.perf_counter() - inicio
+
+    assert len(resultado.citas) == 1
+    assert transcurrido < 1.0, f"Tardo {transcurrido:.2f}s por un proveedor lento simulado en 0.3s"
 
 
 @pytest.mark.skip(reason="Se habilita con S5.8 — limitación de tasa")

@@ -28,11 +28,15 @@ Detalle: [docs/estructura.md](docs/estructura.md).
 cd SistemaDossier/backend
 python -m venv .venv
 .venv\Scripts\activate
+(opcional en linux)source .venv/bin/activate 
 pip install -r requirements.txt
 copy .env.example .env
 ```
 
 Los comandos Python siguientes se ejecutan desde `backend/`. El frontend se ejecuta desde `frontend/`.
+
+Guía completa de arranque local (prerrequisitos, base de datos con Alembic, frontend,
+verificación y problemas conocidos): [docs/dev/local-setup.md](docs/dev/local-setup.md).
 
 ## Arranque de la API
 
@@ -76,7 +80,7 @@ Más: [backend/.env.example](backend/.env.example) y [docs/postgresql.md](docs/p
 
 ## Auth del dashboard (email + contraseña) y frontend
 
-El backend usa las tablas del **schema migrado** (`organizations`, `users`, `org_memberships`, `dossiers`, …). Aplica primero **[docs/sql/schema_project_dossier.sql](docs/sql/schema_project_dossier.sql)** en PostgreSQL (es el mismo contenido que `backend/src/dossier/db/Migracion.md`).
+El backend usa las tablas del **schema migrado** (`organizations`, `users`, `org_memberships`, `dossiers`, …). Aplica primero el esquema en PostgreSQL — la forma recomendada es `alembic upgrade head` desde `backend/` (S1.1); la alternativa con SQL crudo (**[docs/sql/schema_project_dossier.sql](docs/sql/schema_project_dossier.sql)**, mismo contenido que `backend/src/dossier/db/Migracion.md`) también sirve. Detalle de ambos caminos: [docs/dev/local-setup.md](docs/dev/local-setup.md#3-base-de-datos).
 
 Endpoints principales: **`POST /auth/register`**, **`POST /auth/login`**, **`GET /auth/me`**, **`GET /dossiers`**, **`GET /dossiers/{id}`** (los dossiers requieren JWT con `org_id`).
 

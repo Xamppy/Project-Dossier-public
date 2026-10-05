@@ -4,7 +4,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import Select, and_, or_, select
+from sqlalchemy import ColumnElement, Select, and_, or_, select
 from sqlalchemy.orm import Session
 
 from dossier.db.models import Dossier, DossierShare
@@ -16,7 +16,7 @@ def dossier_visibility_filter(
     user_id: UUID,
     organization_id: UUID,
     role: str | None,
-) -> object:
+) -> ColumnElement[bool]:
     """
     Condición SQLAlchemy para filas de ``dossiers`` visibles al usuario.
 

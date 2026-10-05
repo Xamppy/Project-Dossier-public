@@ -95,6 +95,7 @@ def person_research_cache_payload_from_result(result: dict[str, Any]) -> dict[st
         "profiles_count": len(profiles),
         "profile_urls": list(result.get("profile_urls") or []),
         "warnings": [w for w in warnings if isinstance(w, str) and w.strip()],
+        "executive_payload": result.get("executive_payload"),
     }
 
 
@@ -153,6 +154,7 @@ def person_research_response_from_redis_cache(
         "profiles": [],
         "posts_by_url": {},
         "llm_analysis_markdown": markdown.strip() or None,
+        "executive_payload": cached_payload.get("executive_payload"),
         "gemini_google_search_used": cached_payload.get("gemini_google_search_used"),
         "warnings": warnings,
     }

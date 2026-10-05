@@ -65,6 +65,32 @@ Si ya aplicaste la tabla desde `Migracion.md` **sin** estas columnas, usa el blo
 - **Outlook:** `GET /integrations/microsoft/start?as_json=true` con Bearer → `authorize_url` → vuelta con `?calendar_microsoft=ok|error`.
 - **Google:** `GET /integrations/google/start?as_json=true` con Bearer → `authorize_url` → vuelta con `?calendar_google=ok|error`.
 
+## 4 bis. Lectura de eventos por intervalo (calendario visual)
+
+`GET /calendario/eventos-google`, `/calendario/eventos-outlook` y `/calendario/eventos` aceptan, además del
+modo legado, `desde` y `hasta` (RFC3339 **con offset**, `desde` inclusivo, `hasta` exclusivo, máximo 62 días).
+
+- Se devuelven los eventos que **se solapan** con el intervalo, con recurrencias expandidas y sin ocurrencias
+  canceladas. Sin `desde`/`hasta` el comportamiento y la respuesta no cambian.
+- Mezclar el intervalo con `top`, `dias` o `incluir_pasadas`, enviar solo uno de los extremos, fechas sin
+  offset, orden inverso o más de 62 días devuelve **422**.
+- El servidor recorre la paginación del proveedor (`nextPageToken` en Google, `@odata.nextLink` en Graph) con
+  tope de **10 páginas de 250** y **20 s** por proveedor. Si se alcanza un límite o falla una página posterior,
+  responde 200 con lo recuperado y `completo: false` + `motivo_incompleto`
+  (`limite_paginas`, `tiempo_agotado` o `error_proveedor`). Si no hay ninguna página válida: **502** (error
+  remoto) o **504** (timeout); nunca «sin reuniones». 401 y 404 conservan su significado.
+- Respuesta: `total`, `reuniones`, `mensaje`, `rango`, `completo`, `motivo_incompleto`. `total` es el número
+  devuelto, no una estimación del proveedor.
+- Los eventos con hora usan instantes ISO con offset (Outlook, en UTC con `Z`). Los de **día completo** usan
+  fechas `YYYY-MM-DD` con fin exclusivo; en Outlook se resuelven con `originalStartTimeZone` (nombres de
+  Windows o IANA) y, si la zona no se reconoce, con la medianoche UTC más cercana.
+- Los tokens OAuth no salen del servidor; `nextLink` solo se sigue hacia `https://graph.microsoft.com` y rutas
+  `calendarView`.
+
+Código: `backend/src/dossier/services/calendar_range.py`, `google_calendar_api.py`, `graph_calendar.py`. En el
+cliente, `frontend/src/hooks/useCalendarEvents.ts` consulta ambos proveedores en paralelo para el intervalo
+visible. Evidencia: [reporte UX-CAL-02](../specs/reports/UX-CAL-02-calendario-visual.md).
+
 ## 5. Despliegue “cuando esté todo listo”
 
 - Misma API en Railway: actualizar redirect URIs en Google y Azure con la URL **de producción**.

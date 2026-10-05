@@ -8,18 +8,19 @@ Generación de dossiers desde eventos de calendario.
 from __future__ import annotations
 
 import logging
-import os
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from dossier.db.models import Dossier, User
-from dossier.billing.entitlements import corporate_dossier_module_flags, plan_allows_calendar_corporate_dossier
-from dossier.graphs.corporate_dossier_graph import JurisdictionScope, run_corporate_dossier_langgraph
+from dossier.billing.credit_policy import PERSON_IDENTITY_CREDITS, credit_charging_enabled
+from dossier.billing.entitlements import (
+    corporate_dossier_module_flags,
+    plan_allows_calendar_corporate_dossier,
+)
 from dossier.cache.corporate_dossier_redis import (
     build_corporate_langgraph_cache_key_hash,
     cached_until_from_now,
@@ -36,22 +37,14 @@ from dossier.cache.person_dossier_redis import (
     run_with_person_cache_lock,
     set_person_cached_payload,
 )
-from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
-from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
-from dossier.llm.common import normalize_person_report_text
-from dossier.services.person_research_config import default_person_research_source
-from dossier.services.person_dossier_dedup import (
-    person_research_fingerprint,
-    person_research_response_from_redis_cache,
-    person_research_cache_payload_from_result,
-    profiles_count_from_research_result,
-    should_cache_person_research_result,
+from dossier.db.models import Dossier, User
+from dossier.graphs.corporate_dossier_graph import (
+    JurisdictionScope,
+    run_corporate_dossier_langgraph_detailed,
 )
-from dossier.services.output_language import normalize_output_language
-from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
-from dossier.services.person_research_service import run_person_research
-from dossier.billing.credit_policy import PERSON_IDENTITY_CREDITS, credit_charging_enabled
+from dossier.llm.common import normalize_person_report_text
 from dossier.schemas.dossier_generation import DEPTH_CREDITS
+from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
 from dossier.services.calendar_meeting_labels import (
     COUNTRY_IN_DESC,
     COUNTRY_INLINE_IN_JOB,
@@ -65,6 +58,19 @@ from dossier.services.calendar_meeting_labels import (
     PERSON_PATTERNS,
     SUBJECT_CON,
 )
+from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
+from dossier.services.output_language import normalize_output_language
+from dossier.services.person_dossier_dedup import (
+    person_research_cache_payload_from_result,
+    person_research_fingerprint,
+    person_research_response_from_redis_cache,
+    profiles_count_from_research_result,
+    should_cache_person_research_result,
+)
+from dossier.services.person_research_config import default_person_research_source
+from dossier.services.person_research_service import run_person_research
+from dossier.services.summary_cache import SUMMARY_CACHE
+from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
 
 logger = logging.getLogger(__name__)
 
@@ -198,9 +204,7 @@ def _subject_yields_company(tema: str, extracted: str) -> bool:
     e = extracted.strip().lower()
     if e == t:
         return False
-    if _GENERIC_MEETING_TITLE.match(extracted.strip()):
-        return False
-    return True
+    return not _GENERIC_MEETING_TITLE.match(extracted.strip())
 
 
 def _description_signals_person_only(descripcion: str) -> bool:
@@ -533,8 +537,14 @@ def _corporate_md_from_cache_or_langgraph(
     scope: JurisdictionScope,
     depth: str,
     output_language: str = "es",
-) -> tuple[str | None, bool, str | None]:
-    """Devuelve (markdown, cache_hit, cache_key_redis)."""
+    empresa_objetivo: str | None = None,
+) -> tuple[str | None, bool, str | None, list[str] | None]:
+    """Devuelve (markdown, cache_hit, cache_key_redis, agents_failed).
+
+    ``agents_failed`` es ``None`` cuando el resultado viene de caché (no se corrió el
+    grafo en esta llamada, así que no hay telemetría nueva de agentes) y una lista
+    (posiblemente vacía) cuando sí se ejecutó LangGraph.
+    """
     out_lang = normalize_output_language(output_language)
     key_hash = build_corporate_langgraph_cache_key_hash(
         participantes=participantes_brief,
@@ -544,34 +554,37 @@ def _corporate_md_from_cache_or_langgraph(
     )
     cache_hit = False
     md: str | None = None
+    agents_failed: list[str] | None = None
 
     if redis_corporate_cache_available():
         hit = get_corporate_cached_markdown(key_hash)
         if hit is not None:
-            return hit, True, corporate_cache_redis_key(key_hash)
+            return hit, True, corporate_cache_redis_key(key_hash), None
 
     def _compute() -> None:
-        nonlocal md, cache_hit
+        nonlocal md, cache_hit, agents_failed
         hit2 = get_corporate_cached_markdown(key_hash)
         if hit2 is not None:
             md = hit2
             cache_hit = True
             return
-        generated = run_corporate_dossier_langgraph(
+        generado = run_corporate_dossier_langgraph_detailed(
             tema_reunion=tema or "Reunión",
             participantes=participantes_brief,
             descripcion="",
             jurisdiction_scope=scope,
             output_language=out_lang,
+            empresa_objetivo=empresa_objetivo,
         )
-        if not generated.lstrip().startswith("# Error"):
-            set_corporate_cached_markdown(key_hash, generated)
-        md = generated
+        if not generado.markdown.lstrip().startswith("# Error"):
+            set_corporate_cached_markdown(key_hash, generado.markdown)
+        md = generado.markdown
+        agents_failed = generado.agents_failed
         cache_hit = False
 
     run_with_corporate_cache_lock(key_hash, _compute)
     redis_key = corporate_cache_redis_key(key_hash) if cache_hit else None
-    return md, cache_hit, redis_key
+    return md, cache_hit, redis_key, agents_failed
 
 
 def _person_research_from_cache_or_pipeline(
@@ -719,7 +732,9 @@ def _generate_one_person_dossier(
             )
             person_cache_hit = False
             person_cache_key = None
-        out["md"] = (person_payload.get("llm_analysis_markdown") or "").strip() or None
+        out["md"] = (
+            person_payload.get("llm_analysis_markdown") or ""  # type: ignore[union-attr]
+        ).strip() or None
         out["payload"] = person_payload
         out["cache_hit"] = person_cache_hit
         out["cache_key"] = person_cache_key
@@ -762,6 +777,9 @@ def generate_dossiers_from_calendar_event(
     person_cache_hit = False
     corporate_cache_key: str | None = None
     person_cache_key: str | None = None
+    # None = sin telemetría de agentes (caché o rama no ejecutada); persist_calendar_dossiers
+    # cae al criterio anterior (¿el markdown final es un error?) en ese caso.
+    corporate_agents_failed: list[str] | None = None
     depth_key = depth if depth in DEPTH_CREDITS else "standard"
     include_corporate = plan_allows_calendar_corporate_dossier(organization_plan)
     corporate_skipped_plan_free = False
@@ -771,13 +789,19 @@ def generate_dossiers_from_calendar_event(
             participantes_brief, scope = resolve_corporate_brief(company_corporate)
             if participantes:
                 participantes_brief = f"{participantes_brief} Asistentes: {participantes}"
-            corporate_md, corporate_cache_hit, corporate_cache_key = _corporate_md_from_cache_or_langgraph(
+            (
+                corporate_md,
+                corporate_cache_hit,
+                corporate_cache_key,
+                corporate_agents_failed,
+            ) = _corporate_md_from_cache_or_langgraph(
                 participantes_brief=participantes_brief,
                 tema=tema,
                 participantes=participantes_brief,
                 scope=scope,
                 depth=depth_key,
                 output_language=out_lang,
+                empresa_objetivo=company_corporate,
             )
         except Exception as e:
             logger.exception("Fallo dossier corporativo desde calendario")
@@ -837,6 +861,7 @@ def generate_dossiers_from_calendar_event(
         "person_cache_hit": person_cache_hit,
         "corporate_cache_key": corporate_cache_key,
         "person_cache_key": person_cache_key,
+        "corporate_agents_failed": corporate_agents_failed,
         "output_language": out_lang,
         "corporate_skipped_plan_free": corporate_skipped_plan_free,
     }
@@ -848,9 +873,7 @@ def _markdown_is_persistable(md: str | None) -> bool:
     s = (md or "").lstrip()
     if s.startswith("# Error"):
         return False
-    if s.startswith("No se pudo generar ningún dossier"):
-        return False
-    return True
+    return not s.startswith("No se pudo generar ningún dossier")
 
 
 def _is_technical_warning(text: str) -> bool:
@@ -915,14 +938,14 @@ def _format_meeting_datetime(inicio: str | None, tz_name: str | None = None) -> 
         normalized = raw.replace("Z", "+00:00")
         dt = datetime.fromisoformat(normalized)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         tz_key = (tz_name or "UTC").strip() or "UTC"
         try:
             from zoneinfo import ZoneInfo
 
             local = dt.astimezone(ZoneInfo(tz_key))
-        except Exception:
-            local = dt.astimezone(timezone.utc)
+        except Exception:  # noqa: BLE001 - fallback de timezone invalida a UTC
+            local = dt.astimezone(UTC)
         return local.strftime("%d/%m/%Y %H:%M")
     except ValueError:
         return raw[:16]
@@ -1005,7 +1028,7 @@ def persist_calendar_dossiers(
     user_row = db.get(User, user_id) if user_id else None
     user_tz = getattr(user_row, "timezone", None) if user_row else None
     cal = _calendar_meta(reunion, calendar_provider, user_tz)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     saved: dict[str, Any] = {}
     folder_id = uuid.uuid4()
     folder_title = (
@@ -1029,6 +1052,14 @@ def persist_calendar_dossiers(
     if _markdown_is_persistable(corporate_md):
         is_err = str(corporate_md).lstrip().startswith("# Error")
         status = "failed" if is_err else "complete"
+        # Telemetría real del grafo si se ejecutó en esta llamada (S4.9); si vino de
+        # caché o de una excepción fuera del grafo, cae al criterio anterior.
+        explicit_agents_failed = result.get("corporate_agents_failed")
+        corp_agents_failed = (
+            list(explicit_agents_failed)
+            if explicit_agents_failed is not None
+            else (["synthesize_llm"] if is_err else [])
+        )
         will_charge_corp = charge and not is_err and not corporate_cache_hit
         dossier_id = uuid.uuid4()
         subject = (
@@ -1038,7 +1069,7 @@ def persist_calendar_dossiers(
             or "Empresa"
         )
         subject = strip_html_to_plain_line(subject, max_len=255) or "Empresa"
-        corp_flags = corporate_dossier_module_flags(depth_key)  # type: ignore[arg-type]
+        corp_flags = corporate_dossier_module_flags(depth_key)
         dossier = Dossier(
             id=dossier_id,
             organization_id=org_id,
@@ -1069,7 +1100,7 @@ def persist_calendar_dossiers(
                 "output_language": output_lang,
             },
             agents_activated=["agent_corporate_uk", "agent_corporate_usa", "synthesize_llm"],
-            agents_failed=(["synthesize_llm"] if is_err else []),
+            agents_failed=corp_agents_failed,
             data_sources_used=["companies_house", "sec_edgar", "sec_company_facts", "gemini"],
             generation_started_at=now,
             generation_completed_at=now,
@@ -1219,6 +1250,7 @@ def persist_calendar_dossiers(
 
     if saved:
         db.commit()
+        SUMMARY_CACHE.invalidate(user_id)  # los indicadores de Resumen cambian con cada resultado
 
     result["saved_dossiers"] = saved
     return result

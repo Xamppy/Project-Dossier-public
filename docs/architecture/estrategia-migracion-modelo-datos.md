@@ -30,7 +30,25 @@ El esquema actual documentado en `backend/src/dossier/db/Migracion.md` y aplicad
 
 ## 2. Nuevas entidades en PostgreSQL (S4.5)
 
-Para dar soporte analítico, trazabilidad granular por afirmación y persistencia relacional complementaria al JSON estructurado, se diseñan las siguientes tres tablas:
+> **Decisión al implementar S4.5 (2026-09-26): se extienden las tablas existentes en vez de
+> crear las tres de abajo.** La línea base (`db/Migracion.md`, secciones 7, 14 y 15) ya trae
+> `dossier_career_entries`, `dossier_alerts` y `dossier_media_mentions` con el mismo propósito,
+> con `ON DELETE CASCADE` hacia `dossiers`, y sin uso en el código. Crear las tres nuevas
+> dejaba dos tablas por concepto. Lo que faltaba para cubrir el contrato de S4.1
+> (`schemas/dossier_executive_payload.py`) se agregó como columnas:
+>
+> | Contrato S4.1 | Tabla | Columnas agregadas | Correspondencia con columnas existentes |
+> |---|---|---|---|
+> | `RiskAlert` | `dossier_alerts` | `title`, `sources JSONB` | `severity` → `level` (CHECK ampliado a `low/medium/high` sin perder `critical/warning`), `description` → `message` |
+> | `PressMention` | `dossier_media_mentions` | `source_citation JSONB`, `query_context` | `headline` → `title`, `publisher` → `source_name`, `published_date` → `published_at` |
+> | `CareerPosition` | `dossier_career_entries` | `start_date_text`, `end_date_text`, `source_citation JSONB` | `role_title` → `job_title`; fechas parciales («2019») van en `*_text` porque no caben en `DATE` |
+>
+> El DDL vive en `db/schema_patches.py:DOSSIER_ENTITIES_PATCHES`. La app lo aplica al
+> arrancar y la migración `b7e2d4f1a9c3` (Alembic) lo reutiliza. Los modelos ORM son
+> `DossierAlert`, `DossierMediaMention` y `DossierCareerEntry` en `db/models.py`. El diseño
+> original queda abajo como referencia.
+
+Diseño original de S0.10 (no implementado tal cual; ver la decisión anterior):
 
 ### 2.1. `dossier_risk_alerts`
 ```sql
@@ -84,7 +102,17 @@ CREATE INDEX idx_dossier_press_dossier_id ON dossier_press_mentions(dossier_id);
 
 ## 3. Transición de `dossier_data` (JSONB)
 
-En lugar de reemplazar abruptamente la columna `dossier_data`, se adopta una migración no disruptiva de esquema:
+> **Decisión al implementar S4.3 (2026-09-26): el payload se agrega, no reemplaza.** Por ser
+> lo más económico y simple para el MVP, el usuario eligió una sola llamada al LLM (la JSON de
+> S4.2), con el Markdown generado por código desde ese JSON
+> (`services/executive_markdown.py`). `dossier_data` conserva `format: "markdown"`, `body` y
+> `billing` tal cual (los leen el dashboard y el trigger de cobro) y suma
+> `executive_payload` con el contrato validado. No se usa `format: "structured_json"` ni
+> `legacy_markdown_body`: habrían obligado a cambiar el frontend. Si el JSON no valida
+> tras el reintento asistido, se genera el informe Markdown de siempre y el dossier no lleva
+> `executive_payload`. La propuesta original queda abajo como referencia.
+
+Propuesta original: en lugar de reemplazar abruptamente la columna `dossier_data`, se adopta una migración no disruptiva de esquema:
 
 1. **Estructura v2.0 en `dossier_data`:**
    ```json
@@ -114,5 +142,5 @@ En lugar de reemplazar abruptamente la columna `dossier_data`, se adopta una mig
 Actualmente las modificaciones se aplican manualmente en `schema_patches.py`. La tarea **S1.1** introducirá Alembic con la siguiente convención:
 
 1. `0001_initial_baseline.py`: Captura el estado exacto del esquema v1.0 existente en producción (tablas `organizations`, `users`, `dossiers`, `credit_ledger`, etc.).
-2. `0002_dossier_entities.py`: Crea las tablas `dossier_risk_alerts`, `dossier_career_positions` y `dossier_press_mentions` con sus respectivos índices e integridad referencial.
+2. `b7e2d4f1a9c3_s4_5_entidades_dossier.py`: extiende `dossier_alerts`, `dossier_career_entries` y `dossier_media_mentions` al contrato de S4.1 (ver la decisión de §2; el diseño original proponía crear tres tablas nuevas).
 3. Se desactiva progresivamente `DATABASE_AUTO_CREATE_TABLES` en favor del comando estandarizado `alembic upgrade head` en el arranque del despliegue en Render.

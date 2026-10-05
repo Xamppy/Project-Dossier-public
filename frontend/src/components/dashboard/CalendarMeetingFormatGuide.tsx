@@ -221,6 +221,7 @@ export default function CalendarMeetingFormatGuide({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el estado abierto/cerrado con el prop defaultOpen cuando este cambia.
     if (defaultOpen) setOpen(true);
   }, [defaultOpen]);
 

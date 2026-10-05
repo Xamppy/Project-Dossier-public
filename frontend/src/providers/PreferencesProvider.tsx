@@ -34,6 +34,8 @@ type PreferencesContextValue = {
   preferences: UserPreferences;
   /** Zona horaria efectiva (sistema o manual). */
   effectiveTimezone: string;
+  /** `false` hasta que se leyeron las preferencias guardadas (siempre en SSR e hidratación). */
+  ready: boolean;
   t: TranslateFn;
   locale: Locale;
   setTheme: (theme: ThemeChoice) => void;
@@ -97,6 +99,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loaded = loadPreferences();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata desde localStorage (sistema externo) una sola vez al montar.
     setPreferences(loaded);
     applyTheme(loaded.theme);
     document.documentElement.lang = loaded.locale;
@@ -182,6 +185,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     }, 400);
 
     return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberado: solo estos campos viajan al backend via preferencesToAuthPatch(); listar el objeto `preferences` completo dispararia el debounce en cada cambio de UI que no le importa al servidor (p. ej. tema, que se maneja aparte).
   }, [
     preferences.locale,
     preferences.timezone,
@@ -209,6 +213,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     () => ({
       preferences,
       effectiveTimezone,
+      ready,
       t,
       locale: preferences.locale,
       setTheme: (theme) => updatePreferences({ theme }),
@@ -225,7 +230,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       updatePreferences,
       hydrateFromAuthUser,
     }),
-    [preferences, effectiveTimezone, t, updatePreferences, hydrateFromAuthUser]
+    [preferences, effectiveTimezone, ready, t, updatePreferences, hydrateFromAuthUser]
   );
 
   return (

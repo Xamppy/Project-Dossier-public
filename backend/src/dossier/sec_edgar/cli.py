@@ -171,7 +171,7 @@ def maybe_analyze_with_gemini(
         print(f"\n(Análisis guardado en: {out_path.resolve()})")
     except ImportError as e:
         print(f"\n(Gemini: instala dependencias: pip install -r requirements.txt) {e}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI: no debe morir por un fallo del analisis Gemini opcional
         print(f"\n(Gemini: error al analizar — {e})")
 
 
@@ -219,7 +219,7 @@ def main() -> None:
         print(f"Filtrando solo formularios: {target_form}\n")
 
         filtered = []
-        for form, date, accession in zip(forms, dates, accessions):
+        for form, date, accession in zip(forms, dates, accessions, strict=False):
             if form == target_form:
                 filtered.append({
                     "form": form,
@@ -284,5 +284,5 @@ def main() -> None:
                 "usa el enlace «Índice» arriba.)"
             )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - CLI: reporta el error y sigue
         print("Error:", e)

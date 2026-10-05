@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import TopBar from "@/components/dashboard/TopBar";
 import FormField from "@/components/FormField";
+import CountrySelect from "@/components/dashboard/CountrySelect";
 import PrimaryButton from "@/components/PrimaryButton";
 import {
   DossierApiError,
@@ -17,6 +18,7 @@ import {
 import { resolveDossierOutputLanguage } from "@/lib/resolve-output-language";
 import { translateApiErrorMessage } from "@/lib/translate-backend-message";
 import { parsePersonResearchSearchParams } from "@/lib/person-research-from-dossier";
+import { countryCodeFromName, countryNameForApi } from "@/lib/countries";
 import MutatorGuard from "@/components/auth/MutatorGuard";
 import { useDossierJobs } from "@/providers/DossierJobsProvider";
 import { usePreferences, useTranslation } from "@/providers/PreferencesProvider";
@@ -39,7 +41,7 @@ function estimatePersonResearchEta(source: ResearchSourceUi, maxProfiles: number
 }
 
 function PersonResearchPageContent() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const searchParams = useSearchParams();
   const { preferences } = usePreferences();
   const { enqueuePersonResearchJob, cancelJob, getActivePersonJob, jobs } = useDossierJobs();
@@ -88,13 +90,14 @@ function PersonResearchPageContent() {
     const prefill = parsePersonResearchSearchParams(searchParams);
     if (!prefill.replaceDossierId && !prefill.fullName) return;
     prefillAppliedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- precarga el formulario desde datos externos (query/prefill), una sola vez por ref.
     if (prefill.replaceDossierId) setReplaceDossierId(prefill.replaceDossierId);
     if (prefill.fullName) setFullName(prefill.fullName);
     if (prefill.jobArea) setJobArea(prefill.jobArea);
     if (prefill.company) setCompany(prefill.company);
     if (prefill.email) setEmail(prefill.email);
     if (prefill.linkedinUrl) setLinkedinUrl(prefill.linkedinUrl);
-    if (prefill.country) setCountry(prefill.country);
+    if (prefill.country) setCountry(countryCodeFromName(prefill.country));
     if (prefill.city) setCity(prefill.city);
     if (prefill.extraKeywords) setExtraKeywords(prefill.extraKeywords);
     if (prefill.researchSource) setResearchSource(prefill.researchSource);
@@ -105,6 +108,7 @@ function PersonResearchPageContent() {
     const job = jobs.find((j) => j.id === activeJobId);
     if (!job) return;
     if (job.status === "completed") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con el job rastreado por DossierJobsProvider (sistema externo).
       setActiveJobId(null);
     }
     if (job.status === "failed" || job.status === "cancelled") {
@@ -126,7 +130,7 @@ function PersonResearchPageContent() {
     const co = company.trim();
     const em = email.trim();
     const li = linkedinUrl.trim();
-    const cu = country.trim();
+    const cu = countryNameForApi(country);
     const ci = city.trim();
     const ex = extraKeywords.trim();
     if (ja) payload.job_area = ja;
@@ -315,12 +319,13 @@ function PersonResearchPageContent() {
                 onChange={(e) => setLinkedinUrl(e.target.value)}
                 disabled={isGenerating}
               />
-              <FormField
+              <CountrySelect
                 label={t("person_research.country")}
                 name="country"
                 placeholder={t("person_research.country_ph")}
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                locale={locale}
+                onChange={setCountry}
                 disabled={isGenerating}
               />
               <FormField

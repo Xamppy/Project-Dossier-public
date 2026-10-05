@@ -8,13 +8,13 @@ es S2.1 y S2.3.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class JurisdiccionRegistro(str, Enum):
+class JurisdiccionRegistro(StrEnum):
     """Alcance firme de S1.9-S2.7 (ADR 0003)."""
 
     uk = "uk"

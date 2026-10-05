@@ -27,6 +27,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const preview = readDossierUserPreview();
     if (preview?.workspace_kind === "personal" || preview?.workspace_kind === "work") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata desde localStorage (sistema externo) al montar.
       setWorkspaceKind(preview.workspace_kind);
     }
     if (!getStoredAccessToken()) {
@@ -49,6 +50,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (workspaceKind === "personal" && section === "company") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- corrige la seccion activa si dejo de ser valida para el tipo de workspace/rol.
       setSection("general");
     }
     if (!isAdmin && section === "members") {

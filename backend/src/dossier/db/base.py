@@ -13,4 +13,3 @@ from sqlalchemy.orm import DeclarativeBase
 class Base(DeclarativeBase):
     """Raíz de modelos; no añade columnas por sí sola."""
 
-    pass

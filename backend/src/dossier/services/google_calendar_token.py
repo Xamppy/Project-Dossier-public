@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import requests
@@ -67,7 +67,7 @@ def get_google_calendar_access_token_for_user(db: Session, user_id: UUID) -> str
             detail="No hay token de acceso Google guardado. Vuelve a conectar Google Calendar.",
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     exp = row.access_token_expires_at
     if exp is not None and now + _TOKEN_SKEW < exp:
         return access
@@ -95,7 +95,7 @@ def get_google_calendar_access_token_for_user(db: Session, user_id: UUID) -> str
     )
     try:
         body = r.json()
-    except Exception:
+    except Exception:  # noqa: BLE001 - parseo tolerante de respuesta OAuth
         body = {}
 
     if r.status_code != 200 or "access_token" not in body:

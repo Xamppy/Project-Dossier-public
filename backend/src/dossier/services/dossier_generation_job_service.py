@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -29,13 +29,14 @@ from dossier.services.calendar_event_dossiers import (
     parse_calendar_event_for_dossiers,
     persist_calendar_dossiers,
 )
-from dossier.services.output_language import effective_output_language, normalize_output_language
-from dossier.services.person_dossier_dedup import person_research_fingerprint
-from dossier.services.person_research_pipeline import run_person_research_and_persist
+from dossier.services.dossier_progress_events import event_name_for_status, publish_if_changed
 from dossier.services.google_calendar_api import obtener_reunion_google_por_id
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import merge_reunion_payload, obtener_reunion_por_id
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
+from dossier.services.output_language import effective_output_language
+from dossier.services.person_dossier_dedup import person_research_fingerprint
+from dossier.services.person_research_pipeline import run_person_research_and_persist
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ _CANCELLABLE_STATUSES = ("queued", "running")
 def _iso(dt: datetime | None) -> str | None:
     if dt is None:
         return None
-    return dt.astimezone(timezone.utc).isoformat()
+    return dt.astimezone(UTC).isoformat()
 
 
 def serialize_job(job: DossierGenerationJob) -> dict[str, Any]:
@@ -182,9 +183,10 @@ def cancel_dossier_generation_job(
         )
     job.status = "cancelled"
     job.error_message = "Cancelado por el usuario"
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     db.commit()
     db.refresh(job)
+    _publicar_estado(job)
     return job
 
 
@@ -319,16 +321,45 @@ def _calendar_job_failure_message(item: dict[str, Any]) -> str | None:
     return "No se guardó ningún dossier válido para esta reunión."
 
 
+def _publicar_estado(job: DossierGenerationJob) -> None:
+    """Avisa al canal SSE de un cambio de estado ya confirmado en la base (S4.8)."""
+    publish_if_changed(job.id, event_name_for_status(job.status), serialize_job(job))
+
+
+def _publish_corporate_agent_failures(job_id: UUID, agents_failed: list[str]) -> None:
+    """Emite un evento SSE `agent_progress` (S0.11) por cada agente que falló (S4.9).
+
+    Reutiliza el bus en memoria de S4.8 (``dossier_progress_events``): si nadie está
+    conectado a `/dossier-generation-jobs/{id}/stream`, el evento simplemente queda en
+    el buffer acotado del job hasta que caduque o alguien se conecte.
+    """
+    if not agents_failed:
+        return
+    timestamp = datetime.now(UTC).isoformat()
+    for agent_name in agents_failed:
+        publish_if_changed(
+            job_id,
+            "agent_progress",
+            {
+                "dossier_id": str(job_id),
+                "agent_name": agent_name,
+                "status": "failed",
+                "timestamp": timestamp,
+            },
+        )
+
+
 def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
     job = db.get(DossierGenerationJob, job_id)
     if job is None or job.status not in ("queued", "running"):
         return
 
     if job.status == "queued":
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         job.status = "running"
         job.started_at = now
         db.commit()
+        _publicar_estado(job)
 
     try:
         if job.job_type == "person_manual":
@@ -342,8 +373,9 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
         if job is not None and job.status != "cancelled":
             job.status = "failed"
             job.error_message = str(exc)[:2000]
-            job.completed_at = datetime.now(timezone.utc)
+            job.completed_at = datetime.now(UTC)
             db.commit()
+            _publicar_estado(job)
 
 
 def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
@@ -377,10 +409,11 @@ def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
     else:
         job.status = "completed"
         job.error_message = None
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     saved = result.get("saved_dossier") or {}
     job.credits_consumed = int(saved.get("credits_consumed") or 0)
     db.commit()
+    _publicar_estado(job)
     logger.info("Job persona %s %s (subject=%s)", job.id, job.status, body.full_name[:80])
 
 
@@ -398,7 +431,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         snapshot=job.reunion_snapshot,
     )
     org_ctx = format_dossier_context_for_prompt(org)
-    depth: DossierDepth = job.depth_level if job.depth_level in DEPTH_CREDITS else "standard"  # type: ignore[assignment]
+    depth: DossierDepth = job.depth_level if job.depth_level in DEPTH_CREDITS else "standard"
     charge = credit_charging_enabled()
     assert_depth_allowed(org, depth)
 
@@ -417,6 +450,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         output_language=out_lang,
     )
     elapsed_ms = int((time.perf_counter() - t0) * 1000)
+    _publish_corporate_agent_failures(job.id, item.get("corporate_agents_failed") or [])
 
     db.refresh(job)
     if job.status == "cancelled":
@@ -447,8 +481,9 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
     else:
         job.status = "completed"
         job.error_message = None
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     db.commit()
+    _publicar_estado(job)
     logger.info(
         "Job dossier %s %s (event=%s, credits=%s)",
         job.id,
@@ -469,11 +504,12 @@ def claim_next_queued_job(db: Session) -> DossierGenerationJob | None:
     ).first()
     if job is None:
         return None
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     job.status = "running"
     job.started_at = now
     db.commit()
     db.refresh(job)
+    _publicar_estado(job)
     return job
 
 

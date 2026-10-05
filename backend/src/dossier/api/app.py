@@ -5,10 +5,8 @@ import logging
 import os
 import re
 import time
-import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
-from typing import Annotated, Optional
+from typing import Annotated, Any
 from urllib.parse import urlencode
 from uuid import UUID
 
@@ -31,49 +29,15 @@ from dossier.api.auth_routes import (
     get_current_user_and_org,
     get_db_if_configured,
     require_mutator,
+)
+from dossier.api.auth_routes import (
     router as auth_router,
 )
-from dossier.api.integrations_routes import router as integrations_router
+from dossier.api.dashboard_routes import router as dashboard_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
-from dossier.api.dossier_stream_routes import router as dossier_stream_router
 from dossier.api.dossier_routes import router as dossiers_router
-from dossier.cache.corporate_dossier_redis import (
-    dossier_corporate_redis_health,
-    warmup_corporate_dossier_redis,
-)
-from dossier.config import PROJECT_ROOT, load_env
-from dossier.db import is_database_configured
-from dossier.db.connection import get_engine
-from dossier.db.models import Organization, User
-from dossier.security.jwt_tokens import (
-    create_google_oauth_state,
-    create_microsoft_oauth_state,
-    decode_google_oauth_state,
-    decode_microsoft_oauth_state,
-)
-from dossier.schemas.calendar_dossier import CalendarGenerarDossiersBody
-from dossier.org_dossier_context import format_dossier_context_for_prompt
-from dossier.services import listar_reuniones, obtener_reunion_por_id
-from dossier.services.calendar_event_dossiers import (
-    generate_dossiers_from_calendar_event,
-    persist_calendar_dossiers,
-)
-from dossier.services.output_language import effective_output_language
-from dossier.services.calendar_integrations import (
-    upsert_google_calendar_tokens,
-    upsert_microsoft_calendar_tokens,
-)
-from dossier.services.google_calendar_api import (
-    diagnostico_google_calendar,
-    listar_reuniones_google,
-    obtener_reunion_google_por_id,
-)
-from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
-from dossier.services.graph_calendar import (
-    coerce_reunion_payload,
-    diagnostico_microsoft_calendar,
-)
-from dossier.services.calendar_automation_worker import start_calendar_automation_thread
+from dossier.api.dossier_stream_routes import router as dossier_stream_router
+from dossier.api.integrations_routes import router as integrations_router
 from dossier.billing.credit_policy import (
     assert_sufficient_credits,
     credit_charging_enabled,
@@ -84,14 +48,60 @@ from dossier.billing.entitlements import (
     default_depth_for_plan,
     normalize_depth_for_plan,
 )
+from dossier.cache.corporate_dossier_redis import (
+    dossier_corporate_redis_health,
+    warmup_corporate_dossier_redis,
+)
+from dossier.config import PROJECT_ROOT, load_env
+from dossier.db import is_database_configured
+from dossier.db.connection import get_engine
+from dossier.db.models import Organization, User
+from dossier.org_dossier_context import format_dossier_context_for_prompt
+from dossier.schemas.calendar_dossier import CalendarGenerarDossiersBody
+from dossier.schemas.dossier_generation import DossierDepth
+from dossier.security.jwt_tokens import (
+    create_google_oauth_state,
+    create_microsoft_oauth_state,
+    decode_google_oauth_state,
+    decode_microsoft_oauth_state,
+)
+from dossier.services import listar_reuniones, obtener_reunion_por_id
+from dossier.services.calendar_automation_worker import start_calendar_automation_thread
+from dossier.services.calendar_event_dossiers import (
+    generate_dossiers_from_calendar_event,
+    persist_calendar_dossiers,
+)
+from dossier.services.calendar_integrations import (
+    upsert_google_calendar_tokens,
+    upsert_microsoft_calendar_tokens,
+)
+from dossier.services.calendar_range import (
+    ErrorProveedorCalendario,
+    RangoConsulta,
+    RangoInvalido,
+    ResultadoRango,
+    parse_rango,
+)
 from dossier.services.dossier_generation_job_service import (
     enqueue_calendar_dossier_job,
     estimate_reunion_credits,
 )
 from dossier.services.dossier_generation_worker import start_dossier_generation_worker
 from dossier.services.dossier_retention_worker import start_dossier_retention_worker
+from dossier.services.google_calendar_api import (
+    diagnostico_google_calendar,
+    listar_reuniones_google,
+    listar_reuniones_google_rango,
+    obtener_reunion_google_por_id,
+)
+from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
+from dossier.services.graph_calendar import (
+    coerce_reunion_payload,
+    diagnostico_microsoft_calendar,
+    listar_reuniones_rango,
+)
 from dossier.services.microsoft_calendar_token import get_microsoft_graph_access_token_for_user
-from dossier.schemas.dossier_generation import DEPTH_CREDITS, DossierDepth
+from dossier.services.output_language import effective_output_language
 
 load_env()
 
@@ -109,7 +119,7 @@ def _parse_cors_origins(raw: str) -> list[str]:
         .strip("\ufeff")
         .translate(
             str.maketrans(
-                {
+                {  # type: ignore[arg-type]  # dict[str,str] literal, maketrans acepta str|int|None en el valor
                     "\u201c": '"',
                     "\u201d": '"',
                     "\u2018": "'",
@@ -142,13 +152,13 @@ async def lifespan(app: FastAPI):
         engine = get_engine()
         from dossier.db.schema_patches import apply_schema_patches
 
-        apply_schema_patches(engine)
         auto = os.getenv("DATABASE_AUTO_CREATE_TABLES", "1").strip().lower()
         if auto not in ("0", "false", "no"):
             from dossier.db import models  # noqa: F401 — registra modelos en metadata
             from dossier.db.base import Base
 
             Base.metadata.create_all(bind=engine)
+        apply_schema_patches(engine)
     warmup_corporate_dossier_redis()
     logger.info(
         "CORS: allow_origin_regex=%s, origins=%s",
@@ -220,6 +230,7 @@ app.include_router(admin_router)
 app.include_router(dossiers_router)
 app.include_router(dossier_jobs_router)
 app.include_router(dossier_stream_router)
+app.include_router(dashboard_router)
 app.include_router(integrations_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
@@ -257,19 +268,21 @@ def _status(name: str) -> str:
     return "Configurada ✅" if os.getenv(name) else "Faltante ❌"
 
 
-_CALENDAR_GET_RESPONSES: dict[int, dict[str, str]] = {
+_CALENDAR_GET_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {"description": "Token de calendario inválido o error al consultar el proveedor."},
     404: {"description": "Evento o reunión no encontrada."},
     422: {"description": "Parámetros de consulta inválidos."},
+    502: {"description": "Modo intervalo: el proveedor no entregó ninguna página válida."},
+    504: {"description": "Modo intervalo: el proveedor no respondió a tiempo."},
 }
 
-_OAUTH_CALLBACK_RESPONSES: dict[int, dict[str, str]] = {
+_OAUTH_CALLBACK_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {"description": "Error OAuth o falta el código de autorización."},
     422: {"description": "Parámetros de consulta inválidos."},
 }
 
 
-def _sanitize_legacy_access_token(access_token: Optional[str]) -> Optional[str]:
+def _sanitize_legacy_access_token(access_token: str | None) -> str | None:
     """OAuth tokens son ASCII; rechaza basura de fuzzing antes de llamar a Graph/Google."""
     if access_token is None:
         return None
@@ -290,8 +303,8 @@ def _sanitize_legacy_access_token(access_token: Optional[str]) -> Optional[str]:
 
 def _graph_token_for_calendar_route(
     db: Session,
-    authorization: Optional[str],
-    access_token: Optional[str],
+    authorization: str | None,
+    access_token: str | None,
 ) -> str:
     """
     Token de Microsoft Graph para rutas de calendario.
@@ -346,7 +359,7 @@ def _google_exchange_authorization_code(code: str) -> dict:
     )
     try:
         body = r.json()
-    except Exception:
+    except Exception:  # noqa: BLE001 - parseo tolerante de respuesta OAuth
         body = {}
     if r.status_code != 200 or "access_token" not in body:
         msg = body.get("error_description") or body.get("error") or r.text[:400]
@@ -368,14 +381,14 @@ def _google_userinfo(access_token: str) -> dict:
     try:
         out = r.json()
         return out if isinstance(out, dict) else {}
-    except Exception:
+    except Exception:  # noqa: BLE001 - parseo tolerante de respuesta OAuth
         return {}
 
 
 def _google_token_for_calendar_route(
     db: Session,
-    authorization: Optional[str],
-    access_token: Optional[str],
+    authorization: str | None,
+    access_token: str | None,
 ) -> str:
     if access_token:
         leg = _sanitize_legacy_access_token(access_token)
@@ -388,8 +401,8 @@ def _google_token_for_calendar_route(
 
 def _filter_reuniones_for_app_user(
     db: Session,
-    authorization: Optional[str],
-    access_token: Optional[str],
+    authorization: str | None,
+    access_token: str | None,
     provider: str,
     reuniones: list,
     *,
@@ -591,9 +604,9 @@ def login_microsoft():
 @app.get("/callback", tags=["Autenticación Microsoft"], responses=_OAUTH_CALLBACK_RESPONSES)
 @app.get("/callback-microsoft", tags=["Autenticación Microsoft"], responses=_OAUTH_CALLBACK_RESPONSES)
 def callback(
-    code: Optional[str] = None,
-    error: Optional[str] = None,
-    state: Optional[str] = None,
+    code: str | None = None,
+    error: str | None = None,
+    state: str | None = None,
     db: Session = Depends(get_db_if_configured),
 ):
     """
@@ -687,10 +700,10 @@ def callback(
 
 @app.get("/callback-google", tags=["Integraciones"], responses=_OAUTH_CALLBACK_RESPONSES)
 def callback_google(
-    code: Optional[str] = None,
-    error: Optional[str] = None,
-    error_description: Optional[str] = None,
-    state: Optional[str] = None,
+    code: str | None = None,
+    error: str | None = None,
+    error_description: str | None = None,
+    state: str | None = None,
     db: Session = Depends(get_db_if_configured),
 ):
     """
@@ -772,24 +785,96 @@ def callback_google(
     raise HTTPException(status_code=500, detail="FRONTEND_URL no configurada.")
 
 
+_PARAMS_LEGADOS_DE_LISTADO = ("top", "dias", "incluir_pasadas")
+
+_MENSAJES_CARGA_INCOMPLETA = {
+    "limite_paginas": "Hay más reuniones de las que se pueden cargar de una vez. Reduce el intervalo.",
+    "tiempo_agotado": "El proveedor tardó demasiado y la carga quedó incompleta. Reintenta o reduce el intervalo.",
+    "error_proveedor": "El proveedor falló a mitad de la carga y la lista está incompleta. Reintenta.",
+}
+
+
+def _rango_de_la_consulta(
+    request: Request,
+    desde: str | None,
+    hasta: str | None,
+) -> RangoConsulta | None:
+    """``None`` = modo legado. Con intervalo no se aceptan ``top``/``dias``/``incluir_pasadas``."""
+    if desde is None and hasta is None:
+        return None
+    mezclados = [p for p in _PARAMS_LEGADOS_DE_LISTADO if p in request.query_params]
+    if mezclados:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "No combines «desde»/«hasta» con "
+                + ", ".join(f"«{p}»" for p in mezclados)
+                + ": el intervalo ya define qué reuniones se devuelven."
+            ),
+        )
+    try:
+        return parse_rango(desde, hasta)
+    except RangoInvalido as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+def _respuesta_por_intervalo(rango: RangoConsulta, resultado: ResultadoRango, reuniones: list) -> dict:
+    """Misma forma que el modo legado más ``rango``, ``completo`` y ``motivo_incompleto``."""
+    if not resultado.completo:
+        mensaje = _MENSAJES_CARGA_INCOMPLETA.get(resultado.motivo_incompleto or "")
+    elif not reuniones:
+        mensaje = "No hay reuniones en el intervalo consultado."
+    else:
+        mensaje = None
+    return {
+        "total": len(reuniones),
+        "reuniones": reuniones,
+        "mensaje": mensaje,
+        "rango": rango.como_dict(),
+        "completo": resultado.completo,
+        "motivo_incompleto": resultado.motivo_incompleto,
+    }
+
+
 @app.get("/calendario/eventos", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 @app.get("/calendario/eventos-outlook", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_listar_eventos_calendario(
+    request: Request,
+    desde: str | None = Query(
+        None,
+        description="RFC3339 con offset, inicio inclusivo. Va junto con «hasta»; máximo 62 días.",
+    ),
+    hasta: str | None = Query(None, description="RFC3339 con offset, final exclusivo."),
     top: int = Query(10, ge=1, le=50, description="Cantidad máxima de reuniones"),
     dias: int = Query(90, ge=1, le=365, description="Días hacia adelante a buscar"),
     incluir_pasadas: bool = Query(
         False,
         description="Si true, muestra también eventos pasados (útil para probar)",
     ),
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: token de Graph (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
-    """Lista reuniones de Outlook: JWT de la app + tokens en BD, o ``?access_token=`` para pruebas."""
+    """Lista reuniones de Outlook: JWT de la app + tokens en BD, o ``?access_token=`` para pruebas.
+
+    Con ``desde``/``hasta`` devuelve las reuniones que se solapan con ese intervalo
+    (recorriendo la paginación de Graph); sin ellos conserva el comportamiento legado.
+    """
+    rango = _rango_de_la_consulta(request, desde, hasta)
     token = _graph_token_for_calendar_route(db, authorization, access_token)
+    if rango is not None:
+        try:
+            resultado = listar_reuniones_rango(token, rango)
+        except ErrorProveedorCalendario as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detalle) from e
+        reuniones = _filter_reuniones_for_app_user(
+            db, authorization, access_token, "microsoft", resultado.reuniones,
+            skip_internal_meetings=False,
+        )
+        return _respuesta_por_intervalo(rango, resultado, reuniones)
     try:
         reuniones = listar_reuniones(
             token,
@@ -822,21 +907,42 @@ def api_listar_eventos_calendario(
 
 @app.get("/calendario/eventos-google", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_listar_eventos_google_calendar(
+    request: Request,
+    desde: str | None = Query(
+        None,
+        description="RFC3339 con offset, inicio inclusivo. Va junto con «hasta»; máximo 62 días.",
+    ),
+    hasta: str | None = Query(None, description="RFC3339 con offset, final exclusivo."),
     top: int = Query(10, ge=1, le=50, description="Cantidad máxima de eventos"),
     dias: int = Query(90, ge=1, le=365, description="Días hacia adelante a buscar"),
     incluir_pasadas: bool = Query(
         False,
         description="Si true, incluye ventana de eventos pasados recientes (útil para probar)",
     ),
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: access token de Google Calendar (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
-    """Lista eventos del calendario principal de Google: JWT de la app + tokens en BD."""
+    """Lista eventos del calendario principal de Google: JWT de la app + tokens en BD.
+
+    Con ``desde``/``hasta`` devuelve los eventos que se solapan con ese intervalo
+    (recorriendo ``nextPageToken``); sin ellos conserva el comportamiento legado.
+    """
+    rango = _rango_de_la_consulta(request, desde, hasta)
     token = _google_token_for_calendar_route(db, authorization, access_token)
+    if rango is not None:
+        try:
+            resultado = listar_reuniones_google_rango(token, rango)
+        except ErrorProveedorCalendario as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detalle) from e
+        reuniones = _filter_reuniones_for_app_user(
+            db, authorization, access_token, "google", resultado.reuniones,
+            skip_internal_meetings=False,
+        )
+        return _respuesta_por_intervalo(rango, resultado, reuniones)
     try:
         reuniones = listar_reuniones_google(
             token,
@@ -870,11 +976,11 @@ def api_listar_eventos_google_calendar(
 @app.get("/calendario/diagnostico-microsoft", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 @app.get("/calendario/diagnostico-outlook", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_diagnostico_microsoft_calendario(
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: token de Graph (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     """
@@ -892,11 +998,11 @@ def api_diagnostico_microsoft_calendario(
 
 @app.get("/calendario/diagnostico-google", tags=["Calendario"], responses=_CALENDAR_GET_RESPONSES)
 def api_diagnostico_google_calendario(
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: access token de Google (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     """
@@ -1030,8 +1136,8 @@ def _enqueue_calendar_dossier_jobs(
 def _resolve_outlook_reuniones(
     token: str,
     *,
-    event_id: Optional[str],
-    reunion_payload: Optional[dict],
+    event_id: str | None,
+    reunion_payload: dict | None,
     top: int,
 ) -> list:
     from dossier.services.graph_calendar import merge_reunion_payload
@@ -1058,8 +1164,8 @@ def _resolve_outlook_reuniones(
 def _resolve_google_reuniones(
     token: str,
     *,
-    event_id: Optional[str],
-    reunion_payload: Optional[dict],
+    event_id: str | None,
+    reunion_payload: dict | None,
     top: int,
 ) -> list:
     from dossier.services.graph_calendar import merge_reunion_payload
@@ -1087,14 +1193,14 @@ def _resolve_google_reuniones(
 def api_generar_dossiers_desde_calendario(
     ctx: Annotated[OrgAuthContext, Depends(require_mutator)],
     top: int = Query(5, ge=1, le=10, description="Máximo de reuniones a procesar con IA"),
-    event_id: Optional[str] = Query(
+    event_id: str | None = Query(
         None, description="Si se indica, solo genera dossier para esa reunión"
     ),
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: token de Graph (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     """Empresa (asunto) → Companies House / SEC; persona (descripción) → PDL + DeepSeek."""
@@ -1139,11 +1245,11 @@ def api_generar_dossiers_desde_calendario(
 def api_generar_dossiers_desde_calendario_post(
     ctx: Annotated[OrgAuthContext, Depends(require_mutator)],
     body: CalendarGenerarDossiersBody,
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: token de Graph (legado).",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     """
@@ -1208,14 +1314,14 @@ def api_generar_dossiers_desde_calendario_post(
 def api_generar_dossiers_desde_google_calendar(
     ctx: Annotated[OrgAuthContext, Depends(require_mutator)],
     top: int = Query(5, ge=1, le=10, description="Máximo de eventos a procesar con IA"),
-    event_id: Optional[str] = Query(
+    event_id: str | None = Query(
         None, description="Si se indica, solo genera dossier para ese evento de Google Calendar"
     ),
-    access_token: Optional[str] = Query(
+    access_token: str | None = Query(
         None,
         description="Opcional: access token de Google (legado). Si se omite, Authorization es el JWT de la app.",
     ),
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     """Empresa (asunto) → Companies House / SEC; persona (descripción) → PDL + DeepSeek."""
@@ -1259,8 +1365,8 @@ def api_generar_dossiers_desde_google_calendar(
 def api_generar_dossiers_desde_google_calendar_post(
     ctx: Annotated[OrgAuthContext, Depends(require_mutator)],
     body: CalendarGenerarDossiersBody,
-    access_token: Optional[str] = Query(None),
-    authorization: Optional[str] = Header(None),
+    access_token: str | None = Query(None),
+    authorization: str | None = Header(None),
     db: Session = Depends(get_db_if_configured),
 ):
     user, org = ctx.user, ctx.org
@@ -1345,7 +1451,7 @@ def db_health():
             "mensaje": "Conexión exitosa con la base de datos PostgreSQL.",
             "connection": connection,
         }
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - healthcheck: reporta cualquier fallo de conexion como 503
         return JSONResponse(
             status_code=503,
             content={"postgresql": "error", "detail": str(e)},
@@ -1358,21 +1464,23 @@ def calendar_automation_status(
     db: Session = Depends(get_db_if_configured),
 ):
     """Estado de la automatización del usuario (integraciones, anticipación, cola)."""
+    from dossier.db.models import CalendarEvent, CalendarIntegration
     from dossier.services.calendar_automation import (
         automation_enabled,
         default_advance_minutes,
         poll_interval_seconds,
         user_advance_minutes,
     )
-    from dossier.db.models import CalendarEvent, CalendarIntegration
 
     user, _org = user_org
-    integrations = db.execute(
-        select(CalendarIntegration).where(
-            CalendarIntegration.user_id == user.id,
-            CalendarIntegration.revoked_at.is_(None),
-        )
-    ).scalars().all()
+    integrations = list(
+        db.execute(
+            select(CalendarIntegration).where(
+                CalendarIntegration.user_id == user.id,
+                CalendarIntegration.revoked_at.is_(None),
+            )
+        ).scalars().all()
+    )
 
     effective = user_advance_minutes(integrations)
     stored_advances = [

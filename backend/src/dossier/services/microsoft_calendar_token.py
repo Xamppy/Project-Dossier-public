@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import msal
@@ -73,7 +73,7 @@ def get_microsoft_graph_access_token_for_user(db: Session, user_id: UUID) -> str
             detail="No hay token de acceso Microsoft guardado. Vuelve a conectar Outlook.",
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     exp = row.access_token_expires_at
     if exp is not None and now + _TOKEN_SKEW < exp:
         return access

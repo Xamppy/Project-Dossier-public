@@ -1,0 +1,76 @@
+# Project Dossier en Dokploy (app de tipo Docker Compose).
+# Dokploy pone el HTTPS y el ruteo con su Traefik: aquí no hay Caddy ni puertos publicados.
+# Dominios a crear en la pestaña Domains de Dokploy (guía: docs/dev/despliegue-vps.md §7):
+#   DOMAIN  path "/"     -> servicio frontend, puerto 3000
+#   DOMAIN  path "/api"  -> servicio backend,  puerto 8000, con Strip Path activado
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      args:
+        NEXT_PUBLIC_API_URL: https://${DOMAIN:?Define DOMAIN en Environment de Dokploy}/api
+    restart: unless-stopped
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    networks:
+      - default
+      - dokploy-network
+
+  backend:
+    build: ../backend
+    restart: unless-stopped
+    env_file: .env
+    # Estas tienen prioridad sobre .env: la conexión la fija el compose.
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      DATABASE_URL: ""
+      DATABASE_AUTO_CREATE_TABLES: "0"
+      REDIS_URL: redis://redis:6379/0
+      FRONTEND_URL: https://${DOMAIN}
+      CORS_ORIGINS: https://${DOMAIN}
+    expose:
+      - "8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - default
+      - dokploy-network
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Define POSTGRES_DB en Environment de Dokploy}
+      POSTGRES_USER: ${POSTGRES_USER:?Define POSTGRES_USER en Environment de Dokploy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en Environment de Dokploy}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  dokploy-network:
+    external: true
+
+volumes:
+  pg_data:

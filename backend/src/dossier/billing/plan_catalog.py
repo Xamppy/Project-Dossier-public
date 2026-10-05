@@ -15,7 +15,7 @@ PlanId = Literal["free", "pro", "enterprise"]
 ALLOWED_PLANS: frozenset[str] = frozenset({"free", "pro", "enterprise"})
 
 
-def normalize_plan(raw: str) -> PlanId:
+def normalize_plan(raw: str | None) -> PlanId:
     p = (raw or "").strip().lower()
     if p in ALLOWED_PLANS:
         return p  # type: ignore[return-value]

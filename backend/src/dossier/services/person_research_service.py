@@ -2,17 +2,25 @@
 from __future__ import annotations
 
 import os
+from datetime import UTC, datetime
 from typing import Any
 
-from dossier.llm.common import normalize_person_report_text
 from dossier.llm.client import deepseek_api_key
+from dossier.llm.common import normalize_person_report_text
+from dossier.llm.structured_synthesis import StructuredSynthesisError
+from dossier.schemas.dossier_executive_payload import SourceCitation, SourceType
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
+from dossier.services.executive_markdown import render_executive_markdown
 from dossier.services.lusha_profile_facts import (
     merge_lusha_profiles_facts,
 )
 from dossier.services.pdl_research import fetch_pdl_profiles
-from dossier.services.person_gemini_analysis import analyze_person_profile_bundle
+from dossier.services.person_gemini_analysis import (
+    analyze_person_profile_bundle,
+    analyze_person_profile_bundle_structured,
+)
 from dossier.services.person_gemini_web_research import analyze_person_with_google_search
+from dossier.services.source_provenance import normalizar_procedencia_fuentes
 
 
 def _s(v: str | None) -> str | None:
@@ -61,6 +69,50 @@ def _person_web_always() -> bool:
     return v in ("1", "true", "yes", "on")
 
 
+def _synthesize_person_report(
+    *,
+    filters: dict[str, Any],
+    profiles: list[dict[str, Any]],
+    meeting_context: dict[str, Any] | None,
+    verified_facts: dict[str, Any],
+    output_language: str,
+    warnings: list[str],
+    fuentes_consultadas: list[SourceCitation],
+) -> tuple[str | None, dict[str, Any] | None]:
+    """Una llamada JSON (S4.2) con el Markdown derivado por código.
+
+    Si el JSON no valida tras el reintento asistido, se genera el informe Markdown
+    de siempre. Los errores del proveedor no se reintentan aquí: fallarían igual.
+    """
+    try:
+        payload = analyze_person_profile_bundle_structured(
+            filters=filters,
+            profiles=profiles,
+            posts_by_url={},
+            meeting_context=meeting_context,
+            lusha_verified_facts=verified_facts,
+            enrichment_provider="pdl",
+            output_language=output_language,
+        )
+    except StructuredSynthesisError as e:
+        warnings.append(f"La síntesis JSON no validó ({e}); se generó el informe en Markdown.")
+        markdown = analyze_person_profile_bundle(
+            filters=filters,
+            profiles=profiles,
+            posts_by_url={},
+            meeting_context=meeting_context,
+            lusha_verified_facts=verified_facts,
+            enrichment_provider="pdl",
+            output_language=output_language,
+        )
+        return markdown, None
+    # OE5/S4.7: el LLM no decide la procedencia. Se reescribe con las fuentes
+    # realmente consultadas antes de renderizar el Markdown y de persistir el
+    # payload, para que ambos coincidan.
+    payload = normalizar_procedencia_fuentes(payload, fuentes_consultadas)
+    return render_executive_markdown(payload, output_language), payload.model_dump(mode="json")
+
+
 def run_person_research(
     req: PersonResearchRequest,
     *,
@@ -78,10 +130,23 @@ def run_person_research(
     attempts: list[dict[str, Any]] = []
     profiles: list[dict[str, Any]] = []
     profile_urls: list[str] = []
+    source_citations: list[SourceCitation] = []
 
     if not gemini_only:
         profiles, attempts, pdl_warnings = fetch_pdl_profiles(req)
         warnings.extend(pdl_warnings)
+        if profiles:
+            # OE5/S4.7: la hora de consulta la fija el código al momento de
+            # llamar a PDL, no el LLM de síntesis (que la inventaría).
+            source_citations.append(
+                SourceCitation(
+                    source_type=SourceType.pdl,
+                    source_name="People Data Labs",
+                    retrieved_at=datetime.now(UTC),
+                    url=None,
+                    record_id=None,
+                )
+            )
         for p in profiles:
             profile_urls.extend(u for u in (p.get("linkedin_urls") or []) if u not in profile_urls)
 
@@ -89,6 +154,7 @@ def run_person_research(
         warnings.append("La opción «incluir posts» no está disponible; se ignoró.")
 
     llm_md: str | None = None
+    executive_payload: dict[str, Any] | None = None
     gemini_google_search_used = False
     has_llm_key = bool(deepseek_api_key())
     filters_gem = _filters_for_person_gemini(req, organization_context_block)
@@ -130,14 +196,14 @@ def run_person_research(
         )
     elif profiles:
         try:
-            llm_md = analyze_person_profile_bundle(
+            llm_md, executive_payload = _synthesize_person_report(
                 filters=filters_gem,
                 profiles=profiles,
-                posts_by_url={},
                 meeting_context=meeting_context,
-                lusha_verified_facts=verified_facts,
-                enrichment_provider="pdl",
+                verified_facts=verified_facts,
                 output_language=out_lang,
+                warnings=warnings,
+                fuentes_consultadas=source_citations,
             )
             if md_web and not llm_md:
                 llm_md = md_web
@@ -197,6 +263,7 @@ def run_person_research(
         "profiles": profiles,
         "posts_by_url": {},
         "llm_analysis_markdown": llm_md,
+        "executive_payload": executive_payload,
         "gemini_google_search_used": gemini_google_search_used,
         "warnings": warnings,
     }

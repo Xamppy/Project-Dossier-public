@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /** Servidor autocontenido en .next/standalone para la imagen Docker (deploy/). */
+  output: "standalone",
   // Cada aplicación se construye desde su propia carpeta del repositorio.
   turbopack: { root: __dirname },
   outputFileTracingRoot: __dirname,

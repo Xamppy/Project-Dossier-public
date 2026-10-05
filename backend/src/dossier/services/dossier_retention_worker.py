@@ -4,8 +4,8 @@ from __future__ import annotations
 import logging
 import os
 import threading
-from datetime import datetime, timedelta, timezone
-from typing import Callable
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 
@@ -39,7 +39,7 @@ def purge_expired_dossiers(db) -> int:
 
     Solo aplica a usuarios con retención numérica (7, 14, 30 o 90). ``NULL`` = sin purga.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     users = db.execute(
         select(User).where(User.dossier_retention_days.is_not(None))
     ).scalars().all()

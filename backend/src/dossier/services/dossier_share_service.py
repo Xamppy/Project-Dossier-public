@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from dossier.db.models import Dossier, DossierShare, OrgMembership, Organization, User
+from dossier.db.models import Dossier, DossierShare, Organization, OrgMembership, User
 from dossier.org_workspace import read_workspace_kind
 from dossier.security.rbac import normalize_org_role
 
