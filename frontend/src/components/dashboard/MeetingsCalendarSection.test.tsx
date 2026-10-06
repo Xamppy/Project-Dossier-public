@@ -10,6 +10,7 @@ import MeetingsCalendarSection from "./MeetingsCalendarSection";
 
 const fetchRango = vi.fn();
 const enqueueCalendarJob = vi.fn();
+const proveedorConfigurado = vi.fn();
 const state: { jobs: Record<string, unknown>[]; ready: boolean } = { jobs: [], ready: true };
 
 vi.mock("@/lib/dossier-api", async (importOriginal) => {
@@ -20,6 +21,7 @@ vi.mock("@/lib/dossier-api", async (importOriginal) => {
     fetchGoogleIntegrationStartAsJson: vi.fn().mockResolvedValue({ authorize_url: "https://example.test/g" }),
     fetchMicrosoftIntegrationStartAsJson: vi.fn().mockResolvedValue({ authorize_url: "https://example.test/m" }),
     fetchCalendarDiagnostico: vi.fn().mockResolvedValue({ ok: true }),
+    fetchCalendarProviderConfigured: (p: string) => proveedorConfigurado(p),
   };
 });
 
@@ -82,6 +84,8 @@ beforeEach(() => {
   vi.setSystemTime(new Date("2026-10-07T15:00:00Z"));
   fetchRango.mockReset();
   enqueueCalendarJob.mockReset();
+  proveedorConfigurado.mockReset();
+  proveedorConfigurado.mockResolvedValue(true);
   state.jobs = [];
   state.ready = true;
   clearCalendarEventsCache();
@@ -185,6 +189,18 @@ describe("MeetingsCalendarSection", () => {
     await waitFor(() => expect(screen.getByText(/Google no está conectado/)).toBeInTheDocument());
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getAllByRole("button", { name: /conectar/i }).length).toBeGreaterThan(0);
+  });
+
+  it("si Outlook no está configurado en el servidor, no ofrece conectarlo ni filtrarlo", async () => {
+    proveedorConfigurado.mockImplementation(async (p: string) => p === "google");
+    porProveedor(() => respuesta([reunionG]), rechazo(404, "No hay Outlook conectado"));
+    render(<MeetingsCalendarSection />);
+    await screen.findByText("Reunión Acme");
+
+    await waitFor(() => expect(screen.queryByRole("button", { name: /Conectar Outlook/ })).toBeNull());
+    const filtros = screen.getByRole("group", { name: "Filtrar por calendario" });
+    expect(within(filtros).queryByRole("button", { name: /Outlook/ })).toBeNull();
+    expect(within(filtros).getByRole("button", { name: /Google/ })).toBeInTheDocument();
   });
 
   it("un período vacío lo dice y mantiene el calendario navegable (CA5)", async () => {
