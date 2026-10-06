@@ -16,7 +16,7 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 - Hay que añadir `https://<dominio>/api/auth/google/callback` a las URIs autorizadas del **mismo** cliente OAuth del calendario. No hace falta variable nueva: la URI se calcula con `request.url_for`, que respeta `--root-path /api` y `X-Forwarded-Proto`. `GOOGLE_LOGIN_REDIRECT_URI` la fija si no coincide.
 - `oauth_accounts` existía en la migración base pero no en el ORM; se añadió el modelo con solo las columnas que se usan (no hay cambio de esquema).
 - El `state` es un JWT con `purpose=google_login` + `nonce` duplicado en una cookie HttpOnly. El `state` del calendario (`purpose=google_oauth`) está firmado con la misma clave y se rechaza a propósito (hay prueba).
-- Riesgo aceptado y escrito en la spec: la vinculación por correo confía en `email_verified` de Google, y el registro con contraseña no verifica correos.
+- Vincular una cuenta con correo no verificado anula su contraseña (pre-hijacking: alguien pudo registrar un correo ajeno). Los JWT ya emitidos siguen vigentes hasta caducar; escrito en la spec.
 - Los usuarios creados por Google no tienen contraseña: `/auth/login` los rechaza con el mensaje genérico; pueden usar «Olvidé mi contraseña».
 
 **Siguiente paso concreto.** Segundo integrante: revisar el PR y marcar `done`.

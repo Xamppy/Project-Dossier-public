@@ -19,6 +19,9 @@ Sin `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` el inicio responde con la redirecc
 
 1. Existe `oauth_accounts(provider='google', provider_user_id=sub)` → ese usuario.
 2. Si no, existe un usuario con el mismo correo → se vincula (`oauth_accounts`) y queda `email_verified=true`.
+   Si ese correo **no estaba verificado**, se anula su contraseña (`password_hash = NULL`): nadie había
+   probado ser dueño del correo, y quien creó la cuenta con un correo ajeno no debe conservar acceso.
+   El dueño real entra con Google o recupera la contraseña.
 3. Si no, se crea: usuario sin contraseña, `email_verified=true`, espacio personal con los créditos de
    alta (`ORG_SIGNUP_CREDITS`) y membresía `admin`.
 
@@ -32,6 +35,7 @@ Se rechaza si Google no marca `email_verified`. La organización de la sesión s
 
 ## Riesgo conocido
 
-La vinculación por correo (paso 2) confía en que Google verificó el correo. Una cuenta creada con
-contraseña por otra persona con ese correo seguiría teniendo su contraseña: hoy el registro no verifica
-correos. Se cierra cuando exista verificación de correo en el alta.
+La vinculación por correo (paso 2) confía en que Google verificó el correo. Anular la contraseña cierra
+el acceso persistente de quien hubiera creado la cuenta con un correo ajeno, pero sus JWT ya emitidos
+siguen vigentes hasta caducar (no hay revocación de sesiones) y lo que dejó en el espacio sigue ahí.
+Se cierra del todo cuando el alta verifique correos.
