@@ -525,6 +525,8 @@ def integrations_microsoft_oauth_config():
     """
     return {
         "redirect_uri": REDIRECT_URI,
+        # Lo mismo que exige /integrations/microsoft/start; el dashboard oculta la conexión si es False.
+        "configured": bool(CLIENT_ID and CLIENT_SECRET and REDIRECT_URI),
         "client_id_configured": bool(CLIENT_ID),
         "client_id_suffix": (CLIENT_ID or "")[-20:] if CLIENT_ID else None,
         "tenant_id": TENANT_ID,
@@ -578,6 +580,8 @@ def integrations_google_oauth_config():
     """
     return {
         "redirect_uri": GOOGLE_REDIRECT_URI,
+        # Lo mismo que exige /integrations/google/start; el dashboard oculta la conexión si es False.
+        "configured": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI),
         "client_id_configured": bool(GOOGLE_CLIENT_ID),
         "client_id_suffix": (GOOGLE_CLIENT_ID or "")[-20:] if GOOGLE_CLIENT_ID else None,
         "hint": (

@@ -6,6 +6,7 @@ import MeetingsCalendar, { type RangeChange } from "@/components/dashboard/Meeti
 import PrimaryButton from "@/components/PrimaryButton";
 import UiAlert from "@/components/ui/UiAlert";
 import { useCalendarEvents, type ProviderState } from "@/hooks/useCalendarEvents";
+import { useCalendarProvidersConfigured } from "@/hooks/useCalendarProvidersConfigured";
 import { calendarUiLabels, fillLabel } from "@/i18n/calendar-ui-labels";
 import { initialViewForWidth, type CalendarEventModel } from "@/lib/calendar-events";
 import {
@@ -58,6 +59,9 @@ export default function MeetingsCalendarSection() {
   });
   const states: Record<CalendarProvider, ProviderState> = { google: calendar.google, microsoft: calendar.microsoft };
   const name = (p: CalendarProvider) => (p === "google" ? ui.providerGoogle : ui.providerOutlook);
+  const configurados = useCalendarProvidersConfigured();
+  // Sin OAuth en el servidor no se ofrece conectar ni filtrar; si ya hay conexión, se muestra igual.
+  const offered = PROVIDERS.filter((p) => configurados[p] !== false || states[p].status !== "disconnected");
 
   const visibleEvents = useMemo(
     () => (filter === "all" ? calendar.events : calendar.events.filter((e) => e.provider === filter)),
@@ -125,14 +129,13 @@ export default function MeetingsCalendarSection() {
 
   const filters: { id: ProviderFilter; label: string }[] = [
     { id: "all", label: ui.filterAll },
-    { id: "google", label: ui.providerGoogle },
-    { id: "microsoft", label: ui.providerOutlook },
+    ...offered.map((p) => ({ id: p, label: name(p) })),
   ];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        {PROVIDERS.map((p) =>
+        {offered.map((p) =>
           states[p].status === "disconnected" ? (
             <span key={p} className="inline-flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PROVIDER_COLOR[p] }} aria-hidden />
