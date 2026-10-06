@@ -43,6 +43,34 @@ def test_correo_nuevo_crea_cuenta_con_espacio_personal(sesion, monkeypatch):
     assert (vinculo.provider, vinculo.provider_user_id, vinculo.user_id) == ("google", "g-1", user.id)
 
 
+def _cuenta_con_contrasena(sesion, *, verificada: bool) -> User:
+    org = Organization(name="Acme", slug="acme", settings={"workspace_kind": "work"})
+    user = User(email="ana@example.test", password_hash=hash_password("secreta-123"), email_verified=verificada)
+    sesion.add_all([org, user])
+    sesion.flush()
+    sesion.add(OrgMembership(organization_id=org.id, user_id=user.id, role="user", is_primary_org=True))
+    sesion.commit()
+    return user
+
+
+def test_vincular_cuenta_no_verificada_anula_su_contrasena(sesion):
+    """Quien la creó con un correo ajeno no probó ser su dueño: no conserva el acceso por contraseña."""
+    user = _cuenta_con_contrasena(sesion, verificada=False)
+
+    vuelto, _, _ = gl.resolver_usuario_google(sesion, _perfil())
+
+    assert vuelto.id == user.id
+    assert vuelto.password_hash is None
+
+
+def test_vincular_cuenta_verificada_conserva_su_contrasena(sesion):
+    _cuenta_con_contrasena(sesion, verificada=True)
+
+    vuelto, _, _ = gl.resolver_usuario_google(sesion, _perfil())
+
+    assert vuelto.password_hash
+
+
 def test_correo_existente_se_vincula_sin_crear_otra_cuenta(sesion):
     org = Organization(name="Acme", slug="acme", settings={"workspace_kind": "work"})
     user = User(email="ana@example.test", password_hash=hash_password("secreta-123"))
@@ -57,7 +85,6 @@ def test_correo_existente_se_vincula_sin_crear_otra_cuenta(sesion):
     assert org_sesion.id == org.id
     assert membresia.role == "user"
     assert vuelto.email_verified is True
-    assert vuelto.password_hash, "la contraseña existente se conserva"
     assert sesion.scalar(select(func.count()).select_from(User)) == 1
     assert sesion.scalar(select(func.count()).select_from(Organization)) == 1
 

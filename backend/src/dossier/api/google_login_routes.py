@@ -119,6 +119,9 @@ def resolver_usuario_google(
             db.add_all([org, user])
             db.flush()
             db.add(OrgMembership(organization_id=org.id, user_id=user.id, role="admin", is_primary_org=True))
+        elif not user.email_verified:
+            # Nadie probó ser dueño de ese correo: quien creó la cuenta no conserva la contraseña.
+            user.password_hash = None
         db.add(OAuthAccount(user_id=user.id, provider="google", provider_user_id=sub))
 
     user.email_verified = True
