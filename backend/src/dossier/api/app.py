@@ -37,6 +37,7 @@ from dossier.api.dashboard_routes import router as dashboard_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
 from dossier.api.dossier_routes import router as dossiers_router
 from dossier.api.dossier_stream_routes import router as dossier_stream_router
+from dossier.api.google_login_routes import router as google_login_router
 from dossier.api.integrations_routes import router as integrations_router
 from dossier.billing.credit_policy import (
     assert_sufficient_credits,
@@ -232,6 +233,7 @@ app.include_router(dossier_jobs_router)
 app.include_router(dossier_stream_router)
 app.include_router(dashboard_router)
 app.include_router(integrations_router)
+app.include_router(google_login_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")

@@ -2016,7 +2016,7 @@
       "id": "UX-AUTH-01",
       "sprint": 1,
       "title": "Iniciar sesión con Google (alta automática) y botón de Microsoft deshabilitado",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "auth",
       "activity": "A3",
@@ -2027,7 +2027,9 @@
       "blocks": [],
       "trello": null,
       "branch": "FO",
-      "evidence": [],
+      "evidence": [
+        "backend/src/dossier/api/google_login_routes.py + modelo OAuthAccount; tests unit/security/integration de Google login (18) y Vitest de /login y /auth/google (6); suite 588 passed con Postgres; qa.py --full en verde"
+      ],
       "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
       "owner_session": "FO (agente)"
     }
