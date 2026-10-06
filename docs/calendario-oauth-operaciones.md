@@ -53,6 +53,11 @@ Si ya aplicaste la tabla desde `Migracion.md` **sin** estas columnas, usa el blo
    - **`FRONTEND_URL`**: igual que Microsoft; tras OAuth la API redirige a  
      `{FRONTEND_URL}?calendar_google=ok` o `...?calendar_google=error&reason=...`
 
+**Inicio de sesión (otro flujo, mismo cliente OAuth):** `GET /auth/google/login` → Google →
+`GET /auth/google/callback`. Pide solo `openid email profile`, no guarda tokens de Google y necesita
+su propia URI autorizada: `https://<api>/auth/google/callback` (detrás del proxy, `.../api/auth/google/callback`).
+Ver `specs/proposals/UX-AUTH-01-login-google.md`.
+
 **Flujo integrado (implementado):** `GET /integrations/google/start` con JWT (`Authorization: Bearer`). **`as_json=true`** devuelve `{"authorize_url": "..."}` para el SPA. El `state` lleva `user_id` y `org_id`; en **`GET /callback-google`** se intercambia el `code` por tokens y se persisten en **`calendar_integrations`** (`provider='google'`).
 
 **Lectura y dossiers con JWT:** `GET /calendario/eventos-google` y `GET /calendario/generar-dossiers-google` (mismo patrón que Outlook; query opcional `?access_token=` solo para pruebas).
