@@ -2011,6 +2011,25 @@
       ],
       "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD).",
       "owner_session": "FO (agente)"
+    },
+    {
+      "id": "UX-AUTH-01",
+      "sprint": 1,
+      "title": "Iniciar sesión con Google (alta automática) y botón de Microsoft deshabilitado",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "auth",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-05",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "FO",
+      "evidence": [],
+      "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
+      "owner_session": "FO (agente)"
     }
   ]
 }
