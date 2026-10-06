@@ -75,6 +75,16 @@ Registra estas URIs de redirección con tu dominio real:
 
 Y pon las mismas en `GOOGLE_REDIRECT_URI` y `MICROSOFT_REDIRECT_URI` de `deploy/.env`.
 
+### Iniciar sesión con Google
+
+Usa el mismo cliente OAuth de Google. Añade en sus URIs de redirección autorizadas:
+
+- `https://DOMAIN/api/auth/google/callback`
+
+No hace falta variable nueva: la API calcula esa URL sola (respeta `/api` y el HTTPS del proxy).
+Si alguna vez no coincide, fíjala con `GOOGLE_LOGIN_REDIRECT_URI`. Contrato y reglas de alta en
+`specs/proposals/UX-AUTH-01-login-google.md`. El botón de Microsoft del login está deshabilitado.
+
 ---
 
 ## 3. Variables de entorno

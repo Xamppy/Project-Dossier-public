@@ -12,6 +12,9 @@ const messages = {
   "auth.login.no_account": "¿No tienes cuenta?",
   "auth.login.create_account": "Crear cuenta",
   "auth.login.or_continue": "o continúa con",
+  "auth.login.microsoft_soon": "Próximamente",
+  "auth.error.google": "No se pudo iniciar sesión con Google. Inténtalo de nuevo o usa tu correo y contraseña.",
+  "auth.google.signing_in": "Iniciando sesión con Google…",
   "auth.forgot.title": "Recuperar contraseña",
   "auth.forgot.subtitle":
     "Indica el correo de tu cuenta. Si existe, te enviaremos instrucciones para restablecerla (cuando el envío de correos esté activo).",

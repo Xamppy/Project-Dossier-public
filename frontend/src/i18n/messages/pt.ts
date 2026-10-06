@@ -9,6 +9,9 @@ const messages = {
   "auth.login.no_account": "Não tem conta?",
   "auth.login.create_account": "Criar conta",
   "auth.login.or_continue": "ou continuar com",
+  "auth.login.microsoft_soon": "Em breve",
+  "auth.error.google": "Não foi possível iniciar sessão com o Google. Tente novamente ou use o seu e-mail e palavra-passe.",
+  "auth.google.signing_in": "A iniciar sessão com o Google…",
   "auth.forgot.title": "Recuperar palavra-passe",
   "auth.forgot.subtitle":
     "Indique o email da sua conta. Se existir, enviaremos instruções para a repor (quando o envio de emails estiver ativo).",

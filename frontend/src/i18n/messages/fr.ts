@@ -9,6 +9,9 @@ const messages = {
   "auth.login.no_account": "Pas de compte ?",
   "auth.login.create_account": "Créer un compte",
   "auth.login.or_continue": "ou continuer avec",
+  "auth.login.microsoft_soon": "Bientôt disponible",
+  "auth.error.google": "La connexion avec Google a échoué. Réessayez ou utilisez votre e-mail et votre mot de passe.",
+  "auth.google.signing_in": "Connexion avec Google…",
   "auth.forgot.title": "Réinitialiser le mot de passe",
   "auth.forgot.subtitle":
     "Indiquez l'e-mail de votre compte. S'il existe, nous enverrons des instructions (lorsque l'envoi d'e-mails sera activé).",
