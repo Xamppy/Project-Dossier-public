@@ -6,6 +6,25 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-05 · UX-AUTH-01 · FO (agente, inicio de sesión con Google)
+
+**Hecho.** El botón Google del login inicia sesión de verdad: `GET /auth/google/login` → Google → `GET /auth/google/callback` → `/auth/google#token=…` en el front, que guarda el JWT y entra al dashboard. Correo sin cuenta: se crea usuario sin contraseña con espacio personal y créditos de alta. Correo con cuenta: se vincula en `oauth_accounts`. El botón Microsoft queda deshabilitado («Próximamente»). Contrato en `specs/proposals/UX-AUTH-01-login-google.md`. Pruebas: 5 unitarias, 9 de seguridad, 4 de integración con Postgres; 6 de Vitest. Suite: 588 passed con Postgres; `qa.py --full` en verde (ruff solo avisa por errores previos en `tests/`).
+
+**Sin terminar.** Probarlo en producción con una cuenta Google de prueba tras añadir la URI de redirección.
+
+**Lo que hay que saber.**
+- Hay que añadir `https://<dominio>/api/auth/google/callback` a las URIs autorizadas del **mismo** cliente OAuth del calendario. No hace falta variable nueva: la URI se calcula con `request.url_for`, que respeta `--root-path /api` y `X-Forwarded-Proto`. `GOOGLE_LOGIN_REDIRECT_URI` la fija si no coincide.
+- `oauth_accounts` existía en la migración base pero no en el ORM; se añadió el modelo con solo las columnas que se usan (no hay cambio de esquema).
+- El `state` es un JWT con `purpose=google_login` + `nonce` duplicado en una cookie HttpOnly. El `state` del calendario (`purpose=google_oauth`) está firmado con la misma clave y se rechaza a propósito (hay prueba).
+- Riesgo aceptado y escrito en la spec: la vinculación por correo confía en `email_verified` de Google, y el registro con contraseña no verifica correos.
+- Los usuarios creados por Google no tienen contraseña: `/auth/login` los rechaza con el mensaje genérico; pueden usar «Olvidé mi contraseña».
+
+**Siguiente paso concreto.** Segundo integrante: revisar el PR y marcar `done`.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
 ### 2026-10-04 · DOC-2026-10-04-01 · DG (Codex, resumen documental)
 
 **Hecho.** Preparado y corregido `docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx`: cuatro páginas en lenguaje simple, exclusivamente sobre Felipe Orellana y Felipe Docmac. El usuario precisó que no quería sus propios cambios; la selección final es los últimos 20 commits de los compañeros en el historial local (8 de Xamppy/FO y 12 de Felipe Docmac/FD, del 23 al 26 de septiembre de 2026). Se eliminaron del informe los avances de Darío, incluidos calendario visual, indicadores y selector de países. Incluye aportes por compañero, beneficios, límites, evidencia histórica y documentación enlazada.
