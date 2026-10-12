@@ -41,6 +41,7 @@ from dossier.graphs.corporate_dossier_graph import (
     run_corporate_dossier_langgraph,
 )
 from dossier.org_dossier_context import format_dossier_context_for_prompt
+from dossier.schemas.dossier_executive_payload import resumen_contenido_dossier
 from dossier.schemas.dossier_generation import (
     DEPTH_CREDITS,
     CreateCorporateDossierRequest,
@@ -171,6 +172,11 @@ def person_professional_research(
         raise HTTPException(status_code=503, detail=str(e)) from e
 
 
+def empresa_objetivo_de_solicitud(body: CreateCorporateDossierRequest) -> str:
+    """Nombre limpio para los agentes de Europa y prensa: el registro elegido o la consulta."""
+    return body.resolution.title if body.resolution is not None else body.subject_query
+
+
 @router.post("/dossiers/corporate/generate")
 def generate_corporate_dossier(
     body: CreateCorporateDossierRequest,
@@ -248,6 +254,7 @@ def generate_corporate_dossier(
                 descripcion=descripcion_neutral,
                 jurisdiction_scope=explicit_scope,
                 output_language=out_lang,
+                empresa_objetivo=empresa_objetivo_de_solicitud(body),
             )
             if not md.lstrip().startswith("# Error"):
                 set_corporate_cached_markdown(key_hash, md)
@@ -361,6 +368,7 @@ def get_dossier_by_id(
         organization_id=org.id,
         role=role,
     )
+    contenido = resumen_contenido_dossier(d.dossier_data)
     return {
         "id": str(d.id),
         "organization_id": str(d.organization_id),
@@ -373,6 +381,9 @@ def get_dossier_by_id(
         "created_at": d.created_at.isoformat() if d.created_at else None,
         "updated_at": d.updated_at.isoformat() if d.updated_at else None,
         "dossier_data": d.dossier_data,
+        # S4.4: aditivo, no sustituye `dossier_data` (el frontend sigue leyendo `.body`).
+        "content_kind": contenido["content_kind"],
+        "executive_payload": contenido["executive_payload"],
         "alerts": d.alerts,
         "agents_activated": list(d.agents_activated or []),
         "agents_failed": list(d.agents_failed or []),

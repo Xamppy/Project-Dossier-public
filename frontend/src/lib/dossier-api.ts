@@ -1643,6 +1643,28 @@ export async function fetchGoogleIntegrationStartAsJson(): Promise<CalendarOAuth
 
 export type CalendarProvider = "google" | "microsoft";
 
+/**
+ * Si el OAuth del proveedor está configurado en el servidor (``GET /integrations/{p}/oauth-config``,
+ * público). Sin él, ``/start`` responde 500: el dashboard oculta esa conexión.
+ */
+export async function fetchCalendarProviderConfigured(provider: CalendarProvider): Promise<boolean> {
+  const url = `${getApiBaseUrl()}/integrations/${provider}/oauth-config`;
+  let res: Response;
+  try {
+    res = await fetch(url, { headers: { Accept: "application/json" } });
+  } catch {
+    throwFetchFailed();
+  }
+  const parsed: unknown = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = parseFastApiDetail(parsed) || res.statusText || "HTTP_ERROR";
+    throw new DossierApiError(res.status, msg, parsed);
+  }
+  const datos = (parsed ?? {}) as { configured?: unknown; client_id_configured?: unknown };
+  // Una API anterior no trae `configured`: se cae a `client_id_configured`.
+  return typeof datos.configured === "boolean" ? datos.configured : datos.client_id_configured === true;
+}
+
 /** Desconecta un calendario conectado (Google u Outlook) del usuario actual. */
 export async function disconnectCalendarIntegration(
   provider: CalendarProvider,

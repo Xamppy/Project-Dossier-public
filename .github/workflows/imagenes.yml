@@ -1,0 +1,88 @@
+name: Imágenes Docker
+
+# Construye las imágenes del backend y del frontend fuera del VPS y las publica en
+# GitHub Container Registry. Solo corre cuando la CI terminó en verde sobre main, y al
+# final pide a Dokploy que redespliegue. Guía: docs/dev/despliegue-vps.md §7.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: imagenes-docker
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    name: Publicar ${{ matrix.servicio }}
+    # Este job tiene packages:write y los secretos de Dokploy. Solo corre sobre código ya
+    # fusionado en main de este repositorio: la CI también corre en pull requests (incluidos
+    # forks), y el filtro `branches` de workflow_run compara solo el nombre de la rama.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        servicio: [backend, frontend]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Nombre de la imagen
+        id: imagen
+        # ghcr.io exige minúsculas: Xamppy/Project-Dossier -> xamppy/project-dossier
+        run: echo "nombre=ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.servicio }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ${{ matrix.servicio }}
+          push: true
+          # Relativa a propósito: frontend y API comparten dominio, así la imagen no
+          # depende del dominio del servidor. El backend ignora este argumento.
+          build-args: NEXT_PUBLIC_API_URL=/api
+          tags: |
+            ${{ steps.imagen.outputs.nombre }}:latest
+            ${{ steps.imagen.outputs.nombre }}:${{ github.event.workflow_run.head_sha || github.sha }}
+          cache-from: type=gha,scope=${{ matrix.servicio }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.servicio }}
+
+  desplegar:
+    name: Redesplegar en Dokploy
+    needs: publicar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Avisar a Dokploy
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+        run: |
+          if [ -z "$DOKPLOY_URL" ] || [ -z "$DOKPLOY_API_KEY" ] || [ -z "$DOKPLOY_COMPOSE_ID" ]; then
+            echo "::notice::Faltan los secretos DOKPLOY_URL, DOKPLOY_API_KEY o DOKPLOY_COMPOSE_ID: imágenes publicadas, sin redespliegue automático."
+            exit 0
+          fi
+          curl --fail-with-body -sS -X POST "${DOKPLOY_URL%/}/api/compose.deploy" \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"composeId\": \"${DOKPLOY_COMPOSE_ID}\"}"

@@ -54,9 +54,10 @@ $env:DATABASE_URL="postgresql://usuario:clave@localhost:5432/sistemadossier"
 alembic upgrade head
 ```
 
-Esto crea el esquema completo (19 tablas, 2 vistas, 9 triggers/funciones — incluye el
+Esto crea el esquema completo (22 tablas: las 19 de `Migracion.md` más `dossier_shares`,
+`org_invites` y la cola `dossier_generation_jobs`; 2 vistas y 9 triggers/funciones, incluido el
 trigger real de cobro de créditos) **y** aplica los parches de `db/schema_patches.py`
-(`dossier_shares`, `org_invites`, columnas agregadas después). Es idempotente: si ya
+(columnas agregadas después). Es idempotente: si ya
 aplicaste el SQL a mano antes (opción 3.2), correr esto después no debería fallar ni
 duplicar nada — pero si tu base ya tiene el esquema completo, no hace falta correrlo.
 
@@ -77,13 +78,13 @@ psql -U postgres -d sistemadossier -f docs/sql/schema_project_dossier.sql
 > [`backend/src/dossier/db/Migracion.md`](../../backend/src/dossier/db/Migracion.md), que
 > es la fuente real. Si sigues este camino, **corre también** los parches de
 > `backend/src/dossier/db/schema_patches.py` justo después — si no, te van a faltar
-> `dossier_shares`, `org_invites` y varias columnas nuevas. La app los aplica sola en
+> `dossier_shares`, `org_invites`, la cola `dossier_generation_jobs` y varias columnas nuevas. La app los aplica sola en
 > cada arranque (`api/app.py:lifespan()`), así que basta con levantar la API una vez.
 
 ### 3.3 Verificar que quedó bien
 
 ```sql
--- Deberían ser 19 tablas + 2 vistas (mas alembic_version si usaste 3.1)
+-- Deberían ser 22 tablas + 2 vistas (23 tablas si usaste 3.1, por alembic_version)
 SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';
 SELECT count(*) FROM information_schema.views WHERE table_schema='public';
 ```

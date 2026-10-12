@@ -10,8 +10,8 @@ mypy==2.3.1
 # Auditoría de dependencias (tareas S0.3 y S1.4)
 pip-audit==2.10.1
 
-# Migraciones de base de datos (tarea S1.1)
-alembic==1.20.0
+# Migraciones de base de datos (tarea S1.1): alembic está en requirements.txt,
+# porque el contenedor de producción lo usa al arrancar.
 
 # Nota sobre pruebas de estrés
 # ---------------------------

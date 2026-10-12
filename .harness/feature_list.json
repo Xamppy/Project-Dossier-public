@@ -645,7 +645,7 @@
       "id": "S2.1",
       "sprint": 2,
       "title": "Implementar el agente de registros corporativos europeos",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -660,15 +660,19 @@
         "S2.2"
       ],
       "trello": "https://trello.com/c/3pFm547I",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/eu_registry/agent.py + mapper.py (run_eu_registry_agent); 28 pruebas (commit f87e48b)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S1.8 y S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S2.2",
       "sprint": 2,
       "title": "Integrar el agente europeo al orquestador con seleccion de jurisdiccion",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -684,15 +688,19 @@
         "S3.5"
       ],
       "trello": "https://trello.com/c/iGmajDD0",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/graphs/corporate_dossier_graph.py: nodos agent_corporate_eu y agent_news, alcance eu_only, agents_skipped, empresa_objetivo (commits 3c328bf, 26cbb5c)",
+        "tests/test_corporate_graph_eu_news.py + integration + stress (32 pruebas); verificado contra registro FR, GDELT y NewsAPI reales"
+      ],
+      "notes": "Tomada con S2.1 aun en review (decision del usuario, MVP). Incluye tambien el nodo de noticias (S3.2) en el grafo, segun CA1 de S0.12.",
+      "owner_session": "FO (agente)"
     },
     {
       "id": "S2.3",
       "sprint": 2,
       "title": "Adaptar los agentes de Reino Unido y Estados Unidos al modelo comun",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -706,9 +714,13 @@
         "S2.6"
       ],
       "trello": "https://trello.com/c/KgI9fxpR",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "companies_house/converters.py + sec_edgar/converters.py (aditivos); 21 pruebas (commit 432d706)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S2.4",
@@ -825,7 +837,7 @@
       "id": "S3.2",
       "sprint": 3,
       "title": "Implementar el agente de noticias con deduplicacion",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -840,9 +852,13 @@
         "S3.4"
       ],
       "trello": "https://trello.com/c/uV9I99pn",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/news/agent.py (collect_press_mentions); tests unit/integration/stress del agente (commits a69aea5, d267acb)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S3.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S3.3",
@@ -1082,7 +1098,7 @@
       "id": "S4.4",
       "sprint": 4,
       "title": "Implementar compatibilidad de lectura para dossiers historicos en Markdown",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1094,9 +1110,13 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/97X0uVbA",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "schemas/dossier_executive_payload.py (parse_dossier_payload, resumen_contenido_dossier) + GET /dossiers/{id} content_kind/executive_payload; tests/test_dossier_lectura_historica.py, integration y security (commit a48942b)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S4.3 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.5",
@@ -1132,7 +1152,7 @@
       "id": "S4.6",
       "sprint": 4,
       "title": "Incorporar alertas de riesgo e ideas para iniciar la conversacion",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1144,15 +1164,19 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/SrxaqZo5",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/services/dossier_entities_writer.py + person_research_pipeline.py; tests unit/integration/security de dossier_entities_writer (commit 2f03b34)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.7",
       "sprint": 4,
       "title": "Exigir origen y fecha de consulta en toda afirmacion estructurada",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1164,9 +1188,13 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/vScCHriV",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "backend/src/dossier/services/source_provenance.py (normalizar_procedencia_fuentes) + person_research_service.py; tests/test_source_provenance.py + tests/integration/test_person_research_source_provenance.py (commit 70c0496)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.8",
@@ -1189,7 +1217,8 @@
       "trello": "https://trello.com/c/ht5AxvMH",
       "branch": "FO",
       "evidence": [
-        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py"
+        "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py",
+        "Seguimiento 2026-10-05 (commit 4ee1198): canal por eventos del worker con respaldo por base cada 10s; lector sin retener conexion del pool; CA1 para clientes nuevos y tras reinicio"
       ],
       "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. agent_progress por-agente (CA2) no implementado: requiere instrumentar LangGraph.",
       "owner_session": "FO (agente)"
@@ -1198,7 +1227,7 @@
       "id": "S4.9",
       "sprint": 4,
       "title": "Emitir resultados parciales cuando un agente falla",
-      "status": "pending",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1213,9 +1242,13 @@
         "S7.2"
       ],
       "trello": "https://trello.com/c/r3JiXDVU",
-      "branch": null,
-      "evidence": [],
-      "notes": ""
+      "branch": "FO",
+      "evidence": [
+        "graphs/corporate_dossier_graph.py (agents_failed/agents_succeeded con reducer, run_corporate_dossier_langgraph_detailed) + calendar_event_dossiers.py + dossier_generation_job_service.py; 28 pruebas (commit 41b762e)",
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+      ],
+      "notes": "Tomada con S4.8 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.10",
@@ -1957,50 +1990,48 @@
       "owner_session": "DG (Codex, resumen documental)"
     },
     {
-      "id": "DOC-2026-10-05-01",
+      "id": "BUG-2026-10-05-01",
       "sprint": 1,
-      "title": "Completar Guía Fase 2 APT con avances de todo el equipo al 05-10-2026",
-      "status": "in_progress",
-      "owner": "DG",
-      "area": "docs",
-      "activity": "A10",
-      "objective": "OE9",
+      "title": "Agregar dossier_generation_jobs al esquema versionado (Alembic y parches de arranque)",
+      "status": "review",
+      "owner": "FO",
+      "area": "db",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-05",
+      "depends_on": [
+        "S1.1"
+      ],
+      "blocks": [],
+      "trello": null,
+      "branch": "FO",
+      "evidence": [
+        "backend/alembic/versions/c4d8a2f6b1e9_bug_2026_10_05_01_cola_de_trabajos.py + schema_patches.JOB_QUEUE_PATCHES; tests unit/integration/security de la cola; suite 558 passed con Postgres (commit 1a9682d)"
+      ],
+      "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD).",
+      "owner_session": "FO (agente)"
+    },
+    {
+      "id": "UX-AUTH-01",
+      "sprint": 1,
+      "title": "Iniciar sesión con Google (alta automática) y botón de Microsoft deshabilitado",
+      "status": "review",
+      "owner": "FO",
+      "area": "auth",
+      "activity": "A3",
+      "objective": "OE2",
       "gap": null,
       "due": "2026-10-05",
       "depends_on": [],
       "blocks": [],
       "trello": null,
-      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "branch": "FO",
       "evidence": [
-        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05.docx",
-        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_resumida.docx",
-        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_plan_Fase_1.docx",
-        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-06_corregida.docx"
+        "backend/src/dossier/api/google_login_routes.py + modelo OAuthAccount; tests unit/security/integration de Google login (18) y Vitest de /login y /auth/google (6); suite 588 passed con Postgres; qa.py --full en verde"
       ],
-      "notes": "Guía Word completada por solicitud del usuario con los aportes de Felipe Orellana, Felipe Docmac y Darío García, conservando la plantilla adjunta. Siete páginas: resumen, objetivos, metodología, evidencia con 12 enlaces a versiones concretas, seguimiento de A1–A11 y ajustes/pendientes. Corte del historial local e7a910d; período 07-09 al 05-10-2026. Se diferencia implementación, validación histórica y revisión pendiente; no se certifican despliegues, reuniones ni aprobaciones no verificadas. Incluye la enmienda vigente de créditos para preparar. Render y revisión visual de todas las páginas; paquete original preservado salvo cuerpo y relaciones nuevas de evidencia. Solo documentación: sin cambios de código ni nuevas ejecuciones de las suites del producto. Documento listo para revisión; sin PR ni tarjeta, no se marca done por su autor. Ajuste posterior solicitado por el usuario: sección Evidencias de avance reducida de 487 a 125 palabras, con cinco aportes breves y una nota de pendientes. Versión _resumida de seis páginas; solo cambió esa celda, mantiene cinco enlaces en los títulos. Auditoría de paquete y revisión visual de las seis páginas. Se conserva la versión anterior. Nueva corrección solicitada: punto 2 sustituido por el plan original de Fase 1 aportado por el usuario; las once actividades y sus siete campos se conservan íntegros, con responsables y semanas originales. Seguimiento actual en tabla aparte y punto 3 alineado con ese plan, sin fechas de cierre del plan detallado. Punto 1 y evidencia breve intactos. Versión _plan_Fase_1 de siete páginas: plan horizontal y resto vertical, todas renderizadas y revisadas. Auditoría verificó coincidencia exacta de los 77 campos, preservación del paquete salvo document.xml y páginas 1–2 visualmente idénticas. Sin nuevas pruebas del producto ni cambios de estados de implementación; pendiente revisión documental del equipo. Corrección del 06-10-2026: se adopta como base el Word editado por el usuario, conservando sus recortes y la eliminación de la tabla adicional de seguimiento. Punto 3 redactado en tercera persona, con referencias al equipo y responsables; se retiran las confirmaciones y acuerdos pendientes con el docente de A1 y del punto 3. Se elimina un salto redundante que dejaba una página vacía. Versión _2026-10-06_corregida de seis páginas, renderizada y revisada completa. Solo cambia document.xml; fuente del usuario intacta. Mantiene el corte histórico del 05-10, sin nueva revisión de commits ni pruebas del producto.",
-      "owner_session": "DG (Codex, guía de avance APT)"
-    },
-    {
-      "id": "DOC-2026-10-07-01",
-      "sprint": 1,
-      "title": "Completar Diario de Reflexión Fase 2 desde plantilla de Google Drive",
-      "status": "in_progress",
-      "owner": "DG",
-      "area": "docs",
-      "activity": "A10",
-      "objective": "OE9",
-      "gap": null,
-      "due": "2026-10-07",
-      "depends_on": [],
-      "blocks": [],
-      "trello": null,
-      "branch": "codex/UX-KPI-01-indicadores-resumen",
-      "evidence": [
-        "docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_completado_2026-10-07.docx",
-        "docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_primera_persona_2026-10-07.docx"
-      ],
-      "notes": "Documento localizado y leído mediante Google Drive por solicitud expresa del usuario: 2.1_APT122_DiarioReflexionFase2.docx, id 1MD8aCskLtNoQFWQh3ChEWXi-rSviDszI. Se completan las seis preguntas en tercera persona y lenguaje sencillo, con avances y responsabilidades de todo el equipo según el plan original de Fase 1 y la guía corregida. Fecha de elaboración 07-10-2026; corte de evidencia 05-10 hasta e7a910d. Revisiones compartidas y tareas siguientes se expresan como propuestas, sin inventar reuniones, acuerdos ni nuevas pruebas. Word final de dos páginas, 461 palabras de respuestas; plantilla, preguntas, cabeceras, logo y pies preservados. Render comparativo y revisión visual completa; auditoría solo detecta cambios en document.xml y settings.xml para actualizar campos. Se entrega en el chat; original de Drive intacto. Solo documentación, sin suites del producto. Pendiente revisión documental del equipo, sin PR ni tarjeta; no se marca done por el autor. Ajuste solicitado el 07-10: las seis respuestas se reformulan en primera persona desde la perspectiva de Darío; yo para aportes propios y nosotros para aportes colectivos, conservando la atribución de los dos Felipes. Versión _primera_persona de dos páginas, 480 palabras de respuesta; solo doce nodos de texto cambian, sin nuevos hechos ni cambios de formato. Render y revisión visual completa, con fuente anterior intacta.",
-      "owner_session": "DG (Codex, diario de reflexión Fase 2)"
+      "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
+      "owner_session": "FO (agente)"
     }
   ]
 }

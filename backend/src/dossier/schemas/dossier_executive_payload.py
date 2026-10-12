@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from dossier.schemas.corporate_registry import RegistroCorporativo
 
@@ -134,12 +134,55 @@ class LegacyMarkdownDossier(BaseModel):
     body: str
 
 
-def parse_dossier_payload(data: dict[str, Any]) -> DossierExecutivePayload | LegacyMarkdownDossier:
-    """Normaliza ``dossier_data`` (nuevo esquema o envoltorio histórico) sin lanzar error de formato.
+def parse_dossier_payload(data: Any) -> DossierExecutivePayload | LegacyMarkdownDossier:
+    """Normaliza ``dossier_data`` sin lanzar error, cualquiera sea su forma (S4.4).
 
-    CA4: un dossier histórico en Markdown se reconoce por ``format == "markdown"``
-    y se devuelve como ``LegacyMarkdownDossier`` en vez de fallar la validación.
+    Decisión de S4.3 (``docs/architecture/estrategia-migracion-modelo-datos.md`` §3): los
+    dossiers nuevos guardan ``{"format": "markdown", "body": ..., "executive_payload": {...}}``;
+    los históricos solo tienen ``format``/``body``. Reglas, en orden:
+
+    1. ``executive_payload`` válido dentro de ``dossier_data`` → se devuelve como
+       ``DossierExecutivePayload`` (CA5: la estructura convive con ``body`` sin romperlo).
+    2. Trae ``format`` o ``body`` pero sin ``executive_payload`` válido (histórico, o
+       ``executive_payload`` corrupto) → ``LegacyMarkdownDossier`` (CA4: nunca falla la lectura).
+    3. Ni lo uno ni lo otro: compatibilidad con S4.1, donde el esquema nuevo podía llegar sin
+       envoltorio (los propios campos en la raíz).
+    4. Cualquier otro caso (``None``, tipo inesperado, esquema irreconocible) → dossier
+       histórico vacío en vez de excepción.
     """
-    if isinstance(data, dict) and data.get("format") == "markdown":
-        return LegacyMarkdownDossier(format="markdown", body=data.get("body", ""))
-    return DossierExecutivePayload(**data)
+    if not isinstance(data, dict):
+        return LegacyMarkdownDossier(body="")
+
+    payload_bruto = data.get("executive_payload")
+    if isinstance(payload_bruto, dict):
+        try:
+            return DossierExecutivePayload(**payload_bruto)
+        except (ValidationError, TypeError):
+            pass  # executive_payload corrupto: cae a legado, no tumba la lectura
+
+    if "format" in data or "body" in data:
+        cuerpo = data.get("body")
+        return LegacyMarkdownDossier(body=cuerpo if isinstance(cuerpo, str) else "")
+
+    try:
+        return DossierExecutivePayload(**data)
+    except (ValidationError, TypeError):
+        return LegacyMarkdownDossier(body="")
+
+
+ContentKind = Literal["structured", "legacy_markdown"]
+
+
+def resumen_contenido_dossier(dossier_data: Any) -> dict[str, Any]:
+    """Resumen aditivo para la API de lectura (S4.4): no sustituye a ``dossier_data``.
+
+    El frontend sigue leyendo ``dossier_data.body`` sin cambios; esto solo expone, además,
+    si el dossier trae el contrato estructurado y, si lo trae, su forma ya validada.
+    """
+    resultado = parse_dossier_payload(dossier_data)
+    if isinstance(resultado, DossierExecutivePayload):
+        return {
+            "content_kind": "structured",
+            "executive_payload": resultado.model_dump(mode="json"),
+        }
+    return {"content_kind": "legacy_markdown", "executive_payload": None}

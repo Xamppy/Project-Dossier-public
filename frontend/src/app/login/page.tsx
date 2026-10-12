@@ -11,6 +11,7 @@ import {
   clearAuthSession,
   DossierApiError,
   fetchAuthMe,
+  getApiBaseUrl,
   getStoredAccessToken,
   persistAuthToken,
   writeDossierUserPreview,
@@ -60,9 +61,11 @@ export default function LoginPage() {
           const last = localStorage.getItem(LAST_EMAIL_KEY);
           if (last) setEmail(last);
         }
-        const reason = new URLSearchParams(window.location.search).get("reason");
-        if (reason === "session_expired") {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("reason") === "session_expired") {
           setFormError(t("auth.error.session_expired"));
+        } else if (params.get("error") === "google") {
+          setFormError(t("auth.error.google"));
         }
         return;
       }
@@ -255,8 +258,9 @@ export default function LoginPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
+          {/* Navegación completa: la API redirige a Google y vuelve a /auth/google. */}
+          <a
+            href={`${getApiBaseUrl()}/auth/google/login`}
             className="flex h-11 items-center justify-center gap-2 rounded-lg border text-sm font-medium transition hover:opacity-90"
             style={{
               borderColor: "var(--border-default)",
@@ -265,10 +269,12 @@ export default function LoginPage() {
             }}
           >
             Google
-          </button>
+          </a>
           <button
             type="button"
-            className="flex h-11 items-center justify-center gap-2 rounded-lg border text-sm font-medium transition hover:opacity-90"
+            disabled
+            title={t("auth.login.microsoft_soon")}
+            className="flex h-11 items-center justify-center gap-2 rounded-lg border text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
             style={{
               borderColor: "var(--border-default)",
               backgroundColor: "var(--bg-surface)",

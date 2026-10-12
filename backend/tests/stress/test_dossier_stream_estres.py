@@ -72,8 +72,13 @@ def test_degradacion_muchos_streams_concurrentes_terminan_rapido():
         def fetch():
             return next(estados, {"status": "completed"})
 
+        # db_poll_seconds=0: aquí el estado terminal solo llega por la base (nadie publica en
+        # el bus), y lo que se mide es concurrencia, no la latencia del respaldo por base
+        # (esa la cubre test_dossier_progress_stream_eventos.py).
         frames = list(
-            stream_job_events(job_id, fetch, sleep=lambda s: None, clock=time.monotonic)
+            stream_job_events(
+                job_id, fetch, sleep=lambda s: None, clock=time.monotonic, db_poll_seconds=0.0
+            )
         )
         return len(frames)
 

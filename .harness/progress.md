@@ -6,39 +6,22 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
-### 2026-10-07 · DOC-2026-10-07-01 · DG (Codex, diario de reflexión Fase 2)
+### 2026-10-05 · UX-AUTH-01 · FO (agente, inicio de sesión con Google)
 
-**Ajuste a primera persona solicitado por el usuario.** Nueva versión `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_primera_persona_2026-10-07.docx`: las seis respuestas expresan la perspectiva de Darío, usando yo para sus aportes y nosotros para el trabajo grupal. Se conservan las atribuciones de Felipe Docmac y Felipe Orellana. Solo cambian doce nodos de texto; preguntas, formato y demás partes intactos. Dos páginas renderizadas y revisadas completas; 480 palabras de respuesta. Se mantiene el corte previo y no se agregan hechos ni pruebas nuevas.
+**Hecho.** El botón Google del login inicia sesión de verdad: `GET /auth/google/login` → Google → `GET /auth/google/callback` → `/auth/google#token=…` en el front, que guarda el JWT y entra al dashboard. Correo sin cuenta: se crea usuario sin contraseña con espacio personal y créditos de alta. Correo con cuenta: se vincula en `oauth_accounts`. El botón Microsoft queda deshabilitado («Próximamente»). Contrato en `specs/proposals/UX-AUTH-01-login-google.md`. Pruebas: 5 unitarias, 9 de seguridad, 4 de integración con Postgres; 6 de Vitest. Suite: 588 passed con Postgres; `qa.py --full` en verde (ruff solo avisa por errores previos en `tests/`).
 
-**Hecho.** Se buscó y descargó desde Google Drive la plantilla `2.1_APT122_DiarioReflexionFase2.docx` (id `1MD8aCskLtNoQFWQh3ChEWXi-rSviDszI`) y se completaron sus seis preguntas en `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_completado_2026-10-07.docx`. Incluye plazos, dificultades, evaluación, inquietudes, distribución y trabajo grupal. Redacción sencilla en tercera persona y aportes de FO, FD y DG, alineados con el plan original de Fase 1.
+**Sin terminar.** Probarlo en producción con una cuenta Google de prueba tras añadir la URI de redirección.
 
-**Sin terminar.** Revisión documental del equipo e integración; no se abrió PR ni tarjeta. El original de Drive queda intacto porque la entrega solicitada es en el chat.
+**Lo que hay que saber.**
+- Hay que añadir `https://<dominio>/api/auth/google/callback` a las URIs autorizadas del **mismo** cliente OAuth del calendario. No hace falta variable nueva: la URI se calcula con `request.url_for`, que respeta `--root-path /api` y `X-Forwarded-Proto`. `GOOGLE_LOGIN_REDIRECT_URI` la fija si no coincide.
+- `oauth_accounts` existía en la migración base pero no en el ORM; se añadió el modelo con solo las columnas que se usan (no hay cambio de esquema).
+- El `state` es un JWT con `purpose=google_login` + `nonce` duplicado en una cookie HttpOnly. El `state` del calendario (`purpose=google_oauth`) está firmado con la misma clave y se rechaza a propósito (hay prueba).
+- Vincular una cuenta con correo no verificado anula su contraseña (pre-hijacking: alguien pudo registrar un correo ajeno). Los JWT ya emitidos siguen vigentes hasta caducar; escrito en la spec.
+- Los usuarios creados por Google no tienen contraseña: `/auth/login` los rechaza con el mensaje genérico; pueden usar «Olvidé mi contraseña».
 
-**Lo que hay que saber.** Fecha de elaboración 07-10; evidencia revisada hasta 05-10 y `e7a910d`. No se inventan acuerdos, reuniones ni resultados nuevos. Las revisiones compartidas se expresan como propuestas. Dos páginas y 461 palabras de respuestas; preguntas y plantilla institucional conservadas. Render comparativo y revisión visual completa; auditorías de secciones, imágenes, campos y notas coinciden. Solo cambian el cuerpo XML y la configuración de actualización de campos; fuente intacta. Sin código ni pruebas del producto.
+**Siguiente paso concreto.** Segundo integrante: revisar el PR y marcar `done`.
 
-**Siguiente paso concreto.** Revisar las reflexiones con los integrantes antes de su entrega académica.
-
-**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento completado, pendiente revisión documental)
-
----
-
-### 2026-10-05 · DOC-2026-10-05-01 · DG (Codex, guía de avance APT)
-
-**Corrección del 06-10-2026 sobre la versión del usuario.** Se adoptaron sus recortes de contenido y la eliminación de la tabla adicional de seguimiento. Nueva versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-06_corregida.docx`: punto 3 en tercera persona y sin confirmaciones ni acuerdos pendientes con el docente; también se retiró esa condición de A1 en el plan. Se eliminó un salto redundante que generaba una página vacía. Seis páginas renderizadas y revisadas; solo cambia el cuerpo XML, con estilos, secciones, tablas, relaciones, imágenes y nota preservados. La fuente editada por el usuario queda intacta. El corte de evidencia continúa en el 05-10; no hubo nueva revisión de commits ni pruebas del producto.
-
-**Plan original restituido por solicitud del usuario.** La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_plan_Fase_1.docx` reemplaza el punto 2 con el plan aportado de Fase 1: once actividades y siete campos íntegros, con los responsables y semanas originales. Añade seguimiento actual separado y alinea ajustes y pendientes posteriores con ese plan. Conserva intactos el punto 1 y la evidencia breve. Siete páginas revisadas visualmente; el plan ocupa tres páginas horizontales y el resto mantiene formato vertical. Auditoría: 77 campos coinciden exactamente, páginas 1–2 idénticas y solo cambia el cuerpo XML del Word. Sin código ni nuevas pruebas del producto; se mantienen las versiones anteriores.
-
-**Ajuste solicitado por el usuario.** Se acortó únicamente «Evidencias de avance» a cinco aportes breves y una nota de pendientes (487 → 125 palabras), manteniendo enlaces en los títulos. La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_resumida.docx` tiene seis páginas, todas renderizadas y revisadas visualmente. El resto del contenido y formato es idéntico; se conserva el Word anterior.
-
-**Hecho.** Completada `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05.docx` usando la plantilla adjunta de Fase 2. Incluye al equipo completo por instrucción expresa del usuario: Felipe Orellana, Felipe Docmac y Darío García. Siete páginas con resumen de aportes, objetivos, metodología, evidencia enlazada a versiones concretas, once actividades A1–A11 y las tres respuestas de ajustes y pendientes. Se contrastaron la Fase 1, el plan detallado, commits recientes y reportes locales hasta `e7a910d`.
-
-**Sin terminar.** Revisión documental del equipo e integración del archivo; no se abrió PR ni tarjeta de Trello. No se alteraron los estados de las tareas de implementación analizadas.
-
-**Lo que hay que saber.** El documento distingue avances implementados, resultados históricos y cierre pendiente. Refleja la enmienda vigente «Créditos para preparar» y la retirada del historial del indicador anterior. No certifica nuevas pruebas, despliegues ni acuerdos con el docente. Se mantuvieron las tres secciones, ocho tablas, cabecera, logo y nota al pie de la plantilla; se corrigió el flujo de tablas para evitar solapamientos. Render comparativo en dos iteraciones y revisión visual de las siete páginas finales; auditoría confirmó que solo cambiaron el cuerpo y las relaciones añadidas para evidencia, dejando el original intacto. Solo documentación; no se ejecutaron suites del producto.
-
-**Siguiente paso concreto.** Revisar en equipo el registro y confirmar el acuerdo del calendario académico pendiente (S0.15) antes de la entrega docente.
-
-**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (guía lista para revisión, sin PR)
+**Rama.** `FO` · **Estado.** review
 
 ---
 
@@ -203,6 +186,136 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 **Siguiente paso concreto.** Revisar el diff, resolver el bloqueo de ESLint previsto en S1.3 y abrir PR con revisión y evidencia en Trello.
 
 **Rama.** `dario` · **Estado.** in_progress
+
+---
+
+### 2026-10-05 · BUG-2026-10-05-01 · FO (agente)
+
+**Hecho.** `dossier_generation_jobs` entra al esquema versionado. El DDL idempotente está en
+`schema_patches.JOB_QUEUE_PATCHES` (copiado del que genera el ORM); la app lo aplica al
+arrancar y la migración `c4d8a2f6b1e9` lo reutiliza (patrón de S4.5). Sobre las bases reales,
+que ya tienen la tabla porque la creó `create_all`, no hace nada. Suite: 558 passed con
+Postgres.
+
+**Lo que hay que saber.**
+- **Cada tarea de esquema agrega su propia tupla en `schema_patches.py` y su migración**,
+  que la reutiliza. No se agregan sentencias a las tuplas anteriores: sus migraciones las leen
+  en vivo y dejarían de ser fijas. Hay una prueba que vigila esto.
+- **La prueba de S4.5 que exigía que su migración fuera la cabeza se reescribió**: ahora exige
+  una cadena lineal. Cada migración nueva debe probar lo mismo, sin fijar la cabeza.
+- **`local-setup.md` ya estaba desactualizado**: decía 19 tablas y Alembic creaba 21. Ahora
+  dice 22, con el desglose para que el número no vuelva a desfasarse sin que se note.
+- `downgrade` de `c4d8a2f6b1e9` borra la tabla con sus trabajos.
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-10-05 · S2.2 y seguimiento de S4.8 (SSE) · FO (agente)
+
+**Hecho.**
+- **S2.2.** El grafo corporativo corre en paralelo cuatro agentes: UK, USA, Europa (FR/DE) y
+  prensa. Hay un alcance nuevo, `eu_only`, y `agents_skipped` (CA1 y CA3 de S0.12). Europa y
+  prensa reciben `empresa_objetivo`: la API la toma de la resolución o de la consulta, y el
+  calendario de la empresa del evento. Verificado contra el registro francés, GDELT y NewsAPI
+  reales con «Danone».
+- **Seguridad (prompt injection).** Una revisión automática del commit 3c328bf detectó que
+  los textos de prensa y registros entraban crudos al prompt. Ahora se pasan a una línea, sin
+  marcas de bloque y acotados, y el sistema los declara dato no confiable (26cbb5c).
+- **SSE, solo backend.** S5.1, el frontend, queda para DG por decisión del usuario. El
+  worker publica cada cambio de estado en el bus y el stream lo espera; la base queda como
+  respaldo cada 10 s (4ee1198). Se corrigieron tres defectos de S4.8: retención de conexiones
+  del pool, CA1 para clientes nuevos y `Last-Event-ID` tras reinicio.
+
+Suite: 549 passed con Postgres; `qa.py --full` en verde.
+
+**Sin terminar.** S5.1 (DG): conectar `DossierJobsProvider` al stream. El backend ya entrega
+el estado al conectar y en tiempo real.
+
+**Lo que hay que saber.**
+- **`dossier_generation_jobs` no existe en el esquema de Alembic** (ni en Migracion.md ni en
+  los parches): solo la crea el ORM con `create_all` al arrancar. Una base creada con
+  `alembic upgrade head` y `DATABASE_AUTO_CREATE_TABLES=0` (lo que recomienda
+  `docs/dev/local-setup.md`) **no tiene la cola de trabajos**, así que la generación asíncrona
+  falla. Es la única tabla del ORM en esa situación. No se corrigió aquí: necesita su propia
+  migración y es el frente de S1.1 (FD).
+- **La búsqueda francesa es difusa**: con «Danone» devolvía empresarios individuales homónimos
+  («OLIVIA DANON»). El nodo europeo filtra por palabras del nombre. Un filtro con más
+  señales es S3.3.
+- **OffeneRegister.de (Alemania) devolvía 502** durante la verificación; el nodo lo tolera y
+  lo indica con «Sin respuesta de: DE».
+- **El bus SSE sigue siendo de un solo proceso.** Si el servicio escala a varios procesos, el
+  tiempo real entre procesos baja a la latencia del respaldo (10 s), hasta que haya Redis
+  pub/sub.
+- **Los conectores de claude.ai, entre ellos Trello, están desactivados en las sesiones de
+  Claude Code** porque hay un `ANTHROPIC_API_KEY` u otra credencial definida, que tiene
+  prioridad sobre el login de claude.ai. Por eso no se pudo actualizar el tablero.
+
+**Siguiente paso concreto.** Revisión de S2.2 y del seguimiento de S4.8. Después: la
+migración de `dossier_generation_jobs` (FD) y S5.1 (DG).
+
+**Rama.** `FO` · **Estado.** review
+
+---
+
+### 2026-09-28 · S2.1, S2.3, S3.2, S4.4, S4.6, S4.7, S4.9 · FO (agentes Sonnet en paralelo)
+
+**Hecho.** Siete tareas, cada una ejecutada por un subagente en un worktree aislado e
+integrada en `FO` con un commit por tarea:
+
+| Tarea | Qué quedó | Commit |
+|---|---|---|
+| S4.6 | `dossier_entities_writer.py`: el pipeline guarda las `risk_alerts` en `dossier_alerts` y los `conversation_starters` en `dossier_ice_breakers`, en la misma transacción que el dossier; al regenerar, reemplaza las filas | `2f03b34` |
+| S3.2 | `news/agent.py::collect_press_mentions`: GDELT y NewsAPI en paralelo, tolera la caída de uno, deduplica por URL normalizada y por titular+medio, devuelve `PressMention` | `a69aea5`, `d267acb` |
+| S2.3 | `companies_house/converters.py` y `sec_edgar/converters.py`: salida actual → `RegistroCorporativo` + `CorporateRecordCitation` (aditivo) | `432d706` |
+| S2.1 | `eu_registry/agent.py::run_eu_registry_agent`: Francia y Alemania en paralelo, deduplica y reporta errores por país | `f87e48b` |
+| S4.4 | `parse_dossier_payload` nunca falla (payload válido → estructurado; histórico o corrupto → Markdown); `GET /dossiers/{id}` agrega `content_kind` y `executive_payload` | `a48942b` |
+| S4.7 | `source_provenance.py`: las citas del payload y del Markdown usan la fuente y la hora reales de la consulta a PDL | `70c0496` |
+| S4.9 | Grafo corporativo con `agents_failed`/`agents_succeeded` (reducer); se persisten en `dossiers.agents_failed` y se emiten como eventos SSE (S4.8) | `41b762e` |
+
+Suite integrada: 298 passed con Postgres; mypy 0; `qa.py --full` en verde; ruff 25
+(uno preexistente corregido de paso).
+
+**Sin terminar.**
+- **Nada nuevo está conectado todavía al grafo ni al pipeline**: el agente de noticias
+  (S3.2), el europeo (S2.1) y los conversores UK/US (S2.3) son funciones listas para usar.
+  Conectarlos es S2.2 (europeo y conversores en el grafo) y, para noticias, un nodo nuevo
+  según S0.12. Hasta entonces, `press_mentions` sigue saliendo vacío.
+- El frontend no usa aún `content_kind` ni `executive_payload` (S4.4).
+
+**Lo que hay que saber.**
+- **Los worktrees de subagentes se crean desde `main` del repo principal, no desde la rama
+  actual.** Los 7 partieron de `203e61e`, 27 commits detrás de `FO`, y hubo que rebasarlos.
+  Al lanzar agentes con worktree, indícales primero `git merge-base --is-ancestor FO HEAD` o
+  crea tú los worktrees desde `FO`.
+- **S4.7 descarta afirmaciones que citan fuentes no consultadas** (por ejemplo, una alerta que
+  cita prensa cuando no se consultó prensa), en vez de "arreglarles" la cita. Conserva la URL
+  del modelo si el tipo de fuente coincide: una URL inventada con tipo `pdl` sobreviviría.
+  Endurecerlo queda pendiente.
+- **`normalize_person_report_text` reemplaza "People Data Labs" por "registros
+  profesionales"** en el Markdown (no en el JSON). Tenlo en cuenta al escribir aserciones.
+- **S4.6: `dossier_ice_breakers` no tiene modelo ORM** (se escribe con SQL directo) y solo
+  guarda `suggested_opener`; `topic` y `rationale` siguen solo en `executive_payload`. Hace
+  falta un `db.flush()` explícito antes del INSERT crudo. Una base creada solo con
+  `create_all` no tendría la tabla, pero tampoco la extensión `uuid-ossp` que exigen los
+  parches: toda base real sale de Migracion.md o de Alembic.
+- **S2.1: el mapeo alemán es provisional** hasta verificar en vivo el esquema real de
+  OffeneRegister.de. La prueba reservada «un proveedor lento respeta el tiempo límite»
+  quedó cubriendo solo que un país lento no retrasa al otro; el límite de tiempo real
+  corresponde a S2.4.
+- **S2.3: SEC no entrega estado, forma jurídica, fecha de constitución ni domicilio**, y
+  Companies House no trae directivos (falta el endpoint `/officers`). El modelo S1.9 alcanzó
+  para todo.
+- **S4.9: en el camino corporativo del calendario, el respaldo `agents_failed=["synthesize_llm"]`
+  para Markdown con error ya era código muerto**, porque `_markdown_is_persistable` descarta
+  antes todo `# Error`. Se dejó así para no mezclar limpieza con el cambio funcional.
+- En `FO`, ruff exige `datetime.UTC` (regla UP017), no `timezone.utc`.
+
+**Siguiente paso concreto.** Revisar S4.1 → S4.2 → S4.3 → las 7 de esta entrada (todas se
+tomaron con su dependencia en `review`). Después, S2.2: conectar al grafo corporativo el
+agente europeo, los conversores UK/US y el agente de noticias.
+
+**Rama.** `FO` · **Estado.** review (las 7)
 
 ---
 

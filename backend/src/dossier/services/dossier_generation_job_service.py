@@ -29,6 +29,7 @@ from dossier.services.calendar_event_dossiers import (
     parse_calendar_event_for_dossiers,
     persist_calendar_dossiers,
 )
+from dossier.services.dossier_progress_events import event_name_for_status, publish_if_changed
 from dossier.services.google_calendar_api import obtener_reunion_google_por_id
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import merge_reunion_payload, obtener_reunion_por_id
@@ -185,6 +186,7 @@ def cancel_dossier_generation_job(
     job.completed_at = datetime.now(UTC)
     db.commit()
     db.refresh(job)
+    _publicar_estado(job)
     return job
 
 
@@ -319,6 +321,34 @@ def _calendar_job_failure_message(item: dict[str, Any]) -> str | None:
     return "No se guardó ningún dossier válido para esta reunión."
 
 
+def _publicar_estado(job: DossierGenerationJob) -> None:
+    """Avisa al canal SSE de un cambio de estado ya confirmado en la base (S4.8)."""
+    publish_if_changed(job.id, event_name_for_status(job.status), serialize_job(job))
+
+
+def _publish_corporate_agent_failures(job_id: UUID, agents_failed: list[str]) -> None:
+    """Emite un evento SSE `agent_progress` (S0.11) por cada agente que falló (S4.9).
+
+    Reutiliza el bus en memoria de S4.8 (``dossier_progress_events``): si nadie está
+    conectado a `/dossier-generation-jobs/{id}/stream`, el evento simplemente queda en
+    el buffer acotado del job hasta que caduque o alguien se conecte.
+    """
+    if not agents_failed:
+        return
+    timestamp = datetime.now(UTC).isoformat()
+    for agent_name in agents_failed:
+        publish_if_changed(
+            job_id,
+            "agent_progress",
+            {
+                "dossier_id": str(job_id),
+                "agent_name": agent_name,
+                "status": "failed",
+                "timestamp": timestamp,
+            },
+        )
+
+
 def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
     job = db.get(DossierGenerationJob, job_id)
     if job is None or job.status not in ("queued", "running"):
@@ -329,6 +359,7 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
         job.status = "running"
         job.started_at = now
         db.commit()
+        _publicar_estado(job)
 
     try:
         if job.job_type == "person_manual":
@@ -344,6 +375,7 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
             job.error_message = str(exc)[:2000]
             job.completed_at = datetime.now(UTC)
             db.commit()
+            _publicar_estado(job)
 
 
 def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
@@ -381,6 +413,7 @@ def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
     saved = result.get("saved_dossier") or {}
     job.credits_consumed = int(saved.get("credits_consumed") or 0)
     db.commit()
+    _publicar_estado(job)
     logger.info("Job persona %s %s (subject=%s)", job.id, job.status, body.full_name[:80])
 
 
@@ -417,6 +450,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         output_language=out_lang,
     )
     elapsed_ms = int((time.perf_counter() - t0) * 1000)
+    _publish_corporate_agent_failures(job.id, item.get("corporate_agents_failed") or [])
 
     db.refresh(job)
     if job.status == "cancelled":
@@ -449,6 +483,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         job.error_message = None
     job.completed_at = datetime.now(UTC)
     db.commit()
+    _publicar_estado(job)
     logger.info(
         "Job dossier %s %s (event=%s, credits=%s)",
         job.id,
@@ -474,6 +509,7 @@ def claim_next_queued_job(db: Session) -> DossierGenerationJob | None:
     job.started_at = now
     db.commit()
     db.refresh(job)
+    _publicar_estado(job)
     return job
 
 

@@ -106,11 +106,12 @@ def test_parches_de_entidades_son_idempotentes_en_texto():
             assert "IF NOT EXISTS" in sql.upper(), sql
 
 
-def test_migracion_s45_es_la_unica_cabeza_y_sigue_a_la_linea_base():
+def test_migracion_s45_sigue_a_la_linea_base_en_una_cadena_lineal():
+    """Antes exigía que S4.5 fuera la cabeza; dejó de serlo al llegar BUG-2026-10-05-01.
+    El requisito real es que la cadena no se bifurque y que S4.5 siga a la línea base."""
     cfg = Config()
     cfg.set_main_option("script_location", str(BACKEND_ROOT / "alembic"))
     scripts = ScriptDirectory.from_config(cfg)
 
-    cabezas = scripts.get_heads()
-    assert len(cabezas) == 1
-    assert scripts.get_revision(cabezas[0]).down_revision == LINEA_BASE
+    assert len(scripts.get_heads()) == 1
+    assert scripts.get_revision("b7e2d4f1a9c3").down_revision == LINEA_BASE
