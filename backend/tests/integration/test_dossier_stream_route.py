@@ -31,6 +31,9 @@ class _FakeSession:
     def expire_all(self):
         pass
 
+    def rollback(self):
+        pass
+
 
 def _override_db(fake_session: _FakeSession):
     def _dep():

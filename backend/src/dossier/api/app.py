@@ -37,6 +37,7 @@ from dossier.api.dashboard_routes import router as dashboard_router
 from dossier.api.dossier_job_routes import router as dossier_jobs_router
 from dossier.api.dossier_routes import router as dossiers_router
 from dossier.api.dossier_stream_routes import router as dossier_stream_router
+from dossier.api.google_login_routes import router as google_login_router
 from dossier.api.integrations_routes import router as integrations_router
 from dossier.billing.credit_policy import (
     assert_sufficient_credits,
@@ -232,6 +233,7 @@ app.include_router(dossier_jobs_router)
 app.include_router(dossier_stream_router)
 app.include_router(dashboard_router)
 app.include_router(integrations_router)
+app.include_router(google_login_router)
 
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
@@ -525,6 +527,8 @@ def integrations_microsoft_oauth_config():
     """
     return {
         "redirect_uri": REDIRECT_URI,
+        # Lo mismo que exige /integrations/microsoft/start; el dashboard oculta la conexión si es False.
+        "configured": bool(CLIENT_ID and CLIENT_SECRET and REDIRECT_URI),
         "client_id_configured": bool(CLIENT_ID),
         "client_id_suffix": (CLIENT_ID or "")[-20:] if CLIENT_ID else None,
         "tenant_id": TENANT_ID,
@@ -578,6 +582,8 @@ def integrations_google_oauth_config():
     """
     return {
         "redirect_uri": GOOGLE_REDIRECT_URI,
+        # Lo mismo que exige /integrations/google/start; el dashboard oculta la conexión si es False.
+        "configured": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI),
         "client_id_configured": bool(GOOGLE_CLIENT_ID),
         "client_id_suffix": (GOOGLE_CLIENT_ID or "")[-20:] if GOOGLE_CLIENT_ID else None,
         "hint": (

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import CalendarMeetingFormatGuide from "@/components/dashboard/CalendarMeetingFormatGuide";
 import CalendarIntegrationPanel from "@/components/dashboard/CalendarIntegrationPanel";
+import { useCalendarProvidersConfigured } from "@/hooks/useCalendarProvidersConfigured";
 import type { CalendarProvider } from "@/lib/dossier-api";
 import { useTranslation } from "@/providers/PreferencesProvider";
 
@@ -93,8 +94,21 @@ function CalendarProviderColumn({
   );
 }
 
+const COLUMNAS: {
+  provider: CalendarProvider;
+  titleKey: "overview.microsoft_title" | "overview.google_title";
+  accent: string;
+  icon: ReactNode;
+}[] = [
+  { provider: "microsoft", titleKey: "overview.microsoft_title", accent: "#0078d4", icon: <OutlookIcon /> },
+  { provider: "google", titleKey: "overview.google_title", accent: "#4285f4", icon: <GoogleIcon /> },
+];
+
 export default function OverviewCalendarsSection() {
   const { t } = useTranslation();
+  const configurados = useCalendarProvidersConfigured();
+  // Se oculta solo si el servidor dice explícitamente que ese OAuth no está configurado.
+  const columnas = COLUMNAS.filter((c) => configurados[c.provider] !== false);
 
   return (
     <section className="mb-8">
@@ -134,19 +148,10 @@ export default function OverviewCalendarsSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <CalendarProviderColumn
-            provider="microsoft"
-            titleKey="overview.microsoft_title"
-            accent="#0078d4"
-            icon={<OutlookIcon />}
-          />
-          <CalendarProviderColumn
-            provider="google"
-            titleKey="overview.google_title"
-            accent="#4285f4"
-            icon={<GoogleIcon />}
-          />
+        <div className={`grid grid-cols-1 gap-4 ${columnas.length > 1 ? "xl:grid-cols-2" : ""}`}>
+          {columnas.map((c) => (
+            <CalendarProviderColumn key={c.provider} {...c} />
+          ))}
         </div>
       </DashboardCard>
     </section>

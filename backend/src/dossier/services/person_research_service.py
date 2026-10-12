@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import os
+from datetime import UTC, datetime
 from typing import Any
 
 from dossier.llm.client import deepseek_api_key
 from dossier.llm.common import normalize_person_report_text
 from dossier.llm.structured_synthesis import StructuredSynthesisError
+from dossier.schemas.dossier_executive_payload import SourceCitation, SourceType
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
 from dossier.services.executive_markdown import render_executive_markdown
 from dossier.services.lusha_profile_facts import (
@@ -18,6 +20,7 @@ from dossier.services.person_gemini_analysis import (
     analyze_person_profile_bundle_structured,
 )
 from dossier.services.person_gemini_web_research import analyze_person_with_google_search
+from dossier.services.source_provenance import normalizar_procedencia_fuentes
 
 
 def _s(v: str | None) -> str | None:
@@ -74,6 +77,7 @@ def _synthesize_person_report(
     verified_facts: dict[str, Any],
     output_language: str,
     warnings: list[str],
+    fuentes_consultadas: list[SourceCitation],
 ) -> tuple[str | None, dict[str, Any] | None]:
     """Una llamada JSON (S4.2) con el Markdown derivado por código.
 
@@ -102,6 +106,10 @@ def _synthesize_person_report(
             output_language=output_language,
         )
         return markdown, None
+    # OE5/S4.7: el LLM no decide la procedencia. Se reescribe con las fuentes
+    # realmente consultadas antes de renderizar el Markdown y de persistir el
+    # payload, para que ambos coincidan.
+    payload = normalizar_procedencia_fuentes(payload, fuentes_consultadas)
     return render_executive_markdown(payload, output_language), payload.model_dump(mode="json")
 
 
@@ -122,10 +130,23 @@ def run_person_research(
     attempts: list[dict[str, Any]] = []
     profiles: list[dict[str, Any]] = []
     profile_urls: list[str] = []
+    source_citations: list[SourceCitation] = []
 
     if not gemini_only:
         profiles, attempts, pdl_warnings = fetch_pdl_profiles(req)
         warnings.extend(pdl_warnings)
+        if profiles:
+            # OE5/S4.7: la hora de consulta la fija el código al momento de
+            # llamar a PDL, no el LLM de síntesis (que la inventaría).
+            source_citations.append(
+                SourceCitation(
+                    source_type=SourceType.pdl,
+                    source_name="People Data Labs",
+                    retrieved_at=datetime.now(UTC),
+                    url=None,
+                    record_id=None,
+                )
+            )
         for p in profiles:
             profile_urls.extend(u for u in (p.get("linkedin_urls") or []) if u not in profile_urls)
 
@@ -182,6 +203,7 @@ def run_person_research(
                 verified_facts=verified_facts,
                 output_language=out_lang,
                 warnings=warnings,
+                fuentes_consultadas=source_citations,
             )
             if md_web and not llm_md:
                 llm_md = md_web

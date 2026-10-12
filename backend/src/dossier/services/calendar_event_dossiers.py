@@ -38,7 +38,10 @@ from dossier.cache.person_dossier_redis import (
     set_person_cached_payload,
 )
 from dossier.db.models import Dossier, User
-from dossier.graphs.corporate_dossier_graph import JurisdictionScope, run_corporate_dossier_langgraph
+from dossier.graphs.corporate_dossier_graph import (
+    JurisdictionScope,
+    run_corporate_dossier_langgraph_detailed,
+)
 from dossier.llm.common import normalize_person_report_text
 from dossier.schemas.dossier_generation import DEPTH_CREDITS
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
@@ -534,8 +537,14 @@ def _corporate_md_from_cache_or_langgraph(
     scope: JurisdictionScope,
     depth: str,
     output_language: str = "es",
-) -> tuple[str | None, bool, str | None]:
-    """Devuelve (markdown, cache_hit, cache_key_redis)."""
+    empresa_objetivo: str | None = None,
+) -> tuple[str | None, bool, str | None, list[str] | None]:
+    """Devuelve (markdown, cache_hit, cache_key_redis, agents_failed).
+
+    ``agents_failed`` es ``None`` cuando el resultado viene de caché (no se corrió el
+    grafo en esta llamada, así que no hay telemetría nueva de agentes) y una lista
+    (posiblemente vacía) cuando sí se ejecutó LangGraph.
+    """
     out_lang = normalize_output_language(output_language)
     key_hash = build_corporate_langgraph_cache_key_hash(
         participantes=participantes_brief,
@@ -545,34 +554,37 @@ def _corporate_md_from_cache_or_langgraph(
     )
     cache_hit = False
     md: str | None = None
+    agents_failed: list[str] | None = None
 
     if redis_corporate_cache_available():
         hit = get_corporate_cached_markdown(key_hash)
         if hit is not None:
-            return hit, True, corporate_cache_redis_key(key_hash)
+            return hit, True, corporate_cache_redis_key(key_hash), None
 
     def _compute() -> None:
-        nonlocal md, cache_hit
+        nonlocal md, cache_hit, agents_failed
         hit2 = get_corporate_cached_markdown(key_hash)
         if hit2 is not None:
             md = hit2
             cache_hit = True
             return
-        generated = run_corporate_dossier_langgraph(
+        generado = run_corporate_dossier_langgraph_detailed(
             tema_reunion=tema or "Reunión",
             participantes=participantes_brief,
             descripcion="",
             jurisdiction_scope=scope,
             output_language=out_lang,
+            empresa_objetivo=empresa_objetivo,
         )
-        if not generated.lstrip().startswith("# Error"):
-            set_corporate_cached_markdown(key_hash, generated)
-        md = generated
+        if not generado.markdown.lstrip().startswith("# Error"):
+            set_corporate_cached_markdown(key_hash, generado.markdown)
+        md = generado.markdown
+        agents_failed = generado.agents_failed
         cache_hit = False
 
     run_with_corporate_cache_lock(key_hash, _compute)
     redis_key = corporate_cache_redis_key(key_hash) if cache_hit else None
-    return md, cache_hit, redis_key
+    return md, cache_hit, redis_key, agents_failed
 
 
 def _person_research_from_cache_or_pipeline(
@@ -765,6 +777,9 @@ def generate_dossiers_from_calendar_event(
     person_cache_hit = False
     corporate_cache_key: str | None = None
     person_cache_key: str | None = None
+    # None = sin telemetría de agentes (caché o rama no ejecutada); persist_calendar_dossiers
+    # cae al criterio anterior (¿el markdown final es un error?) en ese caso.
+    corporate_agents_failed: list[str] | None = None
     depth_key = depth if depth in DEPTH_CREDITS else "standard"
     include_corporate = plan_allows_calendar_corporate_dossier(organization_plan)
     corporate_skipped_plan_free = False
@@ -774,13 +789,19 @@ def generate_dossiers_from_calendar_event(
             participantes_brief, scope = resolve_corporate_brief(company_corporate)
             if participantes:
                 participantes_brief = f"{participantes_brief} Asistentes: {participantes}"
-            corporate_md, corporate_cache_hit, corporate_cache_key = _corporate_md_from_cache_or_langgraph(
+            (
+                corporate_md,
+                corporate_cache_hit,
+                corporate_cache_key,
+                corporate_agents_failed,
+            ) = _corporate_md_from_cache_or_langgraph(
                 participantes_brief=participantes_brief,
                 tema=tema,
                 participantes=participantes_brief,
                 scope=scope,
                 depth=depth_key,
                 output_language=out_lang,
+                empresa_objetivo=company_corporate,
             )
         except Exception as e:
             logger.exception("Fallo dossier corporativo desde calendario")
@@ -840,6 +861,7 @@ def generate_dossiers_from_calendar_event(
         "person_cache_hit": person_cache_hit,
         "corporate_cache_key": corporate_cache_key,
         "person_cache_key": person_cache_key,
+        "corporate_agents_failed": corporate_agents_failed,
         "output_language": out_lang,
         "corporate_skipped_plan_free": corporate_skipped_plan_free,
     }
@@ -1030,6 +1052,14 @@ def persist_calendar_dossiers(
     if _markdown_is_persistable(corporate_md):
         is_err = str(corporate_md).lstrip().startswith("# Error")
         status = "failed" if is_err else "complete"
+        # Telemetría real del grafo si se ejecutó en esta llamada (S4.9); si vino de
+        # caché o de una excepción fuera del grafo, cae al criterio anterior.
+        explicit_agents_failed = result.get("corporate_agents_failed")
+        corp_agents_failed = (
+            list(explicit_agents_failed)
+            if explicit_agents_failed is not None
+            else (["synthesize_llm"] if is_err else [])
+        )
         will_charge_corp = charge and not is_err and not corporate_cache_hit
         dossier_id = uuid.uuid4()
         subject = (
@@ -1070,7 +1100,7 @@ def persist_calendar_dossiers(
                 "output_language": output_lang,
             },
             agents_activated=["agent_corporate_uk", "agent_corporate_usa", "synthesize_llm"],
-            agents_failed=(["synthesize_llm"] if is_err else []),
+            agents_failed=corp_agents_failed,
             data_sources_used=["companies_house", "sec_edgar", "sec_company_facts", "gemini"],
             generation_started_at=now,
             generation_completed_at=now,

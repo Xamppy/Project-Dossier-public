@@ -27,6 +27,7 @@ from dossier.llm.common import normalize_person_report_text
 from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.person_research import PersonResearchRequest
 from dossier.services.calendar_event_dossiers import _person_failure_message
+from dossier.services.dossier_entities_writer import escribir_entidades_ejecutivas
 from dossier.services.output_language import effective_output_language
 from dossier.services.person_dossier_dedup import (
     person_research_cache_payload_from_result,
@@ -234,6 +235,13 @@ def run_person_research_and_persist(
             existing.generation_duration_ms = elapsed_ms
             existing.cache_key = cache_row_key
             existing.cached_until = cache_expires
+            # S4.6: alertas e ideas de conversación en la misma transacción que el dossier.
+            escribir_entidades_ejecutivas(
+                db,
+                dossier_id=existing.id,
+                payload=dossier_data_body.get("executive_payload"),
+                reemplazo=True,
+            )
             db.commit()
             db.refresh(existing)
             dossier = existing
@@ -265,6 +273,13 @@ def run_person_research_and_persist(
                 trigger_source="manual",
             )
             db.add(dossier)
+            # S4.6: alertas e ideas de conversación en la misma transacción que el dossier.
+            escribir_entidades_ejecutivas(
+                db,
+                dossier_id=dossier_id,
+                payload=dossier_data_body.get("executive_payload"),
+                reemplazo=False,
+            )
             db.commit()
             db.refresh(dossier)
             db.refresh(org)
