@@ -6,6 +6,42 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-07 · DOC-2026-10-07-01 · DG (Codex, diario de reflexión Fase 2)
+
+**Ajuste a primera persona solicitado por el usuario.** Nueva versión `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_primera_persona_2026-10-07.docx`: las seis respuestas expresan la perspectiva de Darío, usando yo para sus aportes y nosotros para el trabajo grupal. Se conservan las atribuciones de Felipe Docmac y Felipe Orellana. Solo cambian doce nodos de texto; preguntas, formato y demás partes intactos. Dos páginas renderizadas y revisadas completas; 480 palabras de respuesta. Se mantiene el corte previo y no se agregan hechos ni pruebas nuevas.
+
+**Hecho.** Se buscó y descargó desde Google Drive la plantilla `2.1_APT122_DiarioReflexionFase2.docx` (id `1MD8aCskLtNoQFWQh3ChEWXi-rSviDszI`) y se completaron sus seis preguntas en `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_completado_2026-10-07.docx`. Incluye plazos, dificultades, evaluación, inquietudes, distribución y trabajo grupal. Redacción sencilla en tercera persona y aportes de FO, FD y DG, alineados con el plan original de Fase 1.
+
+**Sin terminar.** Revisión documental del equipo e integración; no se abrió PR ni tarjeta. El original de Drive queda intacto porque la entrega solicitada es en el chat.
+
+**Lo que hay que saber.** Fecha de elaboración 07-10; evidencia revisada hasta 05-10 y `e7a910d`. No se inventan acuerdos, reuniones ni resultados nuevos. Las revisiones compartidas se expresan como propuestas. Dos páginas y 461 palabras de respuestas; preguntas y plantilla institucional conservadas. Render comparativo y revisión visual completa; auditorías de secciones, imágenes, campos y notas coinciden. Solo cambian el cuerpo XML y la configuración de actualización de campos; fuente intacta. Sin código ni pruebas del producto.
+
+**Siguiente paso concreto.** Revisar las reflexiones con los integrantes antes de su entrega académica.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento completado, pendiente revisión documental)
+
+---
+
+### 2026-10-05 · DOC-2026-10-05-01 · DG (Codex, guía de avance APT)
+
+**Corrección del 06-10-2026 sobre la versión del usuario.** Se adoptaron sus recortes de contenido y la eliminación de la tabla adicional de seguimiento. Nueva versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-06_corregida.docx`: punto 3 en tercera persona y sin confirmaciones ni acuerdos pendientes con el docente; también se retiró esa condición de A1 en el plan. Se eliminó un salto redundante que generaba una página vacía. Seis páginas renderizadas y revisadas; solo cambia el cuerpo XML, con estilos, secciones, tablas, relaciones, imágenes y nota preservados. La fuente editada por el usuario queda intacta. El corte de evidencia continúa en el 05-10; no hubo nueva revisión de commits ni pruebas del producto.
+
+**Plan original restituido por solicitud del usuario.** La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_plan_Fase_1.docx` reemplaza el punto 2 con el plan aportado de Fase 1: once actividades y siete campos íntegros, con los responsables y semanas originales. Añade seguimiento actual separado y alinea ajustes y pendientes posteriores con ese plan. Conserva intactos el punto 1 y la evidencia breve. Siete páginas revisadas visualmente; el plan ocupa tres páginas horizontales y el resto mantiene formato vertical. Auditoría: 77 campos coinciden exactamente, páginas 1–2 idénticas y solo cambia el cuerpo XML del Word. Sin código ni nuevas pruebas del producto; se mantienen las versiones anteriores.
+
+**Ajuste solicitado por el usuario.** Se acortó únicamente «Evidencias de avance» a cinco aportes breves y una nota de pendientes (487 → 125 palabras), manteniendo enlaces en los títulos. La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_resumida.docx` tiene seis páginas, todas renderizadas y revisadas visualmente. El resto del contenido y formato es idéntico; se conserva el Word anterior.
+
+**Hecho.** Completada `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05.docx` usando la plantilla adjunta de Fase 2. Incluye al equipo completo por instrucción expresa del usuario: Felipe Orellana, Felipe Docmac y Darío García. Siete páginas con resumen de aportes, objetivos, metodología, evidencia enlazada a versiones concretas, once actividades A1–A11 y las tres respuestas de ajustes y pendientes. Se contrastaron la Fase 1, el plan detallado, commits recientes y reportes locales hasta `e7a910d`.
+
+**Sin terminar.** Revisión documental del equipo e integración del archivo; no se abrió PR ni tarjeta de Trello. No se alteraron los estados de las tareas de implementación analizadas.
+
+**Lo que hay que saber.** El documento distingue avances implementados, resultados históricos y cierre pendiente. Refleja la enmienda vigente «Créditos para preparar» y la retirada del historial del indicador anterior. No certifica nuevas pruebas, despliegues ni acuerdos con el docente. Se mantuvieron las tres secciones, ocho tablas, cabecera, logo y nota al pie de la plantilla; se corrigió el flujo de tablas para evitar solapamientos. Render comparativo en dos iteraciones y revisión visual de las siete páginas finales; auditoría confirmó que solo cambiaron el cuerpo y las relaciones añadidas para evidencia, dejando el original intacto. Solo documentación; no se ejecutaron suites del producto.
+
+**Siguiente paso concreto.** Revisar en equipo el registro y confirmar el acuerdo del calendario académico pendiente (S0.15) antes de la entrega docente.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (guía lista para revisión, sin PR)
+
+---
+
 ### 2026-10-04 · DOC-2026-10-04-01 · DG (Codex, resumen documental)
 
 **Hecho.** Preparado y corregido `docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx`: cuatro páginas en lenguaje simple, exclusivamente sobre Felipe Orellana y Felipe Docmac. El usuario precisó que no quería sus propios cambios; la selección final es los últimos 20 commits de los compañeros en el historial local (8 de Xamppy/FO y 12 de Felipe Docmac/FD, del 23 al 26 de septiembre de 2026). Se eliminaron del informe los avances de Darío, incluidos calendario visual, indicadores y selector de países. Incluye aportes por compañero, beneficios, límites, evidencia histórica y documentación enlazada.
