@@ -33,7 +33,9 @@ GRAPH_CALENDAR_EVENT_BY_ID_URL = "https://graph.microsoft.com/v1.0/me/calendar/e
 
 _SELECT = "id,subject,body,bodyPreview,start,end,attendees,organizer,location,isAllDay"
 
-_SELECT_RANGO = _SELECT + ",isCancelled,type,originalStartTimeZone,originalEndTimeZone"
+_SELECT_RANGO = (
+    _SELECT + ",isCancelled,type,originalStartTimeZone,originalEndTimeZone,iCalUId,responseStatus"
+)
 
 _MAX_DESCRIPCION = 2000
 
@@ -462,9 +464,34 @@ def _fecha_civil_todo_el_dia(valor: str, zona: str | None) -> str:
     return _medianoche_mas_cercana(dt)
 
 
+def _correos_graph(evento: dict) -> list[str]:
+    """Direcciones reales (``participantes`` lleva nombres cuando Graph los entrega)."""
+    org = evento.get("organizer")
+    candidatos = [((org or {}).get("emailAddress") or {}).get("address")] if isinstance(org, dict) else []
+    for a in evento.get("attendees") or []:
+        if isinstance(a, dict):
+            candidatos.append((a.get("emailAddress") or {}).get("address"))
+    vistos: list[str] = []
+    for c in candidatos:
+        if isinstance(c, str) and "@" in c and c.strip().lower() not in vistos:
+            vistos.append(c.strip().lower())
+    return vistos
+
+
 def normalizar_evento_rango(evento: dict) -> dict:
-    """Como ``normalizar_evento``, pero resuelve los días completos como fechas civiles."""
+    """Como ``normalizar_evento``, pero resuelve los días completos como fechas civiles.
+
+    Añade, solo en esta ruta, lo que necesitan los indicadores: iCalUId, correos reales
+    y el rechazo del propio usuario.
+    """
     out = normalizar_evento(evento)
+    uid = evento.get("iCalUId")
+    if isinstance(uid, str) and uid.strip():
+        out["ical_uid"] = uid.strip()
+    out["correos"] = _correos_graph(evento)
+    respuesta = evento.get("responseStatus")
+    if isinstance(respuesta, dict) and str(respuesta.get("response") or "").lower() == "declined":
+        out["respuesta_usuario"] = "declined"
     if evento.get("isAllDay"):
         zona_ini = evento.get("originalStartTimeZone")
         zona_fin = evento.get("originalEndTimeZone") or zona_ini
@@ -550,7 +577,7 @@ def listar_reuniones_rango(
                     if estado == 401
                     else f"Microsoft Graph respondió con error ({estado})."
                 )
-                raise ErrorProveedorCalendario(502, detalle)
+                raise ErrorProveedorCalendario(502, detalle, reautenticar=estado == 401)
             resultado.completo, resultado.motivo_incompleto = False, MOTIVO_ERROR_PROVEEDOR
             break
         paginas += 1

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import OverviewCalendarsSection from "@/components/dashboard/OverviewCalendarsSection";
-import StatCard from "@/components/dashboard/StatCard";
+import OverviewKpiCards from "@/components/dashboard/OverviewKpiCards";
 import TopBar from "@/components/dashboard/TopBar";
 import UiAlert from "@/components/ui/UiAlert";
 import {
@@ -18,10 +18,12 @@ import {
   isDossierFolderEntry,
 } from "@/lib/dossier-api";
 import { getCalendarMeetingLabel, getCalendarMeetingSubject } from "@/lib/calendar-dossier-meta";
-import { countListEntries, formatDossierStatusLabel } from "@/lib/dossier-list-utils";
+import { formatDossierStatusLabel } from "@/lib/dossier-list-utils";
 import { canMutateDossiers } from "@/lib/org-role";
 import { normalizePlanTier, planAllowsCorporateDossier } from "@/lib/plans";
 import { stripHtmlToPlainLine } from "@/lib/strip-html";
+import { useDashboardSummary } from "@/hooks/useDashboardSummary";
+import { useDossierJobs } from "@/providers/DossierJobsProvider";
 import { useTranslation } from "@/providers/PreferencesProvider";
 import type { Locale, TranslationKey } from "@/i18n/types";
 
@@ -127,6 +129,14 @@ export default function OverviewPage() {
   const [dossierRows, setDossierRows] = useState<DossierListEntry[]>([]);
   const [dashError, setDashError] = useState<string | null>(null);
   const [dashLoad, setDashLoad] = useState<"idle" | "loading" | "ready">("idle");
+  const { jobs } = useDossierJobs();
+  // Cambia cuando termina una generación: los indicadores se vuelven a consultar.
+  const completedJobsKey = useMemo(
+    () => jobs.filter((j) => j.status === "completed").map((j) => j.id).sort().join(","),
+    [jobs],
+  );
+  const hasSession = typeof window !== "undefined" && !!getStoredAccessToken();
+  const kpi = useDashboardSummary({ enabled: hasSession, refreshKey: completedJobsKey });
   const [msOAuthBanner, setMsOAuthBanner] = useState<
     null | { kind: "ok" } | { kind: "error"; detail?: string }
   >(null);
@@ -220,11 +230,6 @@ export default function OverviewPage() {
     };
   }, [t]);
 
-  const stats = useMemo(() => {
-    const c = countListEntries(dossierRows);
-    return { total: c.all, active: c.active, pending: c.needs_update };
-  }, [dossierRows]);
-
   const activityItems = useMemo(() => {
     return [...dossierRows]
       .sort((a, b) => {
@@ -261,8 +266,6 @@ export default function OverviewPage() {
   }, [dossierRows, t, preferences.locale]);
 
   const titleName = welcomeName || t("overview.anonymous");
-  const creditsBalance = me?.credits_balance;
-  const monthlyLimit = me?.credits_monthly_limit;
   const visibleQuickActions = useMemo(
     () => {
       const showCorporate = planAllowsCorporateDossier(normalizePlanTier(me?.organization_plan));
@@ -278,11 +281,6 @@ export default function OverviewPage() {
     },
     [me?.role, me?.organization_plan]
   );
-  const creditsTrend =
-    dashLoad === "ready" && me && typeof monthlyLimit === "number" && monthlyLimit > 0
-      ? t("stat.credits_monthly_hint", { limit: monthlyLimit })
-      : undefined;
-
   return (
     <>
       <TopBar title={t("overview.title", { name: titleName })} subtitle={t("overview.subtitle")} />
@@ -339,20 +337,11 @@ export default function OverviewPage() {
         </UiAlert>
       )}
 
-      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard value={dashLoad === "ready" ? stats.total : "—"} label={t("stat.total_dossiers")} />
-        <StatCard value={dashLoad === "ready" ? stats.active : "—"} label={t("stat.active_dossiers")} />
-        <StatCard
-          value={dashLoad === "ready" ? stats.pending : "—"}
-          label={t("stat.needs_update")}
-          trendVariant={stats.pending > 0 ? "warning" : "default"}
-        />
-        <StatCard
-          value={dashLoad === "ready" && creditsBalance != null ? creditsBalance : "—"}
-          label={t("stat.credits_balance")}
-          trend={creditsTrend}
-        />
-      </section>
+      <OverviewKpiCards
+        summary={kpi.summary}
+        status={kpi.status}
+        fallbackCredits={me ? { balance: me.credits_balance, limit: me.credits_monthly_limit } : null}
+      />
 
       {canMutateDossiers(me?.role) ? <OverviewCalendarsSection /> : null}
 

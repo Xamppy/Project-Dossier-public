@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-02",
+  "updated": "2026-10-07",
   "status_values": [
     "pending",
     "claimed",
@@ -325,7 +325,7 @@
       "evidence": [
         "specs/reports/sprint0-verificacion.md"
       ],
-      "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados",
+      "notes": "docs/architecture/decisions/0006-protocolo-estados-progresivos.md y spec propuesta completados. Resumen para revisión del equipo y encargados (2026-10-01): docs/architecture/resumen-conexion-frontend-backend.md; no modifica el ADR ni acredita la integración frontend.",
       "owner_session": "FO (agente)"
     },
     {
@@ -1888,6 +1888,30 @@
       "owner_session": null
     },
     {
+      "id": "UX-KPI-01",
+      "sprint": 0,
+      "title": "Reemplazar las tarjetas de Resumen con indicadores reales (reuniones por preparar, cobertura, preparadas a tiempo, créditos)",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "frontend",
+      "activity": "A2",
+      "objective": "OE6",
+      "gap": null,
+      "due": null,
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "evidence": [
+        "specs/proposals/UX-KPI-01-indicadores-resumen.md",
+        "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md",
+        "specs/reports/UX-KPI-01-indicadores-resumen.md",
+        "docs/architecture/decisions/0008-indicador-creditos-para-preparar.md"
+      ],
+      "notes": "Implementado y verificado por su autor (2026-10-03, enmienda 2026-10-04): GET /dashboard/summary y cuatro tarjetas de Resumen (reuniones por preparar, cobertura, créditos para preparar, créditos disponibles) en siete idiomas. La enmienda del usuario reemplazó «Preparadas a tiempo» y retiró la evidencia histórica: sin cambios de esquema. Backend 388 verdes (109 nuevas; 36 requieren TEST_DATABASE_URL), frontend 50 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md.",
+      "owner_session": "DG (agente)"
+    },
+    {
       "id": "UX-CAL-02",
       "sprint": 0,
       "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",
@@ -1910,6 +1934,73 @@
       ],
       "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 129 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor.",
       "owner_session": "DG (agente)"
+    },
+    {
+      "id": "DOC-2026-10-04-01",
+      "sprint": 0,
+      "title": "Resumen comprensible de los últimos 20 commits de Felipe Orellana y Felipe Docmac",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A1",
+      "objective": "OE1",
+      "gap": null,
+      "due": "2026-10-04",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "evidence": [
+        "docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx"
+      ],
+      "notes": "Corregido por instrucción del usuario: solo aportes de sus compañeros, sin cambios de Darío. Word de 4 páginas sobre los 20 commits más recientes de Xamppy/Felipe Orellana y Felipe Docmac del historial local: 8 de FO y 12 de FD, del 23 al 26 de septiembre de 2026. Incluye avances por persona, utilidad, limitaciones, evidencia histórica y tabla de los 20 commits enlazados. Se contrastaron autores, diffs y documentación; todas las referencias a commits son de FO/FD. Render y revisión visual de las 4 páginas. Solo documentación, sin ejecución de suites de aplicación. Documento listo; pendiente revisión documental e integración, sin PR ni tarjeta creados. Se conservan cambios locales previos; no se marca done por el autor.",
+      "owner_session": "DG (Codex, resumen documental)"
+    },
+    {
+      "id": "DOC-2026-10-05-01",
+      "sprint": 1,
+      "title": "Completar Guía Fase 2 APT con avances de todo el equipo al 05-10-2026",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A10",
+      "objective": "OE9",
+      "gap": null,
+      "due": "2026-10-05",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "evidence": [
+        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05.docx",
+        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_resumida.docx",
+        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_plan_Fase_1.docx",
+        "docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-06_corregida.docx"
+      ],
+      "notes": "Guía Word completada por solicitud del usuario con los aportes de Felipe Orellana, Felipe Docmac y Darío García, conservando la plantilla adjunta. Siete páginas: resumen, objetivos, metodología, evidencia con 12 enlaces a versiones concretas, seguimiento de A1–A11 y ajustes/pendientes. Corte del historial local e7a910d; período 07-09 al 05-10-2026. Se diferencia implementación, validación histórica y revisión pendiente; no se certifican despliegues, reuniones ni aprobaciones no verificadas. Incluye la enmienda vigente de créditos para preparar. Render y revisión visual de todas las páginas; paquete original preservado salvo cuerpo y relaciones nuevas de evidencia. Solo documentación: sin cambios de código ni nuevas ejecuciones de las suites del producto. Documento listo para revisión; sin PR ni tarjeta, no se marca done por su autor. Ajuste posterior solicitado por el usuario: sección Evidencias de avance reducida de 487 a 125 palabras, con cinco aportes breves y una nota de pendientes. Versión _resumida de seis páginas; solo cambió esa celda, mantiene cinco enlaces en los títulos. Auditoría de paquete y revisión visual de las seis páginas. Se conserva la versión anterior. Nueva corrección solicitada: punto 2 sustituido por el plan original de Fase 1 aportado por el usuario; las once actividades y sus siete campos se conservan íntegros, con responsables y semanas originales. Seguimiento actual en tabla aparte y punto 3 alineado con ese plan, sin fechas de cierre del plan detallado. Punto 1 y evidencia breve intactos. Versión _plan_Fase_1 de siete páginas: plan horizontal y resto vertical, todas renderizadas y revisadas. Auditoría verificó coincidencia exacta de los 77 campos, preservación del paquete salvo document.xml y páginas 1–2 visualmente idénticas. Sin nuevas pruebas del producto ni cambios de estados de implementación; pendiente revisión documental del equipo. Corrección del 06-10-2026: se adopta como base el Word editado por el usuario, conservando sus recortes y la eliminación de la tabla adicional de seguimiento. Punto 3 redactado en tercera persona, con referencias al equipo y responsables; se retiran las confirmaciones y acuerdos pendientes con el docente de A1 y del punto 3. Se elimina un salto redundante que dejaba una página vacía. Versión _2026-10-06_corregida de seis páginas, renderizada y revisada completa. Solo cambia document.xml; fuente del usuario intacta. Mantiene el corte histórico del 05-10, sin nueva revisión de commits ni pruebas del producto.",
+      "owner_session": "DG (Codex, guía de avance APT)"
+    },
+    {
+      "id": "DOC-2026-10-07-01",
+      "sprint": 1,
+      "title": "Completar Diario de Reflexión Fase 2 desde plantilla de Google Drive",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "docs",
+      "activity": "A10",
+      "objective": "OE9",
+      "gap": null,
+      "due": "2026-10-07",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/UX-KPI-01-indicadores-resumen",
+      "evidence": [
+        "docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_completado_2026-10-07.docx",
+        "docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_primera_persona_2026-10-07.docx"
+      ],
+      "notes": "Documento localizado y leído mediante Google Drive por solicitud expresa del usuario: 2.1_APT122_DiarioReflexionFase2.docx, id 1MD8aCskLtNoQFWQh3ChEWXi-rSviDszI. Se completan las seis preguntas en tercera persona y lenguaje sencillo, con avances y responsabilidades de todo el equipo según el plan original de Fase 1 y la guía corregida. Fecha de elaboración 07-10-2026; corte de evidencia 05-10 hasta e7a910d. Revisiones compartidas y tareas siguientes se expresan como propuestas, sin inventar reuniones, acuerdos ni nuevas pruebas. Word final de dos páginas, 461 palabras de respuestas; plantilla, preguntas, cabeceras, logo y pies preservados. Render comparativo y revisión visual completa; auditoría solo detecta cambios en document.xml y settings.xml para actualizar campos. Se entrega en el chat; original de Drive intacto. Solo documentación, sin suites del producto. Pendiente revisión documental del equipo, sin PR ni tarjeta; no se marca done por el autor. Ajuste solicitado el 07-10: las seis respuestas se reformulan en primera persona desde la perspectiva de Darío; yo para aportes propios y nosotros para aportes colectivos, conservando la atribución de los dos Felipes. Versión _primera_persona de dos páginas, 480 palabras de respuesta; solo doce nodos de texto cambian, sin nuevos hechos ni cambios de formato. Render y revisión visual completa, con fuente anterior intacta.",
+      "owner_session": "DG (Codex, diario de reflexión Fase 2)"
     }
   ]
 }

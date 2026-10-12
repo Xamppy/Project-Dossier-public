@@ -665,6 +665,57 @@ async function getJsonWithAuth<T>(path: string): Promise<T> {
   return parsed as T;
 }
 
+/** Estado de un indicador de Resumen: cada uno es una situación distinta, no un cero. */
+export type DashboardMetricState = "ok" | "empty" | "partial" | "unavailable" | "not_connected";
+
+export type DashboardMetricContext = {
+  state: DashboardMetricState;
+  /** Código estable que el cliente traduce (p. ej. `calendar_incomplete`). */
+  reason: string | null;
+  /** La evidencia es fiable desde esta fecha (ISO 8601). */
+  measured_from: string | null;
+  measured_to: string | null;
+};
+
+export type DashboardSummary = {
+  as_of: string;
+  timezone: string;
+  upcoming: DashboardMetricContext & {
+    from: string;
+    to: string;
+    eligible_meetings: number | null;
+    prepared_meetings: number | null;
+    pending_meetings: number | null;
+    coverage_percent: number | null;
+  };
+  /** Créditos estimados para generar lo que falta en las reuniones de los próximos 7 días. */
+  preparation_cost: DashboardMetricContext & {
+    from: string;
+    to: string;
+    estimated_credits: number | null;
+    meetings_to_generate: number | null;
+    /** `unlimited` = Enterprise sin bloqueo por saldo; `disabled` = cobro desactivado. */
+    billing: "charged" | "unlimited" | "disabled";
+    exceeds_balance: boolean | null;
+  };
+  credits: DashboardMetricContext & {
+    balance: number | null;
+    monthly_limit: number | null;
+  };
+};
+
+/**
+ * Indicadores de Resumen (`GET /dashboard/summary`). Usuario y organización salen del JWT:
+ * no se envía ningún identificador. Solo lectura: no genera dossiers ni consume créditos.
+ */
+export async function fetchDashboardSummary(): Promise<DashboardSummary> {
+  const data = await getJsonWithAuth<Partial<DashboardSummary> | null>("/dashboard/summary");
+  if (!data || !data.upcoming || !data.preparation_cost || !data.credits) {
+    throw new DossierApiError(502, "Respuesta inválida de /dashboard/summary.", data);
+  }
+  return data as DashboardSummary;
+}
+
 async function patchJsonWithAuth<T>(
   path: string,
   body: unknown,

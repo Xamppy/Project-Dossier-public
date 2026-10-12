@@ -30,10 +30,12 @@ class RangoInvalido(ValueError):
 class ErrorProveedorCalendario(Exception):
     """El proveedor no entregó ninguna página válida (502 error remoto, 504 timeout)."""
 
-    def __init__(self, status_code: int, detalle: str):
+    def __init__(self, status_code: int, detalle: str, *, reautenticar: bool = False):
         super().__init__(detalle)
         self.status_code = status_code
         self.detalle = detalle
+        #: el proveedor rechazó el token (401): hay que volver a conectar el calendario
+        self.reautenticar = reautenticar
 
 
 @dataclass(frozen=True)

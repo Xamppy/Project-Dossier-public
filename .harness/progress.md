@@ -6,6 +6,129 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-07 · DOC-2026-10-07-01 · DG (Codex, diario de reflexión Fase 2)
+
+**Ajuste a primera persona solicitado por el usuario.** Nueva versión `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_primera_persona_2026-10-07.docx`: las seis respuestas expresan la perspectiva de Darío, usando yo para sus aportes y nosotros para el trabajo grupal. Se conservan las atribuciones de Felipe Docmac y Felipe Orellana. Solo cambian doce nodos de texto; preguntas, formato y demás partes intactos. Dos páginas renderizadas y revisadas completas; 480 palabras de respuesta. Se mantiene el corte previo y no se agregan hechos ni pruebas nuevas.
+
+**Hecho.** Se buscó y descargó desde Google Drive la plantilla `2.1_APT122_DiarioReflexionFase2.docx` (id `1MD8aCskLtNoQFWQh3ChEWXi-rSviDszI`) y se completaron sus seis preguntas en `docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_completado_2026-10-07.docx`. Incluye plazos, dificultades, evaluación, inquietudes, distribución y trabajo grupal. Redacción sencilla en tercera persona y aportes de FO, FD y DG, alineados con el plan original de Fase 1.
+
+**Sin terminar.** Revisión documental del equipo e integración; no se abrió PR ni tarjeta. El original de Drive queda intacto porque la entrega solicitada es en el chat.
+
+**Lo que hay que saber.** Fecha de elaboración 07-10; evidencia revisada hasta 05-10 y `e7a910d`. No se inventan acuerdos, reuniones ni resultados nuevos. Las revisiones compartidas se expresan como propuestas. Dos páginas y 461 palabras de respuestas; preguntas y plantilla institucional conservadas. Render comparativo y revisión visual completa; auditorías de secciones, imágenes, campos y notas coinciden. Solo cambian el cuerpo XML y la configuración de actualización de campos; fuente intacta. Sin código ni pruebas del producto.
+
+**Siguiente paso concreto.** Revisar las reflexiones con los integrantes antes de su entrega académica.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento completado, pendiente revisión documental)
+
+---
+
+### 2026-10-05 · DOC-2026-10-05-01 · DG (Codex, guía de avance APT)
+
+**Corrección del 06-10-2026 sobre la versión del usuario.** Se adoptaron sus recortes de contenido y la eliminación de la tabla adicional de seguimiento. Nueva versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-06_corregida.docx`: punto 3 en tercera persona y sin confirmaciones ni acuerdos pendientes con el docente; también se retiró esa condición de A1 en el plan. Se eliminó un salto redundante que generaba una página vacía. Seis páginas renderizadas y revisadas; solo cambia el cuerpo XML, con estilos, secciones, tablas, relaciones, imágenes y nota preservados. La fuente editada por el usuario queda intacta. El corte de evidencia continúa en el 05-10; no hubo nueva revisión de commits ni pruebas del producto.
+
+**Plan original restituido por solicitud del usuario.** La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_plan_Fase_1.docx` reemplaza el punto 2 con el plan aportado de Fase 1: once actividades y siete campos íntegros, con los responsables y semanas originales. Añade seguimiento actual separado y alinea ajustes y pendientes posteriores con ese plan. Conserva intactos el punto 1 y la evidencia breve. Siete páginas revisadas visualmente; el plan ocupa tres páginas horizontales y el resto mantiene formato vertical. Auditoría: 77 campos coinciden exactamente, páginas 1–2 idénticas y solo cambia el cuerpo XML del Word. Sin código ni nuevas pruebas del producto; se mantienen las versiones anteriores.
+
+**Ajuste solicitado por el usuario.** Se acortó únicamente «Evidencias de avance» a cinco aportes breves y una nota de pendientes (487 → 125 palabras), manteniendo enlaces en los títulos. La versión `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05_resumida.docx` tiene seis páginas, todas renderizadas y revisadas visualmente. El resto del contenido y formato es idéntico; se conserva el Word anterior.
+
+**Hecho.** Completada `docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_2026-10-05.docx` usando la plantilla adjunta de Fase 2. Incluye al equipo completo por instrucción expresa del usuario: Felipe Orellana, Felipe Docmac y Darío García. Siete páginas con resumen de aportes, objetivos, metodología, evidencia enlazada a versiones concretas, once actividades A1–A11 y las tres respuestas de ajustes y pendientes. Se contrastaron la Fase 1, el plan detallado, commits recientes y reportes locales hasta `e7a910d`.
+
+**Sin terminar.** Revisión documental del equipo e integración del archivo; no se abrió PR ni tarjeta de Trello. No se alteraron los estados de las tareas de implementación analizadas.
+
+**Lo que hay que saber.** El documento distingue avances implementados, resultados históricos y cierre pendiente. Refleja la enmienda vigente «Créditos para preparar» y la retirada del historial del indicador anterior. No certifica nuevas pruebas, despliegues ni acuerdos con el docente. Se mantuvieron las tres secciones, ocho tablas, cabecera, logo y nota al pie de la plantilla; se corrigió el flujo de tablas para evitar solapamientos. Render comparativo en dos iteraciones y revisión visual de las siete páginas finales; auditoría confirmó que solo cambiaron el cuerpo y las relaciones añadidas para evidencia, dejando el original intacto. Solo documentación; no se ejecutaron suites del producto.
+
+**Siguiente paso concreto.** Revisar en equipo el registro y confirmar el acuerdo del calendario académico pendiente (S0.15) antes de la entrega docente.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (guía lista para revisión, sin PR)
+
+---
+
+### 2026-10-04 · DOC-2026-10-04-01 · DG (Codex, resumen documental)
+
+**Hecho.** Preparado y corregido `docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx`: cuatro páginas en lenguaje simple, exclusivamente sobre Felipe Orellana y Felipe Docmac. El usuario precisó que no quería sus propios cambios; la selección final es los últimos 20 commits de los compañeros en el historial local (8 de Xamppy/FO y 12 de Felipe Docmac/FD, del 23 al 26 de septiembre de 2026). Se eliminaron del informe los avances de Darío, incluidos calendario visual, indicadores y selector de países. Incluye aportes por compañero, beneficios, límites, evidencia histórica y documentación enlazada.
+
+**Sin terminar.** Revisión documental por otro integrante e integración del artefacto; no se abrió PR ni tarjeta de Trello. No se modifican estados de las tareas de implementación analizadas.
+
+**Lo que hay que saber.** Las pruebas citadas son resultados históricos de los autores, no nuevas ejecuciones. Se preservaron los cambios locales previos en el harness y no se cambió código de aplicación. Se renderizó el Word y se revisaron sus cuatro páginas. La tabla coincide con los 20 commits filtrados por autores; todos los commits enlazados pertenecen a FO/FD y los documentos enlazados existen en la versión referenciada. No se acredita despliegue ni aprobación remota.
+
+**Siguiente paso concreto.** Leer y compartir el documento para revisar los pendientes señalados con los compañeros.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (documento listo para revisión, sin PR)
+
+---
+
+### 2026-10-04 · UX-KPI-01 · DG (agente, enmienda «Créditos para preparar»)
+
+**Hecho.** A pedido del usuario, la tercera tarjeta de Resumen pasó de «Reuniones preparadas a tiempo» a «Créditos para preparar» (créditos estimados para generar lo que falta en las reuniones de los próximos 7 días, con aviso si supera el saldo y «Sin costo» explicado en Enterprise o con el cobro desactivado). Spec, plan, ADR 0008 y reporte actualizados primero; pruebas en rojo antes del código. Backend 388 verdes con Postgres real; frontend 199 verdes (falla solo `TimezoneSelect.test.tsx`, preexistente). Verificado visualmente con datos ficticios, tema oscuro y claro, español e inglés.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia Trello. Sin validar con Google/Microsoft reales.
+
+**Lo que hay que saber.**
+- **El aviso de cambio de esquema de la entrada del 2026-10-03 queda anulado**: se retiró la evidencia histórica (tablas `dossier_generation_facts` y `prep_evidence_meta`, migración `c5a9e3b7d1f2`, relleno, registro en la generación, enlace manual con el evento interno, purga). UX-KPI-01 ya no toca `models.py`, `schema_patches.py`, `Migracion.md` ni Alembic. Si alguien aplicó la migración en una base local, `alembic downgrade b7e2d4f1a9c3` antes de cambiar de rama la deshace; la cabeza vuelve a ser S4.5.
+- La versión retirada sigue en el historial de la rama (`0871e80`, `99c328c`) por si un día se quiere medir puntualidad.
+- Una API arrancada antes de esta rama responde 404 en `/dashboard/summary` y las tarjetas muestran «No se pudieron cargar los indicadores»: hay que reiniciarla (`main.py` no usa `--reload`).
+- `exceeds_balance` se calcula con el saldo de cada petición, fuera de la caché; el resto del resumen sí se cachea 60 s.
+- `StatCard` solo colorea la línea `trend`: las advertencias van ahí, no en `details`.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, `TEST_DATABASE_URL=... python scripts/qa.py --full --since d90a78e`, abrir PR y adjuntar evidencia.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación terminada, pendiente de revisión)
+
+**Hecho.** Las cuatro tarjetas de Resumen usan datos reales. Backend: lectura por rango con metadatos (iCalUID, correos, rechazo), lógica pura de elegibilidad/preparación/puntualidad, tablas `dossier_generation_facts` y `prep_evidence_meta` con migración `c5a9e3b7d1f2` y relleno, registro de evidencia al persistir (manual/automático, corrida idempotente), marca de borrado, purga, `GET /dashboard/summary` con caché e invalidación. Frontend: cliente tipado, `useDashboardSummary`, `OverviewKpiCards`, `StatCard` ampliado, siete idiomas. 155 pruebas de backend y 47 de frontend nuevas; backend 434 verdes con Postgres real, mypy limpio. Verificado visualmente con datos ficticios y un servidor real. Reporte por CA1–CA14: `specs/reports/UX-KPI-01-indicadores-resumen.md`; decisiones: `docs/architecture/decisions/0008-evidencia-de-preparacion-de-reuniones.md`.
+
+**Sin terminar.** Revisión del segundo integrante, PR y evidencia en Trello (no se marca `done`). Sin validar contra Google/Microsoft reales ni contra la base de despliegue.
+
+**Lo que hay que saber.**
+- **`dossier_generation_jobs` no existe ni en `Migracion.md` ni en Alembic**: solo como modelo ORM, y lo crea `create_all` en desarrollo. Con `DATABASE_AUTO_CREATE_TABLES=0` y solo Alembic, los jobs fallan. Las pruebas de registro la crean a mano. No se corrigió aquí.
+- Las pruebas de Postgres se **omiten sin `TEST_DATABASE_URL`** (una base cuyo nombre contenga «test»): 71 de las nuevas. No hay CI que la levante.
+- Si ya hay un `next dev` en `frontend/`, un segundo falla en silencio (cerrojo de Next 16): para verificar contra otra API se copió `frontend/` a un directorio temporal con `node_modules` enlazado.
+- El `.env` real del backend fija `CORS_ORIGINS`; un servidor de pruebas que lo cargue necesita `CORS_ORIGINS` explícito y `DATABASE_URL` propio (`load_dotenv` no pisa lo ya definido).
+- El ORM aplica el valor por defecto (30) a `User(dossier_retention_days=None)`; para «sin retención» hay que escribir NULL con SQL.
+- `Migracion.md` §17 documenta las tablas; `docs/sql/schema_project_dossier.sql` es una copia antigua y no se actualizó.
+- El shell de `/dashboard` no es responsive (barra lateral fija). No se tocó.
+- Alembic pasó a tener cabeza `c5a9e3b7d1f2`; `test_dossier_entities_schema.py` se adaptó a «cadena lineal, una cabeza».
+- Una carpeta residual `src/dossier/gemini/` (solo `__pycache__` ignorado) hacía fallar `test_gemini_dir_no_existe`; se eliminó.
+
+**Siguiente paso concreto.** Segundo integrante: revisar, correr `TEST_DATABASE_URL=... python scripts/qa.py --full`, abrir el PR y adjuntar la evidencia. Si se despliega, ejecutar `alembic upgrade head` y revisar «Historial parcial» durante 30 días.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress (listo para `review` al abrir el PR)
+
+---
+
+### 2026-10-03 · UX-KPI-01 · DG (agente, implementación) · AVISO DE CAMBIO DE ESQUEMA
+
+**Hecho.** Tarea reclamada (`claimed`) y rama `codex/UX-KPI-01-indicadores-resumen` creada desde `codex/UX-CAL-01-calendario-visual` (hereda los helpers de lectura por rango de UX-CAL-02, que aún no están en `main`). Implementación en curso con TDD.
+
+**Cambio de DB previsto (aviso previo, handoff §4).** Dos tablas nuevas, ninguna columna existente cambia:
+`dossier_generation_facts` (un hecho por resultado exitoso: usuario, org, proveedor, evento externo, rol `corporate`/`person:N`, origen manual/automático, finalización real, inicio de la reunión, conjunto esperado, `dossier_deleted_at`; sin cuerpos, nombres ni correos) y `prep_evidence_meta` (una fila: desde cuándo se registra). Migración Alembic `c5a9e3b7d1f2` (encima de `b7e2d4f1a9c3`) con DDL en `schema_patches.PREP_EVIDENCE_PATCHES` (el mismo patrón de S4.5: `_PATCHES` no se toca porque la línea base lo importa en vivo) y relleno desde dossiers vigentes. Documentado en `db/Migracion.md` §17. Nada se aplica sobre bases reales.
+
+**Sin terminar.** Todo lo demás de la tarea.
+
+**Lo que hay que saber.** Antes de cambiar nada, línea base medida: backend 268 pasan y 1 falla (`test_gemini_dir_no_existe`: queda una carpeta `src/dossier/gemini/` con solo `__pycache__` ignorado por git; es un residuo local, no un defecto del código); frontend 149 pasan y 1 falla (`timezones.test.ts`, depende del ICU de Node local); eslint limpio (0 errores: la advertencia de «21 errores» ya no vale).
+
+**Siguiente paso concreto.** Pruebas en rojo de la lógica pura (elegibilidad, conjunto esperado, preparación, a tiempo), luego evidencia y migración, endpoint, tarjetas.
+
+**Rama.** `codex/UX-KPI-01-indicadores-resumen` · **Estado.** in_progress
+
+---
+
+### 2026-10-02 · UX-KPI-01 · DG (agente, planificación)
+
+**Hecho.** Preparados `specs/proposals/UX-KPI-01-indicadores-resumen.md` y `docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md`. El usuario amplió el plan visual para que las cuatro tarjetas tengan datos reales: reuniones por preparar, cobertura próxima, preparación manual a tiempo y créditos. Registrada la tarea adicional en feature_list, conservando los cambios previos del harness.
+
+**Sin terminar.** Implementación, migraciones, pruebas runtime, PR, revisión de segundo integrante y evidencia Trello. Esta pasada entrega planificación; no cambia código de aplicación ni consulta calendarios reales.
+
+**Lo que hay que saber.** Resumen calcula sobre 80 dossiers como máximo y agrupa carpetas. Los clientes de calendario actuales no completan páginas y la automatización sincroniza solo tres días. El job manual pasa `trigger_source=manual` pero no `calendar_event_id` al persistir; el JSON conserva proveedor/id externo para recuperación verificable. Una retención de 7/14 días impide reconstruir 30 días completos desde dossiers vigentes: el plan requiere evidencia estadística mínima y un período fiable explícito para históricos ya purgados. La generación a tiempo exige finalización anterior al inicio, no `updated_at`. UX-CAL-01 también necesita lectura por rango: compartir helpers, sin implementar su calendario visual dentro de esta tarea.
+
+**Siguiente paso concreto.** Reclamar implementación conforme al handoff y la consolidación de Sprint 1; fijar la migración mínima a partir de la spec y comenzar con pruebas en rojo de rango/paginación, identidad y completitud. El alcance de interfaz sigue limitado a las cuatro tarjetas informativas de Resumen.
+
+**Estado.** borrador documentado; implementación pendiente.
+
+---
+
 ### 2026-10-02 · UX-CAL-02 · DG (agente, implementación)
 
 **Hecho.** Calendario visual en `/dashboard/automation` (FullCalendar 7.1.0) con lectura por intervalo en el backend. Backend: `desde`/`hasta` en los tres GET de eventos, paginación de Google y Graph con tope de 10 páginas, 20 s y aviso `completo:false`, día completo de Outlook como fecha civil, `nextLink` validado. Frontend: Día/Semana/Mes, filtros con etiqueta, detalle accesible, caché por sesión, respuestas tardías descartadas, jobs por proveedor, reglas en bloque plegable. 99 pruebas nuevas de backend y 129 de frontend. Reporte con evidencia por CA1–CA11: `specs/reports/UX-CAL-02-calendario-visual.md`.
@@ -38,6 +161,18 @@ saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ni
 **Siguiente paso concreto.** Revisar alcance y prioridad, validar la versión de FullCalendar con Next/React y asignar implementación conforme al protocolo de handoff y la consolidación de Sprint 1. Estimación inicial 5–7 días de desarrollo, sin fecha comprometida.
 
 **Rama.** `dario` (documentación local) · **Estado.** borrador, implementación pendiente
+
+---
+
+### 2026-10-01 · S0.11 · DG (agente, resumen documental)
+
+**Hecho.** Creado `docs/architecture/resumen-conexion-frontend-backend.md` a petición del usuario para compartir con el equipo y los encargados: conexión HTTP/JSON actual, polling, SSE existente y evaluación de WebSockets. Registrada la referencia en `feature_list.json`, sin cambiar estados de tareas.
+
+**Sin terminar.** Integración SSE en frontend y validación del despliegue, fuera del alcance de este resumen.
+
+**Lo que hay que saber.** El canal SSE ya existe, aunque parte de la documentación histórica afirma lo contrario. Sigue sondeando PostgreSQL cada segundo por conexión y no publica progreso por agente. El resumen mantiene la recomendación del ADR 0006, sin adoptar una nueva decisión técnica. Solo documentación; no se ejecutaron pruebas de aplicación para este cambio.
+
+**Siguiente paso concreto.** Compartir el resumen y acordar la prioridad de estabilizar e integrar SSE, conforme a S4.8 y S5.1–S5.4.
 
 ---
 
