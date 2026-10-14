@@ -31,6 +31,13 @@ import {
   type PersonResearchPayload,
   type PersonResearchApiResponse,
 } from "@/lib/dossier-api";
+import {
+  openDossierJobStream,
+  parseJobSnapshot,
+  type DossierJobStreamError,
+  type DossierJobStreamSubscription,
+} from "@/lib/dossier-job-stream";
+import { AUTH_ME_CHANGED_EVENT } from "@/hooks/useAuthMe";
 import { isPdlProfileFoundInfoWarning } from "@/lib/translate-pdl-warning";
 import {
   translateBackendWarning,
@@ -44,12 +51,19 @@ import { usePreferences, useTranslation } from "@/providers/PreferencesProvider"
 
 const STORAGE_KEY = "dossier_active_job_ids";
 const TOAST_JOB_IDS_KEY = "dossier_toast_job_ids";
-const POLL_MS = 3000;
 const TERMINAL: DossierGenerationJobStatus[] = ["completed", "failed", "cancelled"];
 
 type TrackedJob = DossierGenerationJobApi & {
   toastDismissed?: boolean;
 };
+
+/**
+ * Estado de la conexión SSE de un job, separado de su `status`: un corte de red
+ * no demuestra que la generación haya fallado. Sin entrada = conectado o conectando.
+ */
+export type DossierJobConnection =
+  | { state: "interrupted"; reason: "session" | "transport" }
+  | { state: "resyncing" };
 
 type DossierJobsContextValue = {
   jobs: TrackedJob[];
@@ -73,6 +87,10 @@ type DossierJobsContextValue = {
   getActivePersonJob: () => TrackedJob | undefined;
   getActiveCorporateJob: () => TrackedJob | undefined;
   dismissToast: (jobId: string) => void;
+  /** Estado de la conexión en tiempo real del job; `undefined` si está conectado. */
+  getJobConnection: (jobId: string) => DossierJobConnection | undefined;
+  /** Recuperación manual tras un corte: un snapshot REST y, si sigue activo, un stream nuevo. */
+  resyncJob: (jobId: string) => Promise<void>;
 };
 
 const DossierJobsContext = createContext<DossierJobsContextValue | null>(null);
@@ -117,6 +135,55 @@ function saveToastJobIds(ids: string[]) {
   } catch {
     /* ignore */
   }
+}
+
+function isActiveStatus(status: DossierGenerationJobStatus): boolean {
+  return !TERMINAL.includes(status);
+}
+
+/** El corporativo manual usa un UUID local y una petición directa: no tiene stream. */
+function hasServerStream(job: TrackedJob): boolean {
+  return job.job_type !== "corporate_manual";
+}
+
+function statusRank(status: DossierGenerationJobStatus): number {
+  if (status === "queued") return 0;
+  if (status === "running") return 1;
+  return 2;
+}
+
+/**
+ * Aplica un snapshot del servidor sin retroceder: un estado terminal no se
+ * reescribe y uno activo no vuelve atrás (`running` → `queued`). Así una
+ * respuesta tardía o duplicada no pisa lo que ya llegó por el stream.
+ * Conserva los campos solo visuales, como `toastDismissed`.
+ */
+function mergeSnapshot(prev: TrackedJob[], incoming: DossierGenerationJobApi): TrackedJob[] {
+  const idx = prev.findIndex((j) => j.id === incoming.id);
+  if (idx < 0) return [...prev, incoming];
+  const current = prev[idx];
+  if (!isActiveStatus(current.status)) return prev;
+  if (statusRank(incoming.status) < statusRank(current.status)) return prev;
+  const next = [...prev];
+  next[idx] = { ...current, ...incoming };
+  return next;
+}
+
+function withoutKey<T>(record: Record<string, T>, key: string): Record<string, T> {
+  if (!(key in record)) return record;
+  const next = { ...record };
+  delete next[key];
+  return next;
+}
+
+function connectionForError(
+  error: DossierJobStreamError | DossierApiError,
+): DossierJobConnection {
+  const isSession =
+    error instanceof DossierApiError
+      ? error.status === 401 || error.status === 403
+      : error.kind === "unauthorized" || error.kind === "forbidden";
+  return { state: "interrupted", reason: isSession ? "session" : "transport" };
 }
 
 function calendarJobHasPartialFailure(job: TrackedJob): boolean {
@@ -227,85 +294,166 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
   const jobsRef = useRef(jobs);
   jobsRef.current = jobs;
   const corporateAbortRef = useRef<Map<string, AbortController>>(new Map());
+  const [connections, setConnections] = useState<Record<string, DossierJobConnection>>({});
+  // Hasta restaurar no se escribe sessionStorage: se perderían los IDs por restaurar.
+  const [hydrated, setHydrated] = useState(false);
+  // Cambia al cambiar de sesión u organización y relanza la restauración.
+  const [sessionKey, setSessionKey] = useState(0);
+  // Una suscripción SSE vigente por job remoto activo. Lo que llegue de una
+  // suscripción que ya no está en el mapa (cerrada, de otra sesión) se ignora.
+  const streamsRef = useRef<Map<string, DossierJobStreamSubscription>>(new Map());
+  // Se incrementa al desmontar o cambiar de sesión: invalida respuestas en vuelo.
+  const epochRef = useRef(0);
 
-  const mergeJob = useCallback((incoming: DossierGenerationJobApi) => {
-    setJobs((prev) => {
-      const idx = prev.findIndex((j) => j.id === incoming.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = { ...next[idx], ...incoming };
-        return next;
-      }
-      return [...prev, incoming];
-    });
+  const closeAllStreams = useCallback(() => {
+    for (const stream of streamsRef.current.values()) stream.close();
+    streamsRef.current.clear();
   }, []);
 
-  const syncActiveIds = useCallback((list: TrackedJob[]) => {
-    const active = list
-      .filter((j) => !TERMINAL.includes(j.status))
-      .map((j) => j.id);
-    saveStoredJobIds(active);
-    const toastIds = list
-      .filter((j) => TERMINAL.includes(j.status) && !j.toastDismissed)
-      .map((j) => j.id);
-    saveToastJobIds(toastIds);
-  }, []);
+  useEffect(() => {
+    return () => {
+      epochRef.current += 1;
+      closeAllStreams();
+    };
+  }, [closeAllStreams]);
 
   useEffect(() => {
     let cancelled = false;
     async function bootstrap() {
+      const restored: DossierGenerationJobApi[] = [];
       try {
         const { jobs: activeFromApi } = await fetchDossierGenerationJobs({ activeOnly: true });
         if (cancelled) return;
-        const stored = loadStoredJobIds();
-        const toastStored = loadToastJobIds();
         const byId = new Map<string, DossierGenerationJobApi>();
         for (const j of activeFromApi) byId.set(j.id, j);
-        for (const id of [...stored, ...toastStored]) {
-          if (!byId.has(id)) {
-            try {
-              byId.set(id, await fetchDossierGenerationJob(id));
-            } catch {
-              /* job expired or 404 */
-            }
+        for (const id of [...loadStoredJobIds(), ...loadToastJobIds()]) {
+          if (byId.has(id)) continue;
+          try {
+            byId.set(id, await fetchDossierGenerationJob(id));
+          } catch {
+            /* expirado, 404 o de otra identidad: no se restaura */
           }
+          if (cancelled) return;
         }
-        const merged = Array.from(byId.values());
-        setJobs(merged);
-        syncActiveIds(merged);
+        restored.push(...byId.values());
       } catch {
         /* sin sesión o API caída */
       }
+      if (cancelled) return;
+      // Fusión, no reemplazo: no se pierde lo encolado ni lo llegado por SSE mientras tanto.
+      setJobs((prev) => restored.reduce(mergeSnapshot, prev));
+      setHydrated(true);
     }
     void bootstrap();
     return () => {
       cancelled = true;
     };
-  }, [syncActiveIds]);
+  }, [sessionKey]);
 
+  // El almacenamiento se sincroniza desde el estado resultante, no dentro de cada actualización.
   useEffect(() => {
-    const hasActive = jobs.some((j) => !TERMINAL.includes(j.status));
-    if (!hasActive) return;
+    if (!hydrated) return;
+    saveStoredJobIds(jobs.filter((j) => isActiveStatus(j.status)).map((j) => j.id));
+    saveToastJobIds(
+      jobs.filter((j) => !isActiveStatus(j.status) && !j.toastDismissed).map((j) => j.id),
+    );
+  }, [jobs, hydrated]);
 
-    const timer = window.setInterval(() => {
-      void (async () => {
-        try {
-          const active = jobsRef.current.filter((j) => !TERMINAL.includes(j.status));
-          if (active.length === 0) return;
-          for (const j of active) {
-            if (j.job_type === "corporate_manual") continue;
-            const fresh = await fetchDossierGenerationJob(j.id);
-            mergeJob(fresh);
-          }
-          syncActiveIds(jobsRef.current);
-        } catch {
-          /* polling silencioso */
-        }
-      })();
-    }, POLL_MS);
+  // Cambio de sesión u organización (señal existente de useAuthMe): nada de la
+  // identidad anterior sigue conectado ni visible. Los corporativos locales en
+  // curso se conservan como hasta ahora.
+  useEffect(() => {
+    function onSessionChange() {
+      epochRef.current += 1;
+      closeAllStreams();
+      setJobs((prev) => prev.filter((j) => !hasServerStream(j)));
+      setConnections({});
+      setHydrated(false);
+      setSessionKey((k) => k + 1);
+    }
+    window.addEventListener(AUTH_ME_CHANGED_EVENT, onSessionChange);
+    return () => window.removeEventListener(AUTH_ME_CHANGED_EVENT, onSessionChange);
+  }, [closeAllStreams]);
 
-    return () => window.clearInterval(timer);
-  }, [jobs, mergeJob, syncActiveIds]);
+  const handleStreamError = useCallback((jobId: string, error: DossierJobStreamError) => {
+    if (error.kind === "not_found") {
+      setJobs((prev) => prev.filter((j) => j.id !== jobId));
+      setConnections((prev) => withoutKey(prev, jobId));
+      return;
+    }
+    setConnections((prev) => ({ ...prev, [jobId]: connectionForError(error) }));
+  }, []);
+
+  const openStream = useCallback(
+    (jobId: string) => {
+      let stream: DossierJobStreamSubscription | null = null;
+      const isCurrent = () => stream !== null && streamsRef.current.get(jobId) === stream;
+      stream = openDossierJobStream(jobId, {
+        onSnapshot: (snapshot) => {
+          if (isCurrent()) setJobs((prev) => mergeSnapshot(prev, snapshot));
+        },
+        onError: (error) => {
+          if (!isCurrent()) return;
+          streamsRef.current.delete(jobId);
+          stream?.close();
+          handleStreamError(jobId, error);
+        },
+      });
+      streamsRef.current.set(jobId, stream);
+    },
+    [handleStreamError],
+  );
+
+  // Reconciliación: abre lo que falta y cierra lo que sobra, sin tocar las
+  // conexiones que siguen siendo válidas. Un evento nuevo no reabre nada.
+  useEffect(() => {
+    const wanted = new Set(
+      jobs
+        .filter((j) => hasServerStream(j) && isActiveStatus(j.status) && !connections[j.id])
+        .map((j) => j.id),
+    );
+    for (const [jobId, stream] of streamsRef.current) {
+      if (wanted.has(jobId)) continue;
+      stream.close();
+      streamsRef.current.delete(jobId);
+    }
+    for (const jobId of wanted) {
+      if (!streamsRef.current.has(jobId)) openStream(jobId);
+    }
+  }, [jobs, connections, openStream]);
+
+  const resyncJob = useCallback(async (jobId: string) => {
+    const epoch = epochRef.current;
+    setConnections((prev) => ({ ...prev, [jobId]: { state: "resyncing" } }));
+    try {
+      const fresh = parseJobSnapshot(await fetchDossierGenerationJob(jobId), jobId);
+      if (epoch !== epochRef.current) return;
+      if (!fresh) {
+        setConnections((prev) => ({ ...prev, [jobId]: { state: "interrupted", reason: "transport" } }));
+        return;
+      }
+      setJobs((prev) => mergeSnapshot(prev, fresh));
+      // Sin entrada de conexión, la reconciliación abre un stream nuevo si sigue activo.
+      setConnections((prev) => withoutKey(prev, jobId));
+    } catch (err) {
+      if (epoch !== epochRef.current) return;
+      if (err instanceof DossierApiError && err.status === 404) {
+        setJobs((prev) => prev.filter((j) => j.id !== jobId));
+        setConnections((prev) => withoutKey(prev, jobId));
+        return;
+      }
+      const connection =
+        err instanceof DossierApiError
+          ? connectionForError(err)
+          : ({ state: "interrupted", reason: "transport" } as const);
+      setConnections((prev) => ({ ...prev, [jobId]: connection }));
+    }
+  }, []);
+
+  const getJobConnection = useCallback(
+    (jobId: string) => connections[jobId],
+    [connections],
+  );
 
   const enqueueCalendarJob = useCallback(
     async (
@@ -338,14 +486,10 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
         credits_estimated: res.credits_estimated ?? 0,
         credits_consumed: 0,
       };
-      setJobs((prev) => {
-        const next = [...prev.filter((j) => j.id !== job.id), job];
-        syncActiveIds(next);
-        return next;
-      });
+      setJobs((prev) => mergeSnapshot(prev, job));
       return res.job_id;
     },
-    [preferences, syncActiveIds],
+    [preferences],
   );
 
   const enqueuePersonResearchJob = useCallback(
@@ -364,14 +508,10 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
         credits_estimated: res.credits_estimated ?? 0,
         credits_consumed: 0,
       };
-      setJobs((prev) => {
-        const next = [...prev.filter((j) => j.id !== job.id), job];
-        syncActiveIds(next);
-        return next;
-      });
+      setJobs((prev) => mergeSnapshot(prev, job));
       return res.job_id;
     },
-    [syncActiveIds],
+    [],
   );
 
   const enqueueCorporateDossierJob = useCallback(
@@ -395,18 +535,14 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
         credits_consumed: 0,
       };
 
-      setJobs((prev) => {
-        const next = [...prev.filter((j) => j.id !== job.id), job];
-        syncActiveIds(next);
-        return next;
-      });
+      setJobs((prev) => [...prev.filter((j) => j.id !== job.id), job]);
 
       void (async () => {
         try {
           const res = await createCorporateDossier(payload, controller.signal);
           corporateAbortRef.current.delete(jobId);
-          setJobs((prev) => {
-            const next = prev.map((j) =>
+          setJobs((prev) =>
+            prev.map((j) =>
               j.id === jobId
                 ? {
                     ...j,
@@ -415,15 +551,13 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
                     credits_consumed: res.credits_consumed,
                   }
                 : j,
-            );
-            syncActiveIds(next);
-            return next;
-          });
+            ),
+          );
         } catch (err) {
           corporateAbortRef.current.delete(jobId);
           const cancelled = err instanceof Error && err.name === "AbortError";
-          setJobs((prev) => {
-            const next = prev.map((j) =>
+          setJobs((prev) =>
+            prev.map((j) =>
               j.id === jobId
                 ? {
                     ...j,
@@ -434,16 +568,14 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
                         : err.message || null,
                   }
                 : j,
-            );
-            syncActiveIds(next);
-            return next;
-          });
+            ),
+          );
         }
       })();
 
       return jobId;
     },
-    [syncActiveIds],
+    [],
   );
 
   const cancelJob = useCallback(
@@ -455,24 +587,17 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       ) {
         corporateAbortRef.current.get(jobId)?.abort();
         corporateAbortRef.current.delete(jobId);
-        setJobs((prev) => {
-          const next = prev.map((j) =>
-            j.id === jobId ? { ...j, status: "cancelled" as const } : j,
-          );
-          syncActiveIds(next);
-          return next;
-        });
+        setJobs((prev) =>
+          prev.map((j) => (j.id === jobId ? { ...j, status: "cancelled" as const } : j)),
+        );
         return;
       }
 
+      // Cancela el trabajo en el servidor; el stream se cierra al llegar el estado terminal.
       const updated = await cancelDossierGenerationJob(jobId);
-      setJobs((prev) => {
-        const next = prev.map((j) => (j.id === jobId ? { ...j, ...updated } : j));
-        syncActiveIds(next);
-        return next;
-      });
+      setJobs((prev) => mergeSnapshot(prev, updated));
     },
-    [syncActiveIds],
+    [],
   );
 
   const getActivePersonJob = useCallback(() => {
@@ -504,12 +629,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
   );
 
   const dismissToast = useCallback((jobId: string) => {
-    setJobs((prev) => {
-      const next = prev.map((j) => (j.id === jobId ? { ...j, toastDismissed: true } : j));
-      syncActiveIds(next);
-      return next;
-    });
-  }, [syncActiveIds]);
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, toastDismissed: true } : j)));
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -523,6 +644,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       getActivePersonJob,
       getActiveCorporateJob,
       dismissToast,
+      getJobConnection,
+      resyncJob,
     }),
     [
       jobs,
@@ -535,6 +658,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       getActivePersonJob,
       getActiveCorporateJob,
       dismissToast,
+      getJobConnection,
+      resyncJob,
     ],
   );
 
@@ -543,8 +668,10 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       {children}
       <DossierJobToasts
         jobs={jobs}
+        connections={connections}
         onDismiss={dismissToast}
         onCancel={cancelJob}
+        onResync={resyncJob}
         dossierHref={dossierHref}
       />
     </DossierJobsContext.Provider>
@@ -571,13 +698,17 @@ function jobToastLabel(
 
 function DossierJobToasts({
   jobs,
+  connections,
   onDismiss,
   onCancel,
+  onResync,
   dossierHref,
 }: {
   jobs: TrackedJob[];
+  connections: Record<string, DossierJobConnection>;
   onDismiss: (jobId: string) => void;
   onCancel: (jobId: string) => Promise<void>;
+  onResync: (jobId: string) => Promise<void>;
   dossierHref: (job: TrackedJob) => string | null;
 }) {
   const { t } = useTranslation();
@@ -625,6 +756,7 @@ function DossierJobToasts({
           (isPartial || isFail) && job.job_type === "person_manual"
             ? personJobWarning(job)
             : undefined;
+        const connection = isActive ? connections[job.id] : undefined;
 
         return (
           <div
@@ -661,6 +793,7 @@ function DossierJobToasts({
                     {translateBackendWarning(personWarning, t)}
                   </p>
                 ) : null}
+                <JobConnectionNotice connection={connection} />
               </div>
               <button
                 type="button"
@@ -683,6 +816,11 @@ function DossierJobToasts({
                     : t("dossier_jobs.view_folder")}
                 </Link>
               )}
+              <JobReconnectButton
+                connection={connection}
+                onResync={() => void onResync(job.id)}
+                className="text-sm font-medium underline transition hover:opacity-80"
+              />
               {isActive && (
                 <button
                   type="button"
@@ -721,6 +859,56 @@ function DossierJobToasts({
         );
       })}
     </div>
+  );
+}
+
+/** Aviso de conexión interrumpida de un job activo; nada si está conectado. */
+export function JobConnectionNotice({
+  connection,
+  className = "mt-1.5 text-sm ui-text-warning leading-relaxed",
+}: {
+  connection: DossierJobConnection | undefined;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  if (connection?.state !== "interrupted") return null;
+  return (
+    <p className={className} role="status">
+      {connection.reason === "session"
+        ? t("auth.error.session_expired")
+        : t("dossier_jobs.connection_lost")}
+    </p>
+  );
+}
+
+/**
+ * Recuperación manual tras un corte de transporte. No se ofrece si el corte es
+ * de sesión: volver a pedir con el mismo token daría otra vez 401.
+ */
+export function JobReconnectButton({
+  connection,
+  onResync,
+  className,
+}: {
+  connection: DossierJobConnection | undefined;
+  onResync: () => void;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const resyncing = connection?.state === "resyncing";
+  if (!resyncing && !(connection?.state === "interrupted" && connection.reason === "transport")) {
+    return null;
+  }
+  return (
+    <button
+      type="button"
+      className={className}
+      style={{ color: "var(--text-primary)" }}
+      disabled={resyncing}
+      onClick={onResync}
+    >
+      {resyncing ? t("dossier_jobs.reconnecting") : t("dossier_jobs.reconnect")}
+    </button>
   );
 }
 
