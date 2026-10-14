@@ -1278,7 +1278,7 @@
       "id": "S5.1",
       "sprint": 5,
       "title": "Consumir el canal en DossierJobsProvider y retirar su setInterval",
-      "status": "pending",
+      "status": "claimed",
       "owner": "DG",
       "area": "frontend",
       "activity": "A6",
@@ -1296,7 +1296,8 @@
       "trello": "https://trello.com/c/4wewW4BW",
       "branch": null,
       "evidence": [],
-      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.1-dashboard-canal-estados.md y docs/exec-plans/active/S5.1-dashboard-canal-estados.md (prompt actualizado). Estado general por SSE para Calendario Google/Outlook y Personas /dashboard/person-research en PDL y gemini_web; ambos modos usan person_manual remoto. Retirar polling de DossierJobsProvider; CA13-CA15 prueban Personas explicitamente. Corporativo manual sigue fuera. S4.8 en review; verificar habilitacion segun handoff. S5.2 y S5.3 separadas."
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.1-dashboard-canal-estados.md y docs/exec-plans/active/S5.1-dashboard-canal-estados.md (prompt actualizado). Estado general por SSE para Calendario Google/Outlook y Personas /dashboard/person-research en PDL y gemini_web; ambos modos usan person_manual remoto. Retirar polling de DossierJobsProvider; CA13-CA15 prueban Personas explicitamente. Corporativo manual sigue fuera. S4.8 en review; verificar habilitacion segun handoff. S5.2 y S5.3 separadas.",
+      "owner_session": "DG (agente Claude)"
     },
     {
       "id": "S5.2",
