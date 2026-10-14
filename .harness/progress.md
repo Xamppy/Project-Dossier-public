@@ -6,6 +6,20 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-13 · S4.8 (revisión) y S5.1 · DG (agente Claude)
+
+**Hecho.** DG revisó S4.8 como segundo integrante y la marcó `done` (21 pruebas del canal en verde, ruff limpio); **CA2 `agent_progress` se trasladó a S5.4**, que ya lo cubre. Después se implementó S5.1: `DossierJobsProvider` deja el `setInterval` de 3 s y sigue cada job remoto activo (Calendario Google/Outlook, Personas PDL/Web pública) por `GET /dossier-generation-jobs/{id}/stream` con `@microsoft/fetch-event-source` 2.0.1. Adaptador en `frontend/src/lib/dossier-job-stream.ts`; la página de Personas muestra cortes y «Reconectar». 78 pruebas nuevas (293 en total), lint, tsc y `qa.py --full --since d0ae752` en verde. Demostración integrada con backend y `next dev` locales: 0 lecturas periódicas de jobs (antes, 80 en 60 s con 4 activos). Reporte: `specs/reports/S5.1-dashboard-canal-estados.md`.
+
+**Sin terminar.** Push, PR, revisión del segundo integrante y evidencia en Trello. S5.1 queda `in_progress` hasta abrir el PR.
+
+**Lo que hay que saber.** La librería, por defecto, reintenta cada segundo para siempre (solo para si `onerror` lanza) y corta y reabre la conexión en cada `visibilitychange` (salvo `openWhenHidden`); el adaptador anula ambas cosas. Los heartbeats `: ping` le llegan a `onmessage` como mensajes vacíos. Si se pasa `Accept` con mayúscula la librería añade otro `accept`: usar minúsculas. El servidor corta el stream a los 600 s sin evento terminal: hoy eso se ve como «Se perdió la conexión» hasta que el usuario reconecta (S5.3 debe tratarlo como reconexión normal). La señal de cambio de sesión/organización que ya existía es `AUTH_ME_CHANGED_EVENT` de `hooks/useAuthMe.ts`; el proveedor la escucha. `sessionStorage` solo se escribe tras la restauración inicial: escribirlo antes (o dentro de los updaters de `setJobs`) borra los IDs por restaurar con StrictMode. Para probar en local sin gastar en PDL/DeepSeek/Gemini (el `.env` tiene claves reales), insertar jobs en `running` —el worker solo toma `queued`— y cambiarles el estado por SQL: el stream lo publica en ≤ 10 s por su respaldo de base. En `dossier_local` quedaron el usuario `qa-s51-9807cc0e@example.com` y tres jobs «Demo S5.1 · …». `email-validator` rechaza dominios `.test`; usar `example.com`.
+
+**Siguiente paso concreto.** Push de `feat/S5.1-dashboard-canal-estados`, abrir el PR contra `main`, pasar S5.1 a `review` con el enlace y adjuntar el reporte a la tarjeta https://trello.com/c/4wewW4BW. Luego S5.3 (reconexión con retroceso) y S5.2 (notificaciones), que ya están desbloqueadas.
+
+**Rama.** `feat/S5.1-dashboard-canal-estados` · **Estado.** S4.8 `done`; S5.1 `in_progress`
+
+---
+
 ### 2026-10-13 · Ampliación de planificación S5.1/S5.4 a Personas · DG (Codex)
 
 **Hecho.** Actualizados los cuatro documentos existentes: specs y planes/prompts de S5.1/S5.4. S5.1 exige estado general por SSE para Calendario y Personas en PDL/gemini_web (CA13–CA15 nuevos). S5.4 incluye detalle y parciales de ambos módulos, con etapas personales propias, scopes por asistente/ejecución, procedencia real, BE8–BE13 y CA14–CA24 nuevos. Se amplían dependencias backend, archivos, estados de UI, matriz de pruebas y los tres prompts. La unidad de esta sesión es exclusivamente esta ampliación documental; la implementación mantiene una tarea por sesión/PR. Esta entrada sustituye la restricción anterior de S5.4 a calendario.
