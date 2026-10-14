@@ -20,7 +20,11 @@ import { translateApiErrorMessage } from "@/lib/translate-backend-message";
 import { parsePersonResearchSearchParams } from "@/lib/person-research-from-dossier";
 import { countryCodeFromName, countryNameForApi } from "@/lib/countries";
 import MutatorGuard from "@/components/auth/MutatorGuard";
-import { useDossierJobs } from "@/providers/DossierJobsProvider";
+import {
+  JobConnectionNotice,
+  JobReconnectButton,
+  useDossierJobs,
+} from "@/providers/DossierJobsProvider";
 import { usePreferences, useTranslation } from "@/providers/PreferencesProvider";
 
 type ResearchSourceUi = "gemini_web" | "pdl";
@@ -44,7 +48,14 @@ function PersonResearchPageContent() {
   const { t, locale } = useTranslation();
   const searchParams = useSearchParams();
   const { preferences } = usePreferences();
-  const { enqueuePersonResearchJob, cancelJob, getActivePersonJob, jobs } = useDossierJobs();
+  const {
+    enqueuePersonResearchJob,
+    cancelJob,
+    getActivePersonJob,
+    jobs,
+    getJobConnection,
+    resyncJob,
+  } = useDossierJobs();
   const [researchSource, setResearchSource] = useState<ResearchSourceUi>("pdl");
   const [fullName, setFullName] = useState("");
   const [jobArea, setJobArea] = useState("");
@@ -77,6 +88,8 @@ function PersonResearchPageContent() {
     jobs.find((j) => j.id === activeJobId) ?? getActivePersonJob() ?? null;
   const isGenerating =
     activeJob?.status === "queued" || activeJob?.status === "running";
+  // En esta ruta el aviso flotante del job activo está oculto: el corte se muestra aquí.
+  const activeConnection = activeJob ? getJobConnection(activeJob.id) : undefined;
 
   useEffect(() => {
     if (!getStoredAccessToken()) return;
@@ -385,6 +398,10 @@ function PersonResearchPageContent() {
                 <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
                   {t("person_research.generating_background")}
                 </p>
+                <JobConnectionNotice
+                  connection={activeConnection}
+                  className="mt-2 text-xs ui-text-warning leading-relaxed"
+                />
                 <div
                   className="mt-3 h-1 w-full overflow-hidden rounded-full"
                   style={{ backgroundColor: "var(--border-default)" }}
@@ -394,14 +411,23 @@ function PersonResearchPageContent() {
                     style={{ backgroundColor: "var(--accent-primary)" }}
                   />
                 </div>
-                <button
-                  type="button"
-                  className="ui-hover-danger mt-3 rounded-md px-2 py-1 text-xs font-medium transition"
-                  style={{ color: "var(--status-error)" }}
-                  onClick={() => void handleCancelGeneration()}
-                >
-                  {t("person_research.cancel")}
-                </button>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <JobReconnectButton
+                    connection={activeConnection}
+                    onResync={() => {
+                      if (activeJob) void resyncJob(activeJob.id);
+                    }}
+                    className="rounded-md px-2 py-1 text-xs font-medium underline transition hover:opacity-80"
+                  />
+                  <button
+                    type="button"
+                    className="ui-hover-danger rounded-md px-2 py-1 text-xs font-medium transition"
+                    style={{ color: "var(--status-error)" }}
+                    onClick={() => void handleCancelGeneration()}
+                  >
+                    {t("person_research.cancel")}
+                  </button>
+                </div>
               </div>
             ) : (
               <div
