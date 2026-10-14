@@ -6,6 +6,40 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-13 · Ampliación de planificación S5.1/S5.4 a Personas · DG (Codex)
+
+**Hecho.** Actualizados los cuatro documentos existentes: specs y planes/prompts de S5.1/S5.4. S5.1 exige estado general por SSE para Calendario y Personas en PDL/gemini_web (CA13–CA15 nuevos). S5.4 incluye detalle y parciales de ambos módulos, con etapas personales propias, scopes por asistente/ejecución, procedencia real, BE8–BE13 y CA14–CA24 nuevos. Se amplían dependencias backend, archivos, estados de UI, matriz de pruebas y los tres prompts. La unidad de esta sesión es exclusivamente esta ampliación documental; la implementación mantiene una tarea por sesión/PR. Esta entrada sustituye la restricción anterior de S5.4 a calendario.
+
+**Sin terminar.** Implementación, adopción/revisión del contrato y registro/asignación con FO de la dependencia backend ampliada, pruebas funcionales, PR y evidencia Trello. No se reclaman tareas ni cambian estados: S5.1/S5.4 siguen pending; S4.8/S4.9, review. Corporativo manual sigue para después; no se confunde con person_manual remoto. S5.2 y S5.3 mantienen notificaciones y reconexión automática respectivamente.
+
+**Lo que hay que saber.** Inspección en `dario@d0ae752`: PDL hace enrich por estrategias, search condicional, normalización y síntesis JSON con respaldo Markdown solo ante fallo estructurado. La rama contextual corre sin perfiles, en gemini_web o con ALWAYS; si hay perfiles puede ejecutarse antes de síntesis y no usarse en el informe. «Web pública» llama a DeepSeek **sin búsqueda web en vivo** (`person_gemini_web_research.py`); el flag gemini_google_search_used no acredita navegación. Personas hoy solo publica estado general y resultado final. Puede haber perfiles PDL útiles con job failed por falta/fallo de informe; conservar su proyección parcial sin declarar éxito. Caché puede devolver profiles=[] con profiles_count>0. Calendario comparte run_person_research, pero sus wrappers de caché/guardado son distintos y la modalidad viene de PERSON_RESEARCH_PROVIDER. La página Personas limpia activeJobId al terminal y carece de panel de parciales; el plan requiere selección independiente para conservar/restaurar contenido. La cancelación del worker personal se comprueba después del wrapper que puede guardar: no prometer rollback de efectos confirmados.
+
+**Siguiente paso concreto.** Usar el prompt actualizado de S5.1 tras habilitar dependencias. Registrar y acordar con FO el seguimiento backend que cubra Calendario, Personas/PDL y Personas/gemini_web; no basta instrumentar el grafo corporativo. Después, implementar S5.4 con fixtures por modalidad y pruebas de ambos módulos. Los documentos incluyen una sección explícita de cambios respecto al alcance anterior.
+
+**Validación de esta entrega.** `python3 scripts/qa.py` en verde para documentación, `git diff --check` limpio; comprobados enlaces, bloques Markdown, JSON de ejemplos y harness, numeración continua de 15 CA en S5.1, 24 CA en S5.4 y 13 BE. `git diff HEAD -- backend frontend` sin cambios. Estados, responsables, dependencias y evidencias de implementación preservados; solo se ampliaron notas del harness. No se ejecutaron suites funcionales al no cambiar código.
+
+**Rama.** `dario` · **Estado.** ampliación de planificación preparada; sin cambios de código ni tareas terminadas.
+
+---
+
+### 2026-10-13 · Planificación S5.1/S5.4 inicial · DG (Codex, solo documentación)
+
+**Alcance histórico.** La ampliación posterior de esta misma fecha agrega Personas y sustituye la restricción a calendario descrita en esta entrada; se conserva como registro de la decisión inicial.
+
+**Hecho.** Preparadas dos especificaciones y dos planes con prompts ejecutables: `specs/proposals/S5.1-dashboard-canal-estados.md`, `specs/proposals/S5.4-resultados-parciales-agentes.md` y sus planes homónimos en `docs/exec-plans/active/`. La única unidad de esta sesión fue planificar la continuidad; la ejecución se separa en S5.1, seguimiento backend y S5.4, una tarea/sesión/PR cada una. Darío confirmó que S5.4 debe incluir avance real por agente y que la primera entrega cubre calendario; la migración del corporativo manual se deja para después.
+
+**Sin terminar.** Implementación de S5.1/S5.4, registro y asignación con FO del seguimiento backend, revisión de las specs y dependencias, pruebas funcionales, PR y evidencia Trello. S5.1/S5.4 permanecen `pending`; no se reclamaron ni se modificaron los estados de S4.8/S4.9. El detalle remoto de Trello no fue accesible por la herramienta web; los criterios son propuestas derivadas del código, harness y solicitud, no una transcripción de las tarjetas.
+
+**Lo que hay que saber.** Base inspeccionada `dario@d0ae752`. El SSE real está en `/dossier-generation-jobs/{job_id}/stream`, no en las rutas propuestas en el ADR histórico. `job_failed` incluye cancelación; el payload manda. El `agent_progress` legado solo publica fallos corporativos después de generar y llama `dossier_id` al ID del job. Falta instrumentar inicio/éxito/omisión, publicar parciales y conservar un snapshot recuperable. Los IDs SSE se reinician y el buffer se olvida al terminar: no sirven como versión persistente. `corporate_manual` usa UUID local y petición síncrona. La UI actual tiene siete idiomas y ya existen CI, análisis backend y migración Alembic de la cola; no rehacerlos por seguir advertencias antiguas del índice. S5.2 y S5.3 siguen separadas; estas dos tareas no cierran por sí solas B4.
+
+**Siguiente paso concreto.** Revisar el plan S5.1, confirmar dependencias y base de integración según `handoff.md`, y usar su prompt en una sesión de implementación. Registrar con FO la dependencia de progreso del calendario y adoptar su contrato antes de ejecutar el prompt backend. Después, ejecutar S5.4 sobre ambas entregas revisadas. S5.3 es necesaria antes de declarar lista la resiliencia de producción.
+
+**Validación de esta entrega.** `python3 scripts/qa.py` en verde para cambios exclusivamente documentales, `git diff --check` sin errores, enlaces locales y bloques Markdown comprobados, JSON válido. Se verificó que solo cambiaron las notas de S5.1/S5.4 y la fecha del harness: estados, responsables, dependencias y evidencias de implementación se conservaron. No se ejecutaron suites funcionales, porque no cambió código.
+
+**Rama.** `dario` · **Estado.** planificación preparada; tareas de implementación sin iniciar. Solo documentación y notas del harness; sin cambios de código de aplicación.
+
+---
+
 ### 2026-10-05 · UX-AUTH-01 · FO (agente, inicio de sesión con Google)
 
 **Hecho.** El botón Google del login inicia sesión de verdad: `GET /auth/google/login` → Google → `GET /auth/google/callback` → `/auth/google#token=…` en el front, que guarda el JWT y entra al dashboard. Correo sin cuenta: se crea usuario sin contraseña con espacio personal y créditos de alta. Correo con cuenta: se vincula en `oauth_accounts`. El botón Microsoft queda deshabilitado («Próximamente»). Contrato en `specs/proposals/UX-AUTH-01-login-google.md`. Pruebas: 5 unitarias, 9 de seguridad, 4 de integración con Postgres; 6 de Vitest. Suite: 588 passed con Postgres; `qa.py --full` en verde (ruff solo avisa por errores previos en `tests/`).

@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-07",
+  "updated": "2026-10-13",
   "status_values": [
     "pending",
     "claimed",
@@ -1295,7 +1295,7 @@
       "trello": "https://trello.com/c/4wewW4BW",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.1-dashboard-canal-estados.md y docs/exec-plans/active/S5.1-dashboard-canal-estados.md (prompt actualizado). Estado general por SSE para Calendario Google/Outlook y Personas /dashboard/person-research en PDL y gemini_web; ambos modos usan person_manual remoto. Retirar polling de DossierJobsProvider; CA13-CA15 prueban Personas explicitamente. Corporativo manual sigue fuera. S4.8 en review; verificar habilitacion segun handoff. S5.2 y S5.3 separadas."
     },
     {
       "id": "S5.2",
@@ -1356,7 +1356,7 @@
       "trello": "https://trello.com/c/taJ6cNQf",
       "branch": null,
       "evidence": [],
-      "notes": ""
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. Registrar con FO dependencia backend ampliada; BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. S4.9 sigue en review."
     },
     {
       "id": "S5.5",
