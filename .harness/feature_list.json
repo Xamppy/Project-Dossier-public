@@ -1200,7 +1200,7 @@
       "id": "S4.8",
       "sprint": 4,
       "title": "Implementar el canal de estados progresivos en el servicio",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1218,9 +1218,10 @@
       "branch": "FO",
       "evidence": [
         "backend/tests/test_dossier_progress_events.py,backend/tests/test_dossier_progress_stream.py,backend/tests/integration/test_dossier_stream_route.py,backend/tests/security/test_dossier_stream_seguridad.py,backend/tests/stress/test_dossier_stream_estres.py",
-        "Seguimiento 2026-10-05 (commit 4ee1198): canal por eventos del worker con respaldo por base cada 10s; lector sin retener conexion del pool; CA1 para clientes nuevos y tras reinicio"
+        "Seguimiento 2026-10-05 (commit 4ee1198): canal por eventos del worker con respaldo por base cada 10s; lector sin retener conexion del pool; CA1 para clientes nuevos y tras reinicio",
+        "Revision DG 2026-10-13 sobre feat/S5.1-dashboard-canal-estados@def9c69: 21 pruebas S4.8 en verde (unit, integracion, seguridad, estres), ruff limpio en archivos del canal. CA1, CA3 y CA4 aceptados; CA2 trasladado a S5.4."
       ],
-      "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. agent_progress por-agente (CA2) no implementado: requiere instrumentar LangGraph.",
+      "notes": "SSE en GET /dossier-generation-jobs/{id}/stream; job_status/completed/failed + heartbeat + resincronizacion via Last-Event-ID. Aprobada por DG (segundo integrante) el 2026-10-13 con CA1, CA3 y CA4. CA2 (agent_progress por agente) NO se implemento en S4.8: se traslada a S5.4, cuya spec y plan ya lo cubren (seguimiento backend BE1-BE13 con agent_progress corporativo y stage_progress personal; CA2 frontend). La ruta real difiere de la del ADR 0006 (/dossiers/{id}/stream); manda la implementada.",
       "owner_session": "FO (agente)"
     },
     {
