@@ -72,6 +72,7 @@ REASON_CODES: dict[str, frozenset[str]] = {
             "feature_disabled",
             "insufficient_input",
             "not_required",
+            "no_content",
             "upstream_auth_failed",
             "not_reached",
         }
