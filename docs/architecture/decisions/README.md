@@ -65,3 +65,5 @@ Sin estas seis escritas, **el Sprint 0 no está cerrado**:
 5. [0005 · Proveedor de correo transaccional y entrega de dossiers](0005-proveedor-correo.md) (S0.8)
 6. [0006 · Protocolo de estados progresivos (SSE vs WebSockets)](0006-protocolo-estados-progresivos.md) (S0.11)
 7. [0007 · Calendario visual para reuniones](0007-calendario-visual.md) (UX-CAL-01, propuesta)
+8. [0008 · Indicadores de Resumen: «Créditos para preparar»](0008-indicador-creditos-para-preparar.md) (UX-KPI-01)
+9. [0009 · Contrato de progreso por scopes y snapshot persistido en el job](0009-contrato-progreso-por-scopes.md) (S5.10)
