@@ -1240,6 +1240,7 @@
       ],
       "blocks": [
         "S5.4",
+        "S5.10",
         "S7.2"
       ],
       "trello": "https://trello.com/c/r3JiXDVU",
@@ -1355,13 +1356,14 @@
       "due": "2026-12-13",
       "depends_on": [
         "S4.9",
-        "S5.1"
+        "S5.1",
+        "S5.10"
       ],
       "blocks": [],
       "trello": "https://trello.com/c/taJ6cNQf",
       "branch": null,
       "evidence": [],
-      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. Registrar con FO dependencia backend ampliada; BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. S4.9 sigue en review."
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1."
     },
     {
       "id": "S5.5",
@@ -1465,6 +1467,28 @@
       "branch": null,
       "evidence": [],
       "notes": ""
+    },
+    {
+      "id": "S5.10",
+      "sprint": 5,
+      "title": "Instrumentar progreso por etapas y resultados parciales para S5.4 (backend)",
+      "status": "pending",
+      "owner": "DG",
+      "area": "backend",
+      "activity": "A6",
+      "objective": "OE6",
+      "gap": "B4",
+      "due": "2026-12-13",
+      "depends_on": [
+        "S4.9"
+      ],
+      "blocks": [
+        "S5.4"
+      ],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Seguimiento backend de S5.4, prerrequisito de su frontend. Registrado por DG el 2026-10-15; responsable DG por decisión de ese día (el plan proponía FO/equipo). Cubre Calendario Google/Outlook y Personas (Registros PDL y Web pública/gemini_web; person_manual incluido): agent_progress de los agentes corporativos al iniciar y terminar cada nodo, stage_progress con etapas person.* por modalidad, partial_result con vistas previas autorizadas (Markdown corporativo, perfiles PDL permitidos antes de la síntesis, informe gemini_web solo cuando vuelve completo) y snapshot de progreso por scope persistido y recuperable, con revisión por job y sin depender del buffer SSE en memoria. Criterios BE1-BE13 de specs/proposals/S5.4-resultados-parciales-agentes.md; pasos B0-B7 y prompt del agente backend en docs/exec-plans/active/S5.4-resultados-parciales-agentes.md. Antes del RED: adoptar el contrato (B0) y, si cambia una decisión del ADR 0006, dejar un ADR complementario. Fuera de alcance: corporativo manual, S5.2 (notificaciones), S5.3 (reconexión automática) y el frontend de S5.4. gemini_web llama a DeepSeek sin búsqueda web real: no publicar búsquedas, páginas ni fuentes que no ocurren (live_web_search=false). Se ejecuta en su propia sesión y PR. Creada en la rama feat/S5.1-dashboard-canal-estados, todavía no en main. Tarjeta de Trello pendiente: la crea DG."
     },
     {
       "id": "S6.1",
