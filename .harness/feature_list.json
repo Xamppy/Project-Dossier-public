@@ -2072,7 +2072,7 @@
       "id": "BUG-2026-10-14-01",
       "sprint": 1,
       "title": "Validar límite UTF-8 de bcrypt en el registro manual",
-      "status": "claimed",
+      "status": "in_progress",
       "owner": "DG",
       "area": "auth",
       "activity": "A3",
@@ -2083,8 +2083,17 @@
       "blocks": [],
       "trello": null,
       "branch": "codex/fix-register-password-bytes",
-      "evidence": [],
-      "notes": "Defecto confirmado por auditoría local y corrección autorizada por el usuario: conservar bcrypt, rechazar contraseñas de más de 72 bytes con mensaje comprensible y pruebas de regresión.",
+      "evidence": [
+        "specs/proposals/BUG-2026-10-14-01-registro-bcrypt.md",
+        "backend/tests/test_register_password.py",
+        "backend/tests/integration/test_register_password_route.py",
+        "backend/tests/security/test_register_password_seguridad.py",
+        "frontend/src/app/register/page.test.tsx",
+        "frontend/src/lib/translate-api-error.test.ts",
+        "specs/reports/BUG-2026-10-14-01-registro-bcrypt.md",
+        "docs/auth-app.md"
+      ],
+      "notes": "Corrección implementada con TDD: validación UTF-8 previa al hash, HTTP 422 con código estable y mensaje traducido en siete idiomas. 44 pruebas nuevas en verde (31 backend, 13 frontend). qa.py --full exit 0 con Postgres temporal: 621 backend passed, 12 skipped; Vitest y build aprobados; tsc/mypy y ruff de archivos modificados limpios. Ruff general conserva 25 hallazgos en archivos no modificados. Pendiente push/PR, revisión de segundo integrante, evidencia Trello y despliegue. No se marca done por el autor.",
       "owner_session": "DG (Codex)"
     }
   ]

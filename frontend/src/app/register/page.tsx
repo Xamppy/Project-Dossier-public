@@ -249,6 +249,8 @@ function RegisterPageContent() {
       next.password = t("auth.error.password_required");
     } else if (password.length < 8) {
       next.password = t("auth.error.password_min_8");
+    } else if (new TextEncoder().encode(password).length > 72) {
+      next.password = t("auth.error.password_max_bytes");
     }
     if (!confirmPassword.trim()) {
       next.confirmPassword = t("auth.error.confirm_required");

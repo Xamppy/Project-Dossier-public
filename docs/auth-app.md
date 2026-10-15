@@ -18,6 +18,20 @@ Cuerpos JSON esperados:
 - **register:** `{ "email", "password", "full_name", "company_name" }`
 - **login:** `{ "email", "password" }`
 
+### Límite de contraseña al registrarse
+
+El registro conserva bcrypt y requiere al menos ocho caracteres y como máximo
+**72 bytes en UTF-8**. Las letras acentuadas y los emojis pueden ocupar varios bytes:
+36 caracteres `é` ocupan 72 bytes; 37 ocupan 74 y se rechazan. La contraseña nunca
+se recorta ni se normaliza.
+
+El formulario muestra el error junto a la contraseña antes de enviarla, en el idioma
+de la interfaz. La API también valida el límite (incluido el registro por invitación)
+y devuelve **HTTP 422** con `loc: ["body", "password"]`,
+`type: "password_too_long_bytes"` y `ctx: {"max_bytes": 72}`. El mensaje explica
+que debe usarse una contraseña más corta. El intento inválido no crea cuenta,
+organización ni membresía. Este cambio no modifica los hashes existentes ni el login.
+
 ## Variables de entorno
 
 - **`JWT_SECRET`**: obligatoria para firmar tokens (mínimo 16 caracteres; en producción, 32+ aleatorios).
