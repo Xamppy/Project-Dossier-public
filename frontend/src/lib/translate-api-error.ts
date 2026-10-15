@@ -29,6 +29,21 @@ function extractDetail(body: unknown): ApiErrorDetail | null {
 }
 
 export function translateApiError(err: DossierApiError, t: TranslateFn): string {
+  const validation = err.body && typeof err.body === "object"
+    ? (err.body as { detail?: unknown }).detail
+    : null;
+  if (err.status === 422 && Array.isArray(validation) && validation.some((item: unknown) => {
+    if (!item || typeof item !== "object") return false;
+    const field = item as { type?: unknown; loc?: unknown };
+    return field.type === "password_too_long_bytes"
+      && Array.isArray(field.loc)
+      && field.loc.length === 2
+      && field.loc[0] === "body"
+      && field.loc[1] === "password";
+  })) {
+    return t("auth.error.password_max_bytes");
+  }
+
   const detail = extractDetail(err.body);
   if (detail?.code) {
     const key = API_ERROR_CODES[detail.code];
