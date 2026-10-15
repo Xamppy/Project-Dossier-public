@@ -256,3 +256,80 @@ def llm_falso(monkeypatch):
         return llm
 
     return _instalar
+
+
+@pytest.fixture
+def progreso():
+    """Coordinador de progreso (S5.10) real sobre un almacén en memoria.
+
+        job = progreso.job()             # JobProgress de un job en `running`
+        progreso.eventos                 # [(evento, payload), ...] en orden de publicación
+        progreso.de("stage_progress")    # solo los payloads de ese evento
+        progreso.estado(job_id) = "cancelled"
+
+    El coordinador descarta y registra en el log los cambios inválidos para no
+    tumbar una generación; aquí, cualquier descarte hace fallar la prueba.
+    """
+    import copy
+    import logging
+    import threading
+    import uuid as _uuid
+
+    from dossier.services import dossier_job_progress as djp
+
+    class AlmacenEnMemoria:
+        def __init__(self):
+            self.jobs: dict = {}
+            self._lock = threading.Lock()
+
+        def apply(self, job_id, change):
+            with self._lock:
+                fila = self.jobs.get(job_id)
+                if fila is None or fila["status"] in ("completed", "failed", "cancelled"):
+                    return None
+                cambio = change(copy.deepcopy(fila["progress"]))
+                if cambio is None:
+                    return None
+                nuevo, resultado = cambio
+                fila["progress"] = nuevo
+                snapshot = {"id": str(job_id), "status": fila["status"], "progress": copy.deepcopy(nuevo)}
+                return resultado, copy.deepcopy(nuevo), snapshot
+
+    class Descartes(logging.Handler):
+        def __init__(self):
+            super().__init__(level=logging.WARNING)
+            self.registros: list[str] = []
+
+        def emit(self, record):
+            self.registros.append(record.getMessage())
+
+    class ProgresoEnMemoria:
+        def __init__(self):
+            self.almacen = AlmacenEnMemoria()
+            self.eventos: list[tuple[str, dict]] = []
+
+        def publicar(self, job_id, evento, datos):
+            self.eventos.append((evento, datos))
+
+        def job(self, job_id=None, status="running"):
+            job_id = job_id or _uuid.uuid4()
+            self.almacen.jobs[job_id] = {"status": status, "progress": None}
+            return djp.JobProgress(job_id, self.almacen, publish=self.publicar)
+
+        def estado(self, job_id, status):
+            self.almacen.jobs[job_id]["status"] = status
+
+        def guardado(self, job_id):
+            return self.almacen.jobs[job_id]["progress"]
+
+        def de(self, evento):
+            return [d for e, d in self.eventos if e == evento]
+
+    descartes = Descartes()
+    registro = logging.getLogger(djp.__name__)
+    registro.addHandler(descartes)
+    try:
+        yield ProgresoEnMemoria()
+    finally:
+        registro.removeHandler(descartes)
+    assert descartes.registros == [], f"el coordinador descartó cambios: {descartes.registros}"
