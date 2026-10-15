@@ -6,6 +6,36 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-15 · S5.1 (push), S4.9 (revisión) y alta de S5.10 · DG (agente Claude)
+
+**Hecho.** Tres decisiones de DG, en este orden. **S5.1:** la rama está en origin sin PR, por decisión de DG; queda anotado en S5.1, que sigue `in_progress`. **S4.9 (FO):** revisada y aprobada por DG como segundo integrante. Cumple el criterio del plan de trabajo: con un agente forzado a fallar, el canal emite el fallo y la generación continúa con los datos parciales. Pasan las 20 pruebas de S4.9 y otras 64 de S4.8 y del grafo de cinco nodos, contra un Postgres de prueba; la suite backend da 590 passed y 12 skipped; ruff y mypy, limpios. Una verificación de extremo a extremo, no commiteada (worker y grafo reales, agente UK forzado a fallar, stream SSE con un cliente conectado), recibió `job_status` queued → running → `agent_progress` de `agent_corporate_uk` → `job_completed`, y el dossier corporativo quedó `complete` con `agents_failed`. **S5.10:** creada a nombre de DG, «Instrumentar progreso por etapas y resultados parciales para S5.4 (backend)», con `depends_on` S4.9 y `blocks` S5.4; S5.4 la suma a sus dependencias y el plan de S5.4 la nombra en la secuencia, en B0, en ambos prompts y en su registro.
+
+**Sin terminar.** El PR de S5.1, cuando DG lo indique; S5.1 pasa a `review` al abrirlo. La tarjeta de Trello de S5.10: el navegador de la sesión no tiene sesión de Trello, así que la crea DG. La evidencia de S5.1 en su tarjeta. S5.10 no se reclamó ni se empezó.
+
+**Lo que hay que saber.**
+- **La aprobación de S4.9 y la tarea S5.10 solo existen en `feat/S5.1-dashboard-canal-estados`, todavía no en `main`.** La sesión que tome S5.10 debe partir de esa rama o esperar a que se integre. Desde `main`, `next.py` no muestra S5.10 y sigue viendo S4.9 en `review`.
+- La carpeta principal del repo estaba en `codex/fix-register-password-bytes` (BUG-2026-10-14-01). Esta sesión trabajó en un worktree de la rama de S5.1 para no tocarla.
+- **Lo que S4.9 no hace y S5.10 tiene que cubrir:**
+  - `agent_progress` solo se publica para fallos, y después de que vuelve el grafo completo, no al iniciar ni al cerrar cada nodo. Solo ocurre en jobs de calendario.
+  - Los nombres son los de los nodos (`agent_corporate_uk`), no los del ADR 0006 (`uk_corporate`), y el campo `dossier_id` lleva el job ID.
+  - Un cliente que conecta después del evento no lo recibe: al conectar solo se le envía el último evento, y el reenvío solo funciona con `Last-Event-ID` dentro del buffer.
+  - El evento `partial_result` que el ADR 0006 atribuía a S4.9 no existe ni era criterio de la tarea; queda en S5.10.
+- La evidencia original de S4.9 hablaba de 28 pruebas: el commit `41b762e` añadió 20 (7 unitarias, 10 de integración y 3 de estrés).
+- **Las pruebas contra Postgres se omiten sin `TEST_DATABASE_URL`**, y en local no existe ninguna base de prueba: hay que crear una cuyo nombre contenga «test», porque `pg_vacia` borra su esquema. Para esta revisión se creó `dossier_s49_test` y se borró al terminar.
+- **Para probar un job de calendario de punta a punta sin red:**
+  - Con `external_event_id` nulo, `_refresh_reunion_for_job` usa el snapshot sin llamar a Google ni a Microsoft.
+  - Con alcance `dual` también corren los nodos de Europa y prensa, así que hay que simular `eu_registry.agent.run_eu_registry_agent` y `news.agent.collect_press_mentions`, además de UK, USA, el LLM y `resolve_corporate_brief`.
+  - La organización no puede tener plan `free`, que omite el corporativo.
+- En esa prueba, aun con la lista de participantes vacía, se guardó además una fila de persona en `failed` (`agents_failed = ['deepseek_person_analysis']`), y el job terminó `completed`. No se investigó el origen; es relevante para el caso «dossier guardado con ID pero en failed» de S5.4.
+- `next.py --check` ya fallaba antes de esta sesión porque «DG (agente)» tiene tres tareas `in_progress`: BUG-2026-09-24-01, BUG-2026-09-26-01 y UX-KPI-01. No se tocaron.
+- La sección «Dependencia backend» de la spec de S5.4 todavía dice que FO/equipo debe registrar la tarea y que no se tomen S4.8/S4.9 en `review`. Quedó desactualizada: mandan el plan y `feature_list.json`.
+
+**Siguiente paso concreto.** DG: abrir el PR de S5.1 cuando quiera, crear la tarjeta de Trello de S5.10 y adjuntar la evidencia de S5.1. Después, S5.10 en su propia sesión, con el prompt backend del plan de S5.4 y partiendo de esta rama.
+
+**Rama.** `feat/S5.1-dashboard-canal-estados` · **Estado.** S4.9 `done`; S5.1 `in_progress`; S5.10 `pending`
+
+---
+
 ### 2026-10-13 · S4.8 (revisión) y S5.1 · DG (agente Claude)
 
 **Hecho.** DG revisó S4.8 como segundo integrante y la marcó `done` (21 pruebas del canal en verde, ruff limpio); **CA2 `agent_progress` se trasladó a S5.4**, que ya lo cubre. Después se implementó S5.1: `DossierJobsProvider` deja el `setInterval` de 3 s y sigue cada job remoto activo (Calendario Google/Outlook, Personas PDL/Web pública) por `GET /dossier-generation-jobs/{id}/stream` con `@microsoft/fetch-event-source` 2.0.1. Adaptador en `frontend/src/lib/dossier-job-stream.ts`; la página de Personas muestra cortes y «Reconectar». 78 pruebas nuevas (293 en total), lint, tsc y `qa.py --full --since d0ae752` en verde. Demostración integrada con backend y `next dev` locales: 0 lecturas periódicas de jobs (antes, 80 en 60 s con 4 activos). Reporte: `specs/reports/S5.1-dashboard-canal-estados.md`.
