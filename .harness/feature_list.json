@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-13",
+  "updated": "2026-10-14",
   "status_values": [
     "pending",
     "claimed",
@@ -2067,6 +2067,25 @@
       ],
       "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
       "owner_session": "FO (agente)"
+    },
+    {
+      "id": "BUG-2026-10-14-01",
+      "sprint": 1,
+      "title": "Validar límite UTF-8 de bcrypt en el registro manual",
+      "status": "claimed",
+      "owner": "DG",
+      "area": "auth",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-14",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/fix-register-password-bytes",
+      "evidence": [],
+      "notes": "Defecto confirmado por auditoría local y corrección autorizada por el usuario: conservar bcrypt, rechazar contraseñas de más de 72 bytes con mensaje comprensible y pruebas de regresión.",
+      "owner_session": "DG (Codex)"
     }
   ]
 }
