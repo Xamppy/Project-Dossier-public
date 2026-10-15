@@ -56,7 +56,7 @@ no aplica pasa de `pending` a `skipped` sin pasar por `running`.
 | Estado | Códigos |
 |---|---|
 | `completed` | `no_matches`, `cache_hit`, `cache_miss` |
-| `skipped` | `out_of_scope`, `no_target_company`, `plan_not_included`, `cache_hit`, `cache_unavailable`, `force_refresh`, `mode_not_applicable`, `sufficient_profiles`, `no_profiles`, `configuration_missing`, `feature_disabled`, `insufficient_input`, `not_required`, `upstream_auth_failed`, `not_reached` |
+| `skipped` | `out_of_scope`, `no_target_company`, `plan_not_included`, `cache_hit`, `cache_unavailable`, `force_refresh`, `mode_not_applicable`, `sufficient_profiles`, `no_profiles`, `configuration_missing`, `feature_disabled`, `insufficient_input`, `not_required`, `no_content`, `upstream_auth_failed`, `not_reached` |
 | `failed` | `provider_error`, `provider_timeout`, `provider_quota`, `provider_rate_limit`, `upstream_auth_failed`, `structured_output_invalid`, `no_valid_report`, `persistence_error`, `interrupted` |
 
 ### Catálogos (los declara el servidor al crear el scope)
