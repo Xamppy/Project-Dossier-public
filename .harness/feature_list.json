@@ -1298,7 +1298,7 @@
       "evidence": [
         "specs/reports/S5.1-dashboard-canal-estados.md: 78 pruebas nuevas (adaptador 19, proveedor 33, trafico HTTP 1, pagina Personas 25), 293 en verde; qa.py --full --since d0ae752 en verde; demostracion integrada local sin sondeo de jobs (antes 80 GET en 60 s con 4 activos)."
       ],
-      "notes": "Implementada en feat/S5.1-dashboard-canal-estados: DossierJobsProvider por SSE (Calendario Google/Outlook y Personas PDL/gemini_web), sin setInterval; recuperacion manual; corporativo manual sin stream. Pendiente: PR, revision y Trello. Sin reconexion automatica (S5.3): el corte del servidor a los 600 s se ve como conexion perdida. NotificationsProvider sigue en S5.2.",
+      "notes": "Implementada en feat/S5.1-dashboard-canal-estados: DossierJobsProvider por SSE (Calendario Google/Outlook y Personas PDL/gemini_web), sin setInterval; recuperacion manual; corporativo manual sin stream. Pendiente: PR, revision y Trello. Sin reconexion automatica (S5.3): el corte del servidor a los 600 s se ve como conexion perdida. NotificationsProvider sigue en S5.2. Rama subida a origin sin PR por decisión de DG (2026-10-15); el PR se abrirá cuando DG lo indique.",
       "owner_session": "DG (agente Claude)"
     },
     {
