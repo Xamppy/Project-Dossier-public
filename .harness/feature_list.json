@@ -1228,7 +1228,7 @@
       "id": "S4.9",
       "sprint": 4,
       "title": "Emitir resultados parciales cuando un agente falla",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A6",
@@ -1246,9 +1246,10 @@
       "branch": "FO",
       "evidence": [
         "graphs/corporate_dossier_graph.py (agents_failed/agents_succeeded con reducer, run_corporate_dossier_langgraph_detailed) + calendar_event_dossiers.py + dossier_generation_job_service.py; 28 pruebas (commit 41b762e)",
-        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
+        "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde",
+        "Revisión DG 2026-10-15 sobre feat/S5.1-dashboard-canal-estados@263c5e3: 20 pruebas de S4.9 en verde (7 unitarias, 10 de integración con Postgres, 3 de estrés), más 64 de S4.8 y del grafo de cinco nodos (S2.2); suite backend completa 590 passed, 12 skipped (reservadas a otras tareas); ruff limpio en los 6 archivos de S4.9; mypy src sin errores. Verificación de extremo a extremo no commiteada (worker real, grafo real con el agente UK forzado a fallar, Postgres de prueba y stream SSE con un cliente conectado): frames job_status queued, job_status running, agent_progress agent_corporate_uk failed, job_completed; job completed y dossier corporativo complete con agents_failed = [agent_corporate_uk]."
       ],
-      "notes": "Tomada con S4.8 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Grafo corporativo con agents_failed/agents_succeeded (reducer operator.add), persistidos en dossiers.agents_failed y emitidos como agent_progress (status failed) en el canal SSE de S4.8. Revisado y aprobado por DG, 2026-10-15 (segundo integrante): se cumple el criterio del plan de trabajo, con un agente forzado a fallar el canal emite el fallo y la generación continúa con los datos parciales. Límites que no forman parte del criterio de S4.9 y que cubre el seguimiento backend de S5.4 (S5.10): agent_progress solo se publica para fallos y al terminar el grafo, no al iniciar o cerrar cada nodo; solo en jobs de calendario; un cliente que conecta tarde no recibe los agent_progress anteriores; el campo dossier_id lleva el job_id. El evento partial_result que ADR 0006 atribuye a S4.9 no existe: no figura en el criterio de la tarea y está especificado en S5.10 (spec de S5.4). La evidencia original hablaba de 28 pruebas; el commit 41b762e añadió 20. Tomada con S4.8 aún en review, por decisión del usuario (MVP); ejecutada por subagente Sonnet en worktree aislado e integrada en FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
