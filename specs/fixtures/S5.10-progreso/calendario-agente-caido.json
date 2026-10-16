@@ -1,0 +1,4275 @@
+{
+  "escenario": "calendario-agente-caido",
+  "descripcion": "Calendario Google: el agente UK falla y el resto completa; Ana Prueba se encuentra en PDL y Beto Ficticio no (su dossier queda failed). Análisis contextual deshabilitado.",
+  "contrato": "docs/architecture/decisions/0009-contrato-progreso-por-scopes.md",
+  "generado_por": "backend/scripts/generar_fixtures_progreso.py",
+  "frames": [
+    {
+      "id": 1,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": null,
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 2,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "schema_version": 1,
+          "revision": 1,
+          "scopes": [
+            {
+              "scope_id": "corporate:0",
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "origin": null,
+              "agents": [
+                {
+                  "agent_name": "agent_corporate_uk",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "agent_name": "agent_corporate_usa",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "agent_name": "agent_corporate_eu",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "agent_name": "agent_news",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "agent_name": "synthesize_llm",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                }
+              ],
+              "partial_results": [],
+              "dossier": null
+            },
+            {
+              "scope_id": "person:0",
+              "kind": "person",
+              "label": "Ana Prueba",
+              "research_source": "pdl",
+              "live_web_search": false,
+              "origin": null,
+              "profiles_count": null,
+              "stages": [
+                {
+                  "stage_id": "person.cache_lookup",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_enrich",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_search",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_normalization",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.context_analysis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_synthesis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.markdown_fallback",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.report_finalize",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.persist",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                }
+              ],
+              "partial_results": [],
+              "dossier": null
+            },
+            {
+              "scope_id": "person:1",
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "research_source": "pdl",
+              "live_web_search": false,
+              "origin": null,
+              "profiles_count": null,
+              "stages": [
+                {
+                  "stage_id": "person.cache_lookup",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_enrich",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_search",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_normalization",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.context_analysis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_synthesis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.markdown_fallback",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.report_finalize",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.persist",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                }
+              ],
+              "partial_results": [],
+              "dossier": null
+            }
+          ]
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 3,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 2,
+        "agent_name": "agent_corporate_eu",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 4,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 3,
+        "agent_name": "agent_corporate_uk",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 5,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 4,
+        "agent_name": "agent_corporate_usa",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 6,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 5,
+        "agent_name": "agent_news",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 7,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 6,
+        "agent_name": "agent_corporate_eu",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_matches"
+      }
+    },
+    {
+      "id": 8,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 7,
+        "agent_name": "agent_corporate_uk",
+        "status": "failed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "provider_error"
+      }
+    },
+    {
+      "id": 9,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 8,
+        "agent_name": "agent_corporate_usa",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 10,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 9,
+        "agent_name": "agent_news",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_matches"
+      }
+    },
+    {
+      "id": 11,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 10,
+        "agent_name": "synthesize_llm",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 12,
+      "event": "partial_result",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "agent_name": "synthesize_llm",
+        "section": "synthesis",
+        "format": "markdown",
+        "content": "# Dossier corporativo\n\nResumen ficticio.",
+        "origin": "generated",
+        "provisional": true,
+        "truncated": false,
+        "revision": 11
+      }
+    },
+    {
+      "id": 13,
+      "event": "agent_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "corporate:0",
+        "revision": 12,
+        "agent_name": "synthesize_llm",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 14,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": null,
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": null,
+              "stages": [
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": null,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": null,
+              "stages": [
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:1",
+              "profiles_count": null,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 13,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 15,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 14,
+        "research_source": "pdl",
+        "stage_id": "person.cache_lookup",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "cache_unavailable"
+      }
+    },
+    {
+      "id": 16,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 15,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_enrich",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 17,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 16,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_enrich",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null,
+        "attempts": {
+          "total": 4,
+          "failed": 0
+        }
+      }
+    },
+    {
+      "id": 18,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 17,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_search",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "sufficient_profiles"
+      }
+    },
+    {
+      "id": 19,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 18,
+        "research_source": "pdl",
+        "stage_id": "person.profile_normalization",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 20,
+      "event": "partial_result",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "stage_id": "person.profile_normalization",
+        "section": "person_profiles",
+        "format": "person_profiles",
+        "data": {
+          "profiles": [
+            {
+              "record_key": "profile:0",
+              "full_name": "Ana Prueba",
+              "job_title": "Directora general",
+              "company": "Empresa de Prueba SA",
+              "profile_urls": [
+                "https://www.linkedin.com/in/ana-prueba-ficticia"
+              ]
+            }
+          ],
+          "profiles_count": 1
+        },
+        "provenance": {
+          "basis": "provider_records",
+          "sources": [
+            "pdl"
+          ],
+          "live_web_search": false
+        },
+        "origin": "generated",
+        "provisional": true,
+        "truncated": false,
+        "revision": 19,
+        "research_source": "pdl"
+      }
+    },
+    {
+      "id": 21,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 20,
+        "research_source": "pdl",
+        "stage_id": "person.profile_normalization",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 22,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 21,
+        "research_source": "pdl",
+        "stage_id": "person.context_analysis",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "mode_not_applicable"
+      }
+    },
+    {
+      "id": 23,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 22,
+        "research_source": "pdl",
+        "stage_id": "person.profile_synthesis",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 24,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 23,
+        "research_source": "pdl",
+        "stage_id": "person.profile_synthesis",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 25,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 24,
+        "research_source": "pdl",
+        "stage_id": "person.markdown_fallback",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "not_required"
+      }
+    },
+    {
+      "id": 26,
+      "event": "partial_result",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "stage_id": "person.report_finalize",
+        "section": "person_report",
+        "format": "markdown",
+        "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+        "provenance": {
+          "basis": "provider_records",
+          "sources": [
+            "pdl"
+          ],
+          "live_web_search": false
+        },
+        "origin": "generated",
+        "provisional": true,
+        "truncated": false,
+        "revision": 25,
+        "research_source": "pdl"
+      }
+    },
+    {
+      "id": 27,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 26,
+        "research_source": "pdl",
+        "stage_id": "person.report_finalize",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 28,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": null,
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": null,
+              "stages": [
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": null,
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:1",
+              "profiles_count": null,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 27,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 29,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 28,
+        "research_source": "pdl",
+        "stage_id": "person.cache_lookup",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "cache_unavailable"
+      }
+    },
+    {
+      "id": 30,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 29,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_enrich",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 31,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 30,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_enrich",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_matches",
+        "attempts": {
+          "total": 4,
+          "failed": 0
+        }
+      }
+    },
+    {
+      "id": 32,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 31,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_search",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 33,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 32,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_search",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_matches",
+        "attempts": {
+          "total": 2,
+          "failed": 0
+        }
+      }
+    },
+    {
+      "id": 34,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 33,
+        "research_source": "pdl",
+        "stage_id": "person.profile_normalization",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_profiles"
+      }
+    },
+    {
+      "id": 35,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 34,
+        "research_source": "pdl",
+        "stage_id": "person.context_analysis",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "feature_disabled"
+      }
+    },
+    {
+      "id": 36,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 35,
+        "research_source": "pdl",
+        "stage_id": "person.profile_synthesis",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_profiles"
+      }
+    },
+    {
+      "id": 37,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 36,
+        "research_source": "pdl",
+        "stage_id": "person.markdown_fallback",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "not_required"
+      }
+    },
+    {
+      "id": 38,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 37,
+        "research_source": "pdl",
+        "stage_id": "person.report_finalize",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_content"
+      }
+    },
+    {
+      "id": 39,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": null,
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 28,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 30,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 2,
+                    "failed": 0
+                  },
+                  "revision": 32,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 33,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 34,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "feature_disabled"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 35,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 36,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 37,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:1",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 38,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 40,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 39,
+        "research_source": "pdl",
+        "stage_id": "person.persist",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 41,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 40,
+        "research_source": "pdl",
+        "stage_id": "person.persist",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 42,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "complete"
+              },
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "running",
+                  "revision": 39,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 28,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 30,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 2,
+                    "failed": 0
+                  },
+                  "revision": 32,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 33,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 34,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "feature_disabled"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 35,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 36,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 37,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "running",
+                  "revision": 40,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:1",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 41,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 43,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 42,
+        "research_source": "pdl",
+        "stage_id": "person.persist",
+        "status": "completed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null,
+        "dossier_id": "00000000-0000-4000-8000-000000000003",
+        "dossier_status": "complete"
+      }
+    },
+    {
+      "id": 44,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "complete"
+              },
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 42,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000003",
+                  "reason_code": null,
+                  "dossier_status": "complete"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000003",
+                "status": "complete"
+              },
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 28,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 30,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 2,
+                    "failed": 0
+                  },
+                  "revision": 32,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 33,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 34,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "feature_disabled"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 35,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 36,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 37,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "running",
+                  "revision": 40,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:1",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 43,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 45,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:1",
+        "revision": 44,
+        "research_source": "pdl",
+        "stage_id": "person.persist",
+        "status": "failed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_valid_report",
+        "dossier_id": "00000000-0000-4000-8000-000000000004",
+        "dossier_status": "failed"
+      }
+    },
+    {
+      "id": 46,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "complete"
+              },
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 42,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000003",
+                  "reason_code": null,
+                  "dossier_status": "complete"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000003",
+                "status": "complete"
+              },
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 28,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 30,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 2,
+                    "failed": 0
+                  },
+                  "revision": 32,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 33,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 34,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "feature_disabled"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 35,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 36,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 37,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "failed",
+                  "revision": 44,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000004",
+                  "reason_code": "no_valid_report",
+                  "dossier_status": "failed"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000004",
+                "status": "failed"
+              },
+              "scope_id": "person:1",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 45,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 47,
+      "event": "job_completed",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "completed",
+        "job_type": "calendar_manual",
+        "calendar_provider": "google",
+        "external_event_id": null,
+        "meeting_label": "Kick-off con Empresa de Prueba SA",
+        "credits_estimated": 5,
+        "credits_consumed": 4,
+        "error_message": null,
+        "result": {
+          "parse": {
+            "tema": "Kick-off con Empresa de Prueba SA",
+            "company": "Empresa de Prueba SA",
+            "persons": [
+              {
+                "email": null,
+                "index": 1,
+                "country": null,
+                "job_area": "Directora general",
+                "full_name": "Ana Prueba"
+              },
+              {
+                "email": null,
+                "index": 2,
+                "country": null,
+                "job_area": "Gerente",
+                "full_name": "Beto Ficticio"
+              }
+            ],
+            "person_job": "Directora general",
+            "descripcion": "Empresa: Empresa de Prueba SA\nContacto 1: Ana Prueba\nCargo 1: Directora general\nContacto 2: Beto Ficticio\nCargo 2: Gerente",
+            "person_name": "Ana Prueba",
+            "person_email": null,
+            "participantes": "",
+            "company_person": "Empresa de Prueba SA",
+            "person_country": null,
+            "company_subject": "Kick-off con Empresa de Prueba SA",
+            "company_corporate": "Empresa de Prueba SA",
+            "company_corporate_source": "description"
+          },
+          "errors": [],
+          "reunion": {
+            "tema": "Kick-off con Empresa de Prueba SA",
+            "inicio": "2026-10-15T12:00:00+00:00",
+            "descripcion": "Empresa: Empresa de Prueba SA\nContacto 1: Ana Prueba\nCargo 1: Directora general\nContacto 2: Beto Ficticio\nCargo 2: Gerente",
+            "participantes": ""
+          },
+          "saved_dossiers": {
+            "folder": {
+              "id": "00000000-0000-4000-8000-000000000005",
+              "title": "Kick-off con Empresa de Prueba SA · 20/10/2026 10:00"
+            },
+            "person": {
+              "id": "00000000-0000-4000-8000-000000000003",
+              "status": "complete",
+              "cache_hit": false,
+              "subject_name": "Ana Prueba",
+              "status_message": null
+            },
+            "persons": [
+              {
+                "id": "00000000-0000-4000-8000-000000000003",
+                "status": "complete",
+                "cache_hit": false,
+                "subject_name": "Ana Prueba",
+                "status_message": null
+              },
+              {
+                "id": "00000000-0000-4000-8000-000000000004",
+                "status": "failed",
+                "cache_hit": false,
+                "subject_name": "Beto Ficticio",
+                "status_message": "No se encontró información adicional sobre esta persona. Añade más información o revisa que el nombre completo sea correcto para mayor exactitud."
+              }
+            ],
+            "corporate": {
+              "id": "00000000-0000-4000-8000-000000000002",
+              "status": "complete",
+              "subject_name": "Empresa de Prueba SA"
+            }
+          },
+          "dossier_persona": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+          "output_language": "en",
+          "dossier_generado": "# Dossier corporativo\n\nResumen ficticio.",
+          "dossier_personas": [
+            {
+              "md": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+              "email": null,
+              "error": null,
+              "index": 1,
+              "country": null,
+              "payload": {
+                "profiles": [
+                  {
+                    "data": {
+                      "id": "pdl-ficticio-1",
+                      "full_name": "Ana Prueba",
+                      "job_title": "Directora general",
+                      "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                      "job_company_name": "Empresa de Prueba SA"
+                    },
+                    "pdl_id": "pdl-ficticio-1",
+                    "provider": "pdl",
+                    "provider_id": "pdl-ficticio-1",
+                    "linkedin_urls": [
+                      "https://www.linkedin.com/in/ana-prueba-ficticia"
+                    ]
+                  }
+                ],
+                "warnings": [],
+                "posts_by_url": {},
+                "profile_urls": [
+                  "https://www.linkedin.com/in/ana-prueba-ficticia"
+                ],
+                "filters_applied": {
+                  "city": null,
+                  "email": null,
+                  "start": 0,
+                  "company": "Empresa de Prueba SA",
+                  "country": null,
+                  "job_area": "Directora general",
+                  "pdl_used": true,
+                  "full_name": "Ana Prueba",
+                  "linkedin_url": null,
+                  "max_profiles": 1,
+                  "geo_effective": null,
+                  "include_posts": false,
+                  "research_mode": "pdl_plus_gemini",
+                  "extra_keywords": null,
+                  "profiles_count": 1,
+                  "verified_facts": {
+                    "emails": [],
+                    "phones": [],
+                    "company": "Empresa de Prueba SA",
+                    "location": null,
+                    "full_name": "Ana Prueba",
+                    "job_title": "Directora general",
+                    "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                    "profiles_matched": 1
+                  },
+                  "output_language": "en",
+                  "research_source": "pdl",
+                  "enrichment_provider": "pdl",
+                  "lusha_verified_facts": {
+                    "emails": [],
+                    "phones": [],
+                    "company": "Empresa de Prueba SA",
+                    "location": null,
+                    "full_name": "Ana Prueba",
+                    "job_title": "Directora general",
+                    "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                    "profiles_matched": 1
+                  },
+                  "reveal_contact_details": false,
+                  "contexto_organizacion_cliente": null
+                },
+                "search_attempts": [
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba SA",
+                      "last_name": "Prueba",
+                      "first_name": "Ana"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "pdl_id": "pdl-ficticio-1",
+                      "matched": true,
+                      "likelihood": 8
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Prueba]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba",
+                      "last_name": "Prueba",
+                      "first_name": "Ana"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "pdl_id": "pdl-ficticio-1",
+                      "matched": true,
+                      "likelihood": 8
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba) [Ana/Prueba]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba SA",
+                      "last_name": "Pruebas",
+                      "first_name": "Ana"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "pdl_id": "pdl-ficticio-1",
+                      "matched": true,
+                      "likelihood": 8
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Pruebas]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba",
+                      "last_name": "Pruebas",
+                      "first_name": "Ana"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "pdl_id": "pdl-ficticio-1",
+                      "matched": true,
+                      "likelihood": 8
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba) [Ana/Pruebas]"
+                  }
+                ],
+                "executive_payload": {
+                  "risk_alerts": [],
+                  "participants": [
+                    {
+                      "name": "Ana Prueba"
+                    }
+                  ],
+                  "press_mentions": [],
+                  "schema_version": "2.0.0",
+                  "meeting_context": {},
+                  "career_trajectory": [],
+                  "corporate_records": [],
+                  "data_sources_used": [
+                    {
+                      "url": null,
+                      "record_id": null,
+                      "source_name": "People Data Labs",
+                      "source_type": "pdl",
+                      "retrieved_at": "2026-10-15T12:00:00+00:00"
+                    }
+                  ],
+                  "executive_summary": "Ana Prueba dirige Empresa de Prueba SA desde 2019.",
+                  "final_recommendation": {
+                    "decision": "proceed",
+                    "next_steps": [],
+                    "key_findings": [],
+                    "overall_risk": "low"
+                  },
+                  "confidence_assessment": {
+                    "inferences": [],
+                    "low_confidence": [],
+                    "high_confidence": [
+                      "Cargo actual según registros profesionales."
+                    ],
+                    "medium_confidence": []
+                  },
+                  "conversation_starters": []
+                },
+                "llm_analysis_markdown": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                "gemini_google_search_used": false
+              },
+              "job_area": "Directora general",
+              "scope_id": "person:0",
+              "cache_hit": false,
+              "cache_key": null,
+              "full_name": "Ana Prueba"
+            },
+            {
+              "md": null,
+              "email": null,
+              "error": null,
+              "index": 2,
+              "country": null,
+              "payload": {
+                "profiles": [],
+                "warnings": [
+                  "No se encontró información adicional sobre esta persona. Añade más información o revisa que el nombre completo sea correcto para mayor exactitud.",
+                  "Sin datos de enriquecimiento y DEEPSEEK_DISABLE_PERSON_WEB=1: no se ejecutó el análisis con IA."
+                ],
+                "posts_by_url": {},
+                "profile_urls": [],
+                "filters_applied": {
+                  "city": null,
+                  "email": null,
+                  "start": 0,
+                  "company": "Empresa de Prueba SA",
+                  "country": null,
+                  "job_area": "Gerente",
+                  "pdl_used": true,
+                  "full_name": "Beto Ficticio",
+                  "linkedin_url": null,
+                  "max_profiles": 1,
+                  "geo_effective": null,
+                  "include_posts": false,
+                  "research_mode": "pdl_plus_gemini",
+                  "extra_keywords": null,
+                  "profiles_count": 0,
+                  "verified_facts": null,
+                  "output_language": "en",
+                  "research_source": "pdl",
+                  "enrichment_provider": "pdl",
+                  "lusha_verified_facts": null,
+                  "reveal_contact_details": false,
+                  "contexto_organizacion_cliente": null
+                },
+                "search_attempts": [
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba SA",
+                      "last_name": "Ficticio",
+                      "first_name": "Beto"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "_pdlEmptyMatch": true
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba SA) [Beto/Ficticio]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba",
+                      "last_name": "Ficticio",
+                      "first_name": "Beto"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "_pdlEmptyMatch": true
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba) [Beto/Ficticio]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba SA",
+                      "last_name": "Ficticios",
+                      "first_name": "Beto"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "_pdlEmptyMatch": true
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba SA) [Beto/Ficticios]"
+                  },
+                  {
+                    "params": {
+                      "company": "Empresa de Prueba",
+                      "last_name": "Ficticios",
+                      "first_name": "Beto"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "_pdlEmptyMatch": true
+                    },
+                    "strategy": "nombre + company (Empresa de Prueba) [Beto/Ficticios]"
+                  },
+                  {
+                    "params": {
+                      "sql": "SELECT * FROM person WHERE ((first_name='Beto' AND last_name='Ficticio') OR (first_name='Beto' AND last_name='Ficticios') OR full_name='Beto Ficticio') AND job_company_name='Empresa de Prueba SA'"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "count": 0,
+                      "total": 0
+                    },
+                    "strategy": "person/search (SQL)"
+                  },
+                  {
+                    "params": {
+                      "sql": "SELECT * FROM person WHERE ((first_name='Beto' AND last_name='Ficticio') OR (first_name='Beto' AND last_name='Ficticios') OR full_name='Beto Ficticio')"
+                    },
+                    "provider": "pdl",
+                    "response": {
+                      "count": 0,
+                      "total": 0
+                    },
+                    "strategy": "person/search (solo nombre)"
+                  }
+                ],
+                "executive_payload": null,
+                "llm_analysis_markdown": null,
+                "gemini_google_search_used": false
+              },
+              "job_area": "Gerente",
+              "scope_id": "person:1",
+              "cache_hit": false,
+              "cache_key": null,
+              "full_name": "Beto Ficticio"
+            }
+          ],
+          "person_cache_hit": false,
+          "person_cache_key": null,
+          "corporate_cache_hit": false,
+          "corporate_cache_key": null,
+          "dossier_corporativo": "# Dossier corporativo\n\nResumen ficticio.",
+          "corporate_agents_failed": [
+            "agent_corporate_uk"
+          ],
+          "dossier_persona_research": {
+            "profiles": [
+              {
+                "data": {
+                  "id": "pdl-ficticio-1",
+                  "full_name": "Ana Prueba",
+                  "job_title": "Directora general",
+                  "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                  "job_company_name": "Empresa de Prueba SA"
+                },
+                "pdl_id": "pdl-ficticio-1",
+                "provider": "pdl",
+                "provider_id": "pdl-ficticio-1",
+                "linkedin_urls": [
+                  "https://www.linkedin.com/in/ana-prueba-ficticia"
+                ]
+              }
+            ],
+            "warnings": [],
+            "posts_by_url": {},
+            "profile_urls": [
+              "https://www.linkedin.com/in/ana-prueba-ficticia"
+            ],
+            "filters_applied": {
+              "city": null,
+              "email": null,
+              "start": 0,
+              "company": "Empresa de Prueba SA",
+              "country": null,
+              "job_area": "Directora general",
+              "pdl_used": true,
+              "full_name": "Ana Prueba",
+              "linkedin_url": null,
+              "max_profiles": 1,
+              "geo_effective": null,
+              "include_posts": false,
+              "research_mode": "pdl_plus_gemini",
+              "extra_keywords": null,
+              "profiles_count": 1,
+              "verified_facts": {
+                "emails": [],
+                "phones": [],
+                "company": "Empresa de Prueba SA",
+                "location": null,
+                "full_name": "Ana Prueba",
+                "job_title": "Directora general",
+                "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                "profiles_matched": 1
+              },
+              "output_language": "en",
+              "research_source": "pdl",
+              "enrichment_provider": "pdl",
+              "lusha_verified_facts": {
+                "emails": [],
+                "phones": [],
+                "company": "Empresa de Prueba SA",
+                "location": null,
+                "full_name": "Ana Prueba",
+                "job_title": "Directora general",
+                "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                "profiles_matched": 1
+              },
+              "reveal_contact_details": false,
+              "contexto_organizacion_cliente": null
+            },
+            "search_attempts": [
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Prueba",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Prueba]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Prueba",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Ana/Prueba]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Pruebas",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Pruebas]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Pruebas",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Ana/Pruebas]"
+              }
+            ],
+            "executive_payload": {
+              "risk_alerts": [],
+              "participants": [
+                {
+                  "name": "Ana Prueba"
+                }
+              ],
+              "press_mentions": [],
+              "schema_version": "2.0.0",
+              "meeting_context": {},
+              "career_trajectory": [],
+              "corporate_records": [],
+              "data_sources_used": [
+                {
+                  "url": null,
+                  "record_id": null,
+                  "source_name": "People Data Labs",
+                  "source_type": "pdl",
+                  "retrieved_at": "2026-10-15T12:00:00+00:00"
+                }
+              ],
+              "executive_summary": "Ana Prueba dirige Empresa de Prueba SA desde 2019.",
+              "final_recommendation": {
+                "decision": "proceed",
+                "next_steps": [],
+                "key_findings": [],
+                "overall_risk": "low"
+              },
+              "confidence_assessment": {
+                "inferences": [],
+                "low_confidence": [],
+                "high_confidence": [
+                  "Cargo actual según registros profesionales."
+                ],
+                "medium_confidence": []
+              },
+              "conversation_starters": []
+            },
+            "llm_analysis_markdown": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+            "gemini_google_search_used": false
+          },
+          "corporate_skipped_plan_free": false
+        },
+        "progress": {
+          "scopes": [
+            {
+              "kind": "corporate",
+              "label": "Empresa de Prueba SA",
+              "agents": [
+                {
+                  "status": "failed",
+                  "revision": 7,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_uk",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "completed",
+                  "revision": 8,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_usa",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 6,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_corporate_eu",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 9,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "agent_news",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "revision": 12,
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "agent_name": "synthesize_llm",
+                  "reason_code": null
+                }
+              ],
+              "origin": "generated",
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "complete"
+              },
+              "scope_id": "corporate:0",
+              "partial_results": [
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "# Dossier corporativo\n\nResumen ficticio.",
+                  "section": "synthesis",
+                  "revision": 11,
+                  "truncated": false,
+                  "agent_name": "synthesize_llm",
+                  "provisional": true
+                }
+              ]
+            },
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 14,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 16,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 17,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "sufficient_profiles"
+                },
+                {
+                  "status": "completed",
+                  "revision": 20,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 21,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "mode_not_applicable"
+                },
+                {
+                  "status": "completed",
+                  "revision": 23,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 24,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "completed",
+                  "revision": 26,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "completed",
+                  "revision": 42,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000003",
+                  "reason_code": null,
+                  "dossier_status": "complete"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000003",
+                "status": "complete"
+              },
+              "scope_id": "person:0",
+              "profiles_count": 1,
+              "live_web_search": false,
+              "partial_results": [
+                {
+                  "data": {
+                    "profiles": [
+                      {
+                        "company": "Empresa de Prueba SA",
+                        "full_name": "Ana Prueba",
+                        "job_title": "Directora general",
+                        "record_key": "profile:0",
+                        "profile_urls": [
+                          "https://www.linkedin.com/in/ana-prueba-ficticia"
+                        ]
+                      }
+                    ],
+                    "profiles_count": 1
+                  },
+                  "format": "person_profiles",
+                  "origin": "generated",
+                  "section": "person_profiles",
+                  "revision": 19,
+                  "stage_id": "person.profile_normalization",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                },
+                {
+                  "format": "markdown",
+                  "origin": "generated",
+                  "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+                  "section": "person_report",
+                  "revision": 25,
+                  "stage_id": "person.report_finalize",
+                  "truncated": false,
+                  "provenance": {
+                    "basis": "provider_records",
+                    "sources": [
+                      "pdl"
+                    ],
+                    "live_web_search": false
+                  },
+                  "provisional": true
+                }
+              ],
+              "research_source": "pdl"
+            },
+            {
+              "kind": "person",
+              "label": "Beto Ficticio",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 28,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 4,
+                    "failed": 0
+                  },
+                  "revision": 30,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "completed",
+                  "attempts": {
+                    "total": 2,
+                    "failed": 0
+                  },
+                  "revision": 32,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_matches"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 33,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 34,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "feature_disabled"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 35,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_profiles"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 36,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_required"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 37,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "failed",
+                  "revision": 44,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000004",
+                  "reason_code": "no_valid_report",
+                  "dossier_status": "failed"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000004",
+                "status": "failed"
+              },
+              "scope_id": "person:1",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 45,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": "2026-10-15T12:00:00+00:00"
+      }
+    }
+  ],
+  "snapshot_final": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "completed",
+    "job_type": "calendar_manual",
+    "calendar_provider": "google",
+    "external_event_id": null,
+    "meeting_label": "Kick-off con Empresa de Prueba SA",
+    "credits_estimated": 5,
+    "credits_consumed": 4,
+    "error_message": null,
+    "result": {
+      "parse": {
+        "tema": "Kick-off con Empresa de Prueba SA",
+        "company": "Empresa de Prueba SA",
+        "persons": [
+          {
+            "email": null,
+            "index": 1,
+            "country": null,
+            "job_area": "Directora general",
+            "full_name": "Ana Prueba"
+          },
+          {
+            "email": null,
+            "index": 2,
+            "country": null,
+            "job_area": "Gerente",
+            "full_name": "Beto Ficticio"
+          }
+        ],
+        "person_job": "Directora general",
+        "descripcion": "Empresa: Empresa de Prueba SA\nContacto 1: Ana Prueba\nCargo 1: Directora general\nContacto 2: Beto Ficticio\nCargo 2: Gerente",
+        "person_name": "Ana Prueba",
+        "person_email": null,
+        "participantes": "",
+        "company_person": "Empresa de Prueba SA",
+        "person_country": null,
+        "company_subject": "Kick-off con Empresa de Prueba SA",
+        "company_corporate": "Empresa de Prueba SA",
+        "company_corporate_source": "description"
+      },
+      "errors": [],
+      "reunion": {
+        "tema": "Kick-off con Empresa de Prueba SA",
+        "inicio": "2026-10-15T12:00:00+00:00",
+        "descripcion": "Empresa: Empresa de Prueba SA\nContacto 1: Ana Prueba\nCargo 1: Directora general\nContacto 2: Beto Ficticio\nCargo 2: Gerente",
+        "participantes": ""
+      },
+      "saved_dossiers": {
+        "folder": {
+          "id": "00000000-0000-4000-8000-000000000005",
+          "title": "Kick-off con Empresa de Prueba SA · 20/10/2026 10:00"
+        },
+        "person": {
+          "id": "00000000-0000-4000-8000-000000000003",
+          "status": "complete",
+          "cache_hit": false,
+          "subject_name": "Ana Prueba",
+          "status_message": null
+        },
+        "persons": [
+          {
+            "id": "00000000-0000-4000-8000-000000000003",
+            "status": "complete",
+            "cache_hit": false,
+            "subject_name": "Ana Prueba",
+            "status_message": null
+          },
+          {
+            "id": "00000000-0000-4000-8000-000000000004",
+            "status": "failed",
+            "cache_hit": false,
+            "subject_name": "Beto Ficticio",
+            "status_message": "No se encontró información adicional sobre esta persona. Añade más información o revisa que el nombre completo sea correcto para mayor exactitud."
+          }
+        ],
+        "corporate": {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "status": "complete",
+          "subject_name": "Empresa de Prueba SA"
+        }
+      },
+      "dossier_persona": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+      "output_language": "en",
+      "dossier_generado": "# Dossier corporativo\n\nResumen ficticio.",
+      "dossier_personas": [
+        {
+          "md": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+          "email": null,
+          "error": null,
+          "index": 1,
+          "country": null,
+          "payload": {
+            "profiles": [
+              {
+                "data": {
+                  "id": "pdl-ficticio-1",
+                  "full_name": "Ana Prueba",
+                  "job_title": "Directora general",
+                  "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                  "job_company_name": "Empresa de Prueba SA"
+                },
+                "pdl_id": "pdl-ficticio-1",
+                "provider": "pdl",
+                "provider_id": "pdl-ficticio-1",
+                "linkedin_urls": [
+                  "https://www.linkedin.com/in/ana-prueba-ficticia"
+                ]
+              }
+            ],
+            "warnings": [],
+            "posts_by_url": {},
+            "profile_urls": [
+              "https://www.linkedin.com/in/ana-prueba-ficticia"
+            ],
+            "filters_applied": {
+              "city": null,
+              "email": null,
+              "start": 0,
+              "company": "Empresa de Prueba SA",
+              "country": null,
+              "job_area": "Directora general",
+              "pdl_used": true,
+              "full_name": "Ana Prueba",
+              "linkedin_url": null,
+              "max_profiles": 1,
+              "geo_effective": null,
+              "include_posts": false,
+              "research_mode": "pdl_plus_gemini",
+              "extra_keywords": null,
+              "profiles_count": 1,
+              "verified_facts": {
+                "emails": [],
+                "phones": [],
+                "company": "Empresa de Prueba SA",
+                "location": null,
+                "full_name": "Ana Prueba",
+                "job_title": "Directora general",
+                "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                "profiles_matched": 1
+              },
+              "output_language": "en",
+              "research_source": "pdl",
+              "enrichment_provider": "pdl",
+              "lusha_verified_facts": {
+                "emails": [],
+                "phones": [],
+                "company": "Empresa de Prueba SA",
+                "location": null,
+                "full_name": "Ana Prueba",
+                "job_title": "Directora general",
+                "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+                "profiles_matched": 1
+              },
+              "reveal_contact_details": false,
+              "contexto_organizacion_cliente": null
+            },
+            "search_attempts": [
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Prueba",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Prueba]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Prueba",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Ana/Prueba]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Pruebas",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Pruebas]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Pruebas",
+                  "first_name": "Ana"
+                },
+                "provider": "pdl",
+                "response": {
+                  "pdl_id": "pdl-ficticio-1",
+                  "matched": true,
+                  "likelihood": 8
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Ana/Pruebas]"
+              }
+            ],
+            "executive_payload": {
+              "risk_alerts": [],
+              "participants": [
+                {
+                  "name": "Ana Prueba"
+                }
+              ],
+              "press_mentions": [],
+              "schema_version": "2.0.0",
+              "meeting_context": {},
+              "career_trajectory": [],
+              "corporate_records": [],
+              "data_sources_used": [
+                {
+                  "url": null,
+                  "record_id": null,
+                  "source_name": "People Data Labs",
+                  "source_type": "pdl",
+                  "retrieved_at": "2026-10-15T12:00:00+00:00"
+                }
+              ],
+              "executive_summary": "Ana Prueba dirige Empresa de Prueba SA desde 2019.",
+              "final_recommendation": {
+                "decision": "proceed",
+                "next_steps": [],
+                "key_findings": [],
+                "overall_risk": "low"
+              },
+              "confidence_assessment": {
+                "inferences": [],
+                "low_confidence": [],
+                "high_confidence": [
+                  "Cargo actual según registros profesionales."
+                ],
+                "medium_confidence": []
+              },
+              "conversation_starters": []
+            },
+            "llm_analysis_markdown": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+            "gemini_google_search_used": false
+          },
+          "job_area": "Directora general",
+          "scope_id": "person:0",
+          "cache_hit": false,
+          "cache_key": null,
+          "full_name": "Ana Prueba"
+        },
+        {
+          "md": null,
+          "email": null,
+          "error": null,
+          "index": 2,
+          "country": null,
+          "payload": {
+            "profiles": [],
+            "warnings": [
+              "No se encontró información adicional sobre esta persona. Añade más información o revisa que el nombre completo sea correcto para mayor exactitud.",
+              "Sin datos de enriquecimiento y DEEPSEEK_DISABLE_PERSON_WEB=1: no se ejecutó el análisis con IA."
+            ],
+            "posts_by_url": {},
+            "profile_urls": [],
+            "filters_applied": {
+              "city": null,
+              "email": null,
+              "start": 0,
+              "company": "Empresa de Prueba SA",
+              "country": null,
+              "job_area": "Gerente",
+              "pdl_used": true,
+              "full_name": "Beto Ficticio",
+              "linkedin_url": null,
+              "max_profiles": 1,
+              "geo_effective": null,
+              "include_posts": false,
+              "research_mode": "pdl_plus_gemini",
+              "extra_keywords": null,
+              "profiles_count": 0,
+              "verified_facts": null,
+              "output_language": "en",
+              "research_source": "pdl",
+              "enrichment_provider": "pdl",
+              "lusha_verified_facts": null,
+              "reveal_contact_details": false,
+              "contexto_organizacion_cliente": null
+            },
+            "search_attempts": [
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Ficticio",
+                  "first_name": "Beto"
+                },
+                "provider": "pdl",
+                "response": {
+                  "_pdlEmptyMatch": true
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Beto/Ficticio]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Ficticio",
+                  "first_name": "Beto"
+                },
+                "provider": "pdl",
+                "response": {
+                  "_pdlEmptyMatch": true
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Beto/Ficticio]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba SA",
+                  "last_name": "Ficticios",
+                  "first_name": "Beto"
+                },
+                "provider": "pdl",
+                "response": {
+                  "_pdlEmptyMatch": true
+                },
+                "strategy": "nombre + company (Empresa de Prueba SA) [Beto/Ficticios]"
+              },
+              {
+                "params": {
+                  "company": "Empresa de Prueba",
+                  "last_name": "Ficticios",
+                  "first_name": "Beto"
+                },
+                "provider": "pdl",
+                "response": {
+                  "_pdlEmptyMatch": true
+                },
+                "strategy": "nombre + company (Empresa de Prueba) [Beto/Ficticios]"
+              },
+              {
+                "params": {
+                  "sql": "SELECT * FROM person WHERE ((first_name='Beto' AND last_name='Ficticio') OR (first_name='Beto' AND last_name='Ficticios') OR full_name='Beto Ficticio') AND job_company_name='Empresa de Prueba SA'"
+                },
+                "provider": "pdl",
+                "response": {
+                  "count": 0,
+                  "total": 0
+                },
+                "strategy": "person/search (SQL)"
+              },
+              {
+                "params": {
+                  "sql": "SELECT * FROM person WHERE ((first_name='Beto' AND last_name='Ficticio') OR (first_name='Beto' AND last_name='Ficticios') OR full_name='Beto Ficticio')"
+                },
+                "provider": "pdl",
+                "response": {
+                  "count": 0,
+                  "total": 0
+                },
+                "strategy": "person/search (solo nombre)"
+              }
+            ],
+            "executive_payload": null,
+            "llm_analysis_markdown": null,
+            "gemini_google_search_used": false
+          },
+          "job_area": "Gerente",
+          "scope_id": "person:1",
+          "cache_hit": false,
+          "cache_key": null,
+          "full_name": "Beto Ficticio"
+        }
+      ],
+      "person_cache_hit": false,
+      "person_cache_key": null,
+      "corporate_cache_hit": false,
+      "corporate_cache_key": null,
+      "dossier_corporativo": "# Dossier corporativo\n\nResumen ficticio.",
+      "corporate_agents_failed": [
+        "agent_corporate_uk"
+      ],
+      "dossier_persona_research": {
+        "profiles": [
+          {
+            "data": {
+              "id": "pdl-ficticio-1",
+              "full_name": "Ana Prueba",
+              "job_title": "Directora general",
+              "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+              "job_company_name": "Empresa de Prueba SA"
+            },
+            "pdl_id": "pdl-ficticio-1",
+            "provider": "pdl",
+            "provider_id": "pdl-ficticio-1",
+            "linkedin_urls": [
+              "https://www.linkedin.com/in/ana-prueba-ficticia"
+            ]
+          }
+        ],
+        "warnings": [],
+        "posts_by_url": {},
+        "profile_urls": [
+          "https://www.linkedin.com/in/ana-prueba-ficticia"
+        ],
+        "filters_applied": {
+          "city": null,
+          "email": null,
+          "start": 0,
+          "company": "Empresa de Prueba SA",
+          "country": null,
+          "job_area": "Directora general",
+          "pdl_used": true,
+          "full_name": "Ana Prueba",
+          "linkedin_url": null,
+          "max_profiles": 1,
+          "geo_effective": null,
+          "include_posts": false,
+          "research_mode": "pdl_plus_gemini",
+          "extra_keywords": null,
+          "profiles_count": 1,
+          "verified_facts": {
+            "emails": [],
+            "phones": [],
+            "company": "Empresa de Prueba SA",
+            "location": null,
+            "full_name": "Ana Prueba",
+            "job_title": "Directora general",
+            "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+            "profiles_matched": 1
+          },
+          "output_language": "en",
+          "research_source": "pdl",
+          "enrichment_provider": "pdl",
+          "lusha_verified_facts": {
+            "emails": [],
+            "phones": [],
+            "company": "Empresa de Prueba SA",
+            "location": null,
+            "full_name": "Ana Prueba",
+            "job_title": "Directora general",
+            "linkedin_url": "https://www.linkedin.com/in/ana-prueba-ficticia",
+            "profiles_matched": 1
+          },
+          "reveal_contact_details": false,
+          "contexto_organizacion_cliente": null
+        },
+        "search_attempts": [
+          {
+            "params": {
+              "company": "Empresa de Prueba SA",
+              "last_name": "Prueba",
+              "first_name": "Ana"
+            },
+            "provider": "pdl",
+            "response": {
+              "pdl_id": "pdl-ficticio-1",
+              "matched": true,
+              "likelihood": 8
+            },
+            "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Prueba]"
+          },
+          {
+            "params": {
+              "company": "Empresa de Prueba",
+              "last_name": "Prueba",
+              "first_name": "Ana"
+            },
+            "provider": "pdl",
+            "response": {
+              "pdl_id": "pdl-ficticio-1",
+              "matched": true,
+              "likelihood": 8
+            },
+            "strategy": "nombre + company (Empresa de Prueba) [Ana/Prueba]"
+          },
+          {
+            "params": {
+              "company": "Empresa de Prueba SA",
+              "last_name": "Pruebas",
+              "first_name": "Ana"
+            },
+            "provider": "pdl",
+            "response": {
+              "pdl_id": "pdl-ficticio-1",
+              "matched": true,
+              "likelihood": 8
+            },
+            "strategy": "nombre + company (Empresa de Prueba SA) [Ana/Pruebas]"
+          },
+          {
+            "params": {
+              "company": "Empresa de Prueba",
+              "last_name": "Pruebas",
+              "first_name": "Ana"
+            },
+            "provider": "pdl",
+            "response": {
+              "pdl_id": "pdl-ficticio-1",
+              "matched": true,
+              "likelihood": 8
+            },
+            "strategy": "nombre + company (Empresa de Prueba) [Ana/Pruebas]"
+          }
+        ],
+        "executive_payload": {
+          "risk_alerts": [],
+          "participants": [
+            {
+              "name": "Ana Prueba"
+            }
+          ],
+          "press_mentions": [],
+          "schema_version": "2.0.0",
+          "meeting_context": {},
+          "career_trajectory": [],
+          "corporate_records": [],
+          "data_sources_used": [
+            {
+              "url": null,
+              "record_id": null,
+              "source_name": "People Data Labs",
+              "source_type": "pdl",
+              "retrieved_at": "2026-10-15T12:00:00+00:00"
+            }
+          ],
+          "executive_summary": "Ana Prueba dirige Empresa de Prueba SA desde 2019.",
+          "final_recommendation": {
+            "decision": "proceed",
+            "next_steps": [],
+            "key_findings": [],
+            "overall_risk": "low"
+          },
+          "confidence_assessment": {
+            "inferences": [],
+            "low_confidence": [],
+            "high_confidence": [
+              "Cargo actual según registros profesionales."
+            ],
+            "medium_confidence": []
+          },
+          "conversation_starters": []
+        },
+        "llm_analysis_markdown": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+        "gemini_google_search_used": false
+      },
+      "corporate_skipped_plan_free": false
+    },
+    "progress": {
+      "scopes": [
+        {
+          "kind": "corporate",
+          "label": "Empresa de Prueba SA",
+          "agents": [
+            {
+              "status": "failed",
+              "revision": 7,
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "agent_name": "agent_corporate_uk",
+              "reason_code": "provider_error"
+            },
+            {
+              "status": "completed",
+              "revision": 8,
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "agent_name": "agent_corporate_usa",
+              "reason_code": null
+            },
+            {
+              "status": "completed",
+              "revision": 6,
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "agent_name": "agent_corporate_eu",
+              "reason_code": "no_matches"
+            },
+            {
+              "status": "completed",
+              "revision": 9,
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "agent_name": "agent_news",
+              "reason_code": "no_matches"
+            },
+            {
+              "status": "completed",
+              "revision": 12,
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "agent_name": "synthesize_llm",
+              "reason_code": null
+            }
+          ],
+          "origin": "generated",
+          "dossier": {
+            "id": "00000000-0000-4000-8000-000000000002",
+            "status": "complete"
+          },
+          "scope_id": "corporate:0",
+          "partial_results": [
+            {
+              "format": "markdown",
+              "origin": "generated",
+              "content": "# Dossier corporativo\n\nResumen ficticio.",
+              "section": "synthesis",
+              "revision": 11,
+              "truncated": false,
+              "agent_name": "synthesize_llm",
+              "provisional": true
+            }
+          ]
+        },
+        {
+          "kind": "person",
+          "label": "Ana Prueba",
+          "origin": "generated",
+          "stages": [
+            {
+              "status": "skipped",
+              "revision": 14,
+              "stage_id": "person.cache_lookup",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "cache_unavailable"
+            },
+            {
+              "status": "completed",
+              "attempts": {
+                "total": 4,
+                "failed": 0
+              },
+              "revision": 16,
+              "stage_id": "person.pdl_enrich",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": null
+            },
+            {
+              "status": "skipped",
+              "revision": 17,
+              "stage_id": "person.pdl_search",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "sufficient_profiles"
+            },
+            {
+              "status": "completed",
+              "revision": 20,
+              "stage_id": "person.profile_normalization",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": null
+            },
+            {
+              "status": "skipped",
+              "revision": 21,
+              "stage_id": "person.context_analysis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "mode_not_applicable"
+            },
+            {
+              "status": "completed",
+              "revision": 23,
+              "stage_id": "person.profile_synthesis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": null
+            },
+            {
+              "status": "skipped",
+              "revision": 24,
+              "stage_id": "person.markdown_fallback",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_required"
+            },
+            {
+              "status": "completed",
+              "revision": 26,
+              "stage_id": "person.report_finalize",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": null
+            },
+            {
+              "status": "completed",
+              "revision": 42,
+              "stage_id": "person.persist",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "dossier_id": "00000000-0000-4000-8000-000000000003",
+              "reason_code": null,
+              "dossier_status": "complete"
+            }
+          ],
+          "dossier": {
+            "id": "00000000-0000-4000-8000-000000000003",
+            "status": "complete"
+          },
+          "scope_id": "person:0",
+          "profiles_count": 1,
+          "live_web_search": false,
+          "partial_results": [
+            {
+              "data": {
+                "profiles": [
+                  {
+                    "company": "Empresa de Prueba SA",
+                    "full_name": "Ana Prueba",
+                    "job_title": "Directora general",
+                    "record_key": "profile:0",
+                    "profile_urls": [
+                      "https://www.linkedin.com/in/ana-prueba-ficticia"
+                    ]
+                  }
+                ],
+                "profiles_count": 1
+              },
+              "format": "person_profiles",
+              "origin": "generated",
+              "section": "person_profiles",
+              "revision": 19,
+              "stage_id": "person.profile_normalization",
+              "truncated": false,
+              "provenance": {
+                "basis": "provider_records",
+                "sources": [
+                  "pdl"
+                ],
+                "live_web_search": false
+              },
+              "provisional": true
+            },
+            {
+              "format": "markdown",
+              "origin": "generated",
+              "content": "## Executive summary\n\nAna Prueba dirige Empresa de Prueba SA desde 2019.\n\n## Conclusion and recommendation\n\n**Recommendation: Proceed** · Overall risk: low\n\n## Confidence level\n\n**High confidence**\n- Cargo actual según registros profesionales.\n\n## Sources consulted\n\n- registros profesionales",
+              "section": "person_report",
+              "revision": 25,
+              "stage_id": "person.report_finalize",
+              "truncated": false,
+              "provenance": {
+                "basis": "provider_records",
+                "sources": [
+                  "pdl"
+                ],
+                "live_web_search": false
+              },
+              "provisional": true
+            }
+          ],
+          "research_source": "pdl"
+        },
+        {
+          "kind": "person",
+          "label": "Beto Ficticio",
+          "origin": "generated",
+          "stages": [
+            {
+              "status": "skipped",
+              "revision": 28,
+              "stage_id": "person.cache_lookup",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "cache_unavailable"
+            },
+            {
+              "status": "completed",
+              "attempts": {
+                "total": 4,
+                "failed": 0
+              },
+              "revision": 30,
+              "stage_id": "person.pdl_enrich",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_matches"
+            },
+            {
+              "status": "completed",
+              "attempts": {
+                "total": 2,
+                "failed": 0
+              },
+              "revision": 32,
+              "stage_id": "person.pdl_search",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_matches"
+            },
+            {
+              "status": "skipped",
+              "revision": 33,
+              "stage_id": "person.profile_normalization",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_profiles"
+            },
+            {
+              "status": "skipped",
+              "revision": 34,
+              "stage_id": "person.context_analysis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "feature_disabled"
+            },
+            {
+              "status": "skipped",
+              "revision": 35,
+              "stage_id": "person.profile_synthesis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_profiles"
+            },
+            {
+              "status": "skipped",
+              "revision": 36,
+              "stage_id": "person.markdown_fallback",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_required"
+            },
+            {
+              "status": "skipped",
+              "revision": 37,
+              "stage_id": "person.report_finalize",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_content"
+            },
+            {
+              "status": "failed",
+              "revision": 44,
+              "stage_id": "person.persist",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "dossier_id": "00000000-0000-4000-8000-000000000004",
+              "reason_code": "no_valid_report",
+              "dossier_status": "failed"
+            }
+          ],
+          "dossier": {
+            "id": "00000000-0000-4000-8000-000000000004",
+            "status": "failed"
+          },
+          "scope_id": "person:1",
+          "profiles_count": 0,
+          "live_web_search": false,
+          "partial_results": [],
+          "research_source": "pdl"
+        }
+      ],
+      "revision": 45,
+      "schema_version": 1
+    },
+    "created_at": "2026-10-15T12:00:00+00:00",
+    "started_at": "2026-10-15T12:00:00+00:00",
+    "completed_at": "2026-10-15T12:00:00+00:00"
+  }
+}
