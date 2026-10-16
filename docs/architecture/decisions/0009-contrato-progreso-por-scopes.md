@@ -138,8 +138,9 @@ Se publican **después** de confirmar el cambio en la base. Todos llevan `schema
     `person_context_report`, `person_report`), `format` (`person_profiles` o `markdown`),
     `data` o `content`, `provenance` (`basis`, `sources`, `live_web_search`), `origin`,
     `provisional: true`, `truncated`.
-- Al declarar scopes se publica además un `job_status` con el job completo, para que el catálogo
-  llegue antes que las transiciones.
+- Al declarar scopes, y cuando cambian los campos de un scope (`origin`, `profiles_count`,
+  `dossier`), se publica además un `job_status` con el job completo: el catálogo llega antes que
+  las transiciones y esos campos no necesitan un evento propio.
 
 ### Qué se publica como vista previa
 
