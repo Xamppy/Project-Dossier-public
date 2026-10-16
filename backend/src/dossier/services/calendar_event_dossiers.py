@@ -59,6 +59,13 @@ from dossier.services.calendar_meeting_labels import (
     SUBJECT_CON,
 )
 from dossier.services.corporate_company_search import find_companies_house_matches, find_sec_matches
+from dossier.services.dossier_job_progress import NULL_JOB_PROGRESS, NULL_SCOPE
+from dossier.services.dossier_progress_model import (
+    CORPORATE_AGENTS,
+    corporate_partial,
+    corporate_scope,
+    person_scope,
+)
 from dossier.services.output_language import normalize_output_language
 from dossier.services.person_dossier_dedup import (
     person_research_cache_payload_from_result,
@@ -68,6 +75,14 @@ from dossier.services.person_dossier_dedup import (
     should_cache_person_research_result,
 )
 from dossier.services.person_research_config import default_person_research_source
+from dossier.services.person_research_progress import (
+    CACHE_LOOKUP,
+    PERSIST,
+    report_cache_hit,
+    report_generated,
+    report_persisted,
+    scope_copy,
+)
 from dossier.services.person_research_service import run_person_research
 from dossier.services.summary_cache import SUMMARY_CACHE
 from dossier.utils.html_text import strip_html_to_plain_line, strip_html_to_text
@@ -538,13 +553,16 @@ def _corporate_md_from_cache_or_langgraph(
     depth: str,
     output_language: str = "es",
     empresa_objetivo: str | None = None,
+    progress: Any = None,
 ) -> tuple[str | None, bool, str | None, list[str] | None]:
     """Devuelve (markdown, cache_hit, cache_key_redis, agents_failed).
 
     ``agents_failed`` es ``None`` cuando el resultado viene de caché (no se corrió el
     grafo en esta llamada, así que no hay telemetría nueva de agentes) y una lista
-    (posiblemente vacía) cuando sí se ejecutó LangGraph.
+    (posiblemente vacía) cuando sí se ejecutó LangGraph. ``progress`` es el scope
+    corporativo del job (S5.10).
     """
+    progress = progress if progress is not None else NULL_SCOPE
     out_lang = normalize_output_language(output_language)
     key_hash = build_corporate_langgraph_cache_key_hash(
         participantes=participantes_brief,
@@ -559,6 +577,7 @@ def _corporate_md_from_cache_or_langgraph(
     if redis_corporate_cache_available():
         hit = get_corporate_cached_markdown(key_hash)
         if hit is not None:
+            _report_corporate_cache_hit(progress, hit)
             return hit, True, corporate_cache_redis_key(key_hash), None
 
     def _compute() -> None:
@@ -567,6 +586,7 @@ def _corporate_md_from_cache_or_langgraph(
         if hit2 is not None:
             md = hit2
             cache_hit = True
+            _report_corporate_cache_hit(progress, hit2)
             return
         generado = run_corporate_dossier_langgraph_detailed(
             tema_reunion=tema or "Reunión",
@@ -575,7 +595,9 @@ def _corporate_md_from_cache_or_langgraph(
             jurisdiction_scope=scope,
             output_language=out_lang,
             empresa_objetivo=empresa_objetivo,
+            progress=progress,
         )
+        progress.fields(origin="generated")
         if not generado.markdown.lstrip().startswith("# Error"):
             set_corporate_cached_markdown(key_hash, generado.markdown)
         md = generado.markdown
@@ -587,6 +609,14 @@ def _corporate_md_from_cache_or_langgraph(
     return md, cache_hit, redis_key, agents_failed
 
 
+def _report_corporate_cache_hit(progress: Any, markdown: str) -> None:
+    """Corporativo desde caché: ningún agente corrió en este job (sin historial inventado)."""
+    for agente in CORPORATE_AGENTS:
+        progress.agent(agente, "skipped", "cache_hit")
+    progress.fields(origin="redis_cache")
+    progress.partial(corporate_partial("synthesize_llm", "synthesis", markdown, origin="redis_cache"))
+
+
 def _person_research_from_cache_or_pipeline(
     *,
     req: PersonResearchRequest,
@@ -594,19 +624,26 @@ def _person_research_from_cache_or_pipeline(
     organization_context_block: str | None,
     meeting_context: dict[str, Any],
     output_language: str = "es",
+    progress: Any = None,
 ) -> tuple[dict[str, Any] | None, bool, str | None]:
-    """Devuelve (payload, cache_hit, cache_key_redis)."""
+    """Devuelve (payload, cache_hit, cache_key_redis). ``progress``: scope ``person:N`` (S5.10)."""
+    progress = progress if progress is not None else NULL_SCOPE
     out_lang = normalize_output_language(output_language or req.output_language)
     fp = person_research_fingerprint(req, organization_id, output_language=out_lang)
     cache_hit = False
     cached_payload: dict[str, Any] | None = None
     result: dict[str, Any] | None = None
 
-    if redis_person_cache_available():
+    redis_disponible = redis_person_cache_available()
+    if redis_disponible:
+        progress.stage(CACHE_LOOKUP, "running")
         hit = get_person_cached_payload(fp)
         if hit is not None:
             cached_payload = hit
             cache_hit = True
+            progress.stage(CACHE_LOOKUP, "completed", "cache_hit")
+    else:
+        progress.stage(CACHE_LOOKUP, "skipped", "cache_unavailable")
 
     if not cache_hit:
 
@@ -616,12 +653,16 @@ def _person_research_from_cache_or_pipeline(
             if h2 is not None:
                 cached_payload = h2
                 cache_hit = True
+                progress.stage(CACHE_LOOKUP, "completed", "cache_hit")
                 return
+            if redis_disponible:
+                progress.stage(CACHE_LOOKUP, "completed", "cache_miss")
             nr = run_person_research(
                 req,
                 organization_context_block=organization_context_block,
                 meeting_context=meeting_context,
                 output_language=out_lang,
+                progress=progress,
             )
             result = nr
             md_new = (nr.get("llm_analysis_markdown") or "").strip()
@@ -647,6 +688,9 @@ def _person_research_from_cache_or_pipeline(
             organization_context_block=organization_context_block,
             cached_payload=cached_payload,
         )
+        report_cache_hit(progress, research_source=req.research_source.value, cached_payload=cached_payload)
+    elif result is not None:
+        report_generated(progress, result)
 
     redis_key = person_cache_redis_key(fp) if cache_hit else None
     return result, cache_hit, redis_key
@@ -664,8 +708,10 @@ def _generate_one_person_dossier(
     organization_id: UUID | None,
     organization_context_block: str | None,
     output_language: str,
+    progress: Any = None,
 ) -> dict[str, Any]:
-    """Genera un dossier de persona para un contacto del evento."""
+    """Genera un dossier de persona para un contacto del evento. ``progress``: su scope (S5.10)."""
+    progress = progress if progress is not None else NULL_SCOPE
     person_name = (person.get("full_name") or "").strip()
     person_job = person.get("job_area")
     person_country = person.get("country")
@@ -688,6 +734,7 @@ def _generate_one_person_dossier(
         "cache_hit": False,
         "cache_key": None,
         "error": None,
+        "scope_id": progress.scope_id,
     }
     if len(person_name) < 2:
         return out
@@ -722,14 +769,18 @@ def _generate_one_person_dossier(
                 organization_context_block=organization_context_block,
                 meeting_context=meeting_ctx,
                 output_language=output_language,
+                progress=progress,
             )
         else:
+            progress.stage(CACHE_LOOKUP, "skipped", "cache_unavailable")
             person_payload = run_person_research(
                 req,
                 organization_context_block=organization_context_block,
                 meeting_context=meeting_ctx,
                 output_language=output_language,
+                progress=progress,
             )
+            report_generated(progress, person_payload)
             person_cache_hit = False
             person_cache_key = None
         out["md"] = (
@@ -753,12 +804,16 @@ def generate_dossiers_from_calendar_event(
     organization_plan: str | None = None,
     depth: str = "standard",
     output_language: str | None = None,
+    progress: Any = None,
 ) -> dict[str, Any]:
     """
     Devuelve dossiers corporativo (CH/SEC) y de persona (PDL) por separado.
 
     En plan Free se omite el corporativo; el formato del evento es el mismo.
+    ``progress`` (S5.10) es el ``JobProgress`` del job: se declaran un scope
+    corporativo y uno por asistente con nombre válido, antes de ejecutar nada.
     """
+    job_progress = progress if progress is not None else NULL_JOB_PROGRESS
     reunion = _sanitize_reunion_text_fields(reunion)
     out_lang = normalize_output_language(output_language)
     parsed = parse_calendar_event_for_dossiers(reunion)
@@ -784,6 +839,17 @@ def generate_dossiers_from_calendar_event(
     include_corporate = plan_allows_calendar_corporate_dossier(organization_plan)
     corporate_skipped_plan_free = False
 
+    # La modalidad de los asistentes la decide el servidor, no el formulario de Personas.
+    fuente_personas = default_person_research_source().value
+    scopes: list[dict[str, Any]] = [corporate_scope("corporate:0", company_corporate)] if company_corporate else []
+    scope_por_persona: dict[int, str] = {}
+    for i, person in enumerate(persons):
+        nombre = (person.get("full_name") or "").strip()
+        if len(nombre) >= 2:
+            scope_por_persona[i] = f"person:{len(scope_por_persona)}"
+            scopes.append(person_scope(scope_por_persona[i], nombre, fuente_personas))
+    job_progress.declare(scopes)
+
     if company_corporate and include_corporate:
         try:
             participantes_brief, scope = resolve_corporate_brief(company_corporate)
@@ -802,6 +868,7 @@ def generate_dossiers_from_calendar_event(
                 depth=depth_key,
                 output_language=out_lang,
                 empresa_objetivo=company_corporate,
+                progress=job_progress.scope("corporate:0"),
             )
         except Exception as e:
             logger.exception("Fallo dossier corporativo desde calendario")
@@ -810,8 +877,11 @@ def generate_dossiers_from_calendar_event(
 
     elif company_corporate and not include_corporate:
         corporate_skipped_plan_free = True
+        for agente in CORPORATE_AGENTS:
+            job_progress.scope("corporate:0").agent(agente, "skipped", "plan_not_included")
 
-    for person in persons:
+    for i, person in enumerate(persons):
+        sid = scope_por_persona.get(i)
         one = _generate_one_person_dossier(
             person=person,
             reunion=reunion,
@@ -823,6 +893,7 @@ def generate_dossiers_from_calendar_event(
             organization_id=organization_id,
             organization_context_block=organization_context_block,
             output_language=out_lang,
+            progress=job_progress.scope(sid) if sid else None,
         )
         dossier_personas.append(one)
         if one.get("error"):
@@ -1019,10 +1090,17 @@ def persist_calendar_dossiers(
     depth: str = "standard",
     charge_credits: bool = True,
     trigger_source: str = "calendar",
+    progress: Any = None,
 ) -> dict[str, Any]:
     """
     Guarda dossier corporativo y/o persona en ``dossiers`` (Mis Dossiers).
+
+    Con ``progress`` (S5.10) cada dossier copia su scope en ``dossier_data["_progress"]``
+    y, tras el commit, se cierra ``person.persist`` de cada asistente.
     """
+    job_progress = progress if progress is not None else NULL_JOB_PROGRESS
+    corporate_progress = job_progress.scope("corporate:0")
+    guardados_persona: list[tuple[Any, str, str]] = []
     parsed = result.get("parse") or {}
     reunion = result.get("reunion") or {}
     user_row = db.get(User, user_id) if user_id else None
@@ -1098,6 +1176,7 @@ def persist_calendar_dossiers(
                 "calendar_folder": calendar_folder,
                 "calendar_folder_role": "corporate",
                 "output_language": output_lang,
+                **_progress_copy(corporate_progress),
             },
             agents_activated=["agent_corporate_uk", "agent_corporate_usa", "synthesize_llm"],
             agents_failed=corp_agents_failed,
@@ -1168,6 +1247,9 @@ def persist_calendar_dossiers(
             success = False
 
         will_charge_person = charge and status == "complete" and not p_cache_hit
+        sid = pentry.get("scope_id")
+        person_progress = job_progress.scope(sid) if sid else NULL_SCOPE
+        person_progress.stage(PERSIST, "running")
         lusha_diag: dict[str, Any] | None = None
         person_research_source = "pdl"
         if isinstance(p_payload, dict):
@@ -1221,6 +1303,7 @@ def persist_calendar_dossiers(
                 },
                 "lusha_diagnostics": lusha_diag,
                 "output_language": output_lang,
+                **_progress_copy(person_progress),
             },
             agents_activated=[],
             agents_failed=(["deepseek_person_analysis"] if status == "failed" else []),
@@ -1243,14 +1326,30 @@ def persist_calendar_dossiers(
             "cache_hit": p_cache_hit,
         }
         saved["persons"].append(person_ref)
+        guardados_persona.append((person_progress, str(dossier_id), status))
         if "person" not in saved:
             saved["person"] = person_ref
         if "folder" not in saved:
             saved["folder"] = {"id": str(folder_id), "title": folder_title}
 
     if saved:
-        db.commit()
+        try:
+            db.commit()
+        except Exception:
+            for person_progress, _, _ in guardados_persona:
+                person_progress.stage(PERSIST, "failed", "persistence_error")
+            raise
         SUMMARY_CACHE.invalidate(user_id)  # los indicadores de Resumen cambian con cada resultado
+        if "corporate" in saved:
+            corporate_progress.fields(dossier={"id": saved["corporate"]["id"], "status": saved["corporate"]["status"]})
+        for person_progress, guardado_id, guardado_status in guardados_persona:
+            report_persisted(person_progress, dossier_id=guardado_id, dossier_status=guardado_status)
 
     result["saved_dossiers"] = saved
     return result
+
+
+def _progress_copy(progress: Any) -> dict[str, Any]:
+    """``{"_progress": …}`` para ``dossier_data``, o nada si no hay job (ADR 0009)."""
+    copia = scope_copy(progress)
+    return {"_progress": copia} if copia else {}
