@@ -40,7 +40,10 @@ export default function PersonResearchProgress({ scope, variant = "full" }: Prop
   const mode = t(source === "pdl" ? "person_research.source_pdl" : "person_research.source_gemini");
 
   if (variant === "compact") {
-    const stage = summaryStage(scope);
+    // Sin ninguna etapa empezada (en Calendario las personas van después de la empresa),
+    // la línea dice solo «Pendiente»: nombrar el guardado confundiría.
+    const started = scope.stages.some((s) => s.status !== "pending");
+    const stage = started ? summaryStage(scope) : undefined;
     const tone = stage ? entryTone(stage) : "pending";
     return (
       <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-xs" data-status={stage?.status}>
@@ -48,11 +51,11 @@ export default function PersonResearchProgress({ scope, variant = "full" }: Prop
         <span className="font-medium" style={{ color: "var(--text-primary)" }}>
           {name}
         </span>
-        {stage ? (
-          <span style={{ color: toneColor(tone) }}>
-            {`${stageLabel(t, stage.stage_id, source)} · ${stageStatusText(t, stage, source)}`}
-          </span>
-        ) : null}
+        <span style={{ color: toneColor(tone) }}>
+          {stage
+            ? `${stageLabel(t, stage.stage_id, source)} · ${stageStatusText(t, stage, source)}`
+            : t("progress.status.pending")}
+        </span>
       </p>
     );
   }

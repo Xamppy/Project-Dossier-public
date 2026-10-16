@@ -189,7 +189,7 @@ function statusRank(status: DossierGenerationJobStatus): number {
  * respuesta tardía o duplicada no pisa lo que ya llegó por el stream.
  * Conserva los campos solo visuales, como `toastDismissed`.
  */
-function mergeSnapshot(prev: TrackedJob[], incoming: DossierGenerationJobApi): TrackedJob[] {
+function mergeSnapshot(prev: TrackedJob[], incoming: TrackedJob): TrackedJob[] {
   const idx = prev.findIndex((j) => j.id === incoming.id);
   const progress = normalizeProgressSnapshot(incoming.progress);
   if (idx < 0) return [...prev, { ...incoming, progress }];
@@ -436,7 +436,11 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
           forgetSelection(jobId);
           return;
         }
-        setJobs((prev) => mergeSnapshot(prev, job));
+        // Si su aviso siguiera abierto, la restauración inicial ya lo habría traído:
+        // un job terminado que llega solo por la selección no revive su aviso cerrado.
+        setJobs((prev) =>
+          mergeSnapshot(prev, isActiveStatus(job.status) ? job : { ...job, toastDismissed: true }),
+        );
       })
       .catch((err: unknown) => {
         if (epoch !== epochRef.current) return;
