@@ -117,6 +117,17 @@ describe("PersonResearchProgress · etapas que declara el servidor", () => {
     expect(screen.queryByRole("listitem", { current: "step" })).not.toBeInTheDocument();
   });
 
+  it("antes de empezar, la línea compacta dice solo «Pendiente», sin nombrar una etapa", () => {
+    render(
+      <PersonResearchProgress
+        scope={personScopeOf(jobAfterFrames("calendario-agente-caido", 14), "person:0")}
+        variant="compact"
+      />,
+    );
+    expect(screen.getByText(t("progress.status.pending"))).toBeInTheDocument();
+    expect(screen.queryByText(/Guardar el dossier/)).not.toBeInTheDocument();
+  });
+
   it("la variante compacta resume en una línea la etapa en curso o el guardado", () => {
     const { rerender } = render(
       <PersonResearchProgress scope={personScopeOf(jobAfterFrames("personas-pdl", 11))} variant="compact" />,

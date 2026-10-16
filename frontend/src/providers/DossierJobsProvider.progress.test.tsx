@@ -309,6 +309,30 @@ describe("DossierJobsProvider · S5.4 ejecución de Personas seleccionada", () =
     expect(h.api.fetchDossierGenerationJob).toHaveBeenCalledTimes(2);
   });
 
+  it("restaurar la ejecución seleccionada no revive su aviso ya cerrado", async () => {
+    // Recorrido visto en el navegador: el job llega por su stream, se cierra su aviso y se recarga.
+    const failed = loadS510Fixture("personas-pdl-informe-fallido");
+    h.api.fetchDossierGenerationJobs.mockResolvedValueOnce({
+      jobs: [failed.frames[0].data as unknown as DossierGenerationJobApi],
+    });
+    h.api.fetchDossierGenerationJob.mockResolvedValue(failed.snapshot_final);
+    const first = renderProvider();
+    await settle();
+    act(() => ctx().selectPersonJob(FIX));
+    feed(FIX, failed.frames);
+    await settle();
+    expect(screen.getByText(t("progress.available_hint"))).toBeInTheDocument();
+    act(() => ctx().dismissToast(FIX));
+    await settle();
+    first.unmount();
+
+    renderProvider();
+    await settle();
+    await settle();
+    expect(jobOf(FIX)?.status).toBe("failed");
+    expect(screen.queryByText(t("progress.available_hint"))).not.toBeInTheDocument();
+  });
+
   it("si el job seleccionado ya no existe (404) se olvida la selección", async () => {
     renderProvider();
     await settle();
