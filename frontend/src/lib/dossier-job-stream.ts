@@ -18,6 +18,11 @@ import {
   type DossierGenerationJobApi,
   type DossierGenerationJobStatus,
 } from "@/lib/dossier-api";
+import {
+  PROGRESS_EVENT_NAMES,
+  parseProgressEvent,
+  type DossierJobProgressEvent,
+} from "@/lib/dossier-job-progress";
 
 export type DossierJobStreamEventName = "job_status" | "job_completed" | "job_failed";
 
@@ -57,6 +62,11 @@ export type DossierJobStreamHandlers = {
   ) => void;
   /** Se llama como mucho una vez; después la suscripción ya está cerrada. */
   onError: (error: DossierJobStreamError) => void;
+  /**
+   * Evento de progreso (ADR 0009) ya validado y del job pedido (S5.4). Opcional:
+   * sin él se ignoran como en S5.1. Un evento inválido se descarta sin cortar el canal.
+   */
+  onProgress?: (event: DossierJobProgressEvent, meta: { eventId: string | null }) => void;
 };
 
 export type DossierJobStreamSubscription = {
@@ -117,6 +127,20 @@ export function openDossierJobStream(
     lastEventId: () => cursor,
   };
 
+  // Progreso (S5.4): a diferencia de los snapshots, un evento inválido no es un
+  // fallo de protocolo. Se descarta y el canal del job sigue abierto.
+  function deliverProgress(message: EventSourceMessage) {
+    if (!handlers.onProgress) return;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(message.data);
+    } catch {
+      return;
+    }
+    const event = parseProgressEvent(message.event, parsed, jobId);
+    if (event) handlers.onProgress(event, { eventId: message.id || null });
+  }
+
   const token = getStoredAccessToken();
   if (!token) {
     // Asíncrono, como cualquier otro error: quien abre no recibe callbacks durante la llamada.
@@ -145,9 +169,14 @@ export function openDossierJobStream(
     onmessage(message: EventSourceMessage) {
       if (finished) return;
       if (message.id) cursor = message.id;
-      // Heartbeat (`: ping`) llega como mensaje vacío; agent_progress y eventos
-      // desconocidos no son snapshots del job y no se aplican aquí.
-      if (!message.data || !JOB_EVENTS.has(message.event)) return;
+      // Heartbeat (`: ping`) llega como mensaje vacío.
+      if (!message.data) return;
+      if (PROGRESS_EVENT_NAMES.has(message.event)) {
+        deliverProgress(message);
+        return;
+      }
+      // Los eventos desconocidos no son snapshots del job y no se aplican.
+      if (!JOB_EVENTS.has(message.event)) return;
       let parsed: unknown;
       try {
         parsed = JSON.parse(message.data);

@@ -4,6 +4,7 @@ import {
   openDossierJobStream,
   type DossierJobStreamHandlers,
 } from "@/lib/dossier-job-stream";
+import { JOB_EVENTS, frameToSse, loadS510Fixture } from "@/test/s510-fixtures";
 
 // Pruebas del transporte real: la librería @microsoft/fetch-event-source corre
 // de verdad y solo `fetch` está simulado. Así se comprueba el cableado (parser,
@@ -303,5 +304,127 @@ describe("openDossierJobStream · ciclo de vida", () => {
     sse.push(frame("job_status", snapshot({ status: "running" }), 1));
     await vi.waitFor(() => expect(h.onSnapshot).toHaveBeenCalledTimes(1));
     sub.close();
+  });
+});
+
+// --- S5.4: eventos de progreso por la misma suscripción ----------------------
+
+function progressHandlers() {
+  return {
+    onSnapshot: vi.fn<DossierJobStreamHandlers["onSnapshot"]>(),
+    onError: vi.fn<DossierJobStreamHandlers["onError"]>(),
+    onProgress: vi.fn<NonNullable<DossierJobStreamHandlers["onProgress"]>>(),
+  };
+}
+
+/** Corta el texto en trozos de tamaño irregular, sin respetar los límites de frame. */
+function chunks(text: string, sizes = [5, 17, 3, 61, 29]): string[] {
+  const out: string[] = [];
+  let i = 0;
+  let k = 0;
+  while (i < text.length) {
+    const size = sizes[k % sizes.length];
+    out.push(text.slice(i, i + size));
+    i += size;
+    k += 1;
+  }
+  return out;
+}
+
+const FIXTURE_JOB = "00000000-0000-4000-8000-000000000001";
+
+describe("openDossierJobStream · S5.4 progreso", () => {
+  it.each(["personas-pdl", "calendario-agente-caido", "personas-web-publica"] as const)(
+    "%s: entrega agent_progress, stage_progress y partial_result tipados aunque lleguen fragmentados",
+    async (name) => {
+      const fixture = loadS510Fixture(name);
+      const sse = sseBody();
+      fetchMock.mockResolvedValue(sse.response);
+      const h = progressHandlers();
+
+      openDossierJobStream(FIXTURE_JOB, h);
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+      for (const piece of chunks(fixture.frames.map(frameToSse).join(""))) sse.push(piece);
+      sse.end();
+
+      const progressFrames = fixture.frames.filter((f) => !JOB_EVENTS.has(f.event));
+      const jobFrames = fixture.frames.filter((f) => JOB_EVENTS.has(f.event));
+      await vi.waitFor(() => expect(h.onSnapshot).toHaveBeenCalledTimes(jobFrames.length));
+      expect(h.onProgress).toHaveBeenCalledTimes(progressFrames.length);
+      h.onProgress.mock.calls.forEach(([event, meta], i) => {
+        const source = progressFrames[i];
+        expect(event.type).toBe(source.event);
+        expect(event.revision).toBe(source.data.revision);
+        expect(event.scope_id).toBe(source.data.scope_id);
+        expect(meta.eventId).toBe(String(source.id));
+      });
+      await new Promise((r) => setTimeout(r, 20));
+      expect(h.onError).not.toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("un evento de progreso inválido se descarta sin cortar el canal ni aplicar nada", async () => {
+    const fixture = loadS510Fixture("personas-pdl");
+    const sse = sseBody();
+    fetchMock.mockResolvedValue(sse.response);
+    const h = progressHandlers();
+
+    const sub = openDossierJobStream(FIXTURE_JOB, h);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const valid = fixture.frames[2]; // stage_progress válido
+    sse.push("id: 90\nevent: stage_progress\ndata: {no-es-json\n\n");
+    sse.push(frame("stage_progress", { ...valid.data, job_id: "otro-job" }, 91));
+    sse.push(frame("stage_progress", { ...valid.data, schema_version: 2 }, 92));
+    sse.push(frame("stage_progress", { ...valid.data, stage_id: "person.web_search" }, 93));
+    sse.push(frame("agent_progress", { dossier_id: FIXTURE_JOB, agent: "uk", status: "failed" }, 94));
+    sse.push(frame("partial_result", { ...fixture.frames[7].data, data: { profiles: "Ana" } }, 95));
+    sse.push(frameToSse(valid));
+    sse.push(frame("job_status", snapshot({ id: FIXTURE_JOB, status: "running" }), 96));
+
+    await vi.waitFor(() => expect(h.onSnapshot).toHaveBeenCalledTimes(1));
+    expect(h.onProgress).toHaveBeenCalledTimes(1);
+    expect(h.onProgress.mock.calls[0][0]).toMatchObject({
+      type: "stage_progress",
+      stage_id: "person.cache_lookup",
+      status: "skipped",
+      reason_code: "cache_unavailable",
+    });
+    expect(h.onError).not.toHaveBeenCalled();
+    expect(sub.lastEventId()).toBe("96");
+    sub.close();
+  });
+
+  it("sin onProgress, los eventos de progreso válidos se ignoran como en S5.1", async () => {
+    const fixture = loadS510Fixture("personas-pdl");
+    const sse = sseBody();
+    fetchMock.mockResolvedValue(sse.response);
+    const h = handlers();
+
+    openDossierJobStream(FIXTURE_JOB, h);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    for (const f of fixture.frames) sse.push(frameToSse(f));
+    sse.end();
+
+    await vi.waitFor(() => expect(h.onSnapshot).toHaveBeenCalledTimes(5));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(h.onError).not.toHaveBeenCalled();
+  });
+
+  it("un evento de progreso después del terminal ya no se entrega", async () => {
+    const fixture = loadS510Fixture("personas-cancelada");
+    const sse = sseBody();
+    fetchMock.mockResolvedValue(sse.response);
+    const h = progressHandlers();
+
+    openDossierJobStream(FIXTURE_JOB, h);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    for (const f of fixture.frames) sse.push(frameToSse(f));
+    sse.push(frame("stage_progress", { ...fixture.frames[3].data, revision: 50, status: "completed" }, 99));
+
+    await vi.waitFor(() => expect(h.onSnapshot).toHaveBeenCalledTimes(3));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(h.onProgress).toHaveBeenCalledTimes(2);
+    expect(h.onSnapshot.mock.calls.at(-1)?.[0].status).toBe("cancelled");
   });
 });
