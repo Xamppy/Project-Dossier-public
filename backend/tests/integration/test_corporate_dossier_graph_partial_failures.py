@@ -257,33 +257,12 @@ def test_persist_sin_telemetria_y_sin_error_no_marca_ningun_agente_fallido():
 
 
 # ---------------------------------------------------------------------------
-# 4. Emisión del evento SSE `agent_progress` (S0.11) desde el job
+# 4. El evento `agent_progress` de S4.9 (solo fallos, al terminar el grafo y con el
+#    job ID en `dossier_id`) se reemplazó en S5.10 por el contrato de ADR 0009, que
+#    informa inicio y terminal de cada agente durante la ejecución. Sus pruebas están
+#    en tests/test_corporate_graph_progress.py y
+#    tests/integration/test_calendar_job_progress_integracion.py.
 # ---------------------------------------------------------------------------
-
-def test_job_service_publica_agent_progress_por_cada_agente_fallido():
-    from dossier.services.dossier_generation_job_service import _publish_corporate_agent_failures
-    from dossier.services.dossier_progress_events import events_since
-
-    job_id = uuid.uuid4()
-    _publish_corporate_agent_failures(job_id, ["agent_corporate_uk", "agent_corporate_usa"])
-
-    eventos = events_since(job_id, 0)
-    assert [e[1] for e in eventos] == ["agent_progress", "agent_progress"]
-    nombres = [e[2]["agent_name"] for e in eventos]
-    assert nombres == ["agent_corporate_uk", "agent_corporate_usa"]
-    assert all(e[2]["status"] == "failed" for e in eventos)
-    assert all(e[2]["dossier_id"] == str(job_id) for e in eventos)
-
-
-def test_job_service_no_publica_nada_si_no_hay_agentes_fallidos():
-    from dossier.services.dossier_generation_job_service import _publish_corporate_agent_failures
-    from dossier.services.dossier_progress_events import events_since
-
-    job_id = uuid.uuid4()
-    _publish_corporate_agent_failures(job_id, [])
-
-    assert events_since(job_id, 0) == []
-
 
 # ---------------------------------------------------------------------------
 # 5. Round-trip contra Postgres real: la columna ARRAY(Text) `agents_failed`
