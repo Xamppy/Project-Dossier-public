@@ -24,7 +24,6 @@ import {
   type CalendarProvider,
   type CalendarGenerarDossierItem,
   type CreateCorporateDossierPayload,
-  type CreateCorporateDossierResponse,
   type DossierGenerationJobApi,
   type DossierGenerationJobStatus,
   type OutlookReunionApi,
@@ -37,6 +36,13 @@ import {
   type DossierJobStreamError,
   type DossierJobStreamSubscription,
 } from "@/lib/dossier-job-stream";
+import {
+  applyProgressEvent,
+  mergeProgress,
+  normalizeProgressSnapshot,
+  type DossierJobProgressEvent,
+} from "@/lib/dossier-job-progress";
+import { classifyJobOutcome } from "@/lib/dossier-job-outcome";
 import { AUTH_ME_CHANGED_EVENT } from "@/hooks/useAuthMe";
 import { isPdlProfileFoundInfoWarning } from "@/lib/translate-pdl-warning";
 import {
@@ -51,6 +57,8 @@ import { usePreferences, useTranslation } from "@/providers/PreferencesProvider"
 
 const STORAGE_KEY = "dossier_active_job_ids";
 const TOAST_JOB_IDS_KEY = "dossier_toast_job_ids";
+// Solo el ID: la vista previa vive en el job del servidor, no en el navegador.
+const SELECTED_PERSON_JOB_KEY = "dossier_person_selected_job_id";
 const TERMINAL: DossierGenerationJobStatus[] = ["completed", "failed", "cancelled"];
 
 type TrackedJob = DossierGenerationJobApi & {
@@ -91,6 +99,9 @@ type DossierJobsContextValue = {
   getJobConnection: (jobId: string) => DossierJobConnection | undefined;
   /** Recuperación manual tras un corte: un snapshot REST y, si sigue activo, un stream nuevo. */
   resyncJob: (jobId: string) => Promise<void>;
+  /** Ejecución de Personas que se está mirando (S5.4). */
+  selectedPersonJobId: string | null;
+  selectPersonJob: (jobId: string | null) => void;
 };
 
 const DossierJobsContext = createContext<DossierJobsContextValue | null>(null);
@@ -137,6 +148,25 @@ function saveToastJobIds(ids: string[]) {
   }
 }
 
+function loadSelectedPersonJobId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return sessionStorage.getItem(SELECTED_PERSON_JOB_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSelectedPersonJobId(id: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (id) sessionStorage.setItem(SELECTED_PERSON_JOB_KEY, id);
+    else sessionStorage.removeItem(SELECTED_PERSON_JOB_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 function isActiveStatus(status: DossierGenerationJobStatus): boolean {
   return !TERMINAL.includes(status);
 }
@@ -160,12 +190,34 @@ function statusRank(status: DossierGenerationJobStatus): number {
  */
 function mergeSnapshot(prev: TrackedJob[], incoming: DossierGenerationJobApi): TrackedJob[] {
   const idx = prev.findIndex((j) => j.id === incoming.id);
-  if (idx < 0) return [...prev, incoming];
+  const progress = normalizeProgressSnapshot(incoming.progress);
+  if (idx < 0) return [...prev, { ...incoming, progress }];
   const current = prev[idx];
   if (!isActiveStatus(current.status)) return prev;
   if (statusRank(incoming.status) < statusRank(current.status)) return prev;
   const next = [...prev];
-  next[idx] = { ...current, ...incoming };
+  // El progreso se fusiona por revisión (S5.4): un snapshot viejo no lo hace retroceder.
+  next[idx] = { ...current, ...incoming, progress: mergeProgress(current.progress, progress) };
+  return next;
+}
+
+/**
+ * Aplica un evento de progreso al job de su stream. Un job terminal ya no cambia:
+ * lo que llegue después de cancelar o terminar no revive nada.
+ */
+function applyJobProgressEvent(
+  prev: TrackedJob[],
+  jobId: string,
+  event: DossierJobProgressEvent,
+): TrackedJob[] {
+  if (event.job_id !== jobId) return prev;
+  const idx = prev.findIndex((j) => j.id === jobId);
+  if (idx < 0 || !isActiveStatus(prev[idx].status)) return prev;
+  const current = prev[idx];
+  const progress = applyProgressEvent(current.progress, event);
+  if (progress === current.progress) return prev;
+  const next = [...prev];
+  next[idx] = { ...current, progress };
   return next;
 }
 
@@ -186,28 +238,6 @@ function connectionForError(
   return { state: "interrupted", reason: isSession ? "session" : "transport" };
 }
 
-function calendarJobHasPartialFailure(job: TrackedJob): boolean {
-  if (job.job_type !== "calendar_manual" || job.status !== "completed" || !job.result) {
-    return false;
-  }
-  const cal = job.result as CalendarGenerarDossierItem;
-  const saved = cal.saved_dossiers;
-  if (!saved) return false;
-  const corpFailed = saved.corporate?.status === "failed";
-  const personFailed = saved.person?.status === "failed";
-  const corpOk = saved.corporate?.status === "complete";
-  const personOk = saved.person?.status === "complete";
-  return (corpFailed || personFailed) && (corpOk || personOk);
-}
-
-function calendarJobSavedNothing(job: TrackedJob): boolean {
-  if (job.job_type !== "calendar_manual" || job.status !== "completed" || !job.result) {
-    return false;
-  }
-  const saved = (job.result as CalendarGenerarDossierItem).saved_dossiers;
-  return !saved?.corporate && !saved?.person;
-}
-
 function calendarMeetingLabelFromReunion(
   reunion: OutlookReunionApi | undefined,
   preferences: ReturnType<typeof usePreferences>["preferences"],
@@ -216,38 +246,6 @@ function calendarMeetingLabelFromReunion(
   if (!tema) return null;
   const when = formatCalendarMeetingInstant(reunion?.inicio, preferences);
   return when ? `${tema} · ${when}` : tema;
-}
-
-function personJobSavedNothing(job: TrackedJob): boolean {
-  if (job.job_type !== "person_manual" || job.status !== "completed" || !job.result) {
-    return false;
-  }
-  const personResult = job.result as PersonResearchApiResponse;
-  return !personResult.saved_dossier?.id;
-}
-
-function corporateJobSavedNothing(job: TrackedJob): boolean {
-  if (job.job_type !== "corporate_manual" || job.status !== "completed" || !job.result) {
-    return false;
-  }
-  const corporateResult = job.result as CreateCorporateDossierResponse;
-  return !corporateResult.id;
-}
-
-function personJobHasPartialFailure(job: TrackedJob): boolean {
-  if (job.job_type !== "person_manual" || job.status !== "completed" || !job.result) {
-    return false;
-  }
-  const personResult = job.result as PersonResearchApiResponse;
-  if (!personResult.saved_dossier?.id) return false;
-  const hasAnalysis = !!personResult.llm_analysis_markdown?.trim();
-  const criticalWarnings = (personResult.warnings ?? []).filter(
-    (w) =>
-      !isPdlProfileFoundInfoWarning(w) &&
-      !w.toLowerCase().includes("no se encontró información adicional") &&
-      !w.toLowerCase().includes("no se encontró perfil verificable"),
-  );
-  return !hasAnalysis || criticalWarnings.length > 0;
 }
 
 function personJobWarning(job: TrackedJob): string | undefined {
@@ -262,30 +260,6 @@ function personJobWarning(job: TrackedJob): string | undefined {
       !w.toLowerCase().includes("no se encontró perfil verificable"),
   );
   return criticalWarnings[0];
-}
-
-function dossierHref(job: TrackedJob): string | null {
-  if (job.job_type === "person_manual" && job.result) {
-    const personResult = job.result as PersonResearchApiResponse;
-    const personManualId = personResult.saved_dossier?.id;
-    if (personManualId) return `/dashboard/dossiers/${personManualId}`;
-    return null;
-  }
-  if (job.job_type === "corporate_manual" && job.result) {
-    const corporateResult = job.result as CreateCorporateDossierResponse;
-    if (corporateResult.id) return `/dashboard/dossiers/${corporateResult.id}`;
-    return null;
-  }
-  if (job.job_type === "calendar_manual" && job.result) {
-    const cal = job.result as CalendarGenerarDossierItem;
-    const folderId = cal.saved_dossiers?.folder?.id;
-    if (folderId) return `/dashboard/dossiers/folder/${folderId}`;
-    const personFromCalendar = cal.saved_dossiers?.person?.id;
-    if (personFromCalendar) return `/dashboard/dossiers/${personFromCalendar}`;
-    const corpId = cal.saved_dossiers?.corporate?.id;
-    if (corpId) return `/dashboard/dossiers/${corpId}`;
-  }
-  return "/dashboard/dossiers";
 }
 
 export function DossierJobsProvider({ children }: { children: ReactNode }) {
@@ -304,6 +278,16 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
   const streamsRef = useRef<Map<string, DossierJobStreamSubscription>>(new Map());
   // Se incrementa al desmontar o cambiar de sesión: invalida respuestas en vuelo.
   const epochRef = useRef(0);
+  // Ejecución de Personas que se está mirando (S5.4). Independiente del job activo:
+  // sobrevive al terminal, a la navegación y, por sessionStorage, a una recarga.
+  const [selectedPersonJobId, setSelectedPersonJobId] = useState<string | null>(null);
+  // ID ya pedido por GET para restaurar la selección: una sola lectura por ID.
+  const selectionFetchRef = useRef<string | null>(null);
+
+  const forgetSelection = useCallback((jobId: string) => {
+    setSelectedPersonJobId((current) => (current === jobId ? null : current));
+    if (loadSelectedPersonJobId() === jobId) saveSelectedPersonJobId(null);
+  }, []);
 
   const closeAllStreams = useCallback(() => {
     for (const stream of streamsRef.current.values()) stream.close();
@@ -342,6 +326,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       // Fusión, no reemplazo: no se pierde lo encolado ni lo llegado por SSE mientras tanto.
       setJobs((prev) => restored.reduce(mergeSnapshot, prev));
+      // sessionStorage refleja siempre la última selección, también la hecha antes de restaurar.
+      setSelectedPersonJobId(loadSelectedPersonJobId());
       setHydrated(true);
     }
     void bootstrap();
@@ -368,6 +354,9 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       closeAllStreams();
       setJobs((prev) => prev.filter((j) => !hasServerStream(j)));
       setConnections({});
+      setSelectedPersonJobId(null);
+      saveSelectedPersonJobId(null);
+      selectionFetchRef.current = null;
       setHydrated(false);
       setSessionKey((k) => k + 1);
     }
@@ -375,14 +364,18 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(AUTH_ME_CHANGED_EVENT, onSessionChange);
   }, [closeAllStreams]);
 
-  const handleStreamError = useCallback((jobId: string, error: DossierJobStreamError) => {
-    if (error.kind === "not_found") {
-      setJobs((prev) => prev.filter((j) => j.id !== jobId));
-      setConnections((prev) => withoutKey(prev, jobId));
-      return;
-    }
-    setConnections((prev) => ({ ...prev, [jobId]: connectionForError(error) }));
-  }, []);
+  const handleStreamError = useCallback(
+    (jobId: string, error: DossierJobStreamError) => {
+      if (error.kind === "not_found") {
+        setJobs((prev) => prev.filter((j) => j.id !== jobId));
+        setConnections((prev) => withoutKey(prev, jobId));
+        forgetSelection(jobId);
+        return;
+      }
+      setConnections((prev) => ({ ...prev, [jobId]: connectionForError(error) }));
+    },
+    [forgetSelection],
+  );
 
   const openStream = useCallback(
     (jobId: string) => {
@@ -391,6 +384,10 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       stream = openDossierJobStream(jobId, {
         onSnapshot: (snapshot) => {
           if (isCurrent()) setJobs((prev) => mergeSnapshot(prev, snapshot));
+        },
+        // Misma suscripción para el progreso (S5.4): ningún componente abre streams propios.
+        onProgress: (event) => {
+          if (isCurrent()) setJobs((prev) => applyJobProgressEvent(prev, jobId, event));
         },
         onError: (error) => {
           if (!isCurrent()) return;
@@ -422,6 +419,36 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
     }
   }, [jobs, connections, openStream]);
 
+  // Restaura la ejecución seleccionada si no está entre los jobs seguidos (p. ej. tras
+  // recargar con un job ya terminado y su aviso cerrado): un único GET, no un sondeo.
+  useEffect(() => {
+    const jobId = selectedPersonJobId;
+    if (!hydrated || !jobId || jobs.some((j) => j.id === jobId)) return;
+    if (selectionFetchRef.current === jobId) return;
+    selectionFetchRef.current = jobId;
+    const epoch = epochRef.current;
+    void fetchDossierGenerationJob(jobId)
+      .then((raw) => {
+        if (epoch !== epochRef.current) return;
+        const job = parseJobSnapshot(raw, jobId);
+        if (!job) {
+          forgetSelection(jobId);
+          return;
+        }
+        setJobs((prev) => mergeSnapshot(prev, job));
+      })
+      .catch((err: unknown) => {
+        if (epoch !== epochRef.current) return;
+        if (err instanceof DossierApiError && err.status === 404) forgetSelection(jobId);
+      });
+  }, [hydrated, selectedPersonJobId, jobs, forgetSelection]);
+
+  const selectPersonJob = useCallback((jobId: string | null) => {
+    selectionFetchRef.current = null;
+    setSelectedPersonJobId(jobId);
+    saveSelectedPersonJobId(jobId);
+  }, []);
+
   const resyncJob = useCallback(async (jobId: string) => {
     const epoch = epochRef.current;
     setConnections((prev) => ({ ...prev, [jobId]: { state: "resyncing" } }));
@@ -440,6 +467,7 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       if (err instanceof DossierApiError && err.status === 404) {
         setJobs((prev) => prev.filter((j) => j.id !== jobId));
         setConnections((prev) => withoutKey(prev, jobId));
+        forgetSelection(jobId);
         return;
       }
       const connection =
@@ -448,7 +476,7 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
           : ({ state: "interrupted", reason: "transport" } as const);
       setConnections((prev) => ({ ...prev, [jobId]: connection }));
     }
-  }, []);
+  }, [forgetSelection]);
 
   const getJobConnection = useCallback(
     (jobId: string) => connections[jobId],
@@ -646,6 +674,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       dismissToast,
       getJobConnection,
       resyncJob,
+      selectedPersonJobId,
+      selectPersonJob,
     }),
     [
       jobs,
@@ -660,6 +690,8 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
       dismissToast,
       getJobConnection,
       resyncJob,
+      selectedPersonJobId,
+      selectPersonJob,
     ],
   );
 
@@ -672,7 +704,6 @@ export function DossierJobsProvider({ children }: { children: ReactNode }) {
         onDismiss={dismissToast}
         onCancel={cancelJob}
         onResync={resyncJob}
-        dossierHref={dossierHref}
       />
     </DossierJobsContext.Provider>
   );
@@ -702,14 +733,12 @@ function DossierJobToasts({
   onDismiss,
   onCancel,
   onResync,
-  dossierHref,
 }: {
   jobs: TrackedJob[];
   connections: Record<string, DossierJobConnection>;
   onDismiss: (jobId: string) => void;
   onCancel: (jobId: string) => Promise<void>;
   onResync: (jobId: string) => Promise<void>;
-  dossierHref: (job: TrackedJob) => string | null;
 }) {
   const { t } = useTranslation();
   const pathname = usePathname();
@@ -736,18 +765,25 @@ function DossierJobToasts({
     >
       {visible.map((job) => {
         const label = jobToastLabel(job, t);
-        const href = dossierHref(job);
+        // Clasificación pura del resultado (S5.4): un guardado `failed` no es éxito y
+        // un job `failed` puede conservar información útil.
+        const outcome = classifyJobOutcome(job);
+        const href = outcome.savedHref;
         const isActive = job.status === "queued" || job.status === "running";
-        const isFail =
-          job.status === "failed" ||
-          calendarJobSavedNothing(job) ||
-          personJobSavedNothing(job) ||
-          corporateJobSavedNothing(job);
-        const isPartial =
-          !isFail &&
-          (calendarJobHasPartialFailure(job) || personJobHasPartialFailure(job));
-        const isOk = job.status === "completed" && !isFail && !isPartial;
-        const isCancelled = job.status === "cancelled";
+        const isFail = outcome.kind === "failed" || outcome.kind === "failed_with_partial";
+        const isPartial = outcome.kind === "partial";
+        const isOk = outcome.kind === "complete";
+        const isCancelled = outcome.kind === "cancelled";
+        const missing = isPartial
+          ? [
+              ...outcome.failedAgents.map((a) => t(`progress.agent.${a}` as TranslationKey)),
+              ...outcome.failedPeople,
+            ]
+          : [];
+        const availableHref =
+          outcome.kind === "failed_with_partial" && job.job_type === "person_manual"
+            ? `${PERSON_RESEARCH_PATH}?job=${encodeURIComponent(job.id)}`
+            : null;
         const calendarWarning =
           isOk && job.job_type === "calendar_manual" && job.result
             ? (job.result as CalendarGenerarDossierItem).dossier_persona_research?.warnings?.[0]
@@ -793,6 +829,16 @@ function DossierJobToasts({
                     {translateBackendWarning(personWarning, t)}
                   </p>
                 ) : null}
+                {missing.length > 0 ? (
+                  <p className="mt-1.5 text-sm ui-text-warning leading-relaxed">
+                    {t("progress.outcome.missing", { items: missing.join(", ") })}
+                  </p>
+                ) : null}
+                {outcome.kind === "failed_with_partial" ? (
+                  <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                    {t("progress.available_hint")}
+                  </p>
+                ) : null}
                 <JobConnectionNotice connection={connection} />
               </div>
               <button
@@ -805,6 +851,15 @@ function DossierJobToasts({
               </button>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-4">
+              {availableHref ? (
+                <Link
+                  href={availableHref}
+                  className="inline-block text-sm font-medium underline"
+                  onClick={() => onDismiss(job.id)}
+                >
+                  {t("progress.view_available")}
+                </Link>
+              ) : null}
               {(isOk || isPartial) && href && (
                 <Link
                   href={href}
