@@ -87,6 +87,10 @@ class ScopeProgress:
         self.scope_id = scope_id
 
     @property
+    def job_id(self) -> str:
+        return str(self._job.job_id)
+
+    @property
     def research_source(self) -> str | None:
         scope = self.snapshot()
         return scope.get("research_source") if scope else None
@@ -113,6 +117,7 @@ class _NullScope:
     """Scope sin job (ruta manual, API síncrona): todas las llamadas se ignoran."""
 
     scope_id = None
+    job_id = None
     research_source = None
 
     def agent(self, *args: Any, **kwargs: Any) -> None:
