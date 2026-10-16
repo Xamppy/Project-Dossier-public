@@ -1347,7 +1347,7 @@
       "id": "S5.4",
       "sprint": 5,
       "title": "Mostrar resultados parciales y estado por agente",
-      "status": "pending",
+      "status": "claimed",
       "owner": "DG",
       "area": "frontend",
       "activity": "A6",
@@ -1361,9 +1361,10 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/taJ6cNQf",
-      "branch": null,
+      "branch": "feat/S5.4-resultados-parciales-agentes",
       "evidence": [],
-      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1."
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1. Tomada el 2026-10-15 con S5.1 y S5.10 sin revisión, por decisión de DG.",
+      "owner_session": "DG (agente Claude, S5.4)"
     },
     {
       "id": "S5.5",
