@@ -1,0 +1,553 @@
+{
+  "escenario": "personas-web-publica-fallida",
+  "descripcion": "Personas / Web pública con el modelo caído: context_analysis failed y ningún parcial.",
+  "contrato": "docs/architecture/decisions/0009-contrato-progreso-por-scopes.md",
+  "generado_por": "backend/scripts/generar_fixtures_progreso.py",
+  "frames": [
+    {
+      "id": 1,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": null,
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 2,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "schema_version": 1,
+          "revision": 1,
+          "scopes": [
+            {
+              "scope_id": "person:0",
+              "kind": "person",
+              "label": "Ana Prueba",
+              "research_source": "gemini_web",
+              "live_web_search": false,
+              "origin": null,
+              "profiles_count": null,
+              "stages": [
+                {
+                  "stage_id": "person.cache_lookup",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.context_analysis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.report_finalize",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.persist",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                }
+              ],
+              "partial_results": [],
+              "dossier": null
+            }
+          ]
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 3,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 2,
+        "research_source": "gemini_web",
+        "stage_id": "person.cache_lookup",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "cache_unavailable"
+      }
+    },
+    {
+      "id": 4,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 3,
+        "research_source": "gemini_web",
+        "stage_id": "person.context_analysis",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 5,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 4,
+        "research_source": "gemini_web",
+        "stage_id": "person.context_analysis",
+        "status": "failed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "provider_error"
+      }
+    },
+    {
+      "id": 6,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 5,
+        "research_source": "gemini_web",
+        "stage_id": "person.report_finalize",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_content"
+      }
+    },
+    {
+      "id": 7,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 2,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "failed",
+                  "revision": 4,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 5,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "pending",
+                  "revision": 0,
+                  "stage_id": "person.persist",
+                  "timestamp": null,
+                  "reason_code": null
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "gemini_web"
+            }
+          ],
+          "revision": 6,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 8,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 7,
+        "research_source": "gemini_web",
+        "stage_id": "person.persist",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 9,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 8,
+        "research_source": "gemini_web",
+        "stage_id": "person.persist",
+        "status": "failed",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "no_valid_report",
+        "dossier_id": "00000000-0000-4000-8000-000000000002",
+        "dossier_status": "failed"
+      }
+    },
+    {
+      "id": 10,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 2,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "failed",
+                  "revision": 4,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 5,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "failed",
+                  "revision": 8,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000002",
+                  "reason_code": "no_valid_report",
+                  "dossier_status": "failed"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "failed"
+              },
+              "scope_id": "person:0",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "gemini_web"
+            }
+          ],
+          "revision": 9,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 11,
+      "event": "job_failed",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "failed",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": "No se pudo generar el análisis de persona. Reintenta la generación o usa «Nueva búsqueda de persona» con más datos.",
+        "result": {
+          "profiles": [],
+          "warnings": [
+            "DeepSeek no responde"
+          ],
+          "posts_by_url": {},
+          "profile_urls": [],
+          "force_refresh": false,
+          "saved_dossier": {
+            "id": "00000000-0000-4000-8000-000000000002",
+            "status": "failed",
+            "replaced": false,
+            "status_message": "No se pudo generar el análisis de persona. Reintenta la generación o usa «Nueva búsqueda de persona» con más datos.",
+            "organization_id": "00000000-0000-4000-8000-000000000003",
+            "credits_consumed": 0,
+            "generation_duration_ms": 5
+          },
+          "dossier_source": "generated",
+          "filters_applied": {
+            "city": null,
+            "email": null,
+            "start": 0,
+            "company": "Empresa de Prueba SA",
+            "country": null,
+            "job_area": null,
+            "pdl_used": false,
+            "full_name": "Ana Prueba",
+            "linkedin_url": null,
+            "max_profiles": 1,
+            "geo_effective": null,
+            "include_posts": false,
+            "research_mode": "gemini_web",
+            "extra_keywords": null,
+            "profiles_count": 0,
+            "verified_facts": null,
+            "output_language": "en",
+            "research_source": "gemini_web",
+            "enrichment_provider": null,
+            "lusha_verified_facts": null,
+            "reveal_contact_details": false,
+            "contexto_organizacion_cliente": null
+          },
+          "search_attempts": [],
+          "executive_payload": null,
+          "llm_analysis_markdown": null,
+          "gemini_google_search_used": false
+        },
+        "progress": {
+          "scopes": [
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": "generated",
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 2,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "failed",
+                  "revision": 4,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "provider_error"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 5,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "no_content"
+                },
+                {
+                  "status": "failed",
+                  "revision": 8,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "dossier_id": "00000000-0000-4000-8000-000000000002",
+                  "reason_code": "no_valid_report",
+                  "dossier_status": "failed"
+                }
+              ],
+              "dossier": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "status": "failed"
+              },
+              "scope_id": "person:0",
+              "profiles_count": 0,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "gemini_web"
+            }
+          ],
+          "revision": 9,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": "2026-10-15T12:00:00+00:00"
+      }
+    }
+  ],
+  "snapshot_final": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "failed",
+    "job_type": "person_manual",
+    "calendar_provider": null,
+    "external_event_id": "person:1bab419c21ee422aac9d380fe1bb8887",
+    "meeting_label": "Ana Prueba",
+    "credits_estimated": 1,
+    "credits_consumed": 0,
+    "error_message": "No se pudo generar el análisis de persona. Reintenta la generación o usa «Nueva búsqueda de persona» con más datos.",
+    "result": {
+      "profiles": [],
+      "warnings": [
+        "DeepSeek no responde"
+      ],
+      "posts_by_url": {},
+      "profile_urls": [],
+      "force_refresh": false,
+      "saved_dossier": {
+        "id": "00000000-0000-4000-8000-000000000002",
+        "status": "failed",
+        "replaced": false,
+        "status_message": "No se pudo generar el análisis de persona. Reintenta la generación o usa «Nueva búsqueda de persona» con más datos.",
+        "organization_id": "00000000-0000-4000-8000-000000000003",
+        "credits_consumed": 0,
+        "generation_duration_ms": 5
+      },
+      "dossier_source": "generated",
+      "filters_applied": {
+        "city": null,
+        "email": null,
+        "start": 0,
+        "company": "Empresa de Prueba SA",
+        "country": null,
+        "job_area": null,
+        "pdl_used": false,
+        "full_name": "Ana Prueba",
+        "linkedin_url": null,
+        "max_profiles": 1,
+        "geo_effective": null,
+        "include_posts": false,
+        "research_mode": "gemini_web",
+        "extra_keywords": null,
+        "profiles_count": 0,
+        "verified_facts": null,
+        "output_language": "en",
+        "research_source": "gemini_web",
+        "enrichment_provider": null,
+        "lusha_verified_facts": null,
+        "reveal_contact_details": false,
+        "contexto_organizacion_cliente": null
+      },
+      "search_attempts": [],
+      "executive_payload": null,
+      "llm_analysis_markdown": null,
+      "gemini_google_search_used": false
+    },
+    "progress": {
+      "scopes": [
+        {
+          "kind": "person",
+          "label": "Ana Prueba",
+          "origin": "generated",
+          "stages": [
+            {
+              "status": "skipped",
+              "revision": 2,
+              "stage_id": "person.cache_lookup",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "cache_unavailable"
+            },
+            {
+              "status": "failed",
+              "revision": 4,
+              "stage_id": "person.context_analysis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "provider_error"
+            },
+            {
+              "status": "skipped",
+              "revision": 5,
+              "stage_id": "person.report_finalize",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "no_content"
+            },
+            {
+              "status": "failed",
+              "revision": 8,
+              "stage_id": "person.persist",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "dossier_id": "00000000-0000-4000-8000-000000000002",
+              "reason_code": "no_valid_report",
+              "dossier_status": "failed"
+            }
+          ],
+          "dossier": {
+            "id": "00000000-0000-4000-8000-000000000002",
+            "status": "failed"
+          },
+          "scope_id": "person:0",
+          "profiles_count": 0,
+          "live_web_search": false,
+          "partial_results": [],
+          "research_source": "gemini_web"
+        }
+      ],
+      "revision": 9,
+      "schema_version": 1
+    },
+    "created_at": "2026-10-15T12:00:00+00:00",
+    "started_at": "2026-10-15T12:00:00+00:00",
+    "completed_at": "2026-10-15T12:00:00+00:00"
+  }
+}
