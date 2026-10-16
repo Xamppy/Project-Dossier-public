@@ -8,7 +8,9 @@ import {
   type DossierJobStreamErrorKind,
   type DossierJobStreamHandlers,
 } from "@/lib/dossier-job-stream";
+import { parseProgressEvent } from "@/lib/dossier-job-progress";
 import { DossierJobsProvider } from "@/providers/DossierJobsProvider";
+import { JOB_EVENTS, loadS510Fixture, type S510Frame } from "@/test/s510-fixtures";
 import PersonResearchPage from "./page";
 
 // Personas (/dashboard/person-research) con el proveedor y el cliente HTTP
@@ -20,6 +22,8 @@ type FakeSub = { jobId: string; handlers: DossierJobStreamHandlers; closed: bool
 const h = vi.hoisted(() => ({
   subs: [] as FakeSub[],
   params: new URLSearchParams(),
+  /** S5.4: ID del próximo job encolado (los ejemplos de S5.10 usan un ID fijo). */
+  forcedJobId: null as string | null,
 }));
 
 vi.mock("@/lib/dossier-job-stream", async (importOriginal) => {
@@ -106,6 +110,7 @@ function resultadoPersona(source: string, id: string) {
 beforeEach(() => {
   h.subs.length = 0;
   h.params = new URLSearchParams();
+  h.forcedJobId = null;
   servidor = new Map();
   llamadas = [];
   secuencia = 0;
@@ -124,7 +129,7 @@ beforeEach(() => {
       if (url === `${API}/dossiers/person/research` && method === "POST") {
         secuencia += 1;
         const job: DossierGenerationJobApi = {
-          id: `persona-${secuencia}`,
+          id: h.forcedJobId ?? `persona-${secuencia}`,
           status: "queued",
           job_type: "person_manual",
           calendar_provider: null,
@@ -450,5 +455,258 @@ describe("Personas · convivencia de modalidades y con Calendario", () => {
       ),
     );
     expect(screen.queryByText(t("dossier_jobs.connection_lost"))).not.toBeInTheDocument();
+  });
+});
+
+// --- S5.4: avance real y resultados parciales en Personas --------------------
+
+const FIX = "00000000-0000-4000-8000-000000000001";
+
+/** El servidor publica los frames reales de S5.10 por el stream abierto del job. */
+function alimentar(frames: S510Frame[]) {
+  for (const frame of frames) {
+    const [sub] = openSubs(FIX);
+    if (!sub) throw new Error(`No hay stream abierto para ${FIX} (frame ${frame.id})`);
+    act(() => {
+      if (JOB_EVENTS.has(frame.event)) {
+        servidor.set(FIX, frame.data as unknown as DossierGenerationJobApi);
+        sub.handlers.onSnapshot(frame.data as unknown as DossierGenerationJobApi, {
+          event: frame.event as "job_status",
+          eventId: String(frame.id),
+        });
+      } else {
+        const event = parseProgressEvent(frame.event, frame.data, FIX);
+        if (!event) throw new Error(`frame ${frame.id} inválido`);
+        sub.handlers.onProgress?.(event, { eventId: String(frame.id) });
+      }
+    });
+  }
+}
+
+async function iniciarEjemplo(modo: (typeof MODOS)[number]) {
+  h.forcedJobId = FIX;
+  return iniciar(modo, "Ana Prueba");
+}
+
+const panelAvance = () => screen.getByRole("region", { name: t("progress.panel_title") });
+const etapa = (panel: HTMLElement, label: string) =>
+  within(panel).getByText(label).closest("li")?.querySelector("[data-stage-status]")?.textContent;
+const lecturasDelJob = () => llamadas.filter((c) => c.method === "GET" && c.url.endsWith(`/dossier-generation-jobs/${FIX}`));
+
+describe("Personas · S5.4 avance real y resultados parciales", () => {
+  it("CA14 · renders_real_pdl_stages · Registros PDL: avance paso a paso y el perfil antes del informe", async () => {
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    const pdl = loadS510Fixture("personas-pdl");
+
+    alimentar(pdl.frames.slice(0, 8));
+    let panel = panelAvance();
+    expect(etapa(panel, "Buscar el perfil en PDL")).toBe("Listo");
+    expect(etapa(panel, "Preparar los perfiles encontrados")).toBe(t("progress.status.running"));
+    expect(within(panel).getByRole("region", { name: t("progress.profiles_title") })).toHaveTextContent("Directora general");
+    expect(within(panel).queryByRole("region", { name: t("progress.report_title") })).not.toBeInTheDocument();
+    expect(panelGenerando("Ana Prueba")).toBeInTheDocument();
+
+    alimentar(pdl.frames.slice(8));
+    await settle();
+    panel = panelAvance();
+    expect(panelGenerando("Ana Prueba")).not.toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: t("progress.report_title") })).toBeInTheDocument();
+    expect(within(panel).getByText(t("dossier_jobs.ready"))).toBeInTheDocument();
+    expect(within(panel).getByRole("link", { name: t("dossier_jobs.view_dossier") })).toHaveAttribute(
+      "href",
+      "/dashboard/dossiers/00000000-0000-4000-8000-000000000002",
+    );
+    expect(subsFor(FIX)).toHaveLength(1);
+    expect(lecturasDelJob()).toHaveLength(0);
+  });
+
+  it("CA16 · keeps_person_profiles_when_report_fails · el informe falla y los perfiles siguen con «Ver información disponible»", async () => {
+    const user = userEvent.setup();
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+
+    alimentar(loadS510Fixture("personas-pdl-informe-fallido").frames);
+    await settle();
+    const panel = panelAvance();
+    expect(within(panel).getByText(t("progress.outcome.failed_with_partial"))).toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: t("progress.profiles_title") })).toHaveTextContent("Ana Prueba");
+    expect(within(panel).queryByRole("link", { name: t("dossier_jobs.view_dossier") })).not.toBeInTheDocument();
+
+    await user.click(within(panel).getByRole("button", { name: t("progress.view_available") }));
+    expect(
+      within(document.activeElement as HTMLElement).getByRole("region", { name: t("progress.profiles_title") }),
+    ).toBeInTheDocument();
+  });
+
+  it("CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo", async () => {
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[1]);
+    const web = loadS510Fixture("personas-web-publica");
+
+    alimentar(web.frames.slice(0, 4));
+    let panel = panelAvance();
+    expect(etapa(panel, "Elaborar el informe con IA")).toBe(t("progress.status.running_ai_report"));
+    expect(within(panel).getByText(t("progress.no_live_web_search"))).toBeInTheDocument();
+    expect(within(panel).queryByRole("region", { name: t("progress.report_title") })).not.toBeInTheDocument();
+    expect(panel.textContent).not.toMatch(/PDL|%/);
+
+    alimentar(web.frames.slice(4));
+    await settle();
+    panel = panelAvance();
+    const report = within(panel).getByRole("region", { name: t("progress.report_title") });
+    expect(within(report).getByText(t("progress.provenance.model_only"))).toBeInTheDocument();
+  });
+
+  it("CA18 · restores_selected_person_result_and_mode · cambiar el selector no reinterpreta la ejecución consultada", async () => {
+    const user = userEvent.setup();
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    alimentar(loadS510Fixture("personas-pdl").frames);
+    await settle();
+
+    await user.click(screen.getByRole("button", { name: new RegExp(t("person_research.source_gemini")) }));
+    expect(
+      within(panelAvance()).getByText(t("progress.mode_label", { mode: t("person_research.source_pdl") })),
+    ).toBeInTheDocument();
+  });
+
+  it("CA18 · al recargar se restaura la ejecución terminada y sus parciales aunque se cerró el aviso", async () => {
+    const user = userEvent.setup();
+    const primera = render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    alimentar(loadS510Fixture("personas-pdl-informe-fallido").frames);
+    await settle();
+    await user.click(screen.getByRole("button", { name: t("dossier_jobs.dismiss") }));
+    primera.unmount();
+
+    render(<Pantalla />);
+    await settle();
+    await settle();
+    const panel = panelAvance();
+    expect(within(panel).getByRole("region", { name: t("progress.profiles_title") })).toHaveTextContent("Ana Prueba");
+    expect(within(panel).getByText(t("progress.outcome.failed_with_partial"))).toBeInTheDocument();
+    expect(lecturasDelJob()).toHaveLength(1);
+  });
+
+  it("CA18 · el enlace «Ver información disponible» de un aviso (?job=) abre esa ejecución en Personas", async () => {
+    servidor.set(FIX, loadS510Fixture("personas-pdl-informe-fallido").snapshot_final);
+    h.params = new URLSearchParams({ job: FIX });
+    render(<Pantalla />);
+    await settle();
+    await settle();
+    const panel = panelAvance();
+    expect(within(panel).getByRole("region", { name: t("progress.profiles_title") })).toHaveTextContent("Ana Prueba");
+    expect(lecturasDelJob()).toHaveLength(1);
+  });
+
+  it("CA18 · salir de Personas y volver conserva el panel de la ejecución terminada", async () => {
+    const { rerender } = render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    alimentar(loadS510Fixture("personas-pdl").frames);
+    await settle();
+
+    rerender(<Pantalla enPersonas={false} />);
+    rerender(<Pantalla />);
+    await settle();
+    expect(within(panelAvance()).getByRole("region", { name: t("progress.report_title") })).toBeInTheDocument();
+  });
+
+  it("CA19 · renders_cached_person_result_without_fabricated_steps · la caché se presenta como resultado guardado de antes", async () => {
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    alimentar(loadS510Fixture("personas-cache").frames);
+    await settle();
+    const panel = panelAvance();
+    expect(within(panel).getAllByText(t("progress.from_cache")).length).toBeGreaterThan(0);
+    expect(within(panel).getByText(t("progress.from_cache_profiles", { count: 2 }))).toBeInTheDocument();
+    expect(within(panel).queryByRole("region", { name: t("progress.profiles_title") })).not.toBeInTheDocument();
+    expect(within(panel).getByRole("link", { name: t("dossier_jobs.view_dossier") })).toBeInTheDocument();
+  });
+
+  it("CA9 · separates_transport_cancellation_and_generation_errors · cancelar detiene todo y nada revive", async () => {
+    const user = userEvent.setup();
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    const cancelled = loadS510Fixture("personas-cancelada");
+    alimentar(cancelled.frames.slice(0, 4));
+    const [stale] = openSubs(FIX);
+    // El servidor cierra el progreso al cancelar (ADR 0009): eso devuelve su POST.
+    servidor.set(FIX, { ...cancelled.snapshot_final, status: "running" });
+
+    await user.click(screen.getByRole("button", { name: t("person_research.cancel") }));
+    await settle();
+    const panel = panelAvance();
+    expect(within(panel).getByText(t("progress.outcome.cancelled"))).toBeInTheDocument();
+    expect(etapa(panel, "Buscar el perfil en PDL")).toBe(t("progress.status.cancelled"));
+
+    const late = parseProgressEvent("stage_progress", { ...cancelled.frames[3].data, revision: 50, status: "completed" }, FIX)!;
+    act(() => stale.handlers.onProgress?.(late, { eventId: "99" }));
+    expect(etapa(panelAvance(), "Buscar el perfil en PDL")).toBe(t("progress.status.cancelled"));
+  });
+
+  it("CA9 · el corte de conexión se muestra aparte y no borra los parciales", async () => {
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    alimentar(loadS510Fixture("personas-pdl").frames.slice(0, 8));
+
+    cortar(FIX, "network");
+    await settle();
+    const generando = panelGenerando("Ana Prueba")!.closest("div") as HTMLElement;
+    expect(within(generando).getByText(t("dossier_jobs.connection_lost"))).toBeInTheDocument();
+    const panel = panelAvance();
+    expect(within(panel).getByRole("region", { name: t("progress.profiles_title") })).toBeInTheDocument();
+    expect(within(panel).queryByText(t("dossier_jobs.connection_lost"))).not.toBeInTheDocument();
+    expect(within(panel).queryByText(t("dossier_jobs.failed"))).not.toBeInTheDocument();
+  });
+
+  it("CA24 · aria-live (polite) anuncia hitos y no cada evento", async () => {
+    render(<Pantalla />);
+    await settle();
+    await iniciarEjemplo(MODOS[0]);
+    const pdl = loadS510Fixture("personas-pdl");
+    const live = () => within(panelAvance()).getByRole("status");
+
+    alimentar(pdl.frames.slice(0, 7));
+    expect(live()).toHaveAttribute("aria-live", "polite");
+    expect(live()).toHaveTextContent("");
+    alimentar(pdl.frames.slice(7, 8));
+    expect(live()).toHaveTextContent(t("progress.announce.profiles"));
+    alimentar(pdl.frames.slice(8, 13));
+    expect(live()).toHaveTextContent(t("progress.announce.profiles"));
+    alimentar(pdl.frames.slice(13, 14));
+    expect(live()).toHaveTextContent(t("progress.announce.report"));
+    alimentar(pdl.frames.slice(14));
+    await settle();
+    expect(live()).toHaveTextContent(t("dossier_jobs.ready"));
+  });
+
+  it("CA24 · el texto de Web pública aclara que no hay búsqueda en vivo y la ETA es solo una estimación", async () => {
+    const user = userEvent.setup();
+    render(<Pantalla />);
+    await settle();
+    expect(screen.getByText(t("person_research.eta_estimate", { seconds: 40 }))).toBeInTheDocument();
+    const web = screen.getByRole("button", { name: new RegExp(t("person_research.source_gemini")) });
+    expect(web).toHaveTextContent(t("progress.no_live_web_search"));
+    await user.click(web);
+    expect(screen.getByText(t("person_research.eta_estimate", { seconds: 35 }))).toBeInTheDocument();
+  });
+
+  it("un job sin progress (anterior a S5.4) no muestra el panel nuevo", async () => {
+    render(<Pantalla />);
+    await settle();
+    const { jobId } = await iniciar(MODOS[0]);
+    publicar(jobId, { status: "completed", result: resultadoPersona("pdl", "d-1") }, "job_completed");
+    await settle();
+    expect(screen.queryByRole("region", { name: t("progress.panel_title") })).not.toBeInTheDocument();
   });
 });

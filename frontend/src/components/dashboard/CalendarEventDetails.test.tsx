@@ -1,10 +1,11 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "@/i18n";
 import { adaptMeetings } from "@/lib/calendar-events";
 import { findJobForEvent, isEventJobActive } from "@/lib/calendar-jobs";
 import { DossierApiError } from "@/lib/dossier-api";
+import { jobAfterFrames, jobFromFinalSnapshot, type ReplayedJob } from "@/test/progress-state";
 import CalendarEventDetails from "./CalendarEventDetails";
 
 const TZ = "America/Santiago";
@@ -232,5 +233,98 @@ describe("CalendarEventDetails · diálogo accesible (CA11)", () => {
     unmount();
     expect(document.activeElement).toBe(fallback);
     fallback.remove();
+  });
+});
+
+describe("CalendarEventDetails · S5.4 avance real y resultados parciales", () => {
+  const t = createTranslator("es");
+
+  /** El job de los ejemplos de S5.10, atado a esta reunión (Google, ev1). */
+  function enEstaReunion(job: ReplayedJob, over: Partial<ReplayedJob> = {}) {
+    return { ...job, calendar_provider: "google", external_event_id: "ev1", ...over } as unknown as Record<string, unknown>;
+  }
+  const panel = () => screen.getByRole("region", { name: t("progress.panel_title") });
+
+  it("CA3 · renders_partial_modules_during_generation · mientras genera: empresa, cada asistente y vistas previas provisionales", () => {
+    state.jobs = [enEstaReunion(jobAfterFrames("calendario-agente-caido", 20))];
+    setup();
+    const p = panel();
+    expect(within(p).getByRole("list", { name: t("progress.agents_aria", { name: "Empresa de Prueba SA" }) })).toBeInTheDocument();
+    expect(within(p).getByRole("group", { name: /Resumen/ })).toHaveTextContent("Resumen ficticio.");
+    const ana = within(p).getByRole("article", { name: "Ana Prueba" });
+    expect(within(ana).getByRole("region", { name: t("progress.profiles_title") })).toHaveTextContent("Directora general");
+    expect(within(p).getByRole("article", { name: "Beto Ficticio" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /generando/i })).toBeDisabled();
+    expect(screen.queryByText(new RegExp(t("overview.calendar_dossiers_title")))).toBeNull();
+  });
+
+  it("CA4 · keeps_usable_result_when_an_agent_fails · al terminar: parcial, nombra lo que faltó y no muestra éxito completo", () => {
+    state.jobs = [enEstaReunion(jobFromFinalSnapshot("calendario-agente-caido"))];
+    setup();
+    const p = panel();
+    expect(within(p).getByText(t("progress.outcome.partial"))).toBeInTheDocument();
+    expect(within(p).getByText(t("progress.outcome.missing", { items: "Reino Unido, Beto Ficticio" }))).toBeInTheDocument();
+    expect(within(p).queryByText(t("dossier_jobs.ready"))).toBeNull();
+    // Al terminar, el contenido guardado reemplaza a las vistas previas provisionales.
+    expect(within(p).queryByText(t("progress.preview_badge"))).toBeNull();
+  });
+
+  it("CA6 · handles_multiple_people_and_legacy_results · la vista final muestra a todos los asistentes y no enlaza un dossier fallido", () => {
+    state.jobs = [enEstaReunion(jobFromFinalSnapshot("calendario-agente-caido"))];
+    setup();
+    const hrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href"));
+    expect(hrefs).toContain("/dashboard/dossiers/00000000-0000-4000-8000-000000000003");
+    // Beto tiene un dossier guardado con status failed: se nombra, pero sin enlace.
+    expect(hrefs.some((href) => href?.includes("00000000-0000-4000-8000-000000000004"))).toBe(false);
+    expect(
+      screen.getByText(`Beto Ficticio: ${t("overview.calendar_dossier_person_empty")}`),
+    ).toBeInTheDocument();
+    const summaries = Array.from(document.querySelectorAll("summary")).map((s) => s.firstChild?.textContent);
+    expect(summaries).toContain("Ana Prueba");
+  });
+
+  it("CA5/CA9 · un job fallido conserva su progreso y sus vistas previas junto al error, sin éxito", () => {
+    state.jobs = [
+      enEstaReunion(jobAfterFrames("calendario-agente-caido", 20), {
+        status: "failed",
+        error_message: "El proveedor de datos no respondió",
+      }),
+    ];
+    setup();
+    expect(screen.getByRole("alert")).toHaveTextContent("El proveedor de datos no respondió");
+    const p = panel();
+    expect(within(p).getByText(t("progress.outcome.failed_with_partial"))).toBeInTheDocument();
+    expect(within(p).getByRole("group", { name: /Resumen/ })).toBeInTheDocument();
+    expect(within(p).queryByText(t("dossier_jobs.ready"))).toBeNull();
+  });
+
+  it("CA24 · aria-live anuncia hitos y no cada evento", () => {
+    state.jobs = [enEstaReunion(jobAfterFrames("calendario-agente-caido", 6))];
+    const { rerender } = setup();
+    const live = () => within(panel()).getByRole("status");
+    expect(live()).toHaveAttribute("aria-live", "polite");
+    expect(live()).toHaveTextContent("");
+    state.jobs = [enEstaReunion(jobAfterFrames("calendario-agente-caido", 10))];
+    rerender(<CalendarEventDetails event={evento()} onClose={vi.fn()} returnFocusTo={null} />);
+    expect(live()).toHaveTextContent("");
+    state.jobs = [enEstaReunion(jobAfterFrames("calendario-agente-caido", 12))];
+    rerender(<CalendarEventDetails event={evento()} onClose={vi.fn()} returnFocusTo={null} />);
+    expect(live()).toHaveTextContent(t("progress.announce.report"));
+    state.jobs = [enEstaReunion(jobFromFinalSnapshot("calendario-agente-caido"))];
+    rerender(<CalendarEventDetails event={evento()} onClose={vi.fn()} returnFocusTo={null} />);
+    expect(live()).toHaveTextContent(t("progress.outcome.partial"));
+  });
+
+  it("los jobs anteriores a S5.4 (sin progress) se ven como antes", () => {
+    state.jobs = [
+      {
+        id: "j1", status: "completed", job_type: "calendar_manual", calendar_provider: "google", external_event_id: "ev1",
+        progress: null,
+        result: { reunion: {}, dossier_generado: "x", dossier_corporativo: "# Informe corporativo de Acme", dossier_persona: null },
+      },
+    ];
+    setup();
+    expect(screen.queryByRole("region", { name: t("progress.panel_title") })).toBeNull();
+    expect(screen.getByText(/Informe corporativo de Acme/)).toBeInTheDocument();
   });
 });
