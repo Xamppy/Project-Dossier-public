@@ -376,6 +376,23 @@ describe("DossierJobsProvider · S5.4 avisos con la clasificación del resultado
     expect(screen.queryByRole("link", { name: t("dossier_jobs.view_dossier") })).not.toBeInTheDocument();
   });
 
+  it("CA2 · el aviso de una reunión en curso muestra la lista compacta de la empresa y una línea por asistente", async () => {
+    const cal = loadS510Fixture("calendario-agente-caido");
+    h.api.fetchDossierGenerationJobs.mockResolvedValue({ jobs: [cal.frames[0].data as unknown as DossierGenerationJobApi] });
+    renderProvider();
+    await settle();
+    feed(FIX, cal.frames.slice(0, 32));
+
+    const toast = screen.getByText(t("dossier_jobs.generating")).closest("div.rounded-xl") as HTMLElement;
+    const agents = within(toast).getByRole("list", {
+      name: t("progress.agents_aria", { name: "Empresa de Prueba SA" }),
+    });
+    expect(within(agents).getAllByRole("listitem")).toHaveLength(5);
+    expect(within(agents).getByText("Falló · error del proveedor")).toBeInTheDocument();
+    expect(within(toast).getByText("Búsqueda ampliada en PDL · En curso")).toBeInTheDocument();
+    expect(within(toast).queryByText(t("progress.preview_badge"))).not.toBeInTheDocument();
+  });
+
   it("CA6 · handles_multiple_people_and_legacy_results · el aviso del calendario es parcial y nombra lo que faltó", async () => {
     const cal = loadS510Fixture("calendario-agente-caido");
     h.api.fetchDossierGenerationJobs.mockResolvedValue({ jobs: [cal.frames[0].data as unknown as DossierGenerationJobApi] });

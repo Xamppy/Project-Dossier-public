@@ -170,7 +170,7 @@ export default function CalendarDossierPreview({
             key={`${p.name}-${i}`}
             label={p.name}
             body={p.body}
-            emptyLabel={t("overview.calendar_dossier_person_empty")}
+            emptyLabel={persons?.length ? `${p.name}: ${t("overview.calendar_dossier_person_empty")}` : t("overview.calendar_dossier_person_empty")}
             saved={p.saved}
             viewLabel={t("overview.calendar_dossier_view_saved")}
           />

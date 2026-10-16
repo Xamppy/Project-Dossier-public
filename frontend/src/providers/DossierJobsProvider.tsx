@@ -43,6 +43,7 @@ import {
   type DossierJobProgressEvent,
 } from "@/lib/dossier-job-progress";
 import { classifyJobOutcome } from "@/lib/dossier-job-outcome";
+import DossierJobProgressDetails from "@/components/dossier/DossierJobProgressDetails";
 import { AUTH_ME_CHANGED_EVENT } from "@/hooks/useAuthMe";
 import { isPdlProfileFoundInfoWarning } from "@/lib/translate-pdl-warning";
 import {
@@ -828,6 +829,10 @@ function DossierJobToasts({
                   <p className="mt-1.5 text-sm ui-text-warning line-clamp-3 leading-relaxed">
                     {translateBackendWarning(personWarning, t)}
                   </p>
+                ) : null}
+                {isActive && job.job_type === "calendar_manual" ? (
+                  // Avance compacto de la reunión: búsquedas de la empresa y una línea por asistente.
+                  <DossierJobProgressDetails progress={job.progress} variant="compact" />
                 ) : null}
                 {missing.length > 0 ? (
                   <p className="mt-1.5 text-sm ui-text-warning leading-relaxed">
