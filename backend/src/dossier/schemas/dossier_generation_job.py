@@ -20,6 +20,8 @@ class DossierGenerationJobResponse(BaseModel):
     credits_consumed: int = 0
     error_message: str | None = None
     result: dict[str, Any] | None = None
+    # Snapshot de progreso por scopes (S5.10, ADR 0009); null en jobs sin progreso.
+    progress: dict[str, Any] | None = None
     created_at: str | None = None
     started_at: str | None = None
     completed_at: str | None = None
