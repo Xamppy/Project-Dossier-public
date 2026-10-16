@@ -256,7 +256,8 @@ class JobProgress:
                 raise ValueError("campos sin scopes declarados")
             return (p, True) if m.set_scope_fields(p, scope_id, fields) else None
 
-        self._run(change, lambda *_: [])
+        # Sin evento propio en el contrato: el cambio viaja en el snapshot del job.
+        self._run(change, lambda _r, _p, job: [("job_status", job)])
 
     def _run(self, change: Change, eventos: Callable[..., list[tuple[str, dict[str, Any]]]]) -> None:
         # El candado ordena además la publicación: dentro del proceso, el bus recibe

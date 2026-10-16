@@ -201,3 +201,17 @@ def test_actualizaciones_concurrentes_no_duplican_revisiones_y_publican_en_orden
     revisiones = [d["revision"] for d in progreso.de("agent_progress")]
     assert revisiones == sorted(revisiones) == list(range(2, 2 + 2 * len(agentes)))
     assert progreso.guardado(job.job_id)["revision"] == 1 + 2 * len(agentes)
+
+
+def test_cambiar_campos_del_scope_publica_el_job_completo(progreso):
+    """Origen, cantidad de perfiles y dossier guardado no tienen evento propio:
+    viajan en un job_status con el snapshot, para que el cliente conectado los vea."""
+    job = progreso.job()
+    job.declare([m.person_scope("person:0", "Ana", "pdl")])
+
+    job.scope("person:0").fields(dossier={"id": "d-1", "status": "complete"})
+    job.scope("person:0").fields(dossier={"id": "d-1", "status": "complete"})  # sin cambio
+
+    snapshots = progreso.de("job_status")
+    assert len(snapshots) == 2
+    assert snapshots[-1]["progress"]["scopes"][0]["dossier"] == {"id": "d-1", "status": "complete"}
