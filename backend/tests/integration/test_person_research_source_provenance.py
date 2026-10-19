@@ -71,7 +71,7 @@ def _respuesta_con_citas_inventadas() -> str:
 def entorno_pdl(monkeypatch):
     """PDL devuelve un perfil; hay clave de DeepSeek; la búsqueda web queda apagada."""
     monkeypatch.setattr(
-        person_research_service, "fetch_pdl_profiles", lambda req: ([dict(PERFIL)], [], [])
+        person_research_service, "fetch_pdl_profiles", lambda req, **_: ([dict(PERFIL)], [], [])
     )
     monkeypatch.setattr(person_research_service, "deepseek_api_key", lambda: "clave-de-prueba")
     monkeypatch.setenv("DEEPSEEK_DISABLE_PERSON_WEB", "1")

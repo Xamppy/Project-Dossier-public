@@ -10,11 +10,15 @@ from dossier.llm.common import normalize_person_report_text
 from dossier.llm.structured_synthesis import StructuredSynthesisError
 from dossier.schemas.dossier_executive_payload import SourceCitation, SourceType
 from dossier.schemas.person_research import PersonResearchRequest, PersonResearchSource
+from dossier.services.dossier_progress_model import (
+    person_partial_markdown,
+    person_partial_profiles,
+)
 from dossier.services.executive_markdown import render_executive_markdown
 from dossier.services.lusha_profile_facts import (
     merge_lusha_profiles_facts,
 )
-from dossier.services.pdl_research import fetch_pdl_profiles
+from dossier.services.pdl_research import exception_reason, fetch_pdl_profiles
 from dossier.services.person_gemini_analysis import (
     analyze_person_profile_bundle,
     analyze_person_profile_bundle_structured,
@@ -78,12 +82,15 @@ def _synthesize_person_report(
     output_language: str,
     warnings: list[str],
     fuentes_consultadas: list[SourceCitation],
+    progress: Any,
 ) -> tuple[str | None, dict[str, Any] | None]:
     """Una llamada JSON (S4.2) con el Markdown derivado por código.
 
     Si el JSON no valida tras el reintento asistido, se genera el informe Markdown
     de siempre. Los errores del proveedor no se reintentan aquí: fallarían igual.
+    ``progress`` recibe la síntesis y, solo si de verdad se invoca, el respaldo.
     """
+    progress.stage("person.profile_synthesis", "running")
     try:
         payload = analyze_person_profile_bundle_structured(
             filters=filters,
@@ -95,22 +102,56 @@ def _synthesize_person_report(
             output_language=output_language,
         )
     except StructuredSynthesisError as e:
+        progress.stage("person.profile_synthesis", "failed", "structured_output_invalid")
         warnings.append(f"La síntesis JSON no validó ({e}); se generó el informe en Markdown.")
-        markdown = analyze_person_profile_bundle(
-            filters=filters,
-            profiles=profiles,
-            posts_by_url={},
-            meeting_context=meeting_context,
-            lusha_verified_facts=verified_facts,
-            enrichment_provider="pdl",
-            output_language=output_language,
-        )
+        progress.stage("person.markdown_fallback", "running")
+        try:
+            markdown = analyze_person_profile_bundle(
+                filters=filters,
+                profiles=profiles,
+                posts_by_url={},
+                meeting_context=meeting_context,
+                lusha_verified_facts=verified_facts,
+                enrichment_provider="pdl",
+                output_language=output_language,
+            )
+        except Exception as exc:
+            progress.stage("person.markdown_fallback", "failed", exception_reason(exc))
+            raise
+        if _valid_report(markdown):
+            progress.stage("person.markdown_fallback", "completed")
+            # El fallo original se conserva: el respaldo solo indica quién recuperó el informe.
+            progress.stage(
+                "person.profile_synthesis", "failed", recovered_by="person.markdown_fallback"
+            )
+        else:
+            progress.stage("person.markdown_fallback", "failed", "no_valid_report")
         return markdown, None
+    except Exception as exc:
+        progress.stage("person.profile_synthesis", "failed", exception_reason(exc))
+        progress.stage("person.markdown_fallback", "skipped", "not_required")
+        raise
     # OE5/S4.7: el LLM no decide la procedencia. Se reescribe con las fuentes
     # realmente consultadas antes de renderizar el Markdown y de persistir el
     # payload, para que ambos coincidan.
     payload = normalizar_procedencia_fuentes(payload, fuentes_consultadas)
-    return render_executive_markdown(payload, output_language), payload.model_dump(mode="json")
+    markdown = render_executive_markdown(payload, output_language)
+    progress.stage("person.profile_synthesis", "completed")
+    progress.stage("person.markdown_fallback", "skipped", "not_required")
+    return markdown, payload.model_dump(mode="json")
+
+
+def _valid_report(text: str | None) -> bool:
+    t = normalize_person_report_text(text)
+    return t is not None and not t.lstrip().startswith("# Error")
+
+
+def _context_skip_reason(*, applies: bool, has_llm_key: bool) -> str:
+    if not applies:
+        return "mode_not_applicable"
+    if not has_llm_key:
+        return "configuration_missing"
+    return "feature_disabled"
 
 
 def run_person_research(
@@ -119,9 +160,17 @@ def run_person_research(
     organization_context_block: str | None = None,
     meeting_context: dict[str, Any] | None = None,
     output_language: str | None = None,
+    progress: Any = None,
 ) -> dict[str, Any]:
+    """Investiga una persona. ``progress`` (S5.10) es el scope ``person:N`` del job.
+
+    Recibe las etapas que de verdad corren, en su orden real. La caché y el
+    guardado los informa el wrapper que llama (manual o calendario).
+    """
+    from dossier.services.dossier_job_progress import NULL_SCOPE
     from dossier.services.output_language import normalize_output_language
 
+    progress = progress if progress is not None else NULL_SCOPE
     out_lang = normalize_output_language(output_language or req.output_language)
     warnings: list[str] = []
     gemini_only = req.research_source == PersonResearchSource.gemini_web
@@ -133,9 +182,10 @@ def run_person_research(
     source_citations: list[SourceCitation] = []
 
     if not gemini_only:
-        profiles, attempts, pdl_warnings = fetch_pdl_profiles(req)
+        profiles, attempts, pdl_warnings = fetch_pdl_profiles(req, progress=progress)
         warnings.extend(pdl_warnings)
         if profiles:
+            progress.stage("person.profile_normalization", "running")
             # OE5/S4.7: la hora de consulta la fija el código al momento de
             # llamar a PDL, no el LLM de síntesis (que la inventaría).
             source_citations.append(
@@ -149,6 +199,14 @@ def run_person_research(
             )
         for p in profiles:
             profile_urls.extend(u for u in (p.get("linkedin_urls") or []) if u not in profile_urls)
+        if profiles:
+            # Los perfiles permitidos se publican antes de cualquier llamada al LLM (BE11).
+            progress.partial(
+                person_partial_profiles("person.profile_normalization", profiles, origin="generated")
+            )
+            progress.stage("person.profile_normalization", "completed")
+        else:
+            progress.stage("person.profile_normalization", "skipped", "no_profiles")
 
     if req.include_posts and not gemini_only:
         warnings.append("La opción «incluir posts» no está disponible; se ignoró.")
@@ -161,12 +219,14 @@ def run_person_research(
     verified_facts = merge_lusha_profiles_facts(profiles) if profiles else {}
 
     md_web: str | None = None
-    run_web = has_llm_key and not _person_web_disabled() and (
-        gemini_only or (not profiles) or _person_web_always()
-    )
+    web_applies = gemini_only or (not profiles) or _person_web_always()
+    run_web = has_llm_key and not _person_web_disabled() and web_applies
     if run_web and profiles and not gemini_only and not _person_web_always():
         run_web = False
+    context_done = False
     if run_web:
+        # Una llamada a DeepSeek sin buscador (nombre histórico): no es una búsqueda web.
+        progress.stage("person.context_analysis", "running")
         try:
             md_web = analyze_person_with_google_search(
                 filters=filters_gem,
@@ -176,8 +236,33 @@ def run_person_research(
             gemini_google_search_used = True
         except RuntimeError as e:
             warnings.append(str(e))
+            progress.stage("person.context_analysis", "failed", exception_reason(e))
         except Exception as e:  # noqa: BLE001
             warnings.append(f"Error en análisis complementario con DeepSeek: {e!s}")
+            progress.stage("person.context_analysis", "failed", exception_reason(e))
+        else:
+            contexto = normalize_person_report_text(md_web)
+            if _valid_report(contexto):
+                progress.partial(
+                    person_partial_markdown(
+                        "person.context_analysis",
+                        "person_context_report",
+                        contexto,
+                        basis="model_only",
+                        sources=[],
+                        origin="generated",
+                    )
+                )
+                progress.stage("person.context_analysis", "completed")
+                context_done = True
+            else:
+                progress.stage("person.context_analysis", "failed", "no_valid_report")
+    else:
+        progress.stage(
+            "person.context_analysis",
+            "skipped",
+            _context_skip_reason(applies=bool(web_applies), has_llm_key=has_llm_key),
+        )
 
     if gemini_only:
         if md_web:
@@ -194,6 +279,8 @@ def run_person_research(
         warnings.append(
             "DEEPSEEK_API_KEY no configurada: se omitió el análisis con IA sobre los datos encontrados."
         )
+        progress.stage("person.profile_synthesis", "skipped", "configuration_missing")
+        progress.stage("person.markdown_fallback", "skipped", "not_required")
     elif profiles:
         try:
             llm_md, executive_payload = _synthesize_person_report(
@@ -204,6 +291,7 @@ def run_person_research(
                 output_language=out_lang,
                 warnings=warnings,
                 fuentes_consultadas=source_citations,
+                progress=progress,
             )
             if md_web and not llm_md:
                 llm_md = md_web
@@ -219,6 +307,8 @@ def run_person_research(
         if llm_md is None and md_web:
             llm_md = md_web
     elif not gemini_only and not profiles:
+        progress.stage("person.profile_synthesis", "skipped", "no_profiles")
+        progress.stage("person.markdown_fallback", "skipped", "not_required")
         if md_web:
             llm_md = md_web
         elif not has_llm_key:
@@ -231,6 +321,13 @@ def run_person_research(
             )
 
     llm_md = normalize_person_report_text(llm_md)
+    _finalize_report(progress, llm_md, from_context=bool(md_web) and llm_md == normalize_person_report_text(md_web))
+    if context_done:
+        progress.stage(
+            "person.context_analysis",
+            "completed",
+            used_in_final=bool(md_web) and llm_md == normalize_person_report_text(md_web),
+        )
 
     return {
         "filters_applied": {
@@ -267,3 +364,25 @@ def run_person_research(
         "gemini_google_search_used": gemini_google_search_used,
         "warnings": warnings,
     }
+
+
+def _finalize_report(progress: Any, report: str | None, *, from_context: bool) -> None:
+    """Etapa ``person.report_finalize`` y el informe preliminar, antes de guardar."""
+    if not report:
+        progress.stage("person.report_finalize", "skipped", "no_content")
+        return
+    if not _valid_report(report):
+        progress.stage("person.report_finalize", "failed", "no_valid_report")
+        return
+    basis, sources = ("model_only", []) if from_context else ("provider_records", ["pdl"])
+    progress.partial(
+        person_partial_markdown(
+            "person.report_finalize",
+            "person_report",
+            report,
+            basis=basis,
+            sources=sources,
+            origin="generated",
+        )
+    )
+    progress.stage("person.report_finalize", "completed")

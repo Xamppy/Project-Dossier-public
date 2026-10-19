@@ -18,6 +18,8 @@ from typing import Annotated, Any, Literal, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from dossier.services.dossier_progress_model import corporate_partial
+
 logger = logging.getLogger(__name__)
 
 # "dual" = sin registro elegido: corren UK, USA y Europa. "eu_only" = solo Europa.
@@ -25,6 +27,18 @@ JurisdictionScope = Literal["uk_only", "us_only", "dual", "eu_only"]
 
 # Tope de menciones de prensa que se pasan al LLM (el agente puede traer cientos).
 MAX_MENCIONES_PROMPT = 15
+
+# Clave privada con la que un nodo informa motivo y vista previa al observador de
+# progreso (S5.10). El envoltorio de cada nodo la retira antes de llegar al estado.
+_PROGRESO = "_progreso"
+
+# Agente → sección con vista previa pública (ADR 0009). UK y USA no tienen: sus
+# bloques mezclan datos del registro con diagnósticos internos.
+_SECCION_PREVIA = {
+    "agent_corporate_eu": "corporate_eu",
+    "agent_news": "news",
+    "synthesize_llm": "synthesis",
+}
 
 _NOTA_FUENTES_ADICIONALES = (
     " Si el mensaje incluye registros mercantiles europeos o menciones de prensa, úsalos como "
@@ -100,10 +114,32 @@ class CorporateDossierState(TypedDict, total=False):
     agents_skipped: Annotated[list[str], operator.add]
 
 
+def _agent_skip_reason(agente: str, state: CorporateDossierState) -> str | None:
+    """Motivo por el que un agente no consulta su fuente, o ``None`` si corre.
+
+    Los nodos y el observador de progreso usan la misma regla, para que un agente
+    omitido nunca aparezca como iniciado.
+    """
+    scope = state.get("jurisdiction_scope", "dual")
+    empresa = (state.get("empresa_objetivo") or "").strip()
+    if agente == "agent_corporate_uk" and scope in ("us_only", "eu_only"):
+        return "out_of_scope"
+    if agente == "agent_corporate_usa" and scope in ("uk_only", "eu_only"):
+        return "out_of_scope"
+    if agente == "agent_corporate_eu":
+        if scope in ("uk_only", "us_only"):
+            return "out_of_scope"
+        if not empresa:
+            return "no_target_company"
+    if agente == "agent_news" and not empresa:
+        return "no_target_company"
+    return None
+
+
 def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
     """Agente UK (Companies House)."""
     scope = state.get("jurisdiction_scope", "dual")
-    if scope in ("us_only", "eu_only"):
+    if _agent_skip_reason("agent_corporate_uk", state):
         origen = "un **emisor estadounidense (SEC)**" if scope == "us_only" else "una **empresa europea**"
         bloque = (
             "## Reino Unido (Companies House)\n\n"
@@ -130,7 +166,7 @@ def _node_agent_corporate_uk(state: CorporateDossierState) -> dict[str, Any]:
 def _node_agent_corporate_usa(state: CorporateDossierState) -> dict[str, Any]:
     """Agente USA (SEC EDGAR)."""
     scope = state.get("jurisdiction_scope", "dual")
-    if scope in ("uk_only", "eu_only"):
+    if _agent_skip_reason("agent_corporate_usa", state):
         origen = (
             "una **empresa del Reino Unido (Companies House)**"
             if scope == "uk_only"
@@ -197,7 +233,7 @@ def _node_agent_corporate_eu(state: CorporateDossierState) -> dict[str, Any]:
     """Agente Europa (registros FR/DE). Se omite si el usuario ya eligió un registro UK o US."""
     scope = state.get("jurisdiction_scope", "dual")
     empresa = (state.get("empresa_objetivo") or "").strip()
-    if scope in ("uk_only", "us_only") or not empresa:
+    if _agent_skip_reason("agent_corporate_eu", state):
         logger.info("LangGraph agent_corporate_eu omitido (alcance %s)", scope)
         return {"eu_corporate_context": "", "agents_skipped": ["agent_corporate_eu"]}
 
@@ -226,13 +262,17 @@ def _node_agent_corporate_eu(state: CorporateDossierState) -> dict[str, Any]:
     return {
         "eu_corporate_context": f"## Registros mercantiles europeos\n\n{cuerpo}\n",
         "agents_succeeded": ["agent_corporate_eu"],
+        _PROGRESO: {
+            "reason_code": None if lineas else "no_matches",
+            "preview": "## Registros mercantiles europeos\n\n" + "\n".join(lineas) if lineas else None,
+        },
     }
 
 
 def _node_agent_news(state: CorporateDossierState) -> dict[str, Any]:
     """Agente de prensa (GDELT y NewsAPI). Corre en cualquier alcance si hay empresa."""
     empresa = (state.get("empresa_objetivo") or "").strip()
-    if not empresa:
+    if _agent_skip_reason("agent_news", state):
         return {"news_context": "", "agents_skipped": ["agent_news"]}
 
     from dossier.news import agent as agente_noticias
@@ -262,6 +302,10 @@ def _node_agent_news(state: CorporateDossierState) -> dict[str, Any]:
     return {
         "news_context": f"## Menciones de prensa recientes\n\n{cuerpo}\n",
         "agents_succeeded": ["agent_news"],
+        _PROGRESO: {
+            "reason_code": None if lineas else "no_matches",
+            "preview": "## Menciones de prensa recientes\n\n" + "\n".join(lineas) if lineas else None,
+        },
     }
 
 
@@ -437,16 +481,55 @@ def _node_synthesize_llm(state: CorporateDossierState) -> dict[str, Any]:
             "agents_failed": ["synthesize_llm"],
         }
 
-    return {"final_dossier_markdown": texto, "agents_succeeded": ["synthesize_llm"]}
+    return {
+        "final_dossier_markdown": texto,
+        "agents_succeeded": ["synthesize_llm"],
+        _PROGRESO: {"preview": texto},
+    }
 
 
-def build_corporate_dossier_graph() -> StateGraph:
+def _instrumentar(agente: str, nodo: Any, progress: Any) -> Any:
+    """Envuelve un nodo para informar su inicio y su terminal reales (S5.10, BE1).
+
+    ``running`` solo se emite si el agente va a consultar su fuente; uno fuera de
+    alcance pasa directo a ``skipped``. La vista previa se publica antes del
+    terminal y nunca lleva el texto de una excepción (ver ``corporate_partial``).
+    """
+
+    def ejecutar(state: CorporateDossierState) -> dict[str, Any]:
+        motivo_omision = _agent_skip_reason(agente, state)
+        if motivo_omision is None:
+            progress.agent(agente, "running")
+        salida = dict(nodo(state))
+        pista = salida.pop(_PROGRESO, None) or {}
+        if agente in (salida.get("agents_skipped") or []):
+            progress.agent(agente, "skipped", motivo_omision)
+        elif agente in (salida.get("agents_failed") or []):
+            progress.agent(agente, "failed", "provider_error")
+        else:
+            seccion = _SECCION_PREVIA.get(agente)
+            if seccion and pista.get("preview"):
+                progress.partial(corporate_partial(agente, seccion, pista["preview"]))
+            progress.agent(agente, "completed", pista.get("reason_code"))
+        return salida
+
+    return ejecutar
+
+
+def build_corporate_dossier_graph(progress: Any = None) -> StateGraph:
+    """Grafo corporativo; ``progress`` es el scope que recibe el avance de esta invocación."""
+    from dossier.services.dossier_job_progress import NULL_SCOPE
+
+    observador = progress if progress is not None else NULL_SCOPE
     graph = StateGraph(CorporateDossierState)
-    graph.add_node("agent_corporate_uk", _node_agent_corporate_uk)
-    graph.add_node("agent_corporate_usa", _node_agent_corporate_usa)
-    graph.add_node("agent_corporate_eu", _node_agent_corporate_eu)
-    graph.add_node("agent_news", _node_agent_news)
-    graph.add_node("synthesize_llm", _node_synthesize_llm)
+    for nombre, nodo in (
+        ("agent_corporate_uk", _node_agent_corporate_uk),
+        ("agent_corporate_usa", _node_agent_corporate_usa),
+        ("agent_corporate_eu", _node_agent_corporate_eu),
+        ("agent_news", _node_agent_news),
+        ("synthesize_llm", _node_synthesize_llm),
+    ):
+        graph.add_node(nombre, _instrumentar(nombre, nodo, observador))
 
     agentes = ["agent_corporate_uk", "agent_corporate_usa", "agent_corporate_eu", "agent_news"]
     for agente in agentes:
@@ -473,11 +556,16 @@ def run_corporate_dossier_langgraph_detailed(
     jurisdiction_scope: JurisdictionScope | None = None,
     output_language: str = "es",
     empresa_objetivo: str | None = None,
+    progress: Any = None,
 ) -> CorporateDossierResult:
-    """Compila el grafo, infiere alcance UK/US (o usa el explícito) y devuelve Markdown + agentes fallidos."""
+    """Compila el grafo, infiere alcance UK/US (o usa el explícito) y devuelve Markdown + agentes fallidos.
+
+    ``progress`` (S5.10) es el scope corporativo del job que recibe el avance de
+    cada agente. Pertenece a esta invocación: sin él, el grafo hace lo de siempre.
+    """
     from dossier.services.output_language import normalize_output_language
 
-    app = build_corporate_dossier_graph().compile()
+    app = build_corporate_dossier_graph(progress).compile()
     scope = jurisdiction_scope if jurisdiction_scope is not None else infer_jurisdiction_scope(participantes)
     logger.info("Corporate dossier jurisdiction_scope=%s output_language=%s", scope, output_language)
     result = app.invoke(

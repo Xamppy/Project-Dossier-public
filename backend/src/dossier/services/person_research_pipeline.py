@@ -28,6 +28,7 @@ from dossier.org_dossier_context import format_dossier_context_for_prompt
 from dossier.schemas.person_research import PersonResearchRequest
 from dossier.services.calendar_event_dossiers import _person_failure_message
 from dossier.services.dossier_entities_writer import escribir_entidades_ejecutivas
+from dossier.services.dossier_job_progress import NULL_SCOPE
 from dossier.services.output_language import effective_output_language
 from dossier.services.person_dossier_dedup import (
     person_research_cache_payload_from_result,
@@ -35,6 +36,14 @@ from dossier.services.person_dossier_dedup import (
     person_research_response_from_redis_cache,
     profiles_count_from_research_result,
     should_cache_person_research_result,
+)
+from dossier.services.person_research_progress import (
+    CACHE_LOOKUP,
+    PERSIST,
+    report_cache_hit,
+    report_generated,
+    report_persisted,
+    scope_copy,
 )
 from dossier.services.person_research_service import run_person_research
 
@@ -61,10 +70,15 @@ def run_person_research_and_persist(
     user: User,
     org: Organization,
     body: PersonResearchRequest,
+    progress: Any = None,
 ) -> dict[str, Any]:
     """
     Ejecuta investigación de persona, persiste en ``dossiers`` y devuelve la respuesta API.
+
+    ``progress`` (S5.10) es el scope ``person:0`` del job: recibe la consulta a la
+    caché, las etapas de la investigación y el guardado.
     """
+    progress = progress if progress is not None else NULL_SCOPE
     org_ctx = format_dossier_context_for_prompt(org)
     out_lang = effective_output_language(user, body.output_language)
     fp = person_research_fingerprint(body, org.id, output_language=out_lang)
@@ -76,11 +90,18 @@ def run_person_research_and_persist(
 
     cache_hit = False
     cached_payload: dict[str, Any] | None = None
-    if redis_person_cache_available() and not skip_cache:
+    redis_disponible = redis_person_cache_available()
+    if skip_cache:
+        progress.stage(CACHE_LOOKUP, "skipped", "force_refresh")
+    elif not redis_disponible:
+        progress.stage(CACHE_LOOKUP, "skipped", "cache_unavailable")
+    else:
+        progress.stage(CACHE_LOOKUP, "running")
         hit = get_person_cached_payload(fp)
         if hit is not None:
             cached_payload = hit
             cache_hit = True
+            progress.stage(CACHE_LOOKUP, "completed", "cache_hit")
 
     result: dict[str, Any] | None = None
     elapsed_ms = 0
@@ -97,13 +118,17 @@ def run_person_research_and_persist(
                 if h2 is not None:
                     cached_payload = h2
                     cache_hit = True
+                    progress.stage(CACHE_LOOKUP, "completed", "cache_hit")
                     return
+                if redis_disponible:
+                    progress.stage(CACHE_LOOKUP, "completed", "cache_miss")
             t_run = time.perf_counter()
             try:
                 nr = run_person_research(
                     body,
                     organization_context_block=org_ctx,
                     output_language=out_lang,
+                    progress=progress,
                 )
             except ValueError as e:
                 research_error = str(e)
@@ -138,6 +163,9 @@ def run_person_research_and_persist(
             cached_payload=cached_payload,
         )
         elapsed_ms = 0
+        report_cache_hit(progress, research_source=body.research_source.value, cached_payload=cached_payload)
+    elif result is not None:
+        report_generated(progress, result)
 
     if result is None:
         raise RuntimeError(
@@ -153,7 +181,6 @@ def run_person_research_and_persist(
     )
 
     md = normalize_person_report_text((result.get("llm_analysis_markdown") or "").strip())
-    saved: dict[str, Any] | None = None
     now = datetime.now(UTC)
     cache_row_key = person_cache_redis_key(fp) if cache_hit else None
     cache_expires = cached_until_from_now() if cache_hit else None
@@ -177,6 +204,7 @@ def run_person_research_and_persist(
         "filters_applied": result.get("filters_applied"),
     }
 
+    progress.stage(PERSIST, "running")
     if md:
         is_err = md.lstrip().startswith("# Error")
         status = "failed" if is_err else "complete"
@@ -212,6 +240,7 @@ def run_person_research_and_persist(
             },
             "lusha_diagnostics": lusha_diag,
             "output_language": out_lang,
+            **_progress_copy(progress),
         }
         # S4.3: el contrato validado va junto al Markdown derivado de él; `format`,
         # `body` y `billing` no cambian (los leen el dashboard y el trigger de cobro).
@@ -323,6 +352,7 @@ def run_person_research_and_persist(
             },
             "lusha_diagnostics": lusha_diag,
             "output_language": out_lang,
+            **_progress_copy(progress),
         }
         if existing is not None:
             prev = existing.dossier_data if isinstance(existing.dossier_data, dict) else {}
@@ -379,8 +409,15 @@ def run_person_research_and_persist(
             "generation_duration_ms": dossier.generation_duration_ms,
             "replaced": existing is not None,
         }
+    report_persisted(progress, dossier_id=str(saved["id"]), dossier_status=str(saved["status"]))
 
     result["saved_dossier"] = saved
     result["dossier_source"] = "generated" if skip_cache else ("redis_cache" if cache_hit else "generated")
     result["force_refresh"] = skip_cache
     return result
+
+
+def _progress_copy(progress: Any) -> dict[str, Any]:
+    """``{"_progress": …}`` para ``dossier_data``, o nada fuera de un job (ADR 0009)."""
+    copia = scope_copy(progress)
+    return {"_progress": copia} if copia else {}
