@@ -6,6 +6,65 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-19 · Correcciones en paralelo (6 PR) · FO (agente)
+
+**Hecho.** Las seis tareas abiertas en la entrada anterior tienen PR y pasaron a `review`, con el
+PR en `evidence`. Cada una la trabajó un agente en su propio worktree.
+
+- PR #19 · BUG-2026-10-19-01: límite de 72 bytes de bcrypt al cambiar la contraseña.
+- PR #17 · BUG-2026-10-19-02: PDL se consulta con el correo de cada asistente.
+- PR #22 · BUG-2026-10-19-03: armazón del dashboard adaptable a 375 px, con menú lateral en móvil.
+- PR #21 · BUG-2026-10-19-04: «Contacto 1:» ya no da el falso «sin contacto».
+- PR #23 · CHORE-2026-10-19-01: `agentRules: false` y `.gitignore` para lo que genera `next dev`.
+  Se rebasó sobre `main`: chocaba en `AGENTS.md` con el #20 y se conservaron ambas partes.
+- PR #18 · CHORE-2026-10-19-02: Vitest compatible con Node 26.
+- **Tareas nuevas** (`pending`, sprint 2, vencen el 2026-11-01): BUG-2026-10-19-05, -06 y -07
+  (FO), CHORE-2026-10-19-03 (FD) y DOC-2026-10-19-01 (EQ). BUG-2026-10-19-07 depende de -02.
+- **Estados:** antes había 49 `done`, 38 `pending` y 6 `in_progress` (93 tareas). Ahora hay
+  49 `done`, 43 `pending` y 6 `review` (98 tareas). `next.py --check` da OK.
+
+**Sin terminar.** Los seis PR esperan la revisión del segundo integrante; ninguno se mezcló. La
+CI de los PR quedó en cola: hay que confirmarla en Actions.
+
+**Lo que hay que saber.**
+- **#19:** `NewPassword`, en `backend/src/dossier/schemas/auth.py`, es el único sitio del límite
+  de 72 bytes. Todo campo futuro que fije contraseña, como el restablecimiento, debe usarlo.
+  - Dentro del `Annotated`, `Field` va antes de `BeforeValidator`, o el mínimo cambia el `type`
+    del error.
+  - bcrypt 5 rechaza más de 72 bytes también al verificar, y `verify_password` lo convierte en
+    `False`. Una cuenta antigua con contraseña larga, hasheada cuando se truncaba, no podría
+    entrar. Es un riesgo latente que no se observó.
+  - Las pruebas de ruta de `/auth/me/*` corren sin Postgres sustituyendo `get_current_user` y
+    `get_db_if_configured`.
+- **#17:** la causa estaba en `calendar_event_dossiers.py`. Al asistente sin correo se le asignaba
+  el primer correo corporativo del evento, y el guardado usaba `parsed["person_email"]`. Ahora,
+  con varios asistentes, quien no declara `Email N:` se busca solo por nombre, empresa y país:
+  puede haber menos aciertos, pero los de antes eran de otra persona. Los dossiers ya guardados no
+  se corrigen (BUG-2026-10-19-07).
+- **#21:** la fuente de verdad es el backend (`calendar_meeting_labels.py`), y hay una prueba de
+  paridad de etiquetas entre el frontend y el backend. `NUMBERED_CONTACT` pasó a llamarse
+  `NUMBERED_CONTACT_PATTERNS`, una tupla. `business_signal_patterns` ahora reconoce «Contacto 1:».
+  Los defectos de etiquetas que siguen abiertos están en BUG-2026-10-19-05 y -06.
+- **#22:** no animar `visibility` al abrir el cajón, o `focus()` falla; jsdom no lo detecta. La
+  campana de notificaciones (`fixed z-50`) queda por encima del fondo del cajón en móvil.
+- **#18:** `execArgv` solo aplica con `pool: "forks"`; si se cambia a `threads`, vuelve el fallo.
+  La opción es condicional porque Node 20 la rechaza, y la CI usa Node 20. `npm ci` con el npm de
+  Node 26 no ejecuta los scripts de instalación de las dependencias.
+- **#23:** `next dev` solo genera `AGENTS.md`/`CLAUDE.md` si detecta un agente en el entorno
+  (`CLAUDECODE`, `AI_AGENT`). Hasta que entre el #18, la suite de esa rama necesita
+  `NODE_OPTIONS=--no-experimental-webstorage`.
+- **Agentes en worktrees aislados:** no tienen `backend/.venv` ni `node_modules`. Se usaron
+  junctions hacia los del worktree `mako`, o `npm ci`. `qa.py` hay que correrlo con el Python
+  del venv.
+
+**Siguiente paso concreto.** Revisar y mezclar en este orden: #18 primero (desbloquea Vitest en
+Node 26), después #23 y luego los demás. Los PR #17 y #21 tocan el mismo archivo sin conflicto.
+
+**Rama.** `chore/harness-traspaso-2026-10-19` · **Estado.** 6 tareas en `review` y 5 nuevas en
+`pending`
+
+---
+
 ### 2026-10-19 · Cierre de revisiones y hallazgos (harness) · FO (agente)
 
 **Hecho.** Se actualizó el harness por indicación de FO, que informó que las revisiones del
