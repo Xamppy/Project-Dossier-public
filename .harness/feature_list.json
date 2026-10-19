@@ -1347,7 +1347,7 @@
       "id": "S5.4",
       "sprint": 5,
       "title": "Mostrar resultados parciales y estado por agente",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "DG",
       "area": "frontend",
       "activity": "A6",
@@ -1361,9 +1361,12 @@
       ],
       "blocks": [],
       "trello": "https://trello.com/c/taJ6cNQf",
-      "branch": null,
-      "evidence": [],
-      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1."
+      "branch": "feat/S5.4-resultados-parciales-agentes",
+      "evidence": [
+        "specs/reports/S5.4-resultados-parciales-agentes.md: CA1-CA24 mapeados a pruebas; 216 pruebas nuevas (reducer 70, clasificación 41, adaptador 6, proveedor 16, componentes 45, CalendarEventDetails 6, Personas 13, idiomas 19), 509 en verde; eslint y tsc limpios; qa.py --full --since 5b1ce9e en verde; demostración en navegador con backend real y proveedores simulados (Calendario Google, Personas PDL y Web pública, informe fallido con perfiles, cancelación, corte de conexión, recarga, tema claro y pantalla estrecha); capturas en specs/reports/S5.4-evidencia/."
+      ],
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1. Tomada el 2026-10-15 con S5.1 y S5.10 sin revisión, por decisión de DG. Implementada el 2026-10-16 en feat/S5.4-resultados-parciales-agentes (sale de la de S5.10, que sale de la de S5.1): reducer y clasificación puros, eventos por la suscripción de S5.1, paneles en Calendario y Personas, sin cambios de backend. Falta el PR (espera la autorización de DG), la revisión del segundo integrante y la evidencia en Trello. Hallazgo fuera de alcance: en Calendario con varios asistentes, PDL se consulta para el segundo con el correo del primer participante.",
+      "owner_session": "DG (agente Claude, S5.4)"
     },
     {
       "id": "S5.5",

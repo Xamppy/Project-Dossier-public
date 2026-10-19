@@ -6,6 +6,45 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-16 · S5.4 (frontend) · DG (agente Claude, S5.4)
+
+**Hecho.** Avance real y resultados parciales en Calendario (Google/Outlook) y Personas (Registros PDL y Web pública), consumiendo el ADR 0009 y los 8 ejemplos de S5.10 sin pedir cambios de contrato.
+
+- **Reducer** (`lib/dossier-job-progress.ts`) y **clasificación** (`lib/dossier-job-outcome.ts`) puros.
+- **Eventos** por la única suscripción de S5.1, sin streams en componentes ni GET por evento.
+- **Componentes:** `DossierAgentProgress`, `PersonResearchProgress`, `PersonResearchPartialResults`, `DossierJobProgressDetails` y `JobOutcomeNotice`.
+- **Pantallas:** paneles en el detalle de la reunión y en Personas; lista compacta en los avisos de Calendario.
+- **Personas recuerda la ejecución consultada** aunque termine, al navegar y al recargar.
+- **Idiomas:** 85 textos nuevos en seis idiomas (en-gb hereda de en).
+
+Son 216 pruebas nuevas (509 en verde); eslint y tsc, limpios. La demostración en navegador, con backend real y proveedores simulados, encontró dos defectos que ya están corregidos. Reporte: `specs/reports/S5.4-resultados-parciales-agentes.md`, con capturas en `specs/reports/S5.4-evidencia/`.
+
+**Sin terminar.** Push y PR (esperan la autorización de DG), revisión del segundo integrante y evidencia en Trello. S5.4 queda en `in_progress`.
+
+**Lo que hay que saber.**
+- **Cadena de ramas:** `feat/S5.4-resultados-parciales-agentes` sale de S5.10 (`5b1ce9e`), que sale de S5.1. Ninguna está en `main` ni tiene PR: el orden natural es S5.1 → S5.10 → S5.4.
+- **`next dev` 16.3 escribe `frontend/AGENTS.md` y `frontend/CLAUDE.md`** al arrancar (función `agentRules`), y el texto pide commitearlos. No se commitearon y se borraron. Conviene decidir: gitignore, `agentRules: false` o versionarlos.
+- **Hallazgo de backend, sin tocar:** en Calendario con varios asistentes, PDL se consultó para el segundo con el correo del primer participante (`{"email": "ana@example.com"}` para Beto). Con PDL real podría traer el perfil de otra persona y cobrarlo. Merece tarea propia.
+- **El lanzador de vistas previas del navegador integrado se quedó en «starting» sin salida**, con backend y frontend. Los servidores de la demo se levantaron por terminal: backend en :8010 contra `dossier_s54_test` (creada y borrada) y frontend en :3010. Los servidores de DG en :3000 y :8000 no se tocaron.
+- **Para simular Calendario sin Google** hay que parchear en el módulo `dossier.api.app` (no en el objeto FastAPI):
+  - `_google_token_for_calendar_route`
+  - `listar_reuniones_google_rango`
+  - `_filter_reuniones_for_app_user`
+  - `obtener_reunion_google_por_id`
+
+  `import dossier.api.app` devuelve el objeto `app`; hay que usar `importlib.import_module`. La URL de base va por `_database_url_for_sqlalchemy` (psycopg 3, no psycopg2).
+- **uvicorn espera a los streams al recibir SIGTERM**, así que el worker termina el job antes de cerrar. Para simular un corte de red hace falta `kill -9`.
+- **La síntesis estructurada valida el esquema:** un `conversation_starters` con textos sueltos no valida y dispara el respaldo Markdown. Así se vio en vivo el caso «recuperado con el plan B».
+- **El armazón del dashboard no es adaptable a 375 px** (`main` con `ml-64`), y la página se desplaza en horizontal. El panel nuevo no desborda dentro de su contenedor. Defecto previo, documentado aparte.
+- **El aviso «No se detecta contacto en la descripción» es un falso positivo** con «Contacto 1:» (expresión regular de `CalendarEventDetails`). Defecto previo, sin tocar.
+- **`next.py --check` sigue fallando** solo por el problema previo de «DG (agente)» con tres tareas.
+
+**Siguiente paso concreto.** DG decide el push y los PR en orden (S5.1, S5.10, S5.4) y pide la revisión del segundo integrante. Después, una tarea para el correo cruzado de asistentes en Calendario y otra para el armazón móvil.
+
+**Rama.** `feat/S5.4-resultados-parciales-agentes` · **Estado.** S5.4 `in_progress`
+
+---
+
 ### 2026-10-15 · S5.10 (seguimiento backend de S5.4) · DG (agente Claude, S5.10)
 
 **Hecho.** Contrato adoptado en el [ADR 0009](../docs/architecture/decisions/0009-contrato-progreso-por-scopes.md) y backend instrumentado de punta a punta:

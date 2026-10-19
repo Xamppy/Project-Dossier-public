@@ -13,8 +13,13 @@ import {
   fetchAuthMe,
   getStoredAccessToken,
   type AuthUser,
+  type DossierPersonProgressScope,
   type PersonResearchPayload,
 } from "@/lib/dossier-api";
+import { classifyJobOutcome } from "@/lib/dossier-job-outcome";
+import JobOutcomeNotice, { ProgressLiveRegion, progressMilestone } from "@/components/dossier/JobOutcomeNotice";
+import PersonResearchProgress from "@/components/person-research/PersonResearchProgress";
+import PersonResearchPartialResults from "@/components/person-research/PersonResearchPartialResults";
 import { resolveDossierOutputLanguage } from "@/lib/resolve-output-language";
 import { translateApiErrorMessage } from "@/lib/translate-backend-message";
 import { parsePersonResearchSearchParams } from "@/lib/person-research-from-dossier";
@@ -55,6 +60,8 @@ function PersonResearchPageContent() {
     jobs,
     getJobConnection,
     resyncJob,
+    selectedPersonJobId,
+    selectPersonJob,
   } = useDossierJobs();
   const [researchSource, setResearchSource] = useState<ResearchSourceUi>("pdl");
   const [fullName, setFullName] = useState("");
@@ -72,6 +79,8 @@ function PersonResearchPageContent() {
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [me, setMe] = useState<AuthUser | null>(null);
   const prefillAppliedRef = useRef(false);
+  const jobParamAppliedRef = useRef<string | null>(null);
+  const partialsRef = useRef<HTMLDivElement>(null);
   const usesEnrichment = researchSource === "pdl";
 
   const summaryScopeKey =
@@ -90,6 +99,26 @@ function PersonResearchPageContent() {
     activeJob?.status === "queued" || activeJob?.status === "running";
   // En esta ruta el aviso flotante del job activo está oculto: el corte se muestra aquí.
   const activeConnection = activeJob ? getJobConnection(activeJob.id) : undefined;
+
+  // Ejecución que se está mirando (S5.4): la activa mientras genera y, después, la
+  // seleccionada en el proveedor. No depende de activeJobId ni de getActivePersonJob,
+  // así que sobrevive al terminal, a la navegación y a una recarga.
+  const selectedJob = selectedPersonJobId
+    ? jobs.find((j) => j.id === selectedPersonJobId && j.job_type === "person_manual")
+    : undefined;
+  const viewedJob = (isGenerating ? activeJob : null) ?? selectedJob ?? null;
+  // La modalidad sale del scope del job, nunca del selector del formulario.
+  const viewedScope =
+    viewedJob?.progress?.scopes.find((s): s is DossierPersonProgressScope => s.kind === "person") ?? null;
+  const viewedOutcome = viewedJob && viewedScope ? classifyJobOutcome(viewedJob) : null;
+  const jobParam = searchParams.get("job");
+
+  // «Ver información disponible» desde un aviso abre esa ejecución aquí (?job=).
+  useEffect(() => {
+    if (!jobParam || jobParamAppliedRef.current === jobParam) return;
+    jobParamAppliedRef.current = jobParam;
+    selectPersonJob(jobParam);
+  }, [jobParam, selectPersonJob]);
 
   useEffect(() => {
     if (!getStoredAccessToken()) return;
@@ -178,6 +207,7 @@ function PersonResearchPageContent() {
     try {
       const jobId = await enqueuePersonResearchJob(buildPayload(name, forceRefresh));
       setActiveJobId(jobId);
+      selectPersonJob(jobId);
     } catch (err) {
       if (err instanceof DossierApiError) {
         setError(translateApiErrorMessage(err, t) || t("generate.error.api"));
@@ -464,7 +494,10 @@ function PersonResearchPageContent() {
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt style={{ color: "var(--text-muted)" }}>{t("generate.eta")}</dt>
-                  <dd style={{ color: "var(--text-primary)" }}>~{estimatedEta}s</dd>
+                  {/* Estimación previa: no es el avance real, que se ve en el panel de abajo. */}
+                  <dd style={{ color: "var(--text-primary)" }}>
+                    {t("person_research.eta_estimate", { seconds: estimatedEta })}
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt style={{ color: "var(--text-muted)" }}>{t("generate.modules")}</dt>
@@ -479,6 +512,48 @@ function PersonResearchPageContent() {
             </DashboardCard>
           </div>
         </div>
+
+        {viewedJob && viewedScope && viewedOutcome ? (
+          <section aria-label={t("progress.panel_title")}>
+            <DashboardCard title={t("progress.panel_title")}>
+              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                {viewedScope.label ?? viewedJob.meeting_label}
+              </p>
+              <div className="mt-3">
+                <ProgressLiveRegion message={progressMilestone(t, viewedOutcome, viewedJob.progress)}>
+                  {viewedOutcome.kind !== "in_progress" ? (
+                    <JobOutcomeNotice outcome={viewedOutcome}>
+                      {(viewedOutcome.kind === "complete" || viewedOutcome.kind === "partial") &&
+                      viewedOutcome.savedHref ? (
+                        <Link href={viewedOutcome.savedHref} className="font-semibold underline">
+                          {t("dossier_jobs.view_dossier")}
+                        </Link>
+                      ) : null}
+                      {viewedOutcome.kind === "failed_with_partial" ? (
+                        <button
+                          type="button"
+                          className="font-semibold underline"
+                          onClick={() => {
+                            partialsRef.current?.focus();
+                            partialsRef.current?.scrollIntoView?.({ block: "nearest" });
+                          }}
+                        >
+                          {t("progress.view_available")}
+                        </button>
+                      ) : null}
+                    </JobOutcomeNotice>
+                  ) : null}
+                </ProgressLiveRegion>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <PersonResearchProgress scope={viewedScope} />
+                <div ref={partialsRef} tabIndex={-1} className="min-w-0 rounded-md outline-none focus-visible:ring-2">
+                  <PersonResearchPartialResults scope={viewedScope} />
+                </div>
+              </div>
+            </DashboardCard>
+          </section>
+        ) : null}
       </div>
     </>
     </MutatorGuard>

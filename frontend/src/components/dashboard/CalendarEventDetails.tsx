@@ -2,13 +2,17 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import CalendarDossierPreview from "@/components/dashboard/CalendarDossierPreview";
+import DossierJobProgressDetails from "@/components/dossier/DossierJobProgressDetails";
+import JobOutcomeNotice, { ProgressLiveRegion, progressMilestone } from "@/components/dossier/JobOutcomeNotice";
 import { calendarUiLabels } from "@/i18n/calendar-ui-labels";
 import type { CalendarEventModel } from "@/lib/calendar-events";
 import {
   DossierApiError,
   type CalendarGenerarDossierItem,
   type CalendarProvider,
+  type CalendarSavedDossierRef,
 } from "@/lib/dossier-api";
+import { classifyJobOutcome } from "@/lib/dossier-job-outcome";
 import { formatMeetingTimeRange } from "@/lib/format";
 import { useDossierJobs } from "@/providers/DossierJobsProvider";
 import { usePreferences, useTranslation } from "@/providers/PreferencesProvider";
@@ -29,6 +33,11 @@ const PROVIDER_COLOR: Record<CalendarProvider, string> = {
   google: "var(--dossier-google, #0f9d58)",
   microsoft: "var(--dossier-outlook, #2a7de1)",
 };
+
+/** Solo un dossier guardado `complete` da enlace: un registro `failed` existe pero no es un informe. */
+function validSaved(ref: CalendarSavedDossierRef | undefined): CalendarSavedDossierRef | undefined {
+  return ref?.id && ref.status === "complete" ? ref : undefined;
+}
 
 function descriptionHasPersonHint(text: string): boolean {
   return /(?:contacto|contact|nombre|name|nome|nom|contatto|kontakt)\s*:/i.test(text);
@@ -130,6 +139,21 @@ export default function CalendarEventDetails({ event, onClose, returnFocusTo, fa
   const hasResult = Boolean(
     result && (result.dossier_corporativo?.trim() || result.dossier_persona?.trim() || result.dossier_generado?.trim()),
   );
+  // Con varios asistentes se recorre toda la lista (S5.4); con uno, la vista de siempre.
+  const people = result?.dossier_personas ?? [];
+  const savedPeople = result?.saved_dossiers?.persons ?? [];
+  const persons =
+    people.length > 1
+      ? people.map((p, i) => ({
+          name: p.full_name?.trim() || t("progress.unnamed_person", { index: i + 1 }),
+          body: p.md ?? null,
+          saved: validSaved(savedPeople.find((s) => s.subject_name && s.subject_name === p.full_name) ?? savedPeople[i]),
+        }))
+      : undefined;
+
+  // Avance real por scopes (S5.4): sin progreso, el detalle se ve como antes.
+  const progress = job?.progress ?? null;
+  const outcome = job && progress && progress.scopes.length > 0 ? classifyJobOutcome(job) : null;
 
   async function generate() {
     if (!eventId || submitting.current) return;
@@ -256,6 +280,25 @@ export default function CalendarEventDetails({ event, onClose, returnFocusTo, fa
           ) : null}
         </div>
 
+        {job && outcome ? (
+          <section
+            aria-label={t("progress.panel_title")}
+            className="mt-4 rounded-lg border p-3"
+            style={{ borderColor: "var(--border-default)" }}
+          >
+            <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-subtle)" }}>
+              {t("progress.panel_title")}
+            </h3>
+            <div className="mt-2">
+              <ProgressLiveRegion message={progressMilestone(t, outcome, progress)}>
+                {outcome.kind !== "in_progress" ? <JobOutcomeNotice outcome={outcome} /> : null}
+              </ProgressLiveRegion>
+            </div>
+            {/* Al terminar bien, el dossier guardado de abajo reemplaza a las vistas previas. */}
+            <DossierJobProgressDetails progress={progress} showPreviews={job.status !== "completed"} />
+          </section>
+        ) : null}
+
         {hasResult && result ? (
           <CalendarDossierPreview
             eventKey={event.key}
@@ -263,9 +306,10 @@ export default function CalendarEventDetails({ event, onClose, returnFocusTo, fa
             tema={result.reunion?.tema || event.title}
             corporate={result.dossier_corporativo ?? null}
             person={result.dossier_persona ?? null}
+            persons={persons}
             lushaWarnings={warnings}
-            savedCorporate={result.saved_dossiers?.corporate}
-            savedPerson={result.saved_dossiers?.person}
+            savedCorporate={validSaved(result.saved_dossiers?.corporate)}
+            savedPerson={validSaved(result.saved_dossiers?.person)}
             savedFolder={result.saved_dossiers?.folder}
             corporateSkippedFreePlan={result.corporate_skipped_plan_free === true}
           />
