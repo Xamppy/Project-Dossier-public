@@ -68,7 +68,6 @@ Evidencia de cada una: [docs/architecture/gaps.md](docs/architecture/gaps.md)
 | `backend/src/dossier/graphs/` | Orquestador LangGraph (agentes UK/US → síntesis) |
 | `backend/src/dossier/db/` | Modelos y esquema PostgreSQL |
 | `backend/src/dossier/llm/` | Cliente DeepSeek |
-| `backend/src/dossier/gemini/` | Shim de compatibilidad → `llm/` |
 | `backend/src/dossier/companies_house/` · `sec_edgar/` | Registros UK y USA |
 | `backend/src/dossier/security/` | JWT, RBAC, contraseñas |
 | `backend/src/dossier/billing/` | Créditos, planes, permisos |
@@ -111,8 +110,8 @@ Sin las seis, la tarea no está terminada:
 
 ## Advertencias vigentes
 
-- **No hay integración continua todavía** (tarea S1.5). Hasta que exista, `python scripts/qa.py` hace ese trabajo a mano.
-- **El frontend tiene 21 errores de eslint preexistentes** en 16 archivos. No los introdujo tu cambio; se corrigen en S1.3. `qa.py` los reporta.
-- **No hay migraciones versionadas todavía** (tarea S1.1). El esquema se aplica desde `db/schema_patches.py` y se documenta en `db/Migracion.md`. No cambies el esquema sin leer ambos.
-- **No hay linter ni verificación de tipos en el backend** (tarea S1.2).
+- **La integración continua corre en GitHub Actions** (S1.5, `.github/workflows/ci.yml`). Corre igual `python scripts/qa.py` antes de cada PR y revisa el resultado en Actions.
+- **eslint da 0 errores** en el frontend (S1.3).
+- **El esquema se versiona con Alembic** (S1.1, `backend/alembic/versions/`); `db/schema_patches.py` sigue aplicando parches al arrancar y `db/Migracion.md` documenta el esquema. No cambies el esquema sin leer los tres.
+- **ruff y mypy están configurados** en `backend/pyproject.toml` (S1.2).
 - Las tareas de Sprint 2 en adelante **dependen** de que el Sprint 1 esté cerrado.

@@ -50,17 +50,27 @@ a que falte. Lo que sí falta está enumerado en `.harness/fix_plan.md` y en las
 
 Cosas que sorprenden si no las sabes:
 
-- **No hay CI** (tarea S1.5). Corre las verificaciones a mano antes de cada PR.
-- **No hay migraciones versionadas** (S1.1). El esquema se aplica desde `db/schema_patches.py` y
-  se documenta en `db/Migracion.md`. No lo cambies sin leer ambos y avisar en `progress.md`.
-- **No hay ruff ni mypy** en el backend (S1.2). Todavía no puedes apoyarte en análisis estático.
-- **La suite sí corre**: 49 pruebas en verde, 13 en espera de su tarea. Entorno en `backend/.venv`.
-- **El frontend tenía cero pruebas.** Ahora hay Vitest configurado y 14 pruebas sobre `org-role`.
-- **21 errores de eslint preexistentes** en 16 archivos del frontend. No son tuyos; se corrigen
-  en S1.3. `qa.py` los reporta como fallo hasta entonces.
-- **`gemini/` es un shim** hacia `llm/` (DeepSeek). La clave `gemini_analysis_markdown` sigue
-  viva en el pipeline aunque el proveedor sea DeepSeek. El nombre miente; no te confíes.
-- **`dossier_data` es JSONB pero nada lo valida.** Hoy guarda `{"format": "markdown"}`.
+- **Hay CI** (S1.5) en `.github/workflows/ci.yml`: en cada push y PR a `main` corre pytest, ruff
+  y mypy del backend, y eslint, Vitest y build del frontend (Node 20). Corre igual `qa.py` antes
+  de cada PR y revisa el resultado en Actions.
+- **Hay migraciones Alembic** (S1.1) en `backend/alembic/versions/`. `db/schema_patches.py` sigue
+  aplicando parches al arrancar y `db/Migracion.md` documenta el esquema. No cambies el esquema
+  sin leer los tres y avisar en `progress.md`.
+- **ruff y mypy están configurados** en `backend/pyproject.toml` (S1.2); sobre `src/dossier` dan
+  0 hallazgos.
+- **La suite backend corre**: 659 passed y 121 skipped sin Postgres (109 piden `TEST_DATABASE_URL`
+  y 12 esperan su tarea). Entorno en `backend/.venv`.
+- **El frontend tiene Vitest**: 522 pruebas en 40 archivos. Con Node 26 hay que correrlo con
+  `NODE_OPTIONS=--no-experimental-webstorage` (el `localStorage` nativo de Node tapa el de jsdom)
+  hasta que se cierre CHORE-2026-10-19-02.
+- **eslint da 0 errores** en el frontend (S1.3).
+- **`gemini/` y la clave `gemini_analysis_markdown` se retiraron** (S1.6;
+  `test_llm_canonical_line.py` impide que vuelvan). Quedan nombres con «gemini», como
+  `person_gemini_analysis.py` o la modalidad `gemini_web`, que llaman a DeepSeek sin búsqueda web
+  real. El nombre miente; no te confíes.
+- **`dossier_data` es JSONB** y sigue guardando `{"format": "markdown", "body": ...}`. En Personas
+  suma `executive_payload`, validado contra `DossierExecutivePayload` en la síntesis (S4.1–S4.3);
+  la lectura tolera los dossiers históricos sin él (S4.4).
 
 ## Pruebas: la regla que no se salta
 
