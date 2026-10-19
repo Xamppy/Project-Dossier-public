@@ -1,0 +1,10 @@
+# Alembic: revisión actual con la base vacía
+# Fecha: 2026-10-19 13:32:18 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test alembic current --verbose
+# Código de salida: 0
+# ---- salida literal ----
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+Current revision(s) for postgresql+psycopg://postgres:***@localhost:5432/dossier_evid_test:

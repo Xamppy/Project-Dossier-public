@@ -1,0 +1,30 @@
+# Pruebas omitidas sin Postgres que pasan con Postgres
+# Fecha: 2026-10-19 13:37:47 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: docs/evidencias/fase2/
+# Comando: python _herramientas/comparar_pytest.py almacenamiento/01-pytest-sin-postgres.txt almacenamiento/02-pytest-con-postgres.txt
+# Código de salida: 0
+# ---- salida literal ----
+Pruebas en la salida sin Postgres: 780 · con Postgres: 780
+Omitidas sin Postgres que PASAN con Postgres: 109
+Omitidas sin Postgres que FALLAN con Postgres: 0
+Siguen omitidas con Postgres (pendientes de su tarea): 12
+
+Pruebas que ejercitan Postgres real, por archivo:
+     4  tests/integration/test_calendar_job_progress_integracion.py
+     1  tests/integration/test_corporate_dossier_graph_partial_failures.py
+    36  tests/integration/test_dashboard_summary.py
+     4  tests/integration/test_dossier_entities_migracion.py
+     4  tests/integration/test_dossier_entities_writer_integracion.py
+     4  tests/integration/test_dossier_stream_conexiones.py
+     6  tests/integration/test_google_login_integracion.py
+     4  tests/integration/test_job_queue_migracion.py
+    11  tests/integration/test_person_job_progress.py
+     3  tests/integration/test_person_research_pipeline_entidades.py
+     1  tests/integration/test_person_research_structured.py
+    18  tests/integration/test_register_password_route.py
+     5  tests/security/test_dossier_entities_seguridad.py
+     3  tests/security/test_dossier_entities_writer_seguridad.py
+     1  tests/security/test_job_queue_seguridad.py
+     2  tests/security/test_progress_seguridad.py
+     2  tests/stress/test_progress_estres.py

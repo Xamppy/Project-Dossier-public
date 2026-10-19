@@ -1,0 +1,375 @@
+# Frontend: Vitest con cobertura (v8), límite por prueba de 30 s
+# Fecha: 2026-10-19 20:23:14 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: frontend/
+# Comando: NODE_OPTIONS=--no-experimental-webstorage npm run test:cov -- --testTimeout=30000
+# Código de salida: 0
+# ---- salida literal ----
+
+> frontend-react@0.1.0 test:cov
+> vitest run --coverage --testTimeout=30000
+
+(node:32292) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ RUN  v2.1.9 C:/Users/Felipe Orellana/Desktop/Proyectos/Tracelens - Project Dossier/dossier-ordocga/.claude/worktrees/agent-abc7ee0c6225d055c/frontend
+      Coverage enabled with v8
+
+ ✓ src/lib/org-role.test.ts (14 tests) 36ms
+ ✓ src/lib/dossier-api.calendar-range.test.ts (10 tests) 296ms
+ ✓ src/lib/dossier-job-outcome.test.ts (41 tests) 698ms
+stderr | src/hooks/useDashboardSummary.test.tsx > useDashboardSummary > al deshabilitarse (cierre de sesión) descarta los datos
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/hooks/useDashboardSummary.test.tsx (9 tests) 983ms
+   ✓ useDashboardSummary > carga al montar: loading → ready con el resumen 373ms
+ ✓ src/lib/dossier-job-progress.test.ts (70 tests) 1710ms
+ ✓ src/components/settings/TimezoneSelect.test.tsx (2 tests) 1172ms
+   ✓ TimezoneSelect hydration > hydrates when Intl returns different UTC labels on server and client 986ms
+ ✓ src/lib/calendar-events.test.ts (29 tests) 735ms
+   ✓ windowFromCivilDates > convierte fechas civiles en instantes con offset de la zona (inicio inclusivo, fin exclusivo) 389ms
+ ✓ src/hooks/useCalendarEvents.test.tsx (14 tests) 1764ms
+   ✓ useCalendarEvents > consulta ambos proveedores en paralelo con la ventana visible (CA1) 463ms
+ ✓ src/lib/dossier-job-stream.test.ts (25 tests) 2404ms
+ ✓ src/lib/calendar-events-cache.test.ts (7 tests) 11ms
+ ✓ src/lib/calendar-jobs.test.ts (6 tests) 6ms
+ ✓ src/lib/dashboard-kpis.test.ts (27 tests) 480ms
+ ✓ src/lib/dossier-api.dashboard-summary.test.ts (4 tests) 12ms
+ ✓ src/app/auth/google/page.test.tsx (3 tests) 165ms
+ ✓ src/lib/dossier-api.calendar-config.test.ts (4 tests) 12ms
+ ✓ src/i18n/progress-messages.test.ts (19 tests) 44ms
+ ✓ src/i18n/calendar-ui-labels.test.ts (9 tests) 17ms
+ ✓ src/components/dashboard/StatCard.test.tsx (3 tests) 143ms
+ ✓ src/hooks/useCalendarProvidersConfigured.test.tsx (3 tests) 153ms
+ ✓ src/components/dashboard/OverviewCalendarsSection.test.tsx (2 tests) 70ms
+ ✓ src/components/dashboard/OverviewKpiCards.test.tsx (7 tests) 2318ms
+   ✓ OverviewKpiCards > CA1/CA2: muestra los cuatro indicadores con sus valores reales 1422ms
+ ✓ src/app/login/page.test.tsx (3 tests) 187ms
+ ✓ src/providers/PreferencesProvider.ready.test.tsx (2 tests) 59ms
+ ✓ src/lib/timezones.test.ts (1 test) 15ms
+ ✓ src/lib/countries.test.ts (2 tests) 23ms
+ ✓ src/lib/translate-api-error.test.ts (7 tests) 5ms
+ ✓ src/components/dashboard/CountrySelect.test.tsx (1 test) 269ms
+ ✓ src/app/dashboard/automation/page.test.tsx (7 tests) 4716ms
+   ✓ /dashboard/automation · distribución > el calendario ocupa el ancho completo, fuera del bloque de reglas 867ms
+   ✓ /dashboard/automation · distribución > la guía de formato sigue accesible en la cabecera del calendario 1172ms
+   ✓ /dashboard/automation · reglas conservadas > cambiar la antelación guarda con el mismo contrato 1029ms
+   ✓ /dashboard/automation · reglas conservadas > el filtro de reuniones internas sigue funcionando 759ms
+   ✓ /dashboard/automation · reglas conservadas > el plan gratuito conserva la restricción: aviso y controles deshabilitados 327ms
+   ✓ /dashboard/automation · reglas conservadas > muestra el estado de la cola dentro del bloque de reglas 347ms
+ ✓ src/providers/DossierJobsProvider.http.test.tsx (1 test) 962ms
+   ✓ DossierJobsProvider · tráfico HTTP con jobs de Calendario y Personas activos > arranca con un listado y un stream por job; en 60 s no hay ninguna petición más 929ms
+ ✓ src/components/dossier/DossierAgentProgress.test.tsx (7 tests) 3722ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > CA7 · handles_skipped_cached_and_unknown_progress · cada agente con su estado y motivo, en el orden del servidor 1820ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > CA2 · mientras corre muestra «Consultando» y la síntesis «Preparando resumen», sin porcentajes 346ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > CA3 · renders_partial_modules_during_generation · la vista previa del resumen llega antes del terminal y se marca provisional 554ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > el Markdown de la vista previa no ejecuta HTML crudo y respeta truncated 320ms
+ ✓ src/components/person-research/PersonResearchPartialResults.test.tsx (7 tests) 2997ms
+   ✓ PersonResearchPartialResults · vistas previas de una persona > CA16 · keeps_person_profiles_when_report_fails · el perfil se ve con nombre, cargo, empresa y enlaces, como provisional 1681ms
+   ✓ PersonResearchPartialResults · vistas previas de una persona > CA15 · Web pública: el texto llega solo cuando vuelve y declara que no hubo fuentes consultadas 476ms
+ ✓ src/components/person-research/PersonResearchProgress.test.tsx (11 tests) 4043ms
+   ✓ PersonResearchProgress · etapas que declara el servidor > CA14 · renders_real_pdl_stages · PDL muestra sus etapas reales en orden, sin nombres corporativos 1986ms
+   ✓ PersonResearchProgress · etapas que declara el servidor > CA15 · renders_model_only_progress_truthfully · Web pública: un paso de IA, sin búsquedas ni porcentajes 365ms
+ ✓ src/app/register/page.test.tsx (6 tests) 9360ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 3602ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: ééééééééééééééééééééééééééééééééééééé 1237ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: 🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐 1291ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1412ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: éééééééééééééééééééééééééééééééééééé 1018ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: 🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐 768ms
+ ✓ src/providers/DossierJobsProvider.test.tsx (33 tests) 7693ms
+   ✓ DossierJobsProvider · estado general por SSE > CA1 · 'Calendario Google': abre un stream por job remoto activo y aplica su snapshot 770ms
+   ✓ DossierJobsProvider · estado general por SSE > CA2 · 'Calendario Google': los eventos actualizan el job sin consultar su endpoint REST 969ms
+   ✓ DossierJobsProvider · estado general por SSE > CA4 · con StrictMode y varias actualizaciones hay una sola suscripción vigente por job 477ms
+   ✓ DossierJobsProvider · estado general por SSE > CA7 · un aviso descartado no reaparece al llegar un duplicado del estado terminal 630ms
+   ✓ DossierJobsProvider · estado general por SSE > CA10 · reconectar pide un único snapshot, acepta la secuencia reiniciada y reabre si sigue activo 305ms
+   ✓ DossierJobsProvider · estado general por SSE > CA10 · si la recuperación vuelve a fallar se conserva el job y se puede reintentar 318ms
+ ✓ src/components/dossier/DossierJobProgressDetails.test.tsx (20 tests) 8287ms
+   ✓ DossierJobProgressDetails · empresa y asistentes por separado > CA6 · handles_multiple_people_and_legacy_results · un bloque por asistente además de las búsquedas de la empresa 2244ms
+   ✓ DossierJobProgressDetails · empresa y asistentes por separado > CA20 · isolates_person_scopes_and_revisions · los perfiles de un asistente no aparecen en el otro 946ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > calendario-agente-caido: reproducir los frames pinta lo mismo que aplicar solo el GET final 1391ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > personas-pdl: reproducir los frames pinta lo mismo que aplicar solo el GET final 491ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > personas-pdl-respaldo: reproducir los frames pinta lo mismo que aplicar solo el GET final 346ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > calendario-agente-caido: frames duplicados y desordenados pintan lo mismo 634ms
+ ✓ src/providers/DossierJobsProvider.progress.test.tsx (16 tests) 8545ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA1 · isolates_progress_by_calendar_job · dos jobs de calendario solo cambian su propio progreso 3252ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA2 · applies_agent_revisions_idempotently · los eventos usan el stream existente: sin GET ni streams nuevos 467ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > aplicar progreso no pisa el toast descartado ni el resultado ni el estado del job 549ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA8 · restores_progress_from_snapshot · un job_status viejo no hace retroceder el progreso 903ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA8 · un GET de recuperación se fusiona por revisión y el stream nuevo termina el trabajo 387ms
+   ✓ DossierJobsProvider · S5.4 ejecución de Personas seleccionada > restaurar la ejecución seleccionada no revive su aviso ya cerrado 319ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA16 · keeps_person_profiles_when_report_fails · el aviso ofrece «Ver información disponible» 763ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA2 · el aviso de una reunión en curso muestra la lista compacta de la empresa y una línea por asistente 709ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA6 · handles_multiple_people_and_legacy_results · el aviso del calendario es parcial y nombra lo que faltó 640ms
+ ✓ src/components/dashboard/CalendarEventDetails.test.tsx (26 tests) 8475ms
+   ✓ CalendarEventDetails · contenido > muestra título, fecha en la zona del usuario, proveedor, participantes, ubicación y descripción 2197ms
+   ✓ CalendarEventDetails · generación (CA7) > generar envía proveedor, id original y la fila original 823ms
+   ✓ CalendarEventDetails · generación (CA7) > un doble clic rápido solo encola una vez 351ms
+   ✓ CalendarEventDetails · generación (CA7) > errores de créditos o plan se muestran y permiten reintentar 406ms
+   ✓ CalendarEventDetails · diálogo accesible (CA11) > Tab no sale del diálogo 832ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA3 · renders_partial_modules_during_generation · mientras genera: empresa, cada asistente y vistas previas provisionales 576ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA24 · aria-live anuncia hitos y no cada evento 400ms
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+stderr | src/components/dashboard/MeetingsCalendarSection.test.tsx > MeetingsCalendarSection > no monta ni consulta hasta que las preferencias están listas
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/components/dashboard/MeetingsCalendar.test.tsx (12 tests) 18457ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > la vista inicial Semana informa la ventana de la semana visible en la zona del usuario 3451ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > Siguiente, Anterior y Hoy piden la ventana correcta 8046ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > cambiar a Día y a Mes solicita el intervalo de esa vista, incluidos los días de meses contiguos 2780ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > el cambio de horario dentro de la ventana usa el offset correcto en cada extremo 416ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > al cambiar la zona horaria se vuelve a informar la ventana con el nuevo offset 615ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > el primer día de la semana depende del idioma 410ms
+   ✓ MeetingsCalendar · controles accesibles (CA11) > expone selector de vista con estado, navegación agrupada y zona horaria visible 484ms
+   ✓ MeetingsCalendar · controles accesibles (CA11) > el período visible se anuncia como título en vivo 365ms
+   ✓ MeetingsCalendar · eventos > pinta título y etiqueta de proveedor (no solo color) y el día completo 503ms
+   ✓ MeetingsCalendar · eventos > cada evento lleva la clase de su proveedor en el DOM real (color + etiqueta) 409ms
+   ✓ MeetingsCalendar · eventos > pulsar o activar con teclado un evento informa su clave y el elemento 464ms
+   ✓ MeetingsCalendar · eventos > sin eventos el calendario sigue navegable 496ms
+ ✓ src/components/dashboard/MeetingsCalendarSection.test.tsx (14 tests) 16582ms
+   ✓ MeetingsCalendarSection > consulta ambos proveedores con la semana visible y pinta los eventos con su etiqueta (CA1) 5140ms
+   ✓ MeetingsCalendarSection > navegar solicita la ventana siguiente 1852ms
+   ✓ MeetingsCalendarSection > si el calendario es estrecho (móvil o tableta con menú lateral) la vista inicial es Día 630ms
+   ✓ MeetingsCalendarSection > con ancho suficiente (≥ 640 px) la vista inicial es Semana 617ms
+   ✓ MeetingsCalendarSection > el filtro Google/Outlook oculta el otro proveedor y marca el botón activo 1110ms
+   ✓ MeetingsCalendarSection > Google falla y Outlook responde: se ve Outlook más el error de Google con opción de reintentar (CA5) 1016ms
+   ✓ MeetingsCalendarSection > proveedor desconectado se distingue de un error (CA5) 730ms
+   ✓ MeetingsCalendarSection > si Outlook no está configurado en el servidor, no ofrece conectarlo ni filtrarlo 892ms
+   ✓ MeetingsCalendarSection > un período vacío lo dice y mantiene el calendario navegable (CA5) 824ms
+   ✓ MeetingsCalendarSection > carga incompleta: avisa con el motivo y nunca afirma que todo está cargado (CA2) 822ms
+   ✓ MeetingsCalendarSection > avisa de registros sin fecha válida sin romper la vista (CA8) 704ms
+   ✓ MeetingsCalendarSection > abrir una reunión muestra el detalle sin generar nada, y Escape devuelve el foco (CA7, CA11) 1102ms
+   ✓ MeetingsCalendarSection > terminar el job de otra reunión no cambia la selección ni abre su resultado (CA7) 1105ms
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+ ✓ src/app/dashboard/person-research/page.test.tsx (38 tests) 63925ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 6674ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 2009ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 1286ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 1178ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 1219ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 1420ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · reemplazar un dossier envía force_refresh y replace_dossier_id con la modalidad 346ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 1422ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 1339ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 1160ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 1282ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 1170ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 1043ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 1053ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 1224ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 935ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 1312ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 1746ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · reemplazar un dossier envía force_refresh y replace_dossier_id con la modalidad 401ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 1362ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 1567ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 1120ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 936ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 1808ms
+   ✓ Personas · convivencia de modalidades y con Calendario > CA14 · PDL y Web pública son ejecuciones separadas y un job de calendario no afecta a Personas 5323ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA14 · renders_real_pdl_stages · Registros PDL: avance paso a paso y el perfil antes del informe 4947ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA16 · keeps_person_profiles_when_report_fails · el informe falla y los perfiles siguen con «Ver información disponible» 3577ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo 1636ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · restores_selected_person_result_and_mode · cambiar el selector no reinterpreta la ejecución consultada 1872ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · al recargar se restaura la ejecución terminada y sus parciales aunque se cerró el aviso 1957ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · el enlace «Ver información disponible» de un aviso (?job=) abre esa ejecución en Personas 382ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · salir de Personas y volver conserva el panel de la ejecución terminada 2215ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA19 · renders_cached_person_result_without_fabricated_steps · la caché se presenta como resultado guardado de antes 1511ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA9 · separates_transport_cancellation_and_generation_errors · cancelar detiene todo y nada revive 1050ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA9 · el corte de conexión se muestra aparte y no borra los parciales 1275ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA24 · aria-live (polite) anuncia hitos y no cada evento 1939ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA24 · el texto de Web pública aclara que no hay búsqueda en vivo y la ETA es solo una estimación 331ms
+   ✓ Personas · S5.4 avance real y resultados parciales > un job sin progress (anterior a S5.4) no muestra el panel nuevo 880ms
+
+ Test Files  40 passed (40)
+      Tests  522 passed (522)
+   Start at  20:23:15
+   Duration  87.55s (transform 40.43s, setup 116.41s, collect 177.51s, tests 171.55s, environment 60.79s, prepare 12.11s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   36.77 |    78.62 |    62.5 |   36.77 |                   
+ app               |       0 |        0 |       0 |       0 |                   
+  layout.tsx       |       0 |        0 |       0 |       0 | 1-47              
+  page.tsx         |       0 |        0 |       0 |       0 | 1-8               
+ app/auth/google   |     100 |    85.71 |     100 |     100 |                   
+  page.tsx         |     100 |    85.71 |     100 |     100 | 23                
+ app/dashboard     |       0 |        0 |       0 |       0 |                   
+  ...dAuthGate.tsx |       0 |        0 |       0 |       0 | 1-76              
+  layout.tsx       |       0 |        0 |       0 |       0 | 1-30              
+  page.tsx         |       0 |        0 |       0 |       0 | 1-466             
+ ...ashboard/admin |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-446             
+ ...ard/automation |   90.32 |    69.04 |     100 |   90.32 |                   
+  page.tsx         |   90.32 |    69.04 |     100 |   90.32 | ...76-181,251-254 
+ ...oard/corporate |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-25              
+ ...board/dossiers |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-286             
+ .../dossiers/[id] |       0 |        0 |       0 |       0 |                   
+  ...etailView.tsx |       0 |        0 |       0 |       0 | 1-592             
+  page.tsx         |       0 |        0 |       0 |       0 | 1-78              
+ ...rs/folder/[id] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-199             
+ ...erson-research |   95.67 |    79.85 |   66.66 |   95.67 |                   
+  page.tsx         |   95.67 |    79.85 |   66.66 |   95.67 | ...16,234-239,472 
+ ...board/settings |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-92              
+ app/forgot        |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-124             
+ app/login         |   62.55 |       60 |      25 |   62.55 |                   
+  page.tsx         |   62.55 |       60 |      25 |   62.55 | ...13-156,212-222 
+ app/register      |   75.66 |     38.2 |   73.91 |   75.66 |                   
+  page.tsx         |   75.66 |     38.2 |   73.91 |   75.66 | ...66,611-613,688 
+ components        |   93.04 |       84 |   71.42 |   93.04 |                   
+  AuthShell.tsx    |     100 |      100 |     100 |     100 |                   
+  BrandLogo.tsx    |     100 |      100 |     100 |     100 |                   
+  FormField.tsx    |    92.5 |    82.35 |   66.66 |    92.5 | 16-22             
+  ...aryButton.tsx |     100 |      100 |     100 |     100 |                   
+  ThemeScript.tsx  |       0 |        0 |       0 |       0 | 1-10              
+ components/auth   |       0 |        0 |       0 |       0 |                   
+  ...PlanGuard.tsx |       0 |        0 |       0 |       0 | 1-72              
+  MutatorGuard.tsx |       0 |        0 |       0 |       0 | 1-57              
+ ...ents/dashboard |   32.22 |    85.61 |   73.91 |   32.22 |                   
+  ...arPreview.tsx |       0 |        0 |       0 |       0 | 1-7               
+  ...erPreview.tsx |   82.85 |    74.19 |     100 |   82.85 | ...33,138-154,161 
+  ...ntDetails.tsx |   98.06 |    88.13 |     100 |   98.06 | 87-90,169         
+  ...AnyAction.tsx |       0 |        0 |       0 |       0 | 1-35              
+  ...tionPanel.tsx |       0 |        0 |       0 |       0 | 1-285             
+  ...rmatGuide.tsx |       0 |        0 |       0 |       0 | 1-269             
+  ...erateView.tsx |       0 |        0 |       0 |       0 | 1-677             
+  ...trySelect.tsx |     100 |      100 |     100 |     100 |                   
+  ...boardCard.tsx |     100 |      100 |     100 |     100 |                   
+  ...sCalendar.tsx |     100 |       95 |     100 |     100 | 92                
+  ...arSection.tsx |   84.34 |    88.46 |      60 |   84.34 | ...04-209,258-263 
+  ...ationBell.tsx |       0 |        0 |       0 |       0 | 1-292             
+  ...rsSection.tsx |     100 |      100 |     100 |     100 |                   
+  ...wKpiCards.tsx |     100 |      100 |     100 |     100 |                   
+  Sidebar.tsx      |       0 |        0 |       0 |       0 | 1-385             
+  StatCard.tsx     |   98.18 |     92.3 |     100 |   98.18 | 30                
+  TopBar.tsx       |       0 |        0 |       0 |       0 | 1-26              
+ ...onents/dossier |   20.57 |    83.44 |   64.51 |   20.57 |                   
+  ...tingLabel.tsx |       0 |        0 |       0 |       0 | 1-49              
+  ...conButton.tsx |       0 |        0 |       0 |       0 | 1-39              
+  ...tProgress.tsx |    98.5 |    89.47 |     100 |    98.5 | 47                
+  ...ltersMenu.tsx |       0 |        0 |       0 |       0 | 1-101             
+  ...olderCard.tsx |       0 |        0 |       0 |       0 | 1-237             
+  ...oupedList.tsx |       0 |        0 |       0 |       0 | 1-164             
+  ...ssDetails.tsx |   95.12 |       84 |     100 |   95.12 | 34,63             
+  ...rListCard.tsx |       0 |        0 |       0 |       0 | 1-116             
+  ...uageBadge.tsx |       0 |        0 |       0 |       0 | 1-33              
+  ...atusBadge.tsx |       0 |        0 |       0 |       0 | 1-54              
+  FilterTabs.tsx   |       0 |        0 |       0 |       0 | 1-45              
+  ...omeNotice.tsx |   98.57 |    88.57 |     100 |   98.57 | 31                
+  ...ierButton.tsx |       0 |        0 |       0 |       0 | 1-158             
+  ...sierPanel.tsx |       0 |        0 |       0 |       0 | 1-192             
+  ...s-display.tsx |   99.26 |    93.44 |     100 |   99.26 | 64                
+ ...erson-research |   98.75 |    90.41 |     100 |   98.75 |                   
+  ...alResults.tsx |   98.96 |    88.88 |     100 |   98.96 | 41                
+  ...hProgress.tsx |   98.43 |    92.85 |     100 |   98.43 | 32                
+ ...nents/settings |    2.54 |    41.66 |      25 |    2.54 |                   
+  AccountPanel.tsx |       0 |        0 |       0 |       0 | 1-313             
+  ...BookPanel.tsx |       0 |        0 |       0 |       0 | 1-155             
+  BillingPanel.tsx |       0 |        0 |       0 |       0 | 1-271             
+  ...textPanel.tsx |       0 |        0 |       0 |       0 | 1-168             
+  GeneralPanel.tsx |       0 |        0 |       0 |       0 | 1-89              
+  ...uagePanel.tsx |       0 |        0 |       0 |       0 | 1-128             
+  ...ionsPanel.tsx |       0 |        0 |       0 |       0 | 1-87              
+  ...bersPanel.tsx |       0 |        0 |       0 |       0 | 1-440             
+  ...itesPanel.tsx |       0 |        0 |       0 |       0 | 1-123             
+  SettingsNav.tsx  |       0 |        0 |       0 |       0 | 1-89              
+  ThemePreview.tsx |       0 |        0 |       0 |       0 | 1-122             
+  ...oneSelect.tsx |   88.13 |    76.92 |      80 |   88.13 | 69-75             
+ components/ui     |   26.41 |       50 |      50 |   26.41 |                   
+  Toggle.tsx       |       0 |        0 |       0 |       0 | 1-39              
+  UiAlert.tsx      |     100 |      100 |     100 |     100 |                   
+ hooks             |   77.18 |    91.66 |   64.28 |   77.18 |                   
+  useAuthMe.ts     |   10.52 |      100 |       0 |   10.52 | ...54-103,106-107 
+  ...ndarEvents.ts |     100 |    91.11 |     100 |     100 | 56,130-135        
+  ...Configured.ts |     100 |      100 |     100 |     100 |                   
+  ...ardSummary.ts |     100 |     90.9 |     100 |     100 | 39,58,82,89       
+ i18n              |   97.72 |    53.33 |     100 |   97.72 |                   
+  ...-ui-labels.ts |     100 |       60 |     100 |     100 | 316,321           
+  index.ts         |     100 |    57.14 |     100 |     100 | 34,41             
+  types.ts         |   83.33 |    33.33 |     100 |   83.33 | 73-80             
+ lib               |   45.51 |    79.57 |   59.82 |   45.51 |                   
+  ...book-types.ts |       0 |        0 |       0 |       0 | 1-5               
+  ...ences-sync.ts |      25 |      100 |       0 |      25 | 19-29,33-52,55-74 
+  ...ssier-meta.ts |       0 |        0 |       0 |       0 | 1-129             
+  ...ents-cache.ts |     100 |    92.85 |     100 |     100 | 43                
+  ...dar-events.ts |   98.52 |     92.3 |     100 |   98.52 | 85-86             
+  calendar-jobs.ts |     100 |      100 |     100 |     100 |                   
+  ...ing-format.ts |       0 |        0 |       0 |       0 | 1-73              
+  countries.ts     |   93.33 |    68.42 |     100 |   93.33 | 37-38             
+  ...board-kpis.ts |   98.36 |    84.93 |     100 |   98.36 | 169-170           
+  dossier-api.ts   |   16.15 |    52.77 |   21.51 |   16.15 | ...2465,2504-2579 
+  dossier-depth.ts |       0 |        0 |       0 |       0 | 1-44              
+  ...ob-outcome.ts |   98.14 |    93.49 |     100 |   98.14 | 155,173           
+  ...b-progress.ts |   98.18 |     86.3 |   97.36 |   98.18 | ...45,692,779-780 
+  ...job-stream.ts |     100 |    90.32 |     100 |     100 | ...41,164,190,203 
+  ...list-utils.ts |       0 |        0 |       0 |       0 | 1-268             
+  ...t-language.ts |       0 |        0 |       0 |       0 | 1-31              
+  format.ts        |    52.2 |       80 |      50 |    52.2 | ...18-126,150-163 
+  org-role.ts      |     100 |      100 |     100 |     100 |                   
+  ...om-dossier.ts |   23.15 |    53.33 |      20 |   23.15 | ...6,59-72,95-120 
+  plans.ts         |   39.62 |       80 |   14.28 |   39.62 | ...32,40-47,50-65 
+  ...or-message.ts |   93.84 |    58.82 |     100 |   93.84 | 40,42,90-91       
+  ...t-language.ts |   59.37 |    22.22 |   66.66 |   59.37 | ...23,29-31,46-50 
+  strip-html.ts    |   89.47 |       75 |     100 |   89.47 | 17-18             
+  theme.ts         |   61.53 |       50 |     100 |   61.53 | 5-9               
+  timezones.ts     |    68.9 |    52.38 |   77.77 |    68.9 | ...97-117,127-129 
+  ...-api-error.ts |   51.92 |    33.33 |      50 |   51.92 | 21-29,34,47,49-65 
+  ...nd-message.ts |   64.35 |       60 |      60 |   64.35 | ...03-104,107-132 
+  ...dl-warning.ts |   78.94 |       25 |     100 |   78.94 | ...39,42-43,45-46 
+ providers         |   67.43 |    80.46 |   75.55 |   67.43 |                   
+  ...sProvider.tsx |   91.51 |    82.13 |   93.75 |   91.51 | ...33-835,982-983 
+  ...sProvider.tsx |       0 |        0 |       0 |       0 | 1-231             
+  ...sProvider.tsx |   53.07 |    60.86 |   33.33 |   53.07 | ...46-247,252-254 
+ test              |     100 |    77.77 |     100 |     100 |                   
+  ...ress-state.ts |     100 |    76.92 |     100 |     100 | 36,47,53          
+  s510-fixtures.ts |     100 |       80 |     100 |     100 | 49                
+-------------------|---------|----------|---------|---------|-------------------

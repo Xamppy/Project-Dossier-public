@@ -1,0 +1,8 @@
+# Frontend: verificación de tipos (tsc --noEmit)
+# Fecha: 2026-10-19 13:36:07 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: frontend/
+# Comando: npx tsc --noEmit; echo "tsc exit=$?"
+# Código de salida: 0
+# ---- salida literal ----
+tsc exit=0

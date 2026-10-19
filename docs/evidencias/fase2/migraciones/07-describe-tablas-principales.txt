@@ -1,0 +1,281 @@
+# Estructura de las tablas principales
+# Fecha: 2026-10-19 13:32:28 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: psql -d dossier_evid_test -c "\d+ organizations" -c "\d+ users" -c "\d+ dossiers" -c "\d+ dossier_generation_jobs" -c "\d+ credit_ledger"
+# Código de salida: 0
+# ---- salida literal ----
+                                                                Table "public.organizations"
+         Column         |           Type           | Collation | Nullable |          Default          | Storage  | Compression | Stats target | Description 
+------------------------+--------------------------+-----------+----------+---------------------------+----------+-------------+--------------+-------------
+ id                     | uuid                     |           | not null | uuid_generate_v4()        | plain    |             |              | 
+ name                   | character varying(255)   |           | not null |                           | extended |             |              | 
+ slug                   | character varying(100)   |           | not null |                           | extended |             |              | 
+ plan                   | character varying(20)    |           | not null | 'free'::character varying | extended |             |              | 
+ credits_balance        | integer                  |           | not null | 10                        | plain    |             |              | 
+ credits_monthly_limit  | integer                  |           | not null | 10                        | plain    |             |              | 
+ stripe_customer_id     | character varying(255)   |           |          |                           | extended |             |              | 
+ stripe_subscription_id | character varying(255)   |           |          |                           | extended |             |              | 
+ is_white_label         | boolean                  |           | not null | false                     | plain    |             |              | 
+ custom_domain          | character varying(255)   |           |          |                           | extended |             |              | 
+ settings               | jsonb                    |           | not null | '{}'::jsonb               | extended |             |              | 
+ is_active              | boolean                  |           | not null | true                      | plain    |             |              | 
+ created_at             | timestamp with time zone |           | not null | now()                     | plain    |             |              | 
+ updated_at             | timestamp with time zone |           | not null | now()                     | plain    |             |              | 
+Indexes:
+    "organizations_pkey" PRIMARY KEY, btree (id)
+    "idx_organizations_plan" btree (plan)
+    "idx_organizations_slug" btree (slug)
+    "idx_organizations_stripe_customer" btree (stripe_customer_id) WHERE stripe_customer_id IS NOT NULL
+    "organizations_slug_key" UNIQUE CONSTRAINT, btree (slug)
+    "organizations_stripe_customer_id_key" UNIQUE CONSTRAINT, btree (stripe_customer_id)
+    "organizations_stripe_subscription_id_key" UNIQUE CONSTRAINT, btree (stripe_subscription_id)
+Check constraints:
+    "organizations_credits_balance_check" CHECK (credits_balance >= 0)
+    "organizations_plan_check" CHECK (plan::text = ANY (ARRAY['free'::character varying, 'pro'::character varying, 'enterprise'::character varying]::text[]))
+Referenced by:
+    TABLE "api_keys" CONSTRAINT "api_keys_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "audit_logs" CONSTRAINT "audit_logs_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
+    TABLE "billing_transactions" CONSTRAINT "billing_transactions_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "calendar_events" CONSTRAINT "calendar_events_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "calendar_integrations" CONSTRAINT "calendar_integrations_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "contacts" CONSTRAINT "contacts_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "credit_ledger" CONSTRAINT "credit_ledger_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "dossier_generation_jobs" CONSTRAINT "dossier_generation_jobs_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "dossiers" CONSTRAINT "dossiers_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "email_integrations" CONSTRAINT "email_integrations_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "org_invites" CONSTRAINT "org_invites_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "org_memberships" CONSTRAINT "org_memberships_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    TABLE "refresh_tokens" CONSTRAINT "refresh_tokens_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+Not-null constraints:
+    "organizations_id_not_null" NOT NULL "id"
+    "organizations_name_not_null" NOT NULL "name"
+    "organizations_slug_not_null" NOT NULL "slug"
+    "organizations_plan_not_null" NOT NULL "plan"
+    "organizations_credits_balance_not_null" NOT NULL "credits_balance"
+    "organizations_credits_monthly_limit_not_null" NOT NULL "credits_monthly_limit"
+    "organizations_is_white_label_not_null" NOT NULL "is_white_label"
+    "organizations_settings_not_null" NOT NULL "settings"
+    "organizations_is_active_not_null" NOT NULL "is_active"
+    "organizations_created_at_not_null" NOT NULL "created_at"
+    "organizations_updated_at_not_null" NOT NULL "updated_at"
+Triggers:
+    trg_organizations_updated_at BEFORE UPDATE ON organizations FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at()
+Access method: heap
+
+                                                                     Table "public.users"
+         Column          |           Type           | Collation | Nullable |          Default           | Storage  | Compression | Stats target | Description 
+-------------------------+--------------------------+-----------+----------+----------------------------+----------+-------------+--------------+-------------
+ id                      | uuid                     |           | not null | uuid_generate_v4()         | plain    |             |              | 
+ email                   | character varying(255)   |           | not null |                            | extended |             |              | 
+ email_verified          | boolean                  |           | not null | false                      | plain    |             |              | 
+ password_hash           | character varying(255)   |           |          |                            | extended |             |              | 
+ full_name               | character varying(255)   |           |          |                            | extended |             |              | 
+ avatar_url              | text                     |           |          |                            | extended |             |              | 
+ timezone                | character varying(100)   |           | not null | 'UTC'::character varying   | extended |             |              | 
+ locale                  | character varying(10)    |           | not null | 'en'::character varying    | extended |             |              | 
+ last_login_at           | timestamp with time zone |           |          |                            | plain    |             |              | 
+ is_active               | boolean                  |           | not null | true                       | plain    |             |              | 
+ is_platform_admin       | boolean                  |           | not null | false                      | plain    |             |              | 
+ created_at              | timestamp with time zone |           | not null | now()                      | plain    |             |              | 
+ updated_at              | timestamp with time zone |           | not null | now()                      | plain    |             |              | 
+ dossier_output_language | character varying(10)    |           | not null | 'match'::character varying | extended |             |              | 
+ dossier_retention_days  | integer                  |           |          | 30                         | plain    |             |              | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "idx_users_active" btree (is_active) WHERE is_active = true
+    "idx_users_email" btree (email)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+    TABLE "api_keys" CONSTRAINT "api_keys_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    TABLE "audit_logs" CONSTRAINT "audit_logs_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    TABLE "calendar_events" CONSTRAINT "calendar_events_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "calendar_integrations" CONSTRAINT "calendar_integrations_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "contacts" CONSTRAINT "contacts_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    TABLE "credit_ledger" CONSTRAINT "credit_ledger_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "dossier_alerts" CONSTRAINT "dossier_alerts_acknowledged_by_user_id_fkey" FOREIGN KEY (acknowledged_by_user_id) REFERENCES users(id)
+    TABLE "dossier_generation_jobs" CONSTRAINT "dossier_generation_jobs_requested_by_user_id_fkey" FOREIGN KEY (requested_by_user_id) REFERENCES users(id)
+    TABLE "dossier_shares" CONSTRAINT "dossier_shares_shared_by_user_id_fkey" FOREIGN KEY (shared_by_user_id) REFERENCES users(id)
+    TABLE "dossier_shares" CONSTRAINT "dossier_shares_shared_with_user_id_fkey" FOREIGN KEY (shared_with_user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "dossiers" CONSTRAINT "dossiers_requested_by_user_id_fkey" FOREIGN KEY (requested_by_user_id) REFERENCES users(id)
+    TABLE "email_integrations" CONSTRAINT "email_integrations_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "oauth_accounts" CONSTRAINT "oauth_accounts_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "org_invites" CONSTRAINT "org_invites_invited_by_user_id_fkey" FOREIGN KEY (invited_by_user_id) REFERENCES users(id)
+    TABLE "org_memberships" CONSTRAINT "org_memberships_invited_by_user_id_fkey" FOREIGN KEY (invited_by_user_id) REFERENCES users(id)
+    TABLE "org_memberships" CONSTRAINT "org_memberships_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "refresh_tokens" CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Not-null constraints:
+    "users_id_not_null" NOT NULL "id"
+    "users_email_not_null" NOT NULL "email"
+    "users_email_verified_not_null" NOT NULL "email_verified"
+    "users_timezone_not_null" NOT NULL "timezone"
+    "users_locale_not_null" NOT NULL "locale"
+    "users_is_active_not_null" NOT NULL "is_active"
+    "users_is_platform_admin_not_null" NOT NULL "is_platform_admin"
+    "users_created_at_not_null" NOT NULL "created_at"
+    "users_updated_at_not_null" NOT NULL "updated_at"
+    "users_dossier_output_language_not_null" NOT NULL "dossier_output_language"
+Triggers:
+    trg_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at()
+Access method: heap
+
+                                                                    Table "public.dossiers"
+         Column          |           Type           | Collation | Nullable |           Default            | Storage  | Compression | Stats target | Description 
+-------------------------+--------------------------+-----------+----------+------------------------------+----------+-------------+--------------+-------------
+ id                      | uuid                     |           | not null | uuid_generate_v4()           | plain    |             |              | 
+ organization_id         | uuid                     |           | not null |                              | plain    |             |              | 
+ requested_by_user_id    | uuid                     |           | not null |                              | plain    |             |              | 
+ contact_id              | uuid                     |           |          |                              | plain    |             |              | 
+ subject_email           | character varying(255)   |           |          |                              | extended |             |              | 
+ subject_name            | character varying(255)   |           |          |                              | extended |             |              | 
+ module_identity         | boolean                  |           | not null | true                         | plain    |             |              | 
+ module_corporate        | boolean                  |           | not null | false                        | plain    |             |              | 
+ module_media            | boolean                  |           | not null | false                        | plain    |             |              | 
+ depth_level             | character varying(10)    |           | not null | 'basic'::character varying   | extended |             |              | 
+ credits_consumed        | integer                  |           | not null | 0                            | plain    |             |              | 
+ status                  | character varying(20)    |           | not null | 'pending'::character varying | extended |             |              | 
+ status_message          | text                     |           |          |                              | extended |             |              | 
+ dossier_data            | jsonb                    |           |          |                              | extended |             |              | 
+ alerts                  | jsonb                    |           | not null | '[]'::jsonb                  | extended |             |              | 
+ agents_activated        | text[]                   |           | not null | '{}'::text[]                 | extended |             |              | 
+ agents_failed           | text[]                   |           | not null | '{}'::text[]                 | extended |             |              | 
+ data_sources_used       | text[]                   |           | not null | '{}'::text[]                 | extended |             |              | 
+ generation_started_at   | timestamp with time zone |           |          |                              | plain    |             |              | 
+ generation_completed_at | timestamp with time zone |           |          |                              | plain    |             |              | 
+ generation_duration_ms  | integer                  |           |          |                              | plain    |             |              | 
+ cache_key               | character varying(255)   |           |          |                              | extended |             |              | 
+ cached_until            | timestamp with time zone |           |          |                              | plain    |             |              | 
+ trigger_source          | character varying(20)    |           | not null | 'manual'::character varying  | extended |             |              | 
+ calendar_event_id       | uuid                     |           |          |                              | plain    |             |              | 
+ email_sent              | boolean                  |           | not null | false                        | plain    |             |              | 
+ email_sent_at           | timestamp with time zone |           |          |                              | plain    |             |              | 
+ email_recipients        | text[]                   |           | not null | '{}'::text[]                 | extended |             |              | 
+ created_at              | timestamp with time zone |           | not null | now()                        | plain    |             |              | 
+ updated_at              | timestamp with time zone |           | not null | now()                        | plain    |             |              | 
+ dossier_folder_id       | uuid                     |           |          |                              | plain    |             |              | 
+Indexes:
+    "dossiers_pkey" PRIMARY KEY, btree (id)
+    "idx_dossiers_alerts" gin (alerts)
+    "idx_dossiers_cache_key" btree (cache_key) WHERE cache_key IS NOT NULL
+    "idx_dossiers_contact" btree (contact_id) WHERE contact_id IS NOT NULL
+    "idx_dossiers_created" btree (organization_id, created_at DESC)
+    "idx_dossiers_folder" btree (dossier_folder_id) WHERE dossier_folder_id IS NOT NULL
+    "idx_dossiers_org" btree (organization_id)
+    "idx_dossiers_status" btree (organization_id, status)
+    "idx_dossiers_subject_email" btree (organization_id, subject_email)
+    "idx_dossiers_user" btree (requested_by_user_id)
+Check constraints:
+    "dossiers_credits_consumed_check" CHECK (credits_consumed >= 0)
+    "dossiers_depth_level_check" CHECK (depth_level::text = ANY (ARRAY['basic'::character varying, 'standard'::character varying, 'deep'::character varying]::text[]))
+    "dossiers_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'processing'::character varying, 'complete'::character varying, 'partial'::character varying, 'failed'::character varying]::text[]))
+    "dossiers_trigger_source_check" CHECK (trigger_source::text = ANY (ARRAY['manual'::character varying, 'calendar'::character varying, 'api'::character varying, 'extension'::character varying]::text[]))
+Foreign-key constraints:
+    "dossiers_contact_id_fkey" FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE SET NULL
+    "dossiers_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    "dossiers_requested_by_user_id_fkey" FOREIGN KEY (requested_by_user_id) REFERENCES users(id)
+Referenced by:
+    TABLE "credit_ledger" CONSTRAINT "credit_ledger_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL
+    TABLE "dossier_alerts" CONSTRAINT "dossier_alerts_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+    TABLE "dossier_career_entries" CONSTRAINT "dossier_career_entries_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+    TABLE "dossier_corporate_records" CONSTRAINT "dossier_corporate_records_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+    TABLE "dossier_ice_breakers" CONSTRAINT "dossier_ice_breakers_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+    TABLE "dossier_media_mentions" CONSTRAINT "dossier_media_mentions_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+    TABLE "dossier_shares" CONSTRAINT "dossier_shares_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE CASCADE
+Not-null constraints:
+    "dossiers_id_not_null" NOT NULL "id"
+    "dossiers_organization_id_not_null" NOT NULL "organization_id"
+    "dossiers_requested_by_user_id_not_null" NOT NULL "requested_by_user_id"
+    "dossiers_module_identity_not_null" NOT NULL "module_identity"
+    "dossiers_module_corporate_not_null" NOT NULL "module_corporate"
+    "dossiers_module_media_not_null" NOT NULL "module_media"
+    "dossiers_depth_level_not_null" NOT NULL "depth_level"
+    "dossiers_credits_consumed_not_null" NOT NULL "credits_consumed"
+    "dossiers_status_not_null" NOT NULL "status"
+    "dossiers_alerts_not_null" NOT NULL "alerts"
+    "dossiers_agents_activated_not_null" NOT NULL "agents_activated"
+    "dossiers_agents_failed_not_null" NOT NULL "agents_failed"
+    "dossiers_data_sources_used_not_null" NOT NULL "data_sources_used"
+    "dossiers_trigger_source_not_null" NOT NULL "trigger_source"
+    "dossiers_email_sent_not_null" NOT NULL "email_sent"
+    "dossiers_email_recipients_not_null" NOT NULL "email_recipients"
+    "dossiers_created_at_not_null" NOT NULL "created_at"
+    "dossiers_updated_at_not_null" NOT NULL "updated_at"
+Triggers:
+    trg_credit_ledger_after_dossier_insert AFTER INSERT ON dossiers FOR EACH ROW EXECUTE FUNCTION fn_credit_ledger_after_dossier_insert()
+    trg_debit_credits BEFORE INSERT ON dossiers FOR EACH ROW EXECUTE FUNCTION fn_debit_credits_on_dossier()
+    trg_dossiers_updated_at BEFORE UPDATE ON dossiers FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at()
+Access method: heap
+
+                                                 Table "public.dossier_generation_jobs"
+        Column        |           Type           | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+----------------------+--------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id                   | uuid                     |           | not null |         | plain    |             |              | 
+ organization_id      | uuid                     |           | not null |         | plain    |             |              | 
+ requested_by_user_id | uuid                     |           | not null |         | plain    |             |              | 
+ status               | character varying(20)    |           | not null |         | extended |             |              | 
+ job_type             | character varying(40)    |           | not null |         | extended |             |              | 
+ calendar_provider    | character varying(20)    |           |          |         | extended |             |              | 
+ external_event_id    | character varying(512)   |           |          |         | extended |             |              | 
+ reunion_snapshot     | jsonb                    |           |          |         | extended |             |              | 
+ depth_level          | character varying(10)    |           | not null |         | extended |             |              | 
+ meeting_label        | character varying(512)   |           |          |         | extended |             |              | 
+ credits_estimated    | integer                  |           | not null |         | plain    |             |              | 
+ credits_consumed     | integer                  |           | not null |         | plain    |             |              | 
+ result_payload       | jsonb                    |           |          |         | extended |             |              | 
+ error_message        | text                     |           |          |         | extended |             |              | 
+ created_at           | timestamp with time zone |           | not null | now()   | plain    |             |              | 
+ started_at           | timestamp with time zone |           |          |         | plain    |             |              | 
+ completed_at         | timestamp with time zone |           |          |         | plain    |             |              | 
+Indexes:
+    "dossier_generation_jobs_pkey" PRIMARY KEY, btree (id)
+    "ix_dossier_generation_jobs_external_event_id" btree (external_event_id)
+    "ix_dossier_generation_jobs_organization_id" btree (organization_id)
+    "ix_dossier_generation_jobs_requested_by_user_id" btree (requested_by_user_id)
+    "ix_dossier_generation_jobs_status" btree (status)
+Foreign-key constraints:
+    "dossier_generation_jobs_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    "dossier_generation_jobs_requested_by_user_id_fkey" FOREIGN KEY (requested_by_user_id) REFERENCES users(id)
+Not-null constraints:
+    "dossier_generation_jobs_id_not_null" NOT NULL "id"
+    "dossier_generation_jobs_organization_id_not_null" NOT NULL "organization_id"
+    "dossier_generation_jobs_requested_by_user_id_not_null" NOT NULL "requested_by_user_id"
+    "dossier_generation_jobs_status_not_null" NOT NULL "status"
+    "dossier_generation_jobs_job_type_not_null" NOT NULL "job_type"
+    "dossier_generation_jobs_depth_level_not_null" NOT NULL "depth_level"
+    "dossier_generation_jobs_credits_estimated_not_null" NOT NULL "credits_estimated"
+    "dossier_generation_jobs_credits_consumed_not_null" NOT NULL "credits_consumed"
+    "dossier_generation_jobs_created_at_not_null" NOT NULL "created_at"
+Access method: heap
+
+                                                         Table "public.credit_ledger"
+     Column      |           Type           | Collation | Nullable |      Default       | Storage  | Compression | Stats target | Description 
+-----------------+--------------------------+-----------+----------+--------------------+----------+-------------+--------------+-------------
+ id              | uuid                     |           | not null | uuid_generate_v4() | plain    |             |              | 
+ organization_id | uuid                     |           | not null |                    | plain    |             |              | 
+ user_id         | uuid                     |           | not null |                    | plain    |             |              | 
+ dossier_id      | uuid                     |           |          |                    | plain    |             |              | 
+ change_amount   | integer                  |           | not null |                    | plain    |             |              | 
+ balance_after   | integer                  |           | not null |                    | plain    |             |              | 
+ reason          | character varying(50)    |           | not null |                    | extended |             |              | 
+ created_at      | timestamp with time zone |           | not null | now()              | plain    |             |              | 
+Indexes:
+    "credit_ledger_pkey" PRIMARY KEY, btree (id)
+    "idx_ledger_dossier" btree (dossier_id) WHERE dossier_id IS NOT NULL
+    "idx_ledger_org" btree (organization_id, created_at DESC)
+Check constraints:
+    "credit_ledger_balance_after_check" CHECK (balance_after >= 0)
+    "credit_ledger_reason_check" CHECK (reason::text = ANY (ARRAY['dossier_generation'::character varying, 'monthly_grant'::character varying, 'purchase'::character varying, 'refund'::character varying, 'admin_adjustment'::character varying]::text[]))
+Foreign-key constraints:
+    "credit_ledger_dossier_id_fkey" FOREIGN KEY (dossier_id) REFERENCES dossiers(id) ON DELETE SET NULL
+    "credit_ledger_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    "credit_ledger_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+Not-null constraints:
+    "credit_ledger_id_not_null" NOT NULL "id"
+    "credit_ledger_organization_id_not_null" NOT NULL "organization_id"
+    "credit_ledger_user_id_not_null" NOT NULL "user_id"
+    "credit_ledger_change_amount_not_null" NOT NULL "change_amount"
+    "credit_ledger_balance_after_not_null" NOT NULL "balance_after"
+    "credit_ledger_reason_not_null" NOT NULL "reason"
+    "credit_ledger_created_at_not_null" NOT NULL "created_at"
+Access method: heap
+

@@ -1,0 +1,33 @@
+# Aporte por integrante (origin/main)
+# Fecha: 2026-10-19 13:47:11 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: python docs/evidencias/fase2/_herramientas/contribuciones.py origin/main
+# Código de salida: 0
+# ---- salida literal ----
+Referencia: origin/main · commits sin merges · exclusiones: package-lock.json, specs/fixtures/, imágenes, .docx/.pdf
+
+    integrante                 commits  c/ Co-Authored-By   +líneas   -líneas archivos merges hechos      primer      último
+----------------------------------------------------------------------------------------------------------------------------
+FO  Felipe Orellana Álvarez         64                 62     22890       848      212            18  2026-09-09  2026-10-19
+DG  Darío García Avendaño           55                 49     71683      3542      389             5  2026-09-06  2026-10-14
+FD  Felipe Docmac Bravo             12                  9      2926       475       82             0  2026-09-23  2026-09-23
+bot dependabot[bot]                  5                  0         7         7        2             0  2026-10-05  2026-10-05
+    TOTAL                          136                120     97506      4872                     23
+
+Líneas añadidas excluidas por la regla (lockfile, fixtures, imágenes, .docx/.pdf): FO=2929, DG=18919, FD=241, bot=0
+Commit raíz (importación del sistema heredado): ac95553
++líneas sin contar el commit raíz: FO=22890 (raíz: 0), DG=26240 (raíz: 45443), FD=2926 (raíz: 0), bot=7 (raíz: 0)
+
+Pull requests (gh pr list --state all):
+  FO   abiertos=9   mezclados=12  mezclados por este integrante=17
+  DG   abiertos=0   mezclados=1   mezclados por este integrante=1
+  FD   abiertos=0   mezclados=0   mezclados por este integrante=0
+  bot  abiertos=0   mezclados=5   mezclados por este integrante=0
+
+Tareas del harness por owner y estado (.harness/feature_list.json):
+  owner      pending     claimed in_progress      review     blocked        done   total
+  FO               9           0           0           6           0          27      42
+  DG              13           0           0           0           0          11      24
+  FD              13           0           0           0           0           7      20
+  EQ               8           0           0           0           0           4      12

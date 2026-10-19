@@ -1,0 +1,596 @@
+# Frontend: Vitest completo con cobertura
+# Fecha: 2026-10-19 13:43:02 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: frontend/
+# Comando: NODE_OPTIONS=--no-experimental-webstorage npm run test:cov
+# Código de salida: 1
+# ---- salida literal ----
+
+> frontend-react@0.1.0 test:cov
+> vitest run --coverage
+
+(node:37668) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ RUN  v2.1.9 C:/Users/Felipe Orellana/Desktop/Proyectos/Tracelens - Project Dossier/dossier-ordocga/.claude/worktrees/agent-abc7ee0c6225d055c/frontend
+      Coverage enabled with v8
+
+ ✓ src/lib/org-role.test.ts (14 tests) 39ms
+ ✓ src/lib/dossier-job-outcome.test.ts (41 tests) 982ms
+ ✓ src/lib/calendar-events.test.ts (29 tests) 345ms
+ ✓ src/lib/dossier-api.calendar-range.test.ts (10 tests) 199ms
+ ✓ src/lib/dossier-job-progress.test.ts (70 tests) 1921ms
+   ✓ dossier-job-progress · los 8 escenarios de S5.10 > calendario-agente-caido: CA2/CA20 · frames duplicados y desordenados no cambian el resultado 366ms
+   ✓ dossier-job-progress · los 8 escenarios de S5.10 > personas-pdl: CA2/CA20 · frames duplicados y desordenados no cambian el resultado 346ms
+ ✓ src/components/settings/TimezoneSelect.test.tsx (2 tests) 907ms
+   ✓ TimezoneSelect hydration > hydrates when Intl returns different UTC labels on server and client 843ms
+stderr | src/hooks/useDashboardSummary.test.tsx > useDashboardSummary > al deshabilitarse (cierre de sesión) descarta los datos
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/hooks/useDashboardSummary.test.tsx (9 tests) 1738ms
+   ✓ useDashboardSummary > carga al montar: loading → ready con el resumen 479ms
+   ✓ useDashboardSummary > CA13: al completarse una generación (cambia refreshKey) vuelve a consultar 552ms
+ ✓ src/lib/calendar-events-cache.test.ts (7 tests) 7ms
+ ✓ src/lib/calendar-jobs.test.ts (6 tests) 4ms
+ ✓ src/lib/dossier-api.dashboard-summary.test.ts (4 tests) 9ms
+ ✓ src/lib/dashboard-kpis.test.ts (27 tests) 443ms
+ ✓ src/hooks/useCalendarEvents.test.tsx (14 tests) 3216ms
+   ✓ useCalendarEvents > consulta ambos proveedores en paralelo con la ventana visible (CA1) 624ms
+   ✓ useCalendarEvents > un período vacío es 'ready' con cero eventos, no 'desconectado' (CA5) 322ms
+   ✓ useCalendarEvents > propaga la carga incompleta de cada proveedor con su motivo 332ms
+   ✓ useCalendarEvents > una respuesta lenta del período anterior no reemplaza la del actual (CA6) 364ms
+   ✓ useCalendarEvents > no refetch al volver a una ventana ya consultada; refresh() fuerza la consulta 315ms
+ ✓ src/lib/dossier-job-stream.test.ts (25 tests) 3598ms
+   ✓ openDossierJobStream · S5.4 progreso > personas-pdl: entrega agent_progress, stage_progress y partial_result tipados aunque lleguen fragmentados 558ms
+   ✓ openDossierJobStream · S5.4 progreso > calendario-agente-caido: entrega agent_progress, stage_progress y partial_result tipados aunque lleguen fragmentados 327ms
+ ✓ src/components/dashboard/StatCard.test.tsx (3 tests) 66ms
+ ✓ src/i18n/calendar-ui-labels.test.ts (9 tests) 9ms
+ ✓ src/lib/dossier-api.calendar-config.test.ts (4 tests) 536ms
+   ✓ fetchCalendarProviderConfigured > consulta el oauth-config público del proveedor, sin token 391ms
+ ✓ src/hooks/useCalendarProvidersConfigured.test.tsx (3 tests) 166ms
+ ✓ src/app/auth/google/page.test.tsx (3 tests) 2009ms
+   ✓ /auth/google > guarda el token del fragmento, lo borra de la URL y entra al dashboard 1536ms
+   ✓ /auth/google > sin token vuelve al login con error 389ms
+ ✓ src/i18n/progress-messages.test.ts (19 tests) 1856ms
+ ✓ src/components/dashboard/OverviewKpiCards.test.tsx (7 tests) 5377ms
+   ✓ OverviewKpiCards > CA1/CA2: muestra los cuatro indicadores con sus valores reales 3864ms
+   ✓ OverviewKpiCards > el texto accesible de créditos para preparar explica que es una estimación 656ms
+ ✓ src/components/dashboard/OverviewCalendarsSection.test.tsx (2 tests) 1797ms
+   ✓ OverviewCalendarsSection > oculta Outlook si su OAuth no está configurado en el servidor 1725ms
+ ✓ src/lib/countries.test.ts (2 tests) 16ms
+ ✓ src/lib/translate-api-error.test.ts (7 tests) 9ms
+ ✓ src/lib/timezones.test.ts (1 test) 13ms
+ ✓ src/components/dashboard/CountrySelect.test.tsx (1 test) 2698ms
+   ✓ CountrySelect > offers all countries in the active language and returns the selected code 2693ms
+ ✓ src/providers/PreferencesProvider.ready.test.tsx (2 tests) 1321ms
+   ✓ PreferencesProvider · ready > en el servidor (sin localStorage) no está listo 500ms
+   ✓ PreferencesProvider · ready > tras montar en el cliente está listo y ya expone las preferencias guardadas 741ms
+ ✓ src/app/login/page.test.tsx (3 tests) 2943ms
+   ✓ /login · proveedores externos > Google lleva al inicio de sesión de la API 1408ms
+   ✓ /login · proveedores externos > Microsoft aparece deshabilitado 743ms
+   ✓ /login · proveedores externos > muestra el error cuando Google devuelve al login 767ms
+ ✓ src/app/dashboard/automation/page.test.tsx (7 tests) 8558ms
+   ✓ /dashboard/automation · distribución > el calendario ocupa el ancho completo, fuera del bloque de reglas 1510ms
+   ✓ /dashboard/automation · distribución > las reglas están en un bloque plegable cerrado por defecto 437ms
+   ✓ /dashboard/automation · distribución > la guía de formato sigue accesible en la cabecera del calendario 2368ms
+   ✓ /dashboard/automation · reglas conservadas > cambiar la antelación guarda con el mismo contrato 1637ms
+   ✓ /dashboard/automation · reglas conservadas > el filtro de reuniones internas sigue funcionando 1139ms
+   ✓ /dashboard/automation · reglas conservadas > el plan gratuito conserva la restricción: aviso y controles deshabilitados 753ms
+   ✓ /dashboard/automation · reglas conservadas > muestra el estado de la cola dentro del bloque de reglas 657ms
+ ✓ src/providers/DossierJobsProvider.http.test.tsx (1 test) 1132ms
+   ✓ DossierJobsProvider · tráfico HTTP con jobs de Calendario y Personas activos > arranca con un listado y un stream por job; en 60 s no hay ninguna petición más 1129ms
+ ✓ src/components/dossier/DossierAgentProgress.test.tsx (7 tests) 3735ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > CA7 · handles_skipped_cached_and_unknown_progress · cada agente con su estado y motivo, en el orden del servidor 2654ms
+   ✓ DossierAgentProgress · búsquedas de la empresa > CA3 · renders_partial_modules_during_generation · la vista previa del resumen llega antes del terminal y se marca provisional 452ms
+ ✓ src/components/person-research/PersonResearchProgress.test.tsx (11 tests) 4084ms
+   ✓ PersonResearchProgress · etapas que declara el servidor > CA14 · renders_real_pdl_stages · PDL muestra sus etapas reales en orden, sin nombres corporativos 2293ms
+   ✓ PersonResearchProgress · etapas que declara el servidor > CA17 · renders_actual_synthesis_fallback · el JSON inválido recuperado por el plan B no se presenta como fallo total 330ms
+ ✓ src/components/person-research/PersonResearchPartialResults.test.tsx (7 tests) 3680ms
+   ✓ PersonResearchPartialResults · vistas previas de una persona > CA16 · keeps_person_profiles_when_report_fails · el perfil se ve con nombre, cargo, empresa y enlaces, como provisional 2002ms
+   ✓ PersonResearchPartialResults · vistas previas de una persona > CA15 · Web pública: el texto llega solo cuando vuelve y declara que no hubo fuentes consultadas 899ms
+ ✓ src/components/dossier/DossierJobProgressDetails.test.tsx (20 tests) 6884ms
+   ✓ DossierJobProgressDetails · empresa y asistentes por separado > CA6 · handles_multiple_people_and_legacy_results · un bloque por asistente además de las búsquedas de la empresa 2170ms
+   ✓ DossierJobProgressDetails · empresa y asistentes por separado > CA20 · isolates_person_scopes_and_revisions · los perfiles de un asistente no aparecen en el otro 665ms
+   ✓ DossierJobProgressDetails · empresa y asistentes por separado > la variante compacta da una lista corta de la empresa y una línea por asistente 515ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > calendario-agente-caido: reproducir los frames pinta lo mismo que aplicar solo el GET final 753ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > personas-pdl-respaldo: reproducir los frames pinta lo mismo que aplicar solo el GET final 450ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > personas-pdl-informe-fallido: reproducir los frames pinta lo mismo que aplicar solo el GET final 558ms
+   ✓ DossierJobProgressDetails · CA8 misma pantalla en vivo y tras recargar > calendario-agente-caido: frames duplicados y desordenados pintan lo mismo 345ms
+ ✓ src/app/register/page.test.tsx (6 tests) 8849ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 5040ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: ééééééééééééééééééééééééééééééééééééé 1552ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: 🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐 524ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 576ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: éééééééééééééééééééééééééééééééééééé 471ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: 🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐 676ms
+ ✓ src/providers/DossierJobsProvider.test.tsx (33 tests) 9107ms
+   ✓ DossierJobsProvider · estado general por SSE > CA1 · 'Calendario Google': abre un stream por job remoto activo y aplica su snapshot 1106ms
+   ✓ DossierJobsProvider · estado general por SSE > CA2 · 'Calendario Google': los eventos actualizan el job sin consultar su endpoint REST 549ms
+   ✓ DossierJobsProvider · estado general por SSE > CA2 · 'Personas PDL': los eventos actualizan el job sin consultar su endpoint REST 452ms
+   ✓ DossierJobsProvider · estado general por SSE > CA2 · 'Personas Web pública': los eventos actualizan el job sin consultar su endpoint REST 397ms
+   ✓ DossierJobsProvider · estado general por SSE > CA4 · con StrictMode y varias actualizaciones hay una sola suscripción vigente por job 343ms
+   ✓ DossierJobsProvider · estado general por SSE > CA7 · un aviso descartado no reaparece al llegar un duplicado del estado terminal 506ms
+   ✓ DossierJobsProvider · estado general por SSE > CA10 · reconectar pide un único snapshot, acepta la secuencia reiniciada y reabre si sigue activo 422ms
+   ✓ DossierJobsProvider · estado general por SSE > CA10 · si la recuperación vuelve a fallar se conserva el job y se puede reintentar 491ms
+   ✓ DossierJobsProvider · estado general por SSE > CA11 · cancelar el corporativo local aborta su petición sin llamar a la API de jobs 323ms
+   ✓ DossierJobsProvider · estado general por SSE > CA11 · cancelar un job remoto usa la API y cierra su stream 320ms
+   ✓ DossierJobsProvider · estado general por SSE > CA11 · si cancelar falla se conserva el job, su stream y se muestra el error 449ms
+ ✓ src/providers/DossierJobsProvider.progress.test.tsx (16 tests) 9447ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA1 · isolates_progress_by_calendar_job · dos jobs de calendario solo cambian su propio progreso 3260ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA2 · applies_agent_revisions_idempotently · los eventos usan el stream existente: sin GET ni streams nuevos 751ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > aplicar progreso no pisa el toast descartado ni el resultado ni el estado del job 428ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA8 · restores_progress_from_snapshot · un job_status viejo no hace retroceder el progreso 657ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA8 · un GET de recuperación se fusiona por revisión y el stream nuevo termina el trabajo 481ms
+   ✓ DossierJobsProvider · S5.4 ejecución de Personas seleccionada > restaurar la ejecución seleccionada no revive su aviso ya cerrado 452ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA16 · keeps_person_profiles_when_report_fails · el aviso ofrece «Ver información disponible» 711ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA2 · el aviso de una reunión en curso muestra la lista compacta de la empresa y una línea por asistente 1218ms
+   ✓ DossierJobsProvider · S5.4 avisos con la clasificación del resultado > CA6 · handles_multiple_people_and_legacy_results · el aviso del calendario es parcial y nombra lo que faltó 834ms
+ ✓ src/components/dashboard/CalendarEventDetails.test.tsx (26 tests) 10540ms
+   ✓ CalendarEventDetails · contenido > muestra título, fecha en la zona del usuario, proveedor, participantes, ubicación y descripción 2642ms
+   ✓ CalendarEventDetails · generación (CA7) > generar envía proveedor, id original y la fila original 499ms
+   ✓ CalendarEventDetails · generación (CA7) > mientras el job está activo el botón queda deshabilitado con el texto de progreso 481ms
+   ✓ CalendarEventDetails · diálogo accesible (CA11) > Tab no sale del diálogo 2054ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA3 · renders_partial_modules_during_generation · mientras genera: empresa, cada asistente y vistas previas provisionales 720ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA4 · keeps_usable_result_when_an_agent_fails · al terminar: parcial, nombra lo que faltó y no muestra éxito completo 423ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA5/CA9 · un job fallido conserva su progreso y sus vistas previas junto al error, sin éxito 358ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA24 · aria-live anuncia hitos y no cada evento 662ms
+stderr | src/components/dashboard/MeetingsCalendarSection.test.tsx > MeetingsCalendarSection > no monta ni consulta hasta que las preferencias están listas
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+ ❯ src/components/dashboard/MeetingsCalendar.test.tsx (12 tests | 1 failed) 22684ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > la vista inicial Semana informa la ventana de la semana visible en la zona del usuario 5696ms
+   × MeetingsCalendar · navegación y ventana consultada (CA1) > Siguiente, Anterior y Hoy piden la ventana correcta 7565ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > cambiar a Día y a Mes solicita el intervalo de esa vista, incluidos los días de meses contiguos 2263ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > el cambio de horario dentro de la ventana usa el offset correcto en cada extremo 1272ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > al cambiar la zona horaria se vuelve a informar la ventana con el nuevo offset 903ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > el primer día de la semana depende del idioma 783ms
+   ✓ MeetingsCalendar · controles accesibles (CA11) > expone selector de vista con estado, navegación agrupada y zona horaria visible 1066ms
+   ✓ MeetingsCalendar · controles accesibles (CA11) > el período visible se anuncia como título en vivo 508ms
+   ✓ MeetingsCalendar · eventos > pinta título y etiqueta de proveedor (no solo color) y el día completo 517ms
+   ✓ MeetingsCalendar · eventos > cada evento lleva la clase de su proveedor en el DOM real (color + etiqueta) 745ms
+   ✓ MeetingsCalendar · eventos > pulsar o activar con teclado un evento informa su clave y el elemento 542ms
+   ✓ MeetingsCalendar · eventos > sin eventos el calendario sigue navegable 741ms
+ ✓ src/components/dashboard/MeetingsCalendarSection.test.tsx (14 tests) 22547ms
+   ✓ MeetingsCalendarSection > consulta ambos proveedores con la semana visible y pinta los eventos con su etiqueta (CA1) 3528ms
+   ✓ MeetingsCalendarSection > navegar solicita la ventana siguiente 3210ms
+   ✓ MeetingsCalendarSection > si el calendario es estrecho (móvil o tableta con menú lateral) la vista inicial es Día 1069ms
+   ✓ MeetingsCalendarSection > con ancho suficiente (≥ 640 px) la vista inicial es Semana 1366ms
+   ✓ MeetingsCalendarSection > el filtro Google/Outlook oculta el otro proveedor y marca el botón activo 1983ms
+   ✓ MeetingsCalendarSection > Google falla y Outlook responde: se ve Outlook más el error de Google con opción de reintentar (CA5) 1146ms
+   ✓ MeetingsCalendarSection > proveedor desconectado se distingue de un error (CA5) 1551ms
+   ✓ MeetingsCalendarSection > si Outlook no está configurado en el servidor, no ofrece conectarlo ni filtrarlo 1192ms
+   ✓ MeetingsCalendarSection > un período vacío lo dice y mantiene el calendario navegable (CA5) 1090ms
+   ✓ MeetingsCalendarSection > carga incompleta: avisa con el motivo y nunca afirma que todo está cargado (CA2) 742ms
+   ✓ MeetingsCalendarSection > avisa de registros sin fecha válida sin romper la vista (CA8) 2195ms
+   ✓ MeetingsCalendarSection > abrir una reunión muestra el detalle sin generar nada, y Escape devuelve el foco (CA7, CA11) 1900ms
+   ✓ MeetingsCalendarSection > terminar el job de otra reunión no cambia la selección ni abre su resultado (CA7) 1559ms
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo
+You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. 
+You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. 
+
+ ❯ src/app/dashboard/person-research/page.test.tsx (38 tests | 12 failed) 71305ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 6508ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 3730ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 2534ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 2390ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 2355ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 3382ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · reemplazar un dossier envía force_refresh y replace_dossier_id con la modalidad 534ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 2861ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 2473ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 1179ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 1402ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 2038ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 1538ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 1790ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 1218ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 1130ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 1134ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 811ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · reemplazar un dossier envía force_refresh y replace_dossier_id con la modalidad 300ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 1818ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 2142ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 1660ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 1289ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 1737ms
+   ✓ Personas · convivencia de modalidades y con Calendario > CA14 · PDL y Web pública son ejecuciones separadas y un job de calendario no afecta a Personas 2634ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA14 · renders_real_pdl_stages · Registros PDL: avance paso a paso y el perfil antes del informe 4051ms
+   × Personas · S5.4 avance real y resultados parciales > CA16 · keeps_person_profiles_when_report_fails · el informe falla y los perfiles siguen con «Ver información disponible» 8166ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × Personas · S5.4 avance real y resultados parciales > CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo 7707ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × Personas · S5.4 avance real y resultados parciales > CA18 · restores_selected_person_result_and_mode · cambiar el selector no reinterpreta la ejecución consultada 235ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA18 · al recargar se restaura la ejecución terminada y sus parciales aunque se cerró el aviso 37ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA18 · el enlace «Ver información disponible» de un aviso (?job=) abre esa ejecución en Personas 200ms
+     → Unable to find an accessible element with the role "region" and name "Avance y resultados"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA18 · salir de Personas y volver conserva el panel de la ejecución terminada 101ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA19 · renders_cached_person_result_without_fabricated_steps · la caché se presenta como resultado guardado de antes 27ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA9 · separates_transport_cancellation_and_generation_errors · cancelar detiene todo y nada revive 23ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA9 · el corte de conexión se muestra aparte y no borra los parciales 34ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA24 · aria-live (polite) anuncia hitos y no cada evento 80ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > CA24 · el texto de Web pública aclara que no hay búsqueda en vivo y la ETA es solo una estimación 22ms
+     → Unable to find an element with the text: ~40 s (estimación). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × Personas · S5.4 avance real y resultados parciales > un job sin progress (anterior a S5.4) no muestra el panel nuevo 15ms
+     → Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/dashboard/MeetingsCalendar.test.tsx > MeetingsCalendar · navegación y ventana consultada (CA1) > Siguiente, Anterior y Hoy piden la ventana correcta
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA16 · keeps_person_profiles_when_report_fails · el informe falla y los perfiles siguen con «Ver información disponible»
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA18 · restores_selected_person_result_and_mode · cambiar el selector no reinterpreta la ejecución consultada
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:568:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA18 · al recargar se restaura la ejecución terminada y sus parciales aunque se cerró el aviso
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:582:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA18 · el enlace «Ver información disponible» de un aviso (?job=) abre esa ejecución en Personas
+TestingLibraryElementError: Unable to find an accessible element with the role "region" and name "Avance y resultados"
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ panelAvance src/app/dashboard/person-research/page.test.tsx:491:34
+    489| }
+    490| 
+    491| const panelAvance = () => screen.getByRole("region", { name: t("progre…
+       |                                  ^
+    492| const etapa = (panel: HTMLElement, label: string) =>
+    493|   within(panel).getByText(label).closest("li")?.querySelector("[data-s…
+ ❯ src/app/dashboard/person-research/page.test.tsx:603:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA18 · salir de Personas y volver conserva el panel de la ejecución terminada
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:611:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA19 · renders_cached_person_result_without_fabricated_steps · la caché se presenta como resultado guardado de antes
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:624:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA9 · separates_transport_cancellation_and_generation_errors · cancelar detiene todo y nada revive
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:638:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA9 · el corte de conexión se muestra aparte y no borra los parciales
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:659:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA24 · aria-live (polite) anuncia hitos y no cada evento
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ iniciarEjemplo src/app/dashboard/person-research/page.test.tsx:488:10
+ ❯ src/app/dashboard/person-research/page.test.tsx:675:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > CA24 · el texto de Web pública aclara que no hay búsqueda en vivo y la ETA es solo una estimación
+TestingLibraryElementError: Unable to find an element with the text: ~40 s (estimación). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/app/dashboard/person-research/page.test.tsx:697:19
+    695|     render(<Pantalla />);
+    696|     await settle();
+    697|     expect(screen.getByText(t("person_research.eta_estimate", { second…
+       |                   ^
+    698|     const web = screen.getByRole("button", { name: new RegExp(t("perso…
+    699|     expect(web).toHaveTextContent(t("progress.no_live_web_search"));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  src/app/dashboard/person-research/page.test.tsx > Personas · S5.4 avance real y resultados parciales > un job sin progress (anterior a S5.4) no muestra el panel nuevo
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Registros PDL/`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../../../../../orca/workspaces/dossier-ordocga/mako/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ iniciar src/app/dashboard/person-research/page.test.tsx:213:27
+    211| async function iniciar(modo: (typeof MODOS)[number], nombre = "Ada Lov…
+    212|   const user = userEvent.setup();
+    213|   await user.click(screen.getByRole("button", { name: new RegExp(t(mod…
+       |                           ^
+    214|   const campo = screen.getByLabelText(t("person_research.full_name"));
+    215|   await user.clear(campo);
+ ❯ src/app/dashboard/person-research/page.test.tsx:707:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ Test Files  2 failed | 38 passed (40)
+      Tests  13 failed | 509 passed (522)
+   Start at  13:43:04
+   Duration  114.75s (transform 74.14s, setup 154.69s, collect 292.70s, tests 214.78s, environment 95.91s, prepare 13.34s)
+

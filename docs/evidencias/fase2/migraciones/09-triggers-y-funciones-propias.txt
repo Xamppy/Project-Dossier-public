@@ -1,0 +1,59 @@
+# Triggers y funciones propias que crea la migración (base recreada desde cero)
+# Fecha: 2026-10-19 20:30:28 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: psql -q -d dossier_evid_test -c "DROP SCHEMA public CASCADE" -c "CREATE SCHEMA public" && DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test alembic upgrade head 2>&1 | tail -1 && psql -d dossier_evid_test -c "<triggers de information_schema>" -c "<funciones de public que no pertenecen a una extensión>"
+# Código de salida: 0
+# ---- salida literal ----
+NOTICE:  eliminando además 30 objetos más
+DETAIL:  eliminando además tabla alembic_version
+eliminando además extensión uuid-ossp
+eliminando además extensión pgcrypto
+eliminando además tabla organizations
+eliminando además tabla users
+eliminando además tabla org_memberships
+eliminando además tabla oauth_accounts
+eliminando además tabla refresh_tokens
+eliminando además tabla api_keys
+eliminando además tabla contacts
+eliminando además tabla dossiers
+eliminando además tabla dossier_career_entries
+eliminando además tabla dossier_corporate_records
+eliminando además tabla dossier_ice_breakers
+eliminando además tabla calendar_integrations
+eliminando además tabla calendar_events
+eliminando además tabla billing_transactions
+eliminando además tabla credit_ledger
+eliminando además tabla audit_logs
+eliminando además tabla dossier_alerts
+eliminando además tabla dossier_media_mentions
+eliminando además tabla email_integrations
+eliminando además función fn_update_updated_at()
+eliminando además función fn_debit_credits_on_dossier()
+eliminando además función fn_credit_ledger_after_dossier_insert()
+eliminando además vista v_org_usage_stats
+eliminando además vista v_critical_alerts
+eliminando además tabla dossier_shares
+eliminando además tabla org_invites
+eliminando además tabla dossier_generation_jobs
+INFO  [alembic.runtime.migration] Running upgrade b7e2d4f1a9c3 -> c4d8a2f6b1e9, BUG-2026-10-05-01: la cola de trabajos (`dossier_generation_jobs`) entra a Alembic.
+         tabla         |              trigger_name              | momento | evento 
+-----------------------+----------------------------------------+---------+--------
+ calendar_events       | trg_calendar_events_updated_at         | BEFORE  | UPDATE
+ calendar_integrations | trg_calendar_integrations_updated_at   | BEFORE  | UPDATE
+ contacts              | trg_contacts_updated_at                | BEFORE  | UPDATE
+ dossiers              | trg_credit_ledger_after_dossier_insert | AFTER   | INSERT
+ dossiers              | trg_debit_credits                      | BEFORE  | INSERT
+ dossiers              | trg_dossiers_updated_at                | BEFORE  | UPDATE
+ email_integrations    | trg_email_integrations_updated_at      | BEFORE  | UPDATE
+ organizations         | trg_organizations_updated_at           | BEFORE  | UPDATE
+ users                 | trg_users_updated_at                   | BEFORE  | UPDATE
+(9 rows)
+
+                funcion                | retorna 
+---------------------------------------+---------
+ fn_credit_ledger_after_dossier_insert | trigger
+ fn_debit_credits_on_dossier           | trigger
+ fn_update_updated_at                  | trigger
+(3 rows)
+

@@ -1,0 +1,97 @@
+# Tablas, vistas y funciones creadas por la migración
+# Fecha: 2026-10-19 13:32:27 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: psql -d dossier_evid_test -c "\dt" -c "\dv" -c "\df public.*"
+# Código de salida: 0
+# ---- salida literal ----
+                    List of tables
+ Schema |           Name            | Type  |  Owner   
+--------+---------------------------+-------+----------
+ public | alembic_version           | table | postgres
+ public | api_keys                  | table | postgres
+ public | audit_logs                | table | postgres
+ public | billing_transactions      | table | postgres
+ public | calendar_events           | table | postgres
+ public | calendar_integrations     | table | postgres
+ public | contacts                  | table | postgres
+ public | credit_ledger             | table | postgres
+ public | dossier_alerts            | table | postgres
+ public | dossier_career_entries    | table | postgres
+ public | dossier_corporate_records | table | postgres
+ public | dossier_generation_jobs   | table | postgres
+ public | dossier_ice_breakers      | table | postgres
+ public | dossier_media_mentions    | table | postgres
+ public | dossier_shares            | table | postgres
+ public | dossiers                  | table | postgres
+ public | email_integrations        | table | postgres
+ public | oauth_accounts            | table | postgres
+ public | org_invites               | table | postgres
+ public | org_memberships           | table | postgres
+ public | organizations             | table | postgres
+ public | refresh_tokens            | table | postgres
+ public | users                     | table | postgres
+(23 rows)
+
+                List of views
+ Schema |       Name        | Type |  Owner   
+--------+-------------------+------+----------
+ public | v_critical_alerts | view | postgres
+ public | v_org_usage_stats | view | postgres
+(2 rows)
+
+                                               List of functions
+ Schema |                 Name                  | Result data type |        Argument data types         | Type 
+--------+---------------------------------------+------------------+------------------------------------+------
+ public | armor                                 | text             | bytea                              | func
+ public | armor                                 | text             | bytea, text[], text[]              | func
+ public | crypt                                 | text             | text, text                         | func
+ public | dearmor                               | bytea            | text                               | func
+ public | decrypt                               | bytea            | bytea, bytea, text                 | func
+ public | decrypt_iv                            | bytea            | bytea, bytea, bytea, text          | func
+ public | digest                                | bytea            | bytea, text                        | func
+ public | digest                                | bytea            | text, text                         | func
+ public | encrypt                               | bytea            | bytea, bytea, text                 | func
+ public | encrypt_iv                            | bytea            | bytea, bytea, bytea, text          | func
+ public | fips_mode                             | boolean          |                                    | func
+ public | fn_credit_ledger_after_dossier_insert | trigger          |                                    | func
+ public | fn_debit_credits_on_dossier           | trigger          |                                    | func
+ public | fn_update_updated_at                  | trigger          |                                    | func
+ public | gen_random_bytes                      | bytea            | integer                            | func
+ public | gen_random_uuid                       | uuid             |                                    | func
+ public | gen_salt                              | text             | text                               | func
+ public | gen_salt                              | text             | text, integer                      | func
+ public | hmac                                  | bytea            | bytea, bytea, text                 | func
+ public | hmac                                  | bytea            | text, text, text                   | func
+ public | pgp_armor_headers                     | SETOF record     | text, OUT key text, OUT value text | func
+ public | pgp_key_id                            | text             | bytea                              | func
+ public | pgp_pub_decrypt                       | text             | bytea, bytea                       | func
+ public | pgp_pub_decrypt                       | text             | bytea, bytea, text                 | func
+ public | pgp_pub_decrypt                       | text             | bytea, bytea, text, text           | func
+ public | pgp_pub_decrypt_bytea                 | bytea            | bytea, bytea                       | func
+ public | pgp_pub_decrypt_bytea                 | bytea            | bytea, bytea, text                 | func
+ public | pgp_pub_decrypt_bytea                 | bytea            | bytea, bytea, text, text           | func
+ public | pgp_pub_encrypt                       | bytea            | text, bytea                        | func
+ public | pgp_pub_encrypt                       | bytea            | text, bytea, text                  | func
+ public | pgp_pub_encrypt_bytea                 | bytea            | bytea, bytea                       | func
+ public | pgp_pub_encrypt_bytea                 | bytea            | bytea, bytea, text                 | func
+ public | pgp_sym_decrypt                       | text             | bytea, text                        | func
+ public | pgp_sym_decrypt                       | text             | bytea, text, text                  | func
+ public | pgp_sym_decrypt_bytea                 | bytea            | bytea, text                        | func
+ public | pgp_sym_decrypt_bytea                 | bytea            | bytea, text, text                  | func
+ public | pgp_sym_encrypt                       | bytea            | text, text                         | func
+ public | pgp_sym_encrypt                       | bytea            | text, text, text                   | func
+ public | pgp_sym_encrypt_bytea                 | bytea            | bytea, text                        | func
+ public | pgp_sym_encrypt_bytea                 | bytea            | bytea, text, text                  | func
+ public | uuid_generate_v1                      | uuid             |                                    | func
+ public | uuid_generate_v1mc                    | uuid             |                                    | func
+ public | uuid_generate_v3                      | uuid             | namespace uuid, name text          | func
+ public | uuid_generate_v4                      | uuid             |                                    | func
+ public | uuid_generate_v5                      | uuid             | namespace uuid, name text          | func
+ public | uuid_nil                              | uuid             |                                    | func
+ public | uuid_ns_dns                           | uuid             |                                    | func
+ public | uuid_ns_oid                           | uuid             |                                    | func
+ public | uuid_ns_url                           | uuid             |                                    | func
+ public | uuid_ns_x500                          | uuid             |                                    | func
+(50 rows)
+

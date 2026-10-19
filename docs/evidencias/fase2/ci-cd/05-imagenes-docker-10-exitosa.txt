@@ -1,0 +1,70 @@
+# Imágenes Docker #10: misma definición del workflow, termina en verde
+# Fecha: 2026-10-19 20:20:43 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: timeout 120 gh run view 39281671569 --verbose; echo; echo "## imagenes.yml entre el commit de #9 (29eb532) y el de #10 (7d9c38b)"; git diff --stat 29eb532 7d9c38b -- .github/workflows/imagenes.yml; echo "(sin salida = sin cambios en el workflow)"
+# Código de salida: 0
+# ---- salida literal ----
+
+✓ main Imágenes Docker · 39281671569
+Triggered via workflow_run about 7 hours ago
+
+JOBS
+✓ Publicar frontend in 2m55s (ID 118157010494)
+  ✓ Set up job
+  ✓ Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  ✓ Nombre de la imagen
+  ✓ Run docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+  ✓ Run docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+  ✓ Run docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+  ✓ Post Run docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+  ✓ Post Run docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+  ✓ Post Run docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+  ✓ Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  ✓ Complete job
+✓ Publicar backend in 36s (ID 118157010682)
+  ✓ Set up job
+  ✓ Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  ✓ Nombre de la imagen
+  ✓ Run docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+  ✓ Run docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+  ✓ Run docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+  ✓ Post Run docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+  ✓ Post Run docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+  ✓ Post Run docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+  ✓ Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  ✓ Complete job
+✓ Redesplegar en Dokploy in 59s (ID 118157966253)
+  ✓ Set up job
+  ✓ Avisar a Dokploy
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Publicar frontend: .github#2
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+Publicar frontend: .github#1
+
+! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Publicar backend: .github#2
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+Publicar backend: .github#1
+
+- Faltan los secretos DOKPLOY_URL, DOKPLOY_API_KEY o DOKPLOY_COMPOSE_ID: imágenes publicadas, sin redespliegue automático.
+Redesplegar en Dokploy: .github#16
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+Redesplegar en Dokploy: .github#1
+
+
+ARTIFACTS
+Xamppy~Project-Dossier~KBSNKK.dockerbuild
+Xamppy~Project-Dossier~O9SVHV.dockerbuild
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/Xamppy/Project-Dossier/actions/runs/39281671569
+
+## imagenes.yml entre el commit de #9 (29eb532) y el de #10 (7d9c38b)
+(sin salida = sin cambios en el workflow)

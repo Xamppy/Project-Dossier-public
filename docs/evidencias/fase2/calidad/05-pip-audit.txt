@@ -1,0 +1,16 @@
+# Backend: pip-audit sobre requirements.txt
+# Fecha: 2026-10-19 20:30:30 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: python -m pip_audit -r requirements.txt --progress-spinner off; echo "pip-audit exit=$?"
+# Código de salida: 0
+# ---- salida literal ----
+WARNING:venv:Actual environment location may have moved due to redirects, links or junctions.
+  Requested location: "C:\Users\FELIPE~1\AppData\Local\Temp\tmp5fdd45pt\Scripts\python.exe"
+  Actual location:    "C:\Users\Felipe Orellana\AppData\Local\Temp\tmp5fdd45pt\Scripts\python.exe"
+Found 2 known vulnerabilities in 1 package
+Name  Version ID              Fix Versions
+----- ------- --------------- ------------
+pyjwt 2.14.0  PYSEC-2026-4141 2.15.0
+pyjwt 2.14.0  PYSEC-2026-4183 2.15.0
+pip-audit exit=1

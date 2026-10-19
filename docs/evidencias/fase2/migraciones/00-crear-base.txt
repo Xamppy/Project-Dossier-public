@@ -1,0 +1,8 @@
+# Base de prueba vacía para la evidencia
+# Fecha: 2026-10-19 13:32:10 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: createdb dossier_evid_test && psql -d dossier_evid_test -c "\dt"
+# Código de salida: 0
+# ---- salida literal ----
+Did not find any tables.

@@ -1,0 +1,17 @@
+# Frontend: eslint (npm run lint)
+# Fecha: 2026-10-19 13:35:51 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: frontend/
+# Comando: npm run lint
+# Código de salida: 0
+# ---- salida literal ----
+
+> frontend-react@0.1.0 lint
+> eslint
+
+
+C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\frontend\src\app\register\page.test.tsx
+  7:7  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+

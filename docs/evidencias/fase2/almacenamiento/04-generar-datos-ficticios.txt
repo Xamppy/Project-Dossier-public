@@ -1,0 +1,24 @@
+# Jobs reales con proveedores simulados (generar_fixtures_progreso.py)
+# Fecha: 2026-10-19 13:39:39 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: TEST_DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test python backend/scripts/generar_fixtures_progreso.py
+# Código de salida: 0
+# ---- salida literal ----
+Fallo agente UK (Companies House)
+Traceback (most recent call last):
+  File "C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\src\dossier\graphs\corporate_dossier_graph.py", line 155, in _node_agent_corporate_uk
+    bloque = build_uk_corporate_context_markdown(state.get("participantes", "") or "")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\scripts\generar_fixtures_progreso.py", line 122, in _f
+    raise exc
+RuntimeError: Companies House no responde
+Corporate dossier con agentes fallidos: ['agent_corporate_uk']
+specs\fixtures\S5.10-progreso\calendario-agente-caido.json: 47 frames, job completed
+specs\fixtures\S5.10-progreso\personas-pdl.json: 20 frames, job completed
+specs\fixtures\S5.10-progreso\personas-pdl-respaldo.json: 22 frames, job completed
+specs\fixtures\S5.10-progreso\personas-pdl-informe-fallido.json: 18 frames, job failed
+specs\fixtures\S5.10-progreso\personas-web-publica.json: 14 frames, job completed
+specs\fixtures\S5.10-progreso\personas-web-publica-fallida.json: 11 frames, job failed
+specs\fixtures\S5.10-progreso\personas-cache.json: 17 frames, job completed
+specs\fixtures\S5.10-progreso\personas-cancelada.json: 5 frames, job cancelled

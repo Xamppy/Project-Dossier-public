@@ -1,0 +1,10 @@
+# Backend: mypy (igual que la CI)
+# Fecha: 2026-10-19 20:22:20 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: python -m mypy src/dossier; echo "mypy exit=$?"; python -m mypy --version
+# Código de salida: 0
+# ---- salida literal ----
+Success: no issues found in 124 source files
+mypy exit=0
+mypy 2.3.1 (compiled: yes)
