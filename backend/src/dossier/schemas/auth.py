@@ -5,13 +5,18 @@ from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 
 
 class RegisterRequest(BaseModel):
     """Cuerpo POST /auth/register — coincide con los campos del formulario Next.js."""
 
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="Entre 8 caracteres y 72 bytes UTF-8; no se trunca la contraseña.",
+    )
     full_name: str = Field(min_length=1, max_length=255)
     company_name: str | None = Field(default=None, max_length=255)
     workspace_kind: Literal["personal", "work"] = "work"
@@ -21,6 +26,19 @@ class RegisterRequest(BaseModel):
         max_length=16,
         description="Idioma de interfaz (en, es, pt, it, fr, de, en-gb).",
     )
+
+    @field_validator("password", mode="before")
+    @classmethod
+    def password_fits_bcrypt(cls, value: Any) -> Any:
+        # Antes del límite de caracteres para que todo exceso tenga el mismo error.
+        if isinstance(value, str) and len(value.encode("utf-8")) > 72:
+            raise PydanticCustomError(
+                "password_too_long_bytes",
+                "La contraseña supera el máximo de {max_bytes} bytes. Usa una más corta; "
+                "las tildes y los emojis pueden ocupar varios bytes.",
+                {"max_bytes": 72},
+            )
+        return value
 
     @model_validator(mode="before")
     @classmethod

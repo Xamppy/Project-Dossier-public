@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-13",
+  "updated": "2026-10-14",
   "status_values": [
     "pending",
     "claimed",
@@ -2067,6 +2067,34 @@
       ],
       "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
       "owner_session": "FO (agente)"
+    },
+    {
+      "id": "BUG-2026-10-14-01",
+      "sprint": 1,
+      "title": "Validar límite UTF-8 de bcrypt en el registro manual",
+      "status": "in_progress",
+      "owner": "DG",
+      "area": "auth",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-14",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "codex/fix-register-password-bytes",
+      "evidence": [
+        "specs/proposals/BUG-2026-10-14-01-registro-bcrypt.md",
+        "backend/tests/test_register_password.py",
+        "backend/tests/integration/test_register_password_route.py",
+        "backend/tests/security/test_register_password_seguridad.py",
+        "frontend/src/app/register/page.test.tsx",
+        "frontend/src/lib/translate-api-error.test.ts",
+        "specs/reports/BUG-2026-10-14-01-registro-bcrypt.md",
+        "docs/auth-app.md"
+      ],
+      "notes": "Corrección implementada con TDD: validación UTF-8 previa al hash, HTTP 422 con código estable y mensaje traducido en siete idiomas. 44 pruebas nuevas en verde (31 backend, 13 frontend). qa.py --full exit 0 con Postgres temporal: 621 backend passed, 12 skipped; Vitest y build aprobados; tsc/mypy y ruff de archivos modificados limpios. Ruff general conserva 25 hallazgos en archivos no modificados. Pendiente push/PR, revisión de segundo integrante, evidencia Trello y despliegue. No se marca done por el autor.",
+      "owner_session": "DG (Codex)"
     }
   ]
 }
