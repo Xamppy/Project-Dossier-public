@@ -1,0 +1,97 @@
+# Alembic: historial de revisiones
+# Fecha: 2026-10-19 13:32:16 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test alembic history --verbose
+# Código de salida: 0
+# ---- salida literal ----
+Rev: c4d8a2f6b1e9 (head)
+Parent: b7e2d4f1a9c3
+Path: C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\alembic\versions\c4d8a2f6b1e9_bug_2026_10_05_01_cola_de_trabajos.py
+
+    BUG-2026-10-05-01: la cola de trabajos (`dossier_generation_jobs`) entra a Alembic.
+    
+    Revision ID: c4d8a2f6b1e9
+    Revises: b7e2d4f1a9c3
+    Create Date: 2026-10-05
+    
+    La tabla no estaba en Migracion.md, ni en la línea base, ni en los parches: solo la
+    creaba ``create_all`` del ORM al arrancar la app. Una base hecha con
+    ``alembic upgrade head`` y ``DATABASE_AUTO_CREATE_TABLES=0`` no tenía la cola, y la
+    generación asíncrona fallaba.
+    
+    El DDL es idempotente (``IF NOT EXISTS``) porque las bases reales ya tienen la tabla,
+    creada por la app. Igual que S4.5, se reutiliza la tupla de ``schema_patches``, que la
+    app también aplica al arrancar.
+
+Rev: b7e2d4f1a9c3
+Parent: a3f1c9e2b7d4
+Path: C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\alembic\versions\b7e2d4f1a9c3_s4_5_entidades_dossier.py
+
+    S4.5: extiende alertas, menciones y trayectoria al contrato de S4.1.
+    
+    Revision ID: b7e2d4f1a9c3
+    Revises: a3f1c9e2b7d4
+    Create Date: 2026-09-26
+    
+    El diseño de S0.10 proponía tres tablas nuevas (``dossier_risk_alerts``,
+    ``dossier_career_positions``, ``dossier_press_mentions``), pero la línea base
+    ya trae ``dossier_alerts``, ``dossier_career_entries`` y
+    ``dossier_media_mentions`` con el mismo propósito y sin uso en el código. Se
+    extienden esas en vez de duplicar el concepto (decisión registrada en
+    docs/architecture/estrategia-migracion-modelo-datos.md §2).
+    
+    Igual que la línea base con ``_PATCHES``, se reutiliza
+    ``DOSSIER_ENTITIES_PATCHES``: es el mismo DDL idempotente que la app aplica al
+    arrancar sobre bases sin ``alembic_version``.
+
+Rev: a3f1c9e2b7d4
+Parent: <base>
+Path: C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\alembic\versions\a3f1c9e2b7d4_baseline_migracion_md.py
+
+    Linea base (S1.1): esquema completo segun db/Migracion.md + schema_patches.py.
+    
+    Revision ID: a3f1c9e2b7d4
+    Revises:
+    Create Date: 2026-09-23
+    
+    Por que esta migracion no viene de `alembic revision --autogenerate`
+    ----------------------------------------------------------------------
+    Un primer intento de generar la migracion de linea base con
+    `--autogenerate` comparo Postgres vacio contra `Base.metadata`
+    (`db/models.py`), y produjo una migracion que solo crea 10 tablas.
+    
+    Al contrastar contra `backend/src/dossier/db/Migracion.md` -- citado como
+    la fuente de verdad del DDL en el docstring de `db/models.py`, y
+    corroborado por SQL crudo contra `credit_ledger` y `dossier_alerts` en
+    `services/account_service.py` -- se confirmo que la base real tiene 16
+    tablas, 2 vistas y 8 triggers/funciones, incluyendo el mecanismo real de
+    cobro de creditos (`fn_debit_credits_on_dossier`,
+    `fn_credit_ledger_after_dossier_insert`) sobre la tabla `dossiers`. Los
+    modelos ORM en `db/models.py` solo declaran ~10 de esas 16 tablas y
+    ninguno de los triggers.
+    
+    Por eso esta migracion de linea base NO se generó por autogenerate, sino
+    que se escribio a mano, en dos partes, en el mismo orden en que hoy se
+    aplican al arrancar la app (ver `api/app.py:lifespan()`):
+    
+    1. El DDL completo de `db/Migracion.md` (extensiones, 16 tablas, indices,
+       funciones/triggers de `updated_at` y de cobro de creditos, y las 2
+       vistas), ejecutado tal cual via `op.execute()` -- una migracion de
+       base de datos es una foto fija, asi que el SQL se copia literal aqui
+       en vez de leer el .md en tiempo de ejecucion (que si puede cambiar).
+    2. Los parches idempotentes de `db/schema_patches.py` (columnas
+       agregadas despues de escrito Migracion.md, mas las tablas
+       `dossier_shares` y `org_invites`, que tampoco estan en Migracion.md),
+       reutilizando ese modulo directamente para no duplicar su texto y para
+       que esta migracion nunca quede desincronizada de lo que la app
+       realmente ejecuta hoy.
+    
+    Hallazgo derivado (no corregido en esta tarea, solo documentado): los
+    modelos SQLAlchemy en `db/models.py` estan desactualizados respecto al
+    esquema real/documentado -- les faltan ~9-12 tablas y los 8
+    triggers/funciones. Mientras eso no se corrija, un futuro
+    `alembic revision --autogenerate` comparara contra una metadata
+    incompleta y podria proponer *borrar* las tablas que faltan en el ORM.
+    Ver hallazgo de seguimiento en progress.md.
+

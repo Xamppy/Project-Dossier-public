@@ -1,0 +1,176 @@
+# Frontend: Vitest completo (npm test, igual que la CI)
+# Fecha: 2026-10-19 20:22:27 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: frontend/
+# Comando: NODE_OPTIONS=--no-experimental-webstorage npm test
+# Código de salida: 0
+# ---- salida literal ----
+
+> frontend-react@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 C:/Users/Felipe Orellana/Desktop/Proyectos/Tracelens - Project Dossier/dossier-ordocga/.claude/worktrees/agent-abc7ee0c6225d055c/frontend
+
+(node:33988) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ src/lib/org-role.test.ts (14 tests) 11ms
+ ✓ src/lib/dossier-api.calendar-range.test.ts (10 tests) 30ms
+ ✓ src/lib/dossier-job-outcome.test.ts (41 tests) 73ms
+ ✓ src/lib/calendar-events.test.ts (29 tests) 51ms
+ ✓ src/components/settings/TimezoneSelect.test.tsx (2 tests) 134ms
+ ✓ src/lib/dossier-job-progress.test.ts (70 tests) 191ms
+ ✓ src/lib/dashboard-kpis.test.ts (27 tests) 65ms
+stderr | src/hooks/useDashboardSummary.test.tsx > useDashboardSummary > al deshabilitarse (cierre de sesión) descarta los datos
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/hooks/useDashboardSummary.test.tsx (9 tests) 482ms
+ ✓ src/components/dashboard/OverviewKpiCards.test.tsx (7 tests) 261ms
+ ✓ src/hooks/useCalendarEvents.test.tsx (14 tests) 985ms
+ ✓ src/app/dashboard/automation/page.test.tsx (7 tests) 550ms
+ ✓ src/providers/DossierJobsProvider.http.test.tsx (1 test) 83ms
+ ✓ src/lib/dossier-job-stream.test.ts (25 tests) 1691ms
+ ✓ src/components/dossier/DossierAgentProgress.test.tsx (7 tests) 317ms
+ ✓ src/components/person-research/PersonResearchProgress.test.tsx (11 tests) 369ms
+ ✓ src/components/person-research/PersonResearchPartialResults.test.tsx (7 tests) 317ms
+ ✓ src/components/dossier/DossierJobProgressDetails.test.tsx (20 tests) 872ms
+ ✓ src/lib/calendar-jobs.test.ts (6 tests) 8ms
+ ✓ src/lib/calendar-events-cache.test.ts (7 tests) 11ms
+ ✓ src/lib/dossier-api.dashboard-summary.test.ts (4 tests) 17ms
+ ✓ src/providers/DossierJobsProvider.progress.test.tsx (16 tests) 1392ms
+   ✓ DossierJobsProvider · S5.4 progreso por la suscripción de S5.1 > CA1 · isolates_progress_by_calendar_job · dos jobs de calendario solo cambian su propio progreso 326ms
+ ✓ src/i18n/progress-messages.test.ts (19 tests) 48ms
+ ✓ src/lib/dossier-api.calendar-config.test.ts (4 tests) 13ms
+ ✓ src/app/auth/google/page.test.tsx (3 tests) 198ms
+ ✓ src/i18n/calendar-ui-labels.test.ts (9 tests) 16ms
+ ✓ src/components/dashboard/OverviewCalendarsSection.test.tsx (2 tests) 93ms
+ ✓ src/components/dashboard/StatCard.test.tsx (3 tests) 111ms
+ ✓ src/providers/DossierJobsProvider.test.tsx (33 tests) 2205ms
+ ✓ src/hooks/useCalendarProvidersConfigured.test.tsx (3 tests) 135ms
+ ✓ src/lib/countries.test.ts (2 tests) 17ms
+ ✓ src/lib/translate-api-error.test.ts (7 tests) 3ms
+ ✓ src/lib/timezones.test.ts (1 test) 13ms
+ ✓ src/components/dashboard/CountrySelect.test.tsx (1 test) 176ms
+ ✓ src/providers/PreferencesProvider.ready.test.tsx (2 tests) 35ms
+ ✓ src/app/login/page.test.tsx (3 tests) 95ms
+ ✓ src/components/dashboard/CalendarEventDetails.test.tsx (26 tests) 3318ms
+   ✓ CalendarEventDetails · diálogo accesible (CA11) > Tab no sale del diálogo 708ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA3 · renders_partial_modules_during_generation · mientras genera: empresa, cada asistente y vistas previas provisionales 562ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA4 · keeps_usable_result_when_an_agent_fails · al terminar: parcial, nombra lo que faltó y no muestra éxito completo 301ms
+   ✓ CalendarEventDetails · S5.4 avance real y resultados parciales > CA24 · aria-live anuncia hitos y no cada evento 407ms
+ ✓ src/components/dashboard/MeetingsCalendar.test.tsx (12 tests) 5276ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > la vista inicial Semana informa la ventana de la semana visible en la zona del usuario 331ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > Siguiente, Anterior y Hoy piden la ventana correcta 832ms
+   ✓ MeetingsCalendar · navegación y ventana consultada (CA1) > cambiar a Día y a Mes solicita el intervalo de esa vista, incluidos los días de meses contiguos 501ms
+   ✓ MeetingsCalendar · controles accesibles (CA11) > el período visible se anuncia como título en vivo 701ms
+   ✓ MeetingsCalendar · eventos > pinta título y etiqueta de proveedor (no solo color) y el día completo 791ms
+   ✓ MeetingsCalendar · eventos > cada evento lleva la clase de su proveedor en el DOM real (color + etiqueta) 530ms
+   ✓ MeetingsCalendar · eventos > pulsar o activar con teclado un evento informa su clave y el elemento 544ms
+   ✓ MeetingsCalendar · eventos > sin eventos el calendario sigue navegable 573ms
+stderr | src/components/dashboard/MeetingsCalendarSection.test.tsx > MeetingsCalendarSection > no monta ni consulta hasta que las preferencias están listas
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to MeetingsCalendarSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+ ✓ src/app/register/page.test.tsx (6 tests) 2899ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1273ms
+   ✓ /register · límite bcrypt en bytes > bloquea contraseñas que superan 72 bytes: 🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐 344ms
+   ✓ /register · límite bcrypt en bytes > envía sin truncar una contraseña de exactamente 72 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 439ms
+ ✓ src/components/dashboard/MeetingsCalendarSection.test.tsx (14 tests) 11831ms
+   ✓ MeetingsCalendarSection > consulta ambos proveedores con la semana visible y pinta los eventos con su etiqueta (CA1) 524ms
+   ✓ MeetingsCalendarSection > navegar solicita la ventana siguiente 1388ms
+   ✓ MeetingsCalendarSection > si el calendario es estrecho (móvil o tableta con menú lateral) la vista inicial es Día 790ms
+   ✓ MeetingsCalendarSection > con ancho suficiente (≥ 640 px) la vista inicial es Semana 678ms
+   ✓ MeetingsCalendarSection > el filtro Google/Outlook oculta el otro proveedor y marca el botón activo 1405ms
+   ✓ MeetingsCalendarSection > Google falla y Outlook responde: se ve Outlook más el error de Google con opción de reintentar (CA5) 1075ms
+   ✓ MeetingsCalendarSection > proveedor desconectado se distingue de un error (CA5) 536ms
+   ✓ MeetingsCalendarSection > si Outlook no está configurado en el servidor, no ofrece conectarlo ni filtrarlo 607ms
+   ✓ MeetingsCalendarSection > un período vacío lo dice y mantiene el calendario navegable (CA5) 896ms
+   ✓ MeetingsCalendarSection > carga incompleta: avisa con el motivo y nunca afirma que todo está cargado (CA2) 932ms
+   ✓ MeetingsCalendarSection > avisa de registros sin fecha válida sin romper la vista (CA8) 1068ms
+   ✓ MeetingsCalendarSection > abrir una reunión muestra el detalle sin generar nada, y Escape devuelve el foco (CA7, CA11) 974ms
+   ✓ MeetingsCalendarSection > terminar el job de otra reunión no cambia la selección ni abre su resultado (CA7) 936ms
+stderr | src/app/dashboard/person-research/page.test.tsx > Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream
+[SistemaDossier:status] Fallo del proveedor
+
+ ✓ src/app/dashboard/person-research/page.test.tsx (38 tests) 38443ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 1326ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 1772ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 1401ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 1055ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 977ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 1213ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · reemplazar un dossier envía force_refresh y replace_dossier_id con la modalidad 382ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 1541ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 1224ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 913ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 812ms
+   ✓ Personas · 'Registros PDL' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 794ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · encola un person_manual asíncrono con su modalidad y abre un único stream 642ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → completed llega por SSE y cierra el stream 862ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → failed llega por SSE y cierra el stream 855ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · queued → running → cancelled llega por SSE y cierra el stream 860ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA13 · salir de Personas y volver recupera el mismo trabajo sin abrir otro stream 820ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · al recargar se restaura el trabajo activo y sigue por SSE hasta terminar 842ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · cancelar desde la página usa la API de jobs y cierra el stream 853ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · un corte de red se muestra en la página y la reconexión pide un único snapshot 863ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 401 en el stream pide iniciar sesión sin marcar el trabajo como fallido 760ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · 404 en el stream retira el trabajo y la página vuelve al formulario 785ms
+   ✓ Personas · 'Web pública' · estado general por SSE > CA15 · con el trabajo en curso, 60 s de reloj no generan lecturas periódicas del job 705ms
+   ✓ Personas · convivencia de modalidades y con Calendario > CA14 · PDL y Web pública son ejecuciones separadas y un job de calendario no afecta a Personas 1400ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA14 · renders_real_pdl_stages · Registros PDL: avance paso a paso y el perfil antes del informe 1377ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA16 · keeps_person_profiles_when_report_fails · el informe falla y los perfiles siguen con «Ver información disponible» 1589ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA15 · renders_model_only_progress_truthfully · Web pública: «Elaborando informe con IA», sin búsqueda en vivo ni texto antes de tiempo 1380ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · restores_selected_person_result_and_mode · cambiar el selector no reinterpreta la ejecución consultada 887ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · al recargar se restaura la ejecución terminada y sus parciales aunque se cerró el aviso 1489ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA18 · salir de Personas y volver conserva el panel de la ejecución terminada 2426ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA19 · renders_cached_person_result_without_fabricated_steps · la caché se presenta como resultado guardado de antes 1460ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA9 · separates_transport_cancellation_and_generation_errors · cancelar detiene todo y nada revive 1081ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA9 · el corte de conexión se muestra aparte y no borra los parciales 1029ms
+   ✓ Personas · S5.4 avance real y resultados parciales > CA24 · aria-live (polite) anuncia hitos y no cada evento 919ms
+   ✓ Personas · S5.4 avance real y resultados parciales > un job sin progress (anterior a S5.4) no muestra el panel nuevo 601ms
+
+ Test Files  40 passed (40)
+      Tests  522 passed (522)
+   Start at  20:22:27
+   Duration  44.49s (transform 8.90s, setup 33.12s, collect 31.93s, tests 72.83s, environment 64.58s, prepare 9.81s)
+

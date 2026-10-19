@@ -1,0 +1,12 @@
+# Alembic: upgrade head sobre dossier_evid_test vacía
+# Fecha: 2026-10-19 13:32:20 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test alembic upgrade head
+# Código de salida: 0
+# ---- salida literal ----
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> a3f1c9e2b7d4, Linea base (S1.1): esquema completo segun db/Migracion.md + schema_patches.py.
+INFO  [alembic.runtime.migration] Running upgrade a3f1c9e2b7d4 -> b7e2d4f1a9c3, S4.5: extiende alertas, menciones y trayectoria al contrato de S4.1.
+INFO  [alembic.runtime.migration] Running upgrade b7e2d4f1a9c3 -> c4d8a2f6b1e9, BUG-2026-10-05-01: la cola de trabajos (`dossier_generation_jobs`) entra a Alembic.

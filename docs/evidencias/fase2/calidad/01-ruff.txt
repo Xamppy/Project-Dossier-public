@@ -1,0 +1,10 @@
+# Backend: ruff check (igual que la CI)
+# Fecha: 2026-10-19 20:22:04 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: python -m ruff check src/dossier; echo "ruff exit=$?"; python -m ruff --version
+# Código de salida: 0
+# ---- salida literal ----
+All checks passed!
+ruff exit=0
+ruff 0.16.8

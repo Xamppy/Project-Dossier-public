@@ -1,0 +1,26 @@
+# Alembic: cabeza de la cadena de migraciones
+# Fecha: 2026-10-19 13:32:13 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test alembic heads --verbose
+# Código de salida: 0
+# ---- salida literal ----
+Rev: c4d8a2f6b1e9 (head)
+Parent: b7e2d4f1a9c3
+Path: C:\Users\Felipe Orellana\Desktop\Proyectos\Tracelens - Project Dossier\dossier-ordocga\.claude\worktrees\agent-abc7ee0c6225d055c\backend\alembic\versions\c4d8a2f6b1e9_bug_2026_10_05_01_cola_de_trabajos.py
+
+    BUG-2026-10-05-01: la cola de trabajos (`dossier_generation_jobs`) entra a Alembic.
+    
+    Revision ID: c4d8a2f6b1e9
+    Revises: b7e2d4f1a9c3
+    Create Date: 2026-10-05
+    
+    La tabla no estaba en Migracion.md, ni en la línea base, ni en los parches: solo la
+    creaba ``create_all`` del ORM al arrancar la app. Una base hecha con
+    ``alembic upgrade head`` y ``DATABASE_AUTO_CREATE_TABLES=0`` no tenía la cola, y la
+    generación asíncrona fallaba.
+    
+    El DDL es idempotente (``IF NOT EXISTS``) porque las bases reales ya tienen la tabla,
+    creada por la app. Igual que S4.5, se reutiliza la tupla de ``schema_patches``, que la
+    app también aplica al arrancar.
+

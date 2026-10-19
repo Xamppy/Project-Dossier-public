@@ -1,0 +1,48 @@
+# CI en main: ejecución exitosa (merge del PR #24)
+# Fecha: 2026-10-19 20:20:20 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: timeout 120 gh run view 39281960171 --verbose
+# Código de salida: 0
+# ---- salida literal ----
+
+✓ main CI · 39281960171
+Triggered via push about 7 hours ago
+
+JOBS
+✓ Frontend (eslint, vitest, build) in 2m5s (ID 118157846929)
+  ✓ Set up job
+  ✓ Run actions/checkout@v7
+  ✓ Instalar Node
+  ✓ Instalar dependencias
+  ✓ eslint
+  ✓ vitest
+  ✓ next build
+  ✓ Post Instalar Node
+  ✓ Post Run actions/checkout@v7
+  ✓ Complete job
+✓ Backend (pytest, ruff, mypy) in 56s (ID 118157847339)
+  ✓ Set up job
+  ✓ Run actions/checkout@v7
+  ✓ Instalar Python
+  ✓ Instalar dependencias
+  ✓ ruff
+  ✓ mypy
+  ✓ pytest (con cobertura)
+  ✓ Post Instalar Python
+  ✓ Post Run actions/checkout@v7
+  ✓ Complete job
+
+ANNOTATIONS
+! 't' is assigned a value but never used
+Frontend (eslint, vitest, build): frontend/src/app/register/page.test.tsx#7
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+Frontend (eslint, vitest, build): .github#1
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+Backend (pytest, ruff, mypy): .github#1
+
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/Xamppy/Project-Dossier/actions/runs/39281960171

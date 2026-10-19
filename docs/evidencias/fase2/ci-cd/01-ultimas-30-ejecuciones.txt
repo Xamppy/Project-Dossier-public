@@ -1,0 +1,41 @@
+# GitHub Actions: últimas 30 ejecuciones
+# Fecha: 2026-10-19 20:19:19 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: python docs/evidencias/fase2/_herramientas/tabla_ejecuciones.py 30
+# Código de salida: 0
+# ---- salida literal ----
+id           workflow             rama                                            evento        conclusión  duración  sha      creada (UTC)    
+-----------  -------------------  ----------------------------------------------  ------------  ----------  --------  -------  ----------------
+39286073936  CI #42               docs/DOC-2026-10-19-01-siete-idiomas            pull_request  success     2m03s     14e7ced  2026-10-19 16:31
+39285864680  CI #41               chore/CHORE-2026-10-19-03-ci-sha-buildx         pull_request  success     2m22s     97c727a  2026-10-19 16:29
+39285560128  Imágenes Docker #15  main                                            workflow_run  success     0m35s     9f6c692  2026-10-19 16:27
+39285005560  Imágenes Docker #14  main                                            workflow_run  success     0m40s     9f6c692  2026-10-19 16:23
+39283038549  Imágenes Docker #13  main                                            workflow_run  success     1m37s     9f6c692  2026-10-19 16:07
+39282956167  Imágenes Docker #12  main                                            workflow_run  cancelled   1m24s     9f6c692  2026-10-19 16:07
+39282883939  Imágenes Docker #11  main                                            workflow_run  cancelled   0m34s     9f6c692  2026-10-19 16:06
+39281960171  CI #40               main                                            push          success     2m05s     9f6c692  2026-10-19 15:58
+39281947711  CI #39               chore/harness-traspaso-2026-10-19               pull_request  success     2m06s     a07a0fe  2026-10-19 15:58
+39281694016  CI #38               chore/CHORE-2026-10-19-01-agent-rules-next      pull_request  success     2m17s     a9f3716  2026-10-19 15:56
+39281671569  Imágenes Docker #10  main                                            workflow_run  success     3m57s     7d9c38b  2026-10-19 15:56
+39281276617  CI #37               fix/BUG-2026-10-19-03-dashboard-movil           pull_request  success     1m46s     729d744  2026-10-19 15:53
+39281159366  CI #36               fix/BUG-2026-10-19-04-contacto-falso-positivo   pull_request  success     2m40s     f82a8ec  2026-10-19 15:52
+39281083738  CI #35               main                                            push          success     3m22s     7d9c38b  2026-10-19 15:51
+39281060804  CI #34               chore/harness-cierre-revisiones                 pull_request  success     3m05s     20131f1  2026-10-19 15:51
+39280907934  CI #33               fix/BUG-2026-10-19-01-bcrypt-cambio-contrasena  pull_request  success     1m34s     cc52a42  2026-10-19 15:49
+39280859218  CI #32               chore/CHORE-2026-10-19-02-vitest-node26         pull_request  success     1m53s     65000bd  2026-10-19 15:49
+39280835573  CI #31               fix/BUG-2026-10-19-02-pdl-correo-asistente      pull_request  success     2m08s     3de0a3c  2026-10-19 15:49
+39279735454  CI #30               main                                            push          success     2m22s     4e55155  2026-10-19 15:40
+39279717330  CI #29               fix/BUG-2026-10-14-01-registro-bcrypt           pull_request  success     3m25s     4867a06  2026-10-19 15:39
+39279129366  CI #28               main                                            push          success     2m34s     ed3626e  2026-10-19 15:35
+39279107317  CI #27               feat/S5.4-resultados-parciales-agentes          pull_request  success     5m29s     191745e  2026-10-19 15:34
+39279047309  Imágenes Docker #9   main                                            workflow_run  failure     4m56s     29eb532  2026-10-19 15:34
+39278983778  Imágenes Docker #8   main                                            workflow_run  cancelled   -         29eb532  2026-10-19 15:34
+39278947092  Imágenes Docker #7   main                                            workflow_run  cancelled   -         29eb532  2026-10-19 15:33
+39278868519  CI #26               main                                            push          success     9m17s     29eb532  2026-10-19 15:33
+39278846489  Imágenes Docker #6   main                                            workflow_run  cancelled   -         6952039  2026-10-19 15:32
+39278836939  CI #25               feat/S5.10-progreso-etapas-parciales            pull_request  success     4m05s     5b1ce9e  2026-10-19 15:32
+39278712455  Imágenes Docker #5   main                                            workflow_run  cancelled   6m02s     6952039  2026-10-19 15:31
+39278533520  CI #24               main                                            push          success     6m08s     6952039  2026-10-19 15:30
+
+Resumen: cancelled=6, failure=1, success=23

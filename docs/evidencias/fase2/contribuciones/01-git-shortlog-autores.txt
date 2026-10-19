@@ -1,0 +1,26 @@
+# Autores y correos en todo el historial (alias por integrante)
+# Fecha: 2026-10-19 13:45:22 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: echo "## git shortlog -sne --all"; git shortlog -sne --all; echo; echo "## git shortlog -sne --all --no-merges"; git shortlog -sne --all --no-merges; echo; echo "## git shortlog -sne origin/main --no-merges"; git shortlog -sne origin/main --no-merges
+# Código de salida: 0
+# ---- salida literal ----
+## git shortlog -sne --all
+    85	Xamppy <fe.orellanaa@duocuc.cl>
+    61	darygod <dari.garcia@duocuc.cl>
+    17	Felipe Orellana <134563505+Xamppy@users.noreply.github.com>
+    12	Felipe Docmac <fe.docmac@duocuc.cl>
+     5	dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+     1	darygod <134294253+darygod@users.noreply.github.com>
+
+## git shortlog -sne --all --no-merges
+    83	Xamppy <fe.orellanaa@duocuc.cl>
+    57	darygod <dari.garcia@duocuc.cl>
+    12	Felipe Docmac <fe.docmac@duocuc.cl>
+     5	dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+## git shortlog -sne origin/main --no-merges
+    64	Xamppy <fe.orellanaa@duocuc.cl>
+    55	darygod <dari.garcia@duocuc.cl>
+    12	Felipe Docmac <fe.docmac@duocuc.cl>
+     5	dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>

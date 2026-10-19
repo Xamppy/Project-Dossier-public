@@ -1,0 +1,138 @@
+# Filas persistidas en las tablas clave (datos ficticios)
+# Fecha: 2026-10-19 13:42:41 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: psql -d dossier_evid_test -f docs/evidencias/fase2/_herramientas/consultas_almacenamiento.sql
+# Código de salida: 0
+# ---- salida literal ----
+== Filas por tabla (pg_stat_user_tables, tras ANALYZE) ==
+ANALYZE
+          tabla          | filas 
+-------------------------+-------
+ alembic_version         |     1
+ credit_ledger           |     6
+ dossier_generation_jobs |     8
+ dossiers                |    10
+ org_memberships         |     2
+ organizations           |     3
+ users                   |     3
+(7 rows)
+
+== organizations ==
+    id    |           name            |           slug            | plan | credits_balance | credits_monthly_limit |                         settings                          |       creada        
+----------+---------------------------+---------------------------+------+-----------------+-----------------------+-----------------------------------------------------------+---------------------
+ d3c96914 | Organización de prueba    | org-fixtures              | pro  |             992 |                    10 | {}                                                        | 2026-10-19 13:39:41
+ cb244480 | Empresa Ficticia Demo SpA | empresa-ficticia-demo-spa | free |              10 |                    10 | {"email_domain": "example.org", "workspace_kind": "work"} | 2026-10-19 13:39:57
+ 7097153f | Personal                  | luis-demo-example-com     | free |              10 |                    10 | {"workspace_kind": "personal"}                            | 2026-10-19 13:39:58
+(3 rows)
+
+== users (password_hash truncado a 12 caracteres) ==
+    id    |         email         | full_name | locale | password_hash_12 | largo_hash |       creado        
+----------+-----------------------+-----------+--------+------------------+------------+---------------------
+ ee06e291 | fixtures@example.com  |           | en     | (sin contraseña) |            | 2026-10-19 13:39:41
+ 0174cc52 | ana.demo@example.org  | Ana Demo  | es     | $2b$12$VbaB8…    |         60 | 2026-10-19 13:39:57
+ 544938f3 | luis.demo@example.com | Luis Demo | en     | $2b$12$yqowe…    |         60 | 2026-10-19 13:39:58
+(3 rows)
+
+== org_memberships ==
+       organizacion        |         email         | role  | is_primary_org 
+---------------------------+-----------------------+-------+----------------
+ empresa-ficticia-demo-spa | ana.demo@example.org  | admin | t
+ luis-demo-example-com     | luis.demo@example.com | admin | t
+(2 rows)
+
+== dossier_generation_jobs (estado y progreso) ==
+   job    |    job_type     |  status   |           meeting_label           | cred_est | cred_cons | scopes | etapas | completadas |                  error                   | duracion 
+----------+-----------------+-----------+-----------------------------------+----------+-----------+--------+--------+-------------+------------------------------------------+----------
+ bde14185 | calendar_manual | completed | Kick-off con Empresa de Prueba SA |        5 |         4 |      3 |     18 |           7 |                                          | 00:00:00
+ 374e57e9 | person_manual   | completed | Ana Prueba                        |        1 |         1 |      1 |      9 |           5 |                                          | 00:00:00
+ 184d16c0 | person_manual   | completed | Ana Prueba                        |        1 |         1 |      1 |      9 |           5 |                                          | 00:00:00
+ 21baf96c | person_manual   | failed    | Ana Prueba                        |        1 |         0 |      1 |      9 |           2 | No se pudo generar el análisis de person | 00:00:00
+ a1af7a9e | person_manual   | completed | Ana Prueba                        |        1 |         1 |      1 |      4 |           3 |                                          | 00:00:00
+ 8eac5564 | person_manual   | failed    | Ana Prueba                        |        1 |         0 |      1 |      4 |           0 | No se pudo generar el análisis de person | 00:00:00
+ 5936dc82 | person_manual   | completed | Ana Prueba                        |        1 |         0 |      1 |      9 |           3 |                                          | 00:00:00
+ 07fd9780 | person_manual   | cancelled | Ana Prueba                        |        1 |         0 |      1 |      9 |           0 | Cancelado por el usuario                 | 00:00:00
+(8 rows)
+
+== Estructura del progreso de un job (result_payload->_progress, primeras líneas) ==
+                               progreso                               
+----------------------------------------------------------------------
+ {                                                                   +
+     "scopes": [                                                     +
+         {                                                           +
+             "kind": "person",                                       +
+             "label": "Ana Prueba",                                  +
+             "origin": "generated",                                  +
+             "stages": [                                             +
+                 {                                                   +
+                     "status": "skipped",                            +
+                     "revision": 2,                                  +
+                     "stage_id": "person.cache_lookup",              +
+                     "timestamp": "2026-10-19T16:39:42.047515+00:00",+
+                     "reason_code": "cache_unavailable"              +
+                 },                                                  +
+                 {                                                   +
+                     "status": "completed",                          +
+                     "attempts": {                                   +
+                         "total": 5,                                 +
+                         "failed": 0                                 +
+                     },                                              +
+                     "revision": 4,                                  +
+                     "stage_id": "person.pdl_enrich",                +
+                     "timestamp": "2026-10-19T16:39:42.047515+00:00",+
+                     "reason_code": null                             +
+                 },                                                  +
+                 {                                                   +
+                     "status": "s
+(1 row)
+
+== dossiers (dossier_data JSONB) ==
+ dossier  |     subject_name     |  status  | depth_level | creditos | formato  |  tipo  | bytes_jsonb | claves 
+----------+----------------------+----------+-------------+----------+----------+--------+-------------+--------
+ 887cc6de | Empresa de Prueba SA | complete | standard    |        3 | markdown | object |        1081 |     11
+ 42bbf4f8 | Ana Prueba           | complete | basic       |        1 | markdown | object |        2360 |     13
+ 0ec25fee | Beto Ficticio        | failed   | basic       |        0 | markdown | object |        1959 |     13
+ 35967390 | Ana Prueba           | complete | basic       |        1 | markdown | object |        2648 |     13
+ 0e3b0fd3 | Ana Prueba           | complete | basic       |        1 | markdown | object |        2235 |     12
+ 95c35282 | Ana Prueba           | failed   | basic       |        0 | markdown | object |        2044 |     11
+ 670552f4 | Ana Prueba           | complete | basic       |        1 | markdown | object |        1548 |     12
+ 1ce74c10 | Ana Prueba           | failed   | basic       |        0 | markdown | object |        1334 |     11
+ 5c06e280 | Ana Prueba           | complete | basic       |        0 | markdown | object |        1508 |     12
+ 8b19e54f | Ana Prueba           | complete | basic       |        1 | markdown | object |        2185 |     13
+(10 rows)
+
+== dossier_data de un dossier corporativo (claves de primer nivel) ==
+     subject_name     |        clave         |  tipo   
+----------------------+----------------------+---------
+ Empresa de Prueba SA | _progress            | object
+ Empresa de Prueba SA | billing              | string
+ Empresa de Prueba SA | body                 | string
+ Empresa de Prueba SA | cache                | object
+ Empresa de Prueba SA | calendar             | object
+ Empresa de Prueba SA | calendar_folder      | object
+ Empresa de Prueba SA | calendar_folder_role | string
+ Empresa de Prueba SA | format               | string
+ Empresa de Prueba SA | output_language      | string
+ Empresa de Prueba SA | pipeline             | string
+ Empresa de Prueba SA | success              | boolean
+(11 rows)
+
+== credit_ledger (asientos creados por los triggers de cobro) ==
+ dossier  |     subject_name     | change_amount | balance_after |       reason       |         creado          
+----------+----------------------+---------------+---------------+--------------------+-------------------------
+ 887cc6de | Empresa de Prueba SA |            -3 |           996 | dossier_generation | 2026-10-19 13:39:41.883
+ 42bbf4f8 | Ana Prueba           |            -1 |           996 | dossier_generation | 2026-10-19 13:39:41.883
+ 35967390 | Ana Prueba           |            -1 |           995 | dossier_generation | 2026-10-19 13:39:42.047
+ 0e3b0fd3 | Ana Prueba           |            -1 |           994 | dossier_generation | 2026-10-19 13:39:42.094
+ 670552f4 | Ana Prueba           |            -1 |           993 | dossier_generation | 2026-10-19 13:39:42.197
+ 8b19e54f | Ana Prueba           |            -1 |           992 | dossier_generation | 2026-10-19 13:39:42.291
+(6 rows)
+
+== Saldo de créditos: inicial (1000) − consumido = saldo actual ==
+           slug            | saldo_actual | consumido_en_dossiers | suma_ledger 
+---------------------------+--------------+-----------------------+-------------
+ empresa-ficticia-demo-spa |           10 |                     0 |           0
+ luis-demo-example-com     |           10 |                     0 |           0
+ org-fixtures              |          992 |                     8 |          -8
+(3 rows)
+

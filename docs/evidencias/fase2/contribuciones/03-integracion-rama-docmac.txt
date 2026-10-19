@@ -1,0 +1,37 @@
+# Atribución del trabajo de FD (rama docmac, Tarea A3)
+# Fecha: 2026-10-19 13:47:13 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: echo "## Commits de origin/docmac que no están en origin/main"; git log origin/main..origin/docmac --oneline | wc -l; echo; echo "## Commits de Felipe Docmac en origin/main"; git log origin/main --author=fe.docmac@duocuc.cl --no-merges --format="%h %ad %s" --date=iso; echo; echo "## Commit que continúa sobre 2e69f71 (consolidar Tarea A3)"; git log origin/main --format="%h padres=%p %ad %an | %s" --date=iso | grep "padres=.*2e69f71"; echo; echo "## Primer merge de la línea principal de main que contiene 2e69f71"; for m in $(git log origin/main --first-parent --merges --reverse --format=%h); do if git merge-base --is-ancestor 2e69f71 "$m"; then git log -1 --format="%h %ad %an | %s" --date=iso "$m"; break; fi; done; echo; echo "## Copias por cherry-pick (patch-id repetido entre commits de origin/main)"; git log -p origin/main --no-merges --format="commit %H" | git patch-id --stable | cut -d" " -f1 | sort | uniq -d | wc -l; echo; echo "## Commit raíz (importación del sistema heredado)"; git log --shortstat --format="%h %ad %an | %s" --date=short $(git rev-list --max-parents=0 origin/main)
+# Código de salida: 0
+# ---- salida literal ----
+## Commits de origin/docmac que no están en origin/main
+0
+
+## Commits de Felipe Docmac en origin/main
+2e69f71 2026-09-23 20:34:29 -0300 consolidar Tarea A3
+07e4c0a 2026-09-23 14:12:12 +0000 docs(harness): registrar el fix de test_credit_policy.py y cerrar commits pendientes de S1.4/S1.7
+b3455dc 2026-09-23 14:11:28 +0000 fix(tests): aislar la suite del .env real del desarrollador
+168e9c1 2026-09-23 14:11:19 +0000 docs(setup): repoblar schema SQL vacio y agregar guia de arranque local (S1.7)
+b90ae4a 2026-09-23 14:11:12 +0000 fix(deps): fijar versiones exactas del backend y actualizar next.js (S1.4)
+e4b3347 2026-09-23 14:03:50 +0000 docs(harness): cerrar evidencia de S1.3/S1.4/S1.5/S1.7
+d33f4c1 2026-09-23 14:02:12 +0000 ci(harness): agregar integracion continua bloqueante (S1.5)
+af49943 2026-09-23 14:01:19 +0000 fix(quality): corregir los 169 errores de ruff y 45 de mypy (S1.3)
+0544337 2026-09-23 13:38:50 +0000 docs(harness): cerrar evidencia de S0.3/S1.2/S1.1 y documentar 2 hallazgos nuevos
+f5b3bf4 2026-09-23 13:33:40 +0000 feat(db): adoptar Alembic con migracion de linea base fiel a Migracion.md
+664edc4 2026-09-23 13:17:49 +0000 feat(quality): introducir pyproject.toml con ruff y mypy configurados
+e737310 2026-09-23 13:07:44 +0000 fix(db): aplicar schema_patches despues de create_all en el arranque
+
+## Commit que continúa sobre 2e69f71 (consolidar Tarea A3)
+8b0bc1b padres=2e69f71 2026-09-26 17:20:08 -0300 Xamppy | fix(frontend): etiqueta fija para UTC en el selector de zona horaria
+
+## Primer merge de la línea principal de main que contiene 2e69f71
+bdead9b 2026-10-05 18:42:55 -0300 Felipe Orellana | Merge pull request #3 from Xamppy/FO
+
+## Copias por cherry-pick (patch-id repetido entre commits de origin/main)
+0
+
+## Commit raíz (importación del sistema heredado)
+ac95553 2026-09-06 darygod | Initial commit: Dossier frontend and backend
+
+ 267 files changed, 53529 insertions(+)

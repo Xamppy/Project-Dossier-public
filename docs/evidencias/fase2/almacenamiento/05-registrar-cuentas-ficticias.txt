@@ -1,0 +1,9 @@
+# Registro de cuentas ficticias por la ruta real /auth/register
+# Fecha: 2026-10-19 13:39:55 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: .
+# Comando: TEST_DATABASE_URL=postgresql://postgres:***@localhost:5432/dossier_evid_test python docs/evidencias/fase2/_herramientas/registrar_usuario_ficticio.py
+# Código de salida: 0
+# ---- salida literal ----
+POST /auth/register ana.demo@example.org -> HTTP 200; access_token=eyJhbGciOiJI… (313 caracteres)
+POST /auth/register luis.demo@example.com -> HTTP 200; access_token=eyJhbGciOiJI… (315 caracteres)

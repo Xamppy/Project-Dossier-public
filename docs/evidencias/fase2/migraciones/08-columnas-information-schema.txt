@@ -1,0 +1,352 @@
+# Columnas por tabla (information_schema)
+# Fecha: 2026-10-19 13:32:29 -0300
+# Commit: 9f6c69250fbff63b7375d965d5692cf1c494ff30
+# Directorio: backend/
+# Comando: psql -d dossier_evid_test -c "SELECT c.table_name AS tabla, count(*) AS columnas, string_agg(c.column_name, ', ' ORDER BY c.ordinal_position) AS nombres FROM information_schema.columns c JOIN information_schema.tables t ON t.table_schema=c.table_schema AND t.table_name=c.table_name WHERE c.table_schema='public' AND t.table_type='BASE TABLE' GROUP BY c.table_name ORDER BY c.table_name" -c "SELECT table_name, column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema='public' ORDER BY table_name, ordinal_position"
+# Código de salida: 0
+# ---- salida literal ----
+           tabla           | columnas |                                                                                                                                                                                                                                             nombres                                                                                                                                                                                                                                              
+---------------------------+----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ alembic_version           |        1 | version_num
+ api_keys                  |       12 | id, organization_id, created_by_user_id, name, key_prefix, key_hash, permissions, rate_limit_per_hour, last_used_at, expires_at, is_active, created_at
+ audit_logs                |       16 | id, user_id, user_role_at_time, organization_id, action, resource_type, resource_id, created_at, ip_address, user_agent, http_status, success, error_message, request_data, duration_ms, log_hash
+ billing_transactions      |       11 | id, organization_id, type, amount_cents, currency, credits_added, stripe_payment_intent_id, stripe_invoice_id, description, status, created_at
+ calendar_events           |       16 | id, calendar_integration_id, organization_id, user_id, external_event_id, title, starts_at, ends_at, meeting_url, external_attendees, dossier_scheduled_at, processing_status, skip_reason, created_at, updated_at, event_snapshot
+ calendar_integrations     |       24 | id, user_id, organization_id, provider, calendar_id, is_enabled, advance_minutes, skip_internal_meetings, skip_recurring_after_first, min_attendees, domain_whitelist, domain_blacklist, default_depth, auto_send_email, email_cc_assistant, created_at, updated_at, refresh_token_encrypted, access_token_encrypted, access_token_expires_at, granted_scopes, provider_subject, provider_email, revoked_at
+ contacts                  |       15 | id, organization_id, created_by_user_id, email, full_name, linkedin_url, company, job_title, domain, tags, is_vip, notes, last_dossier_at, created_at, updated_at
+ credit_ledger             |        8 | id, organization_id, user_id, dossier_id, change_amount, balance_after, reason, created_at
+ dossier_alerts            |       12 | id, dossier_id, level, category, message, source_url, detected_at, is_acknowledged, acknowledged_at, acknowledged_by_user_id, title, sources
+ dossier_career_entries    |       16 | id, dossier_id, company_name, job_title, start_date, end_date, tenure_months, is_current, gap_months_after, has_discrepancy, discrepancy_detail, source, sort_order, start_date_text, end_date_text, source_citation
+ dossier_corporate_records |       15 | id, dossier_id, company_name, company_number, country, jurisdiction, role_in_company, company_status, incorporation_date, appointment_date, resignation_date, insolvency_flag, source_api, source_url, raw_data
+ dossier_generation_jobs   |       17 | id, organization_id, requested_by_user_id, status, job_type, calendar_provider, external_event_id, reunion_snapshot, depth_level, meeting_label, credits_estimated, credits_consumed, result_payload, error_message, created_at, started_at, completed_at
+ dossier_ice_breakers      |        6 | id, dossier_id, content, source_url, source_type, sort_order
+ dossier_media_mentions    |       12 | id, dossier_id, title, url, published_at, source_name, source_type, sentiment, summary, relevance_score, source_citation, query_context
+ dossier_shares            |        5 | id, dossier_id, shared_with_user_id, shared_by_user_id, created_at
+ dossiers                  |       31 | id, organization_id, requested_by_user_id, contact_id, subject_email, subject_name, module_identity, module_corporate, module_media, depth_level, credits_consumed, status, status_message, dossier_data, alerts, agents_activated, agents_failed, data_sources_used, generation_started_at, generation_completed_at, generation_duration_ms, cache_key, cached_until, trigger_source, calendar_event_id, email_sent, email_sent_at, email_recipients, created_at, updated_at, dossier_folder_id
+ email_integrations        |       13 | id, user_id, organization_id, provider, is_enabled, is_primary, smtp_host, smtp_port, smtp_username, smtp_password_encrypted, from_name, created_at, updated_at
+ oauth_accounts            |       10 | id, user_id, provider, provider_user_id, access_token, refresh_token, token_expires_at, scopes, created_at, updated_at
+ org_invites               |       10 | id, organization_id, email, role, token, status, invited_by_user_id, created_at, expires_at, accepted_at
+ org_memberships           |        7 | id, organization_id, user_id, role, is_primary_org, invited_by_user_id, joined_at
+ organizations             |       14 | id, name, slug, plan, credits_balance, credits_monthly_limit, stripe_customer_id, stripe_subscription_id, is_white_label, custom_domain, settings, is_active, created_at, updated_at
+ refresh_tokens            |        9 | id, user_id, organization_id, token_hash, expires_at, is_revoked, ip_address, user_agent, created_at
+ users                     |       15 | id, email, email_verified, password_hash, full_name, avatar_url, timezone, locale, last_login_at, is_active, is_platform_admin, created_at, updated_at, dossier_output_language, dossier_retention_days
+(23 rows)
+
+        table_name         |        column_name         |        data_type         | is_nullable |         column_default         
+---------------------------+----------------------------+--------------------------+-------------+--------------------------------
+ alembic_version           | version_num                | character varying        | NO          | 
+ api_keys                  | id                         | uuid                     | NO          | uuid_generate_v4()
+ api_keys                  | organization_id            | uuid                     | NO          | 
+ api_keys                  | created_by_user_id         | uuid                     | NO          | 
+ api_keys                  | name                       | character varying        | NO          | 
+ api_keys                  | key_prefix                 | character varying        | NO          | 
+ api_keys                  | key_hash                   | character varying        | NO          | 
+ api_keys                  | permissions                | ARRAY                    | NO          | '{}'::text[]
+ api_keys                  | rate_limit_per_hour        | integer                  | NO          | 100
+ api_keys                  | last_used_at               | timestamp with time zone | YES         | 
+ api_keys                  | expires_at                 | timestamp with time zone | YES         | 
+ api_keys                  | is_active                  | boolean                  | NO          | true
+ api_keys                  | created_at                 | timestamp with time zone | NO          | now()
+ audit_logs                | id                         | uuid                     | NO          | uuid_generate_v4()
+ audit_logs                | user_id                    | uuid                     | YES         | 
+ audit_logs                | user_role_at_time          | character varying        | YES         | 
+ audit_logs                | organization_id            | uuid                     | YES         | 
+ audit_logs                | action                     | character varying        | NO          | 
+ audit_logs                | resource_type              | character varying        | YES         | 
+ audit_logs                | resource_id                | uuid                     | YES         | 
+ audit_logs                | created_at                 | timestamp with time zone | NO          | now()
+ audit_logs                | ip_address                 | inet                     | YES         | 
+ audit_logs                | user_agent                 | text                     | YES         | 
+ audit_logs                | http_status                | smallint                 | YES         | 
+ audit_logs                | success                    | boolean                  | NO          | true
+ audit_logs                | error_message              | text                     | YES         | 
+ audit_logs                | request_data               | jsonb                    | YES         | 
+ audit_logs                | duration_ms                | integer                  | YES         | 
+ audit_logs                | log_hash                   | character varying        | YES         | 
+ billing_transactions      | id                         | uuid                     | NO          | uuid_generate_v4()
+ billing_transactions      | organization_id            | uuid                     | NO          | 
+ billing_transactions      | type                       | character varying        | NO          | 
+ billing_transactions      | amount_cents               | integer                  | NO          | 
+ billing_transactions      | currency                   | character varying        | NO          | 'USD'::character varying
+ billing_transactions      | credits_added              | integer                  | NO          | 0
+ billing_transactions      | stripe_payment_intent_id   | character varying        | YES         | 
+ billing_transactions      | stripe_invoice_id          | character varying        | YES         | 
+ billing_transactions      | description                | text                     | YES         | 
+ billing_transactions      | status                     | character varying        | NO          | 'completed'::character varying
+ billing_transactions      | created_at                 | timestamp with time zone | NO          | now()
+ calendar_events           | id                         | uuid                     | NO          | uuid_generate_v4()
+ calendar_events           | calendar_integration_id    | uuid                     | NO          | 
+ calendar_events           | organization_id            | uuid                     | NO          | 
+ calendar_events           | user_id                    | uuid                     | NO          | 
+ calendar_events           | external_event_id          | character varying        | NO          | 
+ calendar_events           | title                      | character varying        | YES         | 
+ calendar_events           | starts_at                  | timestamp with time zone | NO          | 
+ calendar_events           | ends_at                    | timestamp with time zone | YES         | 
+ calendar_events           | meeting_url                | text                     | YES         | 
+ calendar_events           | external_attendees         | jsonb                    | NO          | '[]'::jsonb
+ calendar_events           | dossier_scheduled_at       | timestamp with time zone | YES         | 
+ calendar_events           | processing_status          | character varying        | NO          | 'detected'::character varying
+ calendar_events           | skip_reason                | text                     | YES         | 
+ calendar_events           | created_at                 | timestamp with time zone | NO          | now()
+ calendar_events           | updated_at                 | timestamp with time zone | NO          | now()
+ calendar_events           | event_snapshot             | jsonb                    | YES         | 
+ calendar_integrations     | id                         | uuid                     | NO          | uuid_generate_v4()
+ calendar_integrations     | user_id                    | uuid                     | NO          | 
+ calendar_integrations     | organization_id            | uuid                     | NO          | 
+ calendar_integrations     | provider                   | character varying        | NO          | 
+ calendar_integrations     | calendar_id                | character varying        | YES         | 
+ calendar_integrations     | is_enabled                 | boolean                  | NO          | true
+ calendar_integrations     | advance_minutes            | integer                  | NO          | 30
+ calendar_integrations     | skip_internal_meetings     | boolean                  | NO          | true
+ calendar_integrations     | skip_recurring_after_first | boolean                  | NO          | true
+ calendar_integrations     | min_attendees              | integer                  | NO          | 1
+ calendar_integrations     | domain_whitelist           | ARRAY                    | NO          | '{}'::text[]
+ calendar_integrations     | domain_blacklist           | ARRAY                    | NO          | '{}'::text[]
+ calendar_integrations     | default_depth              | character varying        | NO          | 'standard'::character varying
+ calendar_integrations     | auto_send_email            | boolean                  | NO          | true
+ calendar_integrations     | email_cc_assistant         | character varying        | YES         | 
+ calendar_integrations     | created_at                 | timestamp with time zone | NO          | now()
+ calendar_integrations     | updated_at                 | timestamp with time zone | NO          | now()
+ calendar_integrations     | refresh_token_encrypted    | text                     | YES         | 
+ calendar_integrations     | access_token_encrypted     | text                     | YES         | 
+ calendar_integrations     | access_token_expires_at    | timestamp with time zone | YES         | 
+ calendar_integrations     | granted_scopes             | text                     | YES         | 
+ calendar_integrations     | provider_subject           | character varying        | YES         | 
+ calendar_integrations     | provider_email             | character varying        | YES         | 
+ calendar_integrations     | revoked_at                 | timestamp with time zone | YES         | 
+ contacts                  | id                         | uuid                     | NO          | uuid_generate_v4()
+ contacts                  | organization_id            | uuid                     | NO          | 
+ contacts                  | created_by_user_id         | uuid                     | NO          | 
+ contacts                  | email                      | character varying        | YES         | 
+ contacts                  | full_name                  | character varying        | YES         | 
+ contacts                  | linkedin_url               | character varying        | YES         | 
+ contacts                  | company                    | character varying        | YES         | 
+ contacts                  | job_title                  | character varying        | YES         | 
+ contacts                  | domain                     | character varying        | YES         | 
+ contacts                  | tags                       | ARRAY                    | NO          | '{}'::text[]
+ contacts                  | is_vip                     | boolean                  | NO          | false
+ contacts                  | notes                      | text                     | YES         | 
+ contacts                  | last_dossier_at            | timestamp with time zone | YES         | 
+ contacts                  | created_at                 | timestamp with time zone | NO          | now()
+ contacts                  | updated_at                 | timestamp with time zone | NO          | now()
+ credit_ledger             | id                         | uuid                     | NO          | uuid_generate_v4()
+ credit_ledger             | organization_id            | uuid                     | NO          | 
+ credit_ledger             | user_id                    | uuid                     | NO          | 
+ credit_ledger             | dossier_id                 | uuid                     | YES         | 
+ credit_ledger             | change_amount              | integer                  | NO          | 
+ credit_ledger             | balance_after              | integer                  | NO          | 
+ credit_ledger             | reason                     | character varying        | NO          | 
+ credit_ledger             | created_at                 | timestamp with time zone | NO          | now()
+ dossier_alerts            | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_alerts            | dossier_id                 | uuid                     | NO          | 
+ dossier_alerts            | level                      | character varying        | NO          | 
+ dossier_alerts            | category                   | character varying        | YES         | 
+ dossier_alerts            | message                    | text                     | NO          | 
+ dossier_alerts            | source_url                 | text                     | YES         | 
+ dossier_alerts            | detected_at                | timestamp with time zone | NO          | now()
+ dossier_alerts            | is_acknowledged            | boolean                  | NO          | false
+ dossier_alerts            | acknowledged_at            | timestamp with time zone | YES         | 
+ dossier_alerts            | acknowledged_by_user_id    | uuid                     | YES         | 
+ dossier_alerts            | title                      | character varying        | YES         | 
+ dossier_alerts            | sources                    | jsonb                    | NO          | '[]'::jsonb
+ dossier_career_entries    | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_career_entries    | dossier_id                 | uuid                     | NO          | 
+ dossier_career_entries    | company_name               | character varying        | NO          | 
+ dossier_career_entries    | job_title                  | character varying        | YES         | 
+ dossier_career_entries    | start_date                 | date                     | YES         | 
+ dossier_career_entries    | end_date                   | date                     | YES         | 
+ dossier_career_entries    | tenure_months              | integer                  | YES         | 
+ dossier_career_entries    | is_current                 | boolean                  | NO          | false
+ dossier_career_entries    | gap_months_after           | integer                  | YES         | 
+ dossier_career_entries    | has_discrepancy            | boolean                  | NO          | false
+ dossier_career_entries    | discrepancy_detail         | text                     | YES         | 
+ dossier_career_entries    | source                     | character varying        | YES         | 
+ dossier_career_entries    | sort_order                 | integer                  | NO          | 0
+ dossier_career_entries    | start_date_text            | character varying        | YES         | 
+ dossier_career_entries    | end_date_text              | character varying        | YES         | 
+ dossier_career_entries    | source_citation            | jsonb                    | YES         | 
+ dossier_corporate_records | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_corporate_records | dossier_id                 | uuid                     | NO          | 
+ dossier_corporate_records | company_name               | character varying        | NO          | 
+ dossier_corporate_records | company_number             | character varying        | YES         | 
+ dossier_corporate_records | country                    | character varying        | NO          | 
+ dossier_corporate_records | jurisdiction               | character varying        | YES         | 
+ dossier_corporate_records | role_in_company            | character varying        | YES         | 
+ dossier_corporate_records | company_status             | character varying        | YES         | 
+ dossier_corporate_records | incorporation_date         | date                     | YES         | 
+ dossier_corporate_records | appointment_date           | date                     | YES         | 
+ dossier_corporate_records | resignation_date           | date                     | YES         | 
+ dossier_corporate_records | insolvency_flag            | boolean                  | NO          | false
+ dossier_corporate_records | source_api                 | character varying        | YES         | 
+ dossier_corporate_records | source_url                 | text                     | YES         | 
+ dossier_corporate_records | raw_data                   | jsonb                    | YES         | 
+ dossier_generation_jobs   | id                         | uuid                     | NO          | 
+ dossier_generation_jobs   | organization_id            | uuid                     | NO          | 
+ dossier_generation_jobs   | requested_by_user_id       | uuid                     | NO          | 
+ dossier_generation_jobs   | status                     | character varying        | NO          | 
+ dossier_generation_jobs   | job_type                   | character varying        | NO          | 
+ dossier_generation_jobs   | calendar_provider          | character varying        | YES         | 
+ dossier_generation_jobs   | external_event_id          | character varying        | YES         | 
+ dossier_generation_jobs   | reunion_snapshot           | jsonb                    | YES         | 
+ dossier_generation_jobs   | depth_level                | character varying        | NO          | 
+ dossier_generation_jobs   | meeting_label              | character varying        | YES         | 
+ dossier_generation_jobs   | credits_estimated          | integer                  | NO          | 
+ dossier_generation_jobs   | credits_consumed           | integer                  | NO          | 
+ dossier_generation_jobs   | result_payload             | jsonb                    | YES         | 
+ dossier_generation_jobs   | error_message              | text                     | YES         | 
+ dossier_generation_jobs   | created_at                 | timestamp with time zone | NO          | now()
+ dossier_generation_jobs   | started_at                 | timestamp with time zone | YES         | 
+ dossier_generation_jobs   | completed_at               | timestamp with time zone | YES         | 
+ dossier_ice_breakers      | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_ice_breakers      | dossier_id                 | uuid                     | NO          | 
+ dossier_ice_breakers      | content                    | text                     | NO          | 
+ dossier_ice_breakers      | source_url                 | text                     | YES         | 
+ dossier_ice_breakers      | source_type                | character varying        | YES         | 
+ dossier_ice_breakers      | sort_order                 | integer                  | NO          | 0
+ dossier_media_mentions    | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_media_mentions    | dossier_id                 | uuid                     | NO          | 
+ dossier_media_mentions    | title                      | text                     | NO          | 
+ dossier_media_mentions    | url                        | text                     | NO          | 
+ dossier_media_mentions    | published_at               | timestamp with time zone | YES         | 
+ dossier_media_mentions    | source_name                | character varying        | YES         | 
+ dossier_media_mentions    | source_type                | character varying        | YES         | 
+ dossier_media_mentions    | sentiment                  | character varying        | YES         | 
+ dossier_media_mentions    | summary                    | text                     | YES         | 
+ dossier_media_mentions    | relevance_score            | numeric                  | YES         | 
+ dossier_media_mentions    | source_citation            | jsonb                    | YES         | 
+ dossier_media_mentions    | query_context              | character varying        | YES         | 
+ dossier_shares            | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossier_shares            | dossier_id                 | uuid                     | NO          | 
+ dossier_shares            | shared_with_user_id        | uuid                     | NO          | 
+ dossier_shares            | shared_by_user_id          | uuid                     | NO          | 
+ dossier_shares            | created_at                 | timestamp with time zone | NO          | now()
+ dossiers                  | id                         | uuid                     | NO          | uuid_generate_v4()
+ dossiers                  | organization_id            | uuid                     | NO          | 
+ dossiers                  | requested_by_user_id       | uuid                     | NO          | 
+ dossiers                  | contact_id                 | uuid                     | YES         | 
+ dossiers                  | subject_email              | character varying        | YES         | 
+ dossiers                  | subject_name               | character varying        | YES         | 
+ dossiers                  | module_identity            | boolean                  | NO          | true
+ dossiers                  | module_corporate           | boolean                  | NO          | false
+ dossiers                  | module_media               | boolean                  | NO          | false
+ dossiers                  | depth_level                | character varying        | NO          | 'basic'::character varying
+ dossiers                  | credits_consumed           | integer                  | NO          | 0
+ dossiers                  | status                     | character varying        | NO          | 'pending'::character varying
+ dossiers                  | status_message             | text                     | YES         | 
+ dossiers                  | dossier_data               | jsonb                    | YES         | 
+ dossiers                  | alerts                     | jsonb                    | NO          | '[]'::jsonb
+ dossiers                  | agents_activated           | ARRAY                    | NO          | '{}'::text[]
+ dossiers                  | agents_failed              | ARRAY                    | NO          | '{}'::text[]
+ dossiers                  | data_sources_used          | ARRAY                    | NO          | '{}'::text[]
+ dossiers                  | generation_started_at      | timestamp with time zone | YES         | 
+ dossiers                  | generation_completed_at    | timestamp with time zone | YES         | 
+ dossiers                  | generation_duration_ms     | integer                  | YES         | 
+ dossiers                  | cache_key                  | character varying        | YES         | 
+ dossiers                  | cached_until               | timestamp with time zone | YES         | 
+ dossiers                  | trigger_source             | character varying        | NO          | 'manual'::character varying
+ dossiers                  | calendar_event_id          | uuid                     | YES         | 
+ dossiers                  | email_sent                 | boolean                  | NO          | false
+ dossiers                  | email_sent_at              | timestamp with time zone | YES         | 
+ dossiers                  | email_recipients           | ARRAY                    | NO          | '{}'::text[]
+ dossiers                  | created_at                 | timestamp with time zone | NO          | now()
+ dossiers                  | updated_at                 | timestamp with time zone | NO          | now()
+ dossiers                  | dossier_folder_id          | uuid                     | YES         | 
+ email_integrations        | id                         | uuid                     | NO          | uuid_generate_v4()
+ email_integrations        | user_id                    | uuid                     | NO          | 
+ email_integrations        | organization_id            | uuid                     | NO          | 
+ email_integrations        | provider                   | character varying        | NO          | 
+ email_integrations        | is_enabled                 | boolean                  | NO          | true
+ email_integrations        | is_primary                 | boolean                  | NO          | false
+ email_integrations        | smtp_host                  | character varying        | YES         | 
+ email_integrations        | smtp_port                  | smallint                 | YES         | 
+ email_integrations        | smtp_username              | character varying        | YES         | 
+ email_integrations        | smtp_password_encrypted    | text                     | YES         | 
+ email_integrations        | from_name                  | character varying        | YES         | 
+ email_integrations        | created_at                 | timestamp with time zone | NO          | now()
+ email_integrations        | updated_at                 | timestamp with time zone | NO          | now()
+ oauth_accounts            | id                         | uuid                     | NO          | uuid_generate_v4()
+ oauth_accounts            | user_id                    | uuid                     | NO          | 
+ oauth_accounts            | provider                   | character varying        | NO          | 
+ oauth_accounts            | provider_user_id           | character varying        | NO          | 
+ oauth_accounts            | access_token               | text                     | YES         | 
+ oauth_accounts            | refresh_token              | text                     | YES         | 
+ oauth_accounts            | token_expires_at           | timestamp with time zone | YES         | 
+ oauth_accounts            | scopes                     | ARRAY                    | YES         | 
+ oauth_accounts            | created_at                 | timestamp with time zone | NO          | now()
+ oauth_accounts            | updated_at                 | timestamp with time zone | NO          | now()
+ org_invites               | id                         | uuid                     | NO          | uuid_generate_v4()
+ org_invites               | organization_id            | uuid                     | NO          | 
+ org_invites               | email                      | character varying        | NO          | 
+ org_invites               | role                       | character varying        | NO          | 'user'::character varying
+ org_invites               | token                      | character varying        | NO          | 
+ org_invites               | status                     | character varying        | NO          | 'pending'::character varying
+ org_invites               | invited_by_user_id         | uuid                     | NO          | 
+ org_invites               | created_at                 | timestamp with time zone | NO          | now()
+ org_invites               | expires_at                 | timestamp with time zone | NO          | 
+ org_invites               | accepted_at                | timestamp with time zone | YES         | 
+ org_memberships           | id                         | uuid                     | NO          | uuid_generate_v4()
+ org_memberships           | organization_id            | uuid                     | NO          | 
+ org_memberships           | user_id                    | uuid                     | NO          | 
+ org_memberships           | role                       | character varying        | NO          | 'user'::character varying
+ org_memberships           | is_primary_org             | boolean                  | NO          | false
+ org_memberships           | invited_by_user_id         | uuid                     | YES         | 
+ org_memberships           | joined_at                  | timestamp with time zone | NO          | now()
+ organizations             | id                         | uuid                     | NO          | uuid_generate_v4()
+ organizations             | name                       | character varying        | NO          | 
+ organizations             | slug                       | character varying        | NO          | 
+ organizations             | plan                       | character varying        | NO          | 'free'::character varying
+ organizations             | credits_balance            | integer                  | NO          | 10
+ organizations             | credits_monthly_limit      | integer                  | NO          | 10
+ organizations             | stripe_customer_id         | character varying        | YES         | 
+ organizations             | stripe_subscription_id     | character varying        | YES         | 
+ organizations             | is_white_label             | boolean                  | NO          | false
+ organizations             | custom_domain              | character varying        | YES         | 
+ organizations             | settings                   | jsonb                    | NO          | '{}'::jsonb
+ organizations             | is_active                  | boolean                  | NO          | true
+ organizations             | created_at                 | timestamp with time zone | NO          | now()
+ organizations             | updated_at                 | timestamp with time zone | NO          | now()
+ refresh_tokens            | id                         | uuid                     | NO          | uuid_generate_v4()
+ refresh_tokens            | user_id                    | uuid                     | NO          | 
+ refresh_tokens            | organization_id            | uuid                     | NO          | 
+ refresh_tokens            | token_hash                 | character varying        | NO          | 
+ refresh_tokens            | expires_at                 | timestamp with time zone | NO          | 
+ refresh_tokens            | is_revoked                 | boolean                  | NO          | false
+ refresh_tokens            | ip_address                 | inet                     | YES         | 
+ refresh_tokens            | user_agent                 | text                     | YES         | 
+ refresh_tokens            | created_at                 | timestamp with time zone | NO          | now()
+ users                     | id                         | uuid                     | NO          | uuid_generate_v4()
+ users                     | email                      | character varying        | NO          | 
+ users                     | email_verified             | boolean                  | NO          | false
+ users                     | password_hash              | character varying        | YES         | 
+ users                     | full_name                  | character varying        | YES         | 
+ users                     | avatar_url                 | text                     | YES         | 
+ users                     | timezone                   | character varying        | NO          | 'UTC'::character varying
+ users                     | locale                     | character varying        | NO          | 'en'::character varying
+ users                     | last_login_at              | timestamp with time zone | YES         | 
+ users                     | is_active                  | boolean                  | NO          | true
+ users                     | is_platform_admin          | boolean                  | NO          | false
+ users                     | created_at                 | timestamp with time zone | NO          | now()
+ users                     | updated_at                 | timestamp with time zone | NO          | now()
+ users                     | dossier_output_language    | character varying        | NO          | 'match'::character varying
+ users                     | dossier_retention_days     | integer                  | YES         | 30
+ v_critical_alerts         | dossier_id                 | uuid                     | YES         | 
+ v_critical_alerts         | organization_id            | uuid                     | YES         | 
+ v_critical_alerts         | subject_name               | character varying        | YES         | 
+ v_critical_alerts         | subject_email              | character varying        | YES         | 
+ v_critical_alerts         | dossier_created_at         | timestamp with time zone | YES         | 
+ v_critical_alerts         | level                      | character varying        | YES         | 
+ v_critical_alerts         | category                   | character varying        | YES         | 
+ v_critical_alerts         | message                    | text                     | YES         | 
+ v_critical_alerts         | source_url                 | text                     | YES         | 
+ v_critical_alerts         | is_acknowledged            | boolean                  | YES         | 
+ v_org_usage_stats         | organization_id            | uuid                     | YES         | 
+ v_org_usage_stats         | organization_name          | character varying        | YES         | 
+ v_org_usage_stats         | plan                       | character varying        | YES         | 
+ v_org_usage_stats         | credits_balance            | integer                  | YES         | 
+ v_org_usage_stats         | total_dossiers             | bigint                   | YES         | 
+ v_org_usage_stats         | dossiers_this_month        | bigint                   | YES         | 
+ v_org_usage_stats         | avg_generation_ms          | integer                  | YES         | 
+ v_org_usage_stats         | successful_dossiers        | bigint                   | YES         | 
+ v_org_usage_stats         | failed_dossiers            | bigint                   | YES         | 
+(314 rows)
+
