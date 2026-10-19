@@ -55,3 +55,10 @@ out/
 .turbo/
 *.tsbuildinfo
 next-env.d.ts
+
+# Documentos generados localmente (copias de trabajo e informes)(dario)
+/documentacion_local/
+/docs/informes/2.1_APT122_DiarioReflexionFase2_Project_Dossier_*.docx
+/docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_*.docx
+/docs/informes/2.4_Guia_Fase_2_Avances_Project_Dossier_*.pdf
+/docs/informes/dario_garcia_2.1_APT122_DiarioReflexionFase2_Project_Dossier_*.docx
