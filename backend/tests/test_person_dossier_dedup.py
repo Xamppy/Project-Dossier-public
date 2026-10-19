@@ -9,15 +9,15 @@ from dossier.services.person_dossier_dedup import person_research_fingerprint
 
 def test_same_name_same_org_same_fingerprint():
     org_id = uuid.uuid4()
-    a = PersonResearchRequest(full_name="Víctor Escobar")
-    b = PersonResearchRequest(full_name="Victor Escobar")
+    a = PersonResearchRequest(full_name="Matías Prueba")
+    b = PersonResearchRequest(full_name="Matias Prueba")
     assert person_research_fingerprint(a, org_id) == person_research_fingerprint(b, org_id)
 
 
 def test_different_company_different_fingerprint():
     org_id = uuid.uuid4()
-    a = PersonResearchRequest(full_name="Victor Escobar", company="OXCCU")
-    b = PersonResearchRequest(full_name="Victor Escobar", company="Other")
+    a = PersonResearchRequest(full_name="Matias Prueba", company="Empresa Ejemplo SpA")
+    b = PersonResearchRequest(full_name="Matias Prueba", company="Other")
     assert person_research_fingerprint(a, org_id) != person_research_fingerprint(b, org_id)
 
 

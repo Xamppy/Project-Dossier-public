@@ -31,7 +31,8 @@ La aplicación permite:
 
 ## Buenas prácticas SEC
 
-- `User-Agent` identificable (email en el código)
+- `User-Agent` identificable con nombre y correo: variable `SEC_USER_AGENT`
+  (por defecto `Project Dossier contacto@example.com`; ver `backend/.env.example`)
 - Pausa entre peticiones (`sleep`)
 - Manejo de errores HTTP
 

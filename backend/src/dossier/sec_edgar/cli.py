@@ -9,18 +9,15 @@ import requests
 from dossier.companies_house.prompt_templates import format_sec_filing_gemini_prompt
 from dossier.config import data_path, load_env
 from dossier.llm.document_analyze import analyze_document_bytes
+from dossier.sec_edgar.user_agent import sec_request_headers
 
-USER_AGENT = "CarlosApp/1.0 (fduran@utem.cl)"
 MIN_INTERVAL_SECONDS = 0.1
 COMPANY_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 MAX_FILINGS_TO_SHOW = 10
 
 
 def fetch_json(url: str) -> dict:
-    headers = {
-        "User-Agent": USER_AGENT,
-        "Accept-Encoding": "gzip, deflate",
-    }
+    headers = sec_request_headers()
     response = requests.get(url, headers=headers, timeout=30)
     response.raise_for_status()
     time.sleep(MIN_INTERVAL_SECONDS)
@@ -28,10 +25,7 @@ def fetch_json(url: str) -> dict:
 
 
 def fetch_bytes(url: str) -> bytes:
-    headers = {
-        "User-Agent": USER_AGENT,
-        "Accept-Encoding": "gzip, deflate",
-    }
+    headers = sec_request_headers()
     response = requests.get(url, headers=headers, timeout=120)
     response.raise_for_status()
     time.sleep(MIN_INTERVAL_SECONDS)

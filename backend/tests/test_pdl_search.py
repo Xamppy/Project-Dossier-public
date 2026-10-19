@@ -17,24 +17,24 @@ def test_pdl_enrich_uses_full_name_when_no_extra_signal():
 
 
 def test_pdl_enrich_combines_name_with_company():
-    req = PersonResearchRequest(full_name="Victor Escobar Jeria", company="UTEM")
+    req = PersonResearchRequest(full_name="Valeria Ruiz Prueba", company="Empresa Ejemplo SpA")
     strategies = build_pdl_enrich_strategies(req)
     assert all(
         "company" in params or "location" in params or "country" in params or "name" in params
         for _, params in strategies
     )
     assert any(
-        params.get("first_name") == "Victor" and params.get("last_name") == "Jeria"
+        params.get("first_name") == "Valeria" and params.get("last_name") == "Prueba"
         for _, params in strategies
     )
 
 
 def test_pdl_search_sql_covers_multiple_name_splits():
-    req = PersonResearchRequest(full_name="Victor Escobar Jeria")
+    req = PersonResearchRequest(full_name="Valeria Ruiz Prueba")
     sql = build_pdl_search_sql(req)
     assert sql is not None
-    assert "first_name='Victor'" in sql
-    assert "last_name='Jeria'" in sql
+    assert "first_name='Valeria'" in sql
+    assert "last_name='Prueba'" in sql
 
 
 def test_should_not_cache_pdl_without_profiles():

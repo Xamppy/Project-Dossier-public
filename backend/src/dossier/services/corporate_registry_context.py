@@ -34,14 +34,13 @@ from dossier.llm.common import (
     should_retry,
 )
 from dossier.llm.document_analyze import analyze_document_bytes
+from dossier.sec_edgar.user_agent import sec_request_headers
 from dossier.services.corporate_company_search import (
     find_companies_house_matches,
     find_sec_matches,
 )
 
 logger = logging.getLogger(__name__)
-
-SEC_USER_AGENT = "CarlosApp/1.0 (fduran@utem.cl)"
 
 
 def _sec_filing_gemini_enabled() -> bool:
@@ -185,7 +184,7 @@ def _resolve_ch_company_number(participantes: str) -> tuple[str | None, str]:
 
 
 def _sec_fetch_bytes(url: str) -> bytes:
-    headers = {"User-Agent": SEC_USER_AGENT, "Accept-Encoding": "gzip, deflate"}
+    headers = sec_request_headers()
     r = requests.get(url, headers=headers, timeout=120)
     r.raise_for_status()
     time.sleep(0.11)
@@ -193,7 +192,7 @@ def _sec_fetch_bytes(url: str) -> bytes:
 
 
 def _sec_get_json(url: str) -> dict[str, Any]:
-    headers = {"User-Agent": SEC_USER_AGENT, "Accept-Encoding": "gzip, deflate"}
+    headers = sec_request_headers()
     r = requests.get(url, headers=headers, timeout=90)
     r.raise_for_status()
     # Buena práctica SEC: espaciar peticiones.
