@@ -15,8 +15,8 @@ def _name_splits(name: str) -> list[tuple[str, str]]:
     Variantes (first_name, last_name) para nombres de 3+ partes.
 
     Muchos proveedores guardan solo un nombre y un apellido, así que para
-    «Victor Escobar Jeria» probamos tanto «Victor» / «Escobar Jeria» como
-    «Victor» / «Jeria» y «Victor Escobar» / «Jeria».
+    «Valeria Ruiz Prueba» probamos tanto «Valeria» / «Ruiz Prueba» como
+    «Valeria» / «Prueba» y «Valeria Ruiz» / «Prueba».
     """
     parts = name.split()
     out: list[tuple[str, str]] = []
@@ -110,7 +110,7 @@ def _person_name_pairs(full_name: str) -> list[tuple[str, str, str]]:
     """
     Variantes (etiqueta, first_name, last_name) para nombres de varias palabras.
 
-    PDL suele indexar «Victor Escobar Jeria» como first_name=Victor, last_name=Jeria.
+    PDL suele indexar «Valeria Ruiz Prueba» como first_name=Valeria, last_name=Prueba.
     """
     name = " ".join(full_name.strip().split())
     parts = name.split()
