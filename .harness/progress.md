@@ -6,6 +6,69 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-19 · Cierre de revisiones y hallazgos (harness) · FO (agente)
+
+**Hecho.** Se actualizó el harness por indicación de FO, que informó que las revisiones del
+segundo integrante ya se hicieron y quedaron aprobadas. Se trabajó sobre `main` en `4e55155`.
+
+- **Integrado hoy en `main`:** PR #13 (S5.1), #14 (S5.10), #15 (S5.4) y #16 (BUG-2026-10-14-01).
+  Las cuatro tareas quedaron `done`, con su PR en `evidence`.
+- **Revisión aprobada, de `review` a `done` (18):** S1.6, S1.8, S1.9, S2.1, S2.2, S2.3, S3.1,
+  S3.2, S4.1–S4.7, BUG-2026-10-05-01, UX-AUTH-01 y UX-CAL-02. No había otras en `review`.
+- **Abandonadas, verificadas en `main` y cerradas (5):**
+  - UX-CAL-01: los tres documentos de `evidence` existen, y UX-CAL-02 ya está en `main`.
+  - UX-KPI-01: `GET /dashboard/summary` y sus tarjetas están en `main`. Backend: 73 passed y 36
+    skipped (integración sin Postgres). Frontend: 47 en verde.
+  - BUG-2026-09-24-01: `TimezoneSelect` está en `main`, con 2 pruebas en verde.
+  - BUG-2026-09-26-01: `CountrySelect` está en `main`, con 3 pruebas en verde.
+  - DOC-2026-10-04-01: el `.docx` de `evidence` está en `main`.
+- **Tareas nuevas** (sprint 2, responsable FO, vencen el 2026-10-26, `in_progress`). Sus ramas
+  las trabajan otros agentes:
+  - BUG-2026-10-19-01: bcrypt al cambiar la contraseña.
+  - BUG-2026-10-19-02: PDL consultado con el correo de otro asistente.
+  - BUG-2026-10-19-03: armazón del dashboard a 375 px.
+  - BUG-2026-10-19-04: falso «sin contacto» con «Contacto 1:».
+  - CHORE-2026-10-19-01: `AGENTS.md` y `CLAUDE.md` que genera `next dev`.
+  - CHORE-2026-10-19-02: Vitest con Node 26.
+- **Estados:** antes había 22 `done`, 39 `pending`, 18 `review` y 8 `in_progress` (87 tareas).
+  Ahora hay 49 `done`, 38 `pending` y 6 `in_progress` (93 tareas).
+- **`next.py --check` da OK.** Fallaba por «DG (agente)» con tres tareas a la vez; al cerrarlas,
+  se resolvió sin tocar el script.
+- **`CLAUDE.md` y `AGENTS.md`:** se corrigió lo que había dejado de ser cierto, que era la CI,
+  Alembic, ruff y mypy, eslint, los conteos de pruebas, `gemini/` y `dossier_data`.
+
+**Sin terminar.** S0.15 no se tocó, porque exige un acuerdo por escrito con el docente guía.
+No quedó ninguna tarea abandonada sin cerrar.
+
+**Lo que hay que saber.**
+- **El espejo de Trello no se actualizó.** Hay que reflejar a mano los 27 cierres y las seis
+  tareas nuevas en el tablero.
+- **La CI de los PR #13–16 quedó en cola al mezclar.** Hay que comprobar en Actions que pasó
+  sobre `main`.
+- **Cada tarea nueva lleva su propio `owner_session`** («FO (agente, BUG-2026-10-19-01)», etc.).
+  Con «FO (agente)» en las seis, `--check` falla de nuevo, porque cuenta las `claimed`/`in_progress`
+  por sesión. Se siguió el mismo criterio que DG en S5.4 y S5.10.
+- **Las pruebas de integración de UX-KPI-01 no se corrieron con Postgres.** Las 36 se omiten sin
+  `TEST_DATABASE_URL`, así que el cierre se apoya en las unitarias, de estrés y de seguridad.
+- **Conteos verificados hoy en `main`:**
+  - Backend: 659 passed y 121 skipped sin Postgres. De las omitidas, 109 piden
+    `TEST_DATABASE_URL` y 12 esperan S2.4, S3.9, S4.10, S5.8, S6.5, S6.6 y S6.7.
+  - Frontend: 522 pruebas en 40 archivos.
+  - ruff, mypy y eslint: 0 errores. eslint deja 1 advertencia en `register/page.test.tsx`.
+- **Vitest con Node 26 falla sin `NODE_OPTIONS=--no-experimental-webstorage`.** Se comprobó con
+  `localStorage.clear` indefinido. La CI usa Node 20 y no lo sufre.
+- **El dashboard tiene siete idiomas, no cinco** (`it` y `pt` en `frontend/src/i18n/messages/`).
+  `CLAUDE.md` («dashboard en cinco idiomas») y la tabla de `AGENTS.md` aún dicen cinco. No se
+  corrigió porque queda fuera de «Estado real del repositorio».
+
+**Siguiente paso concreto.** Reflejar los cambios en Trello, revisar la CI de `main` en Actions
+y revisar los PR de las seis tareas nuevas a medida que se abran.
+
+**Rama.** `chore/harness-cierre-revisiones` · **Estado.** 27 tareas `done` y 6 nuevas en
+`in_progress`
+
+---
+
 ### 2026-10-16 · S5.4 (frontend) · DG (agente Claude, S5.4)
 
 **Hecho.** Avance real y resultados parciales en Calendario (Google/Outlook) y Personas (Registros PDL y Web pública), consumiendo el ADR 0009 y los 8 ejemplos de S5.10 sin pedir cambios de contrato.
