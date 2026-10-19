@@ -3,7 +3,7 @@
   "project": "Project Dossier - Continuidad (Proyecto APT)",
   "plan": "docs/documentos-capstone/Plan_de_Trabajo_Detallado_Dossier.pdf",
   "board": "https://trello.com/b/XTSgfWKi/capstone-dossier-plan-de-sprints",
-  "updated": "2026-10-14",
+  "updated": "2026-10-19",
   "status_values": [
     "pending",
     "claimed",
@@ -547,7 +547,7 @@
       "id": "S1.6",
       "sprint": 1,
       "title": "Retirar la linea de implementacion no canonica y las rutas legadas",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A3",
@@ -563,7 +563,7 @@
       "evidence": [
         "backend/tests/test_llm_canonical_line.py"
       ],
-      "notes": "Retirado gemini/, openai_dossier.py, legacy_routes.py y sus rutas. Prueba test_llm_canonical_line.py cubre backend y frontend.",
+      "notes": "Retirado gemini/, openai_dossier.py, legacy_routes.py y sus rutas. Prueba test_llm_canonical_line.py cubre backend y frontend. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
@@ -594,7 +594,7 @@
       "id": "S1.8",
       "sprint": 1,
       "title": "Implementar el cliente HTTP de la fuente europea",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -612,14 +612,14 @@
       "evidence": [
         "backend/tests/test_eu_registry_client.py"
       ],
-      "notes": "Cliente HTTP FR/DE en eu_registry/client.py; FR verificado en vivo, DE pendiente de verificar esquema (servicio dio 502).",
+      "notes": "Cliente HTTP FR/DE en eu_registry/client.py; FR verificado en vivo, DE pendiente de verificar esquema (servicio dio 502). Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S1.9",
       "sprint": 1,
       "title": "Definir el modelo comun de registro corporativo (UK / US / EU)",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -638,14 +638,14 @@
       "evidence": [
         "backend/tests/test_corporate_registry_schema.py,specs/proposals/S1.9-modelo-comun-registro-corporativo.md"
       ],
-      "notes": "RegistroCorporativo en dossier/schemas/corporate_registry.py; spec con tabla de mapeo de campos por fuente.",
+      "notes": "RegistroCorporativo en dossier/schemas/corporate_registry.py; spec con tabla de mapeo de campos por fuente. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S2.1",
       "sprint": 2,
       "title": "Implementar el agente de registros corporativos europeos",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -665,14 +665,14 @@
         "backend/src/dossier/eu_registry/agent.py + mapper.py (run_eu_registry_agent); 28 pruebas (commit f87e48b)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S1.8 y S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S1.8 y S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S2.2",
       "sprint": 2,
       "title": "Integrar el agente europeo al orquestador con seleccion de jurisdiccion",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -693,14 +693,14 @@
         "backend/src/dossier/graphs/corporate_dossier_graph.py: nodos agent_corporate_eu y agent_news, alcance eu_only, agents_skipped, empresa_objetivo (commits 3c328bf, 26cbb5c)",
         "tests/test_corporate_graph_eu_news.py + integration + stress (32 pruebas); verificado contra registro FR, GDELT y NewsAPI reales"
       ],
-      "notes": "Tomada con S2.1 aun en review (decision del usuario, MVP). Incluye tambien el nodo de noticias (S3.2) en el grafo, segun CA1 de S0.12.",
+      "notes": "Tomada con S2.1 aun en review (decision del usuario, MVP). Incluye tambien el nodo de noticias (S3.2) en el grafo, segun CA1 de S0.12. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S2.3",
       "sprint": 2,
       "title": "Adaptar los agentes de Reino Unido y Estados Unidos al modelo comun",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A4",
@@ -719,7 +719,7 @@
         "companies_house/converters.py + sec_edgar/converters.py (aditivos); 21 pruebas (commit 432d706)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S1.9 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
@@ -811,7 +811,7 @@
       "id": "S3.1",
       "sprint": 3,
       "title": "Implementar el cliente del proveedor de noticias",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -830,14 +830,14 @@
         "backend/src/dossier/news/client.py",
         "backend/tests/test_news_client.py"
       ],
-      "notes": "Cliente GDELT DOC 2.0 + NewsAPI (ADR 0004), mismo patron que eu_registry/client.py (S1.8). Solo fetch+parseo crudo; dedup/homonimos/procedencia quedan para S3.2-S3.4.",
+      "notes": "Cliente GDELT DOC 2.0 + NewsAPI (ADR 0004), mismo patron que eu_registry/client.py (S1.8). Solo fetch+parseo crudo; dedup/homonimos/procedencia quedan para S3.2-S3.4. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S3.2",
       "sprint": 3,
       "title": "Implementar el agente de noticias con deduplicacion",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -857,7 +857,7 @@
         "backend/src/dossier/news/agent.py (collect_press_mentions); tests unit/integration/stress del agente (commits a69aea5, d267acb)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S3.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S3.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
@@ -1011,7 +1011,7 @@
       "id": "S4.1",
       "sprint": 4,
       "title": "Implementar el esquema JSON estricto como modelos Pydantic",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1031,14 +1031,14 @@
       "evidence": [
         "backend/tests/test_dossier_executive_payload.py"
       ],
-      "notes": "DossierExecutivePayload en dossier/schemas/dossier_executive_payload.py, siguiendo la spec S0.9; corporate_records reutiliza RegistroCorporativo (S1.9) via CorporateRecordCitation.",
+      "notes": "DossierExecutivePayload en dossier/schemas/dossier_executive_payload.py, siguiendo la spec S0.9; corporate_records reutiliza RegistroCorporativo (S1.9) via CorporateRecordCitation. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S4.2",
       "sprint": 4,
       "title": "Ajustar la capa de sintesis para emitir JSON conforme al esquema",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1060,14 +1060,14 @@
         "backend/tests/test_structured_synthesis.py + tests/integration/test_person_structured_synthesis.py + tests/stress/test_structured_synthesis_estres.py (18 pruebas; suite 147 passed)",
         "Smoke real contra DeepSeek (datos ficticios): es 1 llamada 22s, en 1 llamada 14s, payload valido"
       ],
-      "notes": "Tomada con S4.1 aun en review, por decision del usuario (ruta critica del MVP). synthesize_executive_payload (llm/structured_synthesis.py): JSON mode + ejemplo de instancia + esquema, reintento asistido con errores concretos; analyze_person_profile_bundle_structured con prompts propios sin formato Markdown. Validado contra DeepSeek real con datos ficticios (es/en). Aun no conectado al pipeline: eso es S4.3.",
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (ruta critica del MVP). synthesize_executive_payload (llm/structured_synthesis.py): JSON mode + ejemplo de instancia + esquema, reintento asistido con errores concretos; analyze_person_profile_bundle_structured con prompts propios sin formato Markdown. Validado contra DeepSeek real con datos ficticios (es/en). Aun no conectado al pipeline: eso es S4.3. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S4.3",
       "sprint": 4,
       "title": "Sustituir el envoltorio Markdown por el contrato validado en dossier_data",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1091,14 +1091,14 @@
         "E2E real (DeepSeek + perfil ficticio + dossier_test): 1 llamada 30s, status complete, billing charged, saldo 10->9, executive_payload guardado",
         "Ampliacion 2026-09-26: FinalRecommendation + ConfidenceAssessment (spec S0.9 CA5/CA6), render en 6 idiomas; tests/test_dossier_recommendation_contract.py; suite 180 passed con Postgres; DeepSeek real 1 llamada 19s"
       ],
-      "notes": "Tomada con S4.2 en review (decision del usuario). Opcion mas economica: 1 llamada JSON + Markdown renderizado por codigo (services/executive_markdown.py). dossier_data conserva format/body/billing y agrega executive_payload; frontend sin cambios. Respaldo al informe Markdown solo si el JSON no valida. Validado de punta a punta con DeepSeek real, perfil ficticio y Postgres de pruebas.",
+      "notes": "Tomada con S4.2 en review (decision del usuario). Opcion mas economica: 1 llamada JSON + Markdown renderizado por codigo (services/executive_markdown.py). dossier_data conserva format/body/billing y agrega executive_payload; frontend sin cambios. Respaldo al informe Markdown solo si el JSON no valida. Validado de punta a punta con DeepSeek real, perfil ficticio y Postgres de pruebas. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S4.4",
       "sprint": 4,
       "title": "Implementar compatibilidad de lectura para dossiers historicos en Markdown",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1115,14 +1115,14 @@
         "schemas/dossier_executive_payload.py (parse_dossier_payload, resumen_contenido_dossier) + GET /dossiers/{id} content_kind/executive_payload; tests/test_dossier_lectura_historica.py, integration y security (commit a48942b)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S4.3 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S4.3 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.5",
       "sprint": 4,
       "title": "Crear las entidades de alertas, trayectoria y menciones de prensa",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "db",
       "activity": "A5",
@@ -1145,14 +1145,14 @@
         "backend/src/dossier/db/models.py (DossierAlert, DossierMediaMention, DossierCareerEntry)",
         "backend/tests/test_dossier_entities_schema.py + tests/integration/test_dossier_entities_migracion.py + tests/security/test_dossier_entities_seguridad.py (21 pruebas; 138 passed en suite completa con Postgres)"
       ],
-      "notes": "Extiende dossier_alerts/dossier_media_mentions/dossier_career_entries (ya existian en la linea base, sin uso) en vez de crear las 3 tablas del diseno S0.10; decision en docs/architecture/estrategia-migracion-modelo-datos.md s2. Migracion b7e2d4f1a9c3 + modelos ORM DossierAlert/DossierMediaMention/DossierCareerEntry. Pruebas Postgres requieren TEST_DATABASE_URL (la CI las salta).",
+      "notes": "Extiende dossier_alerts/dossier_media_mentions/dossier_career_entries (ya existian en la linea base, sin uso) en vez de crear las 3 tablas del diseno S0.10; decision en docs/architecture/estrategia-migracion-modelo-datos.md s2. Migracion b7e2d4f1a9c3 + modelos ORM DossierAlert/DossierMediaMention/DossierCareerEntry. Pruebas Postgres requieren TEST_DATABASE_URL (la CI las salta). Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "S4.6",
       "sprint": 4,
       "title": "Incorporar alertas de riesgo e ideas para iniciar la conversacion",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1169,14 +1169,14 @@
         "backend/src/dossier/services/dossier_entities_writer.py + person_research_pipeline.py; tests unit/integration/security de dossier_entities_writer (commit 2f03b34)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
       "id": "S4.7",
       "sprint": 4,
       "title": "Exigir origen y fecha de consulta en toda afirmacion estructurada",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "backend",
       "activity": "A5",
@@ -1193,7 +1193,7 @@
         "backend/src/dossier/services/source_provenance.py (normalizar_procedencia_fuentes) + person_research_service.py; tests/test_source_provenance.py + tests/integration/test_person_research_source_provenance.py (commit 70c0496)",
         "Integrada en FO: suite 298 passed con Postgres, mypy 0, qa.py --full en verde"
       ],
-      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO.",
+      "notes": "Tomada con S4.1 aun en review, por decision del usuario (MVP). Ejecutada por subagente Sonnet en worktree aislado; integrada en FO. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente Sonnet)"
     },
     {
@@ -1280,7 +1280,7 @@
       "id": "S5.1",
       "sprint": 5,
       "title": "Consumir el canal en DossierJobsProvider y retirar su setInterval",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A6",
@@ -1298,9 +1298,10 @@
       "trello": "https://trello.com/c/4wewW4BW",
       "branch": "feat/S5.1-dashboard-canal-estados",
       "evidence": [
-        "specs/reports/S5.1-dashboard-canal-estados.md: 78 pruebas nuevas (adaptador 19, proveedor 33, trafico HTTP 1, pagina Personas 25), 293 en verde; qa.py --full --since d0ae752 en verde; demostracion integrada local sin sondeo de jobs (antes 80 GET en 60 s con 4 activos)."
+        "specs/reports/S5.1-dashboard-canal-estados.md: 78 pruebas nuevas (adaptador 19, proveedor 33, trafico HTTP 1, pagina Personas 25), 293 en verde; qa.py --full --since d0ae752 en verde; demostracion integrada local sin sondeo de jobs (antes 80 GET en 60 s con 4 activos).",
+        "https://github.com/Xamppy/Project-Dossier/pull/13"
       ],
-      "notes": "Implementada en feat/S5.1-dashboard-canal-estados: DossierJobsProvider por SSE (Calendario Google/Outlook y Personas PDL/gemini_web), sin setInterval; recuperacion manual; corporativo manual sin stream. Pendiente: PR, revision y Trello. Sin reconexion automatica (S5.3): el corte del servidor a los 600 s se ve como conexion perdida. NotificationsProvider sigue en S5.2. Rama subida a origin sin PR por decisión de DG (2026-10-15); el PR se abrirá cuando DG lo indique.",
+      "notes": "Implementada en feat/S5.1-dashboard-canal-estados: DossierJobsProvider por SSE (Calendario Google/Outlook y Personas PDL/gemini_web), sin setInterval; recuperacion manual; corporativo manual sin stream. Pendiente: PR, revision y Trello. Sin reconexion automatica (S5.3): el corte del servidor a los 600 s se ve como conexion perdida. NotificationsProvider sigue en S5.2. Rama subida a origin sin PR por decisión de DG (2026-10-15); el PR se abrirá cuando DG lo indique. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente Claude)"
     },
     {
@@ -1347,7 +1348,7 @@
       "id": "S5.4",
       "sprint": 5,
       "title": "Mostrar resultados parciales y estado por agente",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A6",
@@ -1363,9 +1364,10 @@
       "trello": "https://trello.com/c/taJ6cNQf",
       "branch": "feat/S5.4-resultados-parciales-agentes",
       "evidence": [
-        "specs/reports/S5.4-resultados-parciales-agentes.md: CA1-CA24 mapeados a pruebas; 216 pruebas nuevas (reducer 70, clasificación 41, adaptador 6, proveedor 16, componentes 45, CalendarEventDetails 6, Personas 13, idiomas 19), 509 en verde; eslint y tsc limpios; qa.py --full --since 5b1ce9e en verde; demostración en navegador con backend real y proveedores simulados (Calendario Google, Personas PDL y Web pública, informe fallido con perfiles, cancelación, corte de conexión, recarga, tema claro y pantalla estrecha); capturas en specs/reports/S5.4-evidencia/."
+        "specs/reports/S5.4-resultados-parciales-agentes.md: CA1-CA24 mapeados a pruebas; 216 pruebas nuevas (reducer 70, clasificación 41, adaptador 6, proveedor 16, componentes 45, CalendarEventDetails 6, Personas 13, idiomas 19), 509 en verde; eslint y tsc limpios; qa.py --full --since 5b1ce9e en verde; demostración en navegador con backend real y proveedores simulados (Calendario Google, Personas PDL y Web pública, informe fallido con perfiles, cancelación, corte de conexión, recarga, tema claro y pantalla estrecha); capturas en specs/reports/S5.4-evidencia/.",
+        "https://github.com/Xamppy/Project-Dossier/pull/15"
       ],
-      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1. Tomada el 2026-10-15 con S5.1 y S5.10 sin revisión, por decisión de DG. Implementada el 2026-10-16 en feat/S5.4-resultados-parciales-agentes (sale de la de S5.10, que sale de la de S5.1): reducer y clasificación puros, eventos por la suscripción de S5.1, paneles en Calendario y Personas, sin cambios de backend. Falta el PR (espera la autorización de DG), la revisión del segundo integrante y la evidencia en Trello. Hallazgo fuera de alcance: en Calendario con varios asistentes, PDL se consulta para el segundo con el correo del primer participante.",
+      "notes": "Planificacion ampliada 2026-10-13 (DG/Codex), sin implementar ni reclamar: specs/proposals/S5.4-resultados-parciales-agentes.md y docs/exec-plans/active/S5.4-resultados-parciales-agentes.md (prompts backend/frontend actualizados). Sustituye alcance solo calendario por Calendario y Personas PDL/Web publica, con scopes por sujeto, agent_progress corporativo y stage_progress personal, parciales validos y snapshot persistido. BE1-BE13 y CA1-CA24. gemini_web actual llama DeepSeek sin busqueda web real; no simularla. Corporativo manual posterior; S5.2/S5.3 separadas. 2026-10-15: la dependencia backend quedó registrada como S5.10 (responsable DG, BE1-BE13) y añadida a depends_on; S4.9 fue aprobada por DG ese mismo día. El frontend de S5.4 espera a S5.10 y a la revisión de S5.1. Tomada el 2026-10-15 con S5.1 y S5.10 sin revisión, por decisión de DG. Implementada el 2026-10-16 en feat/S5.4-resultados-parciales-agentes (sale de la de S5.10, que sale de la de S5.1): reducer y clasificación puros, eventos por la suscripción de S5.1, paneles en Calendario y Personas, sin cambios de backend. Falta el PR (espera la autorización de DG), la revisión del segundo integrante y la evidencia en Trello. Hallazgo fuera de alcance: en Calendario con varios asistentes, PDL se consulta para el segundo con el correo del primer participante. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente Claude, S5.4)"
     },
     {
@@ -1475,7 +1477,7 @@
       "id": "S5.10",
       "sprint": 5,
       "title": "Instrumentar progreso por etapas y resultados parciales para S5.4 (backend)",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "backend",
       "activity": "A6",
@@ -1491,9 +1493,10 @@
       "trello": null,
       "branch": "feat/S5.10-progreso-etapas-parciales",
       "evidence": [
-        "specs/reports/S5.10-progreso-etapas-parciales.md: BE1-BE13 cumplidos; 149 pruebas nuevas (unitarias, integracion con Postgres, seguridad, estres); suite backend 737 passed con Postgres de prueba y 646 sin el; qa.py --full --since 03d76c6 en verde; BE2 en un proceso: mediana 2,29 ms y maximo 7,67 ms con Postgres local; fixtures en specs/fixtures/S5.10-progreso/"
+        "specs/reports/S5.10-progreso-etapas-parciales.md: BE1-BE13 cumplidos; 149 pruebas nuevas (unitarias, integracion con Postgres, seguridad, estres); suite backend 737 passed con Postgres de prueba y 646 sin el; qa.py --full --since 03d76c6 en verde; BE2 en un proceso: mediana 2,29 ms y maximo 7,67 ms con Postgres local; fixtures en specs/fixtures/S5.10-progreso/",
+        "https://github.com/Xamppy/Project-Dossier/pull/14"
       ],
-      "notes": "Seguimiento backend de S5.4, prerrequisito de su frontend. Registrado por DG el 2026-10-15; responsable DG por decisión de ese día (el plan proponía FO/equipo). Cubre Calendario Google/Outlook y Personas (Registros PDL y Web pública/gemini_web; person_manual incluido): agent_progress de los agentes corporativos al iniciar y terminar cada nodo, stage_progress con etapas person.* por modalidad, partial_result con vistas previas autorizadas (Markdown corporativo, perfiles PDL permitidos antes de la síntesis, informe gemini_web solo cuando vuelve completo) y snapshot de progreso por scope persistido y recuperable, con revisión por job y sin depender del buffer SSE en memoria. Criterios BE1-BE13 de specs/proposals/S5.4-resultados-parciales-agentes.md; pasos B0-B7 y prompt del agente backend en docs/exec-plans/active/S5.4-resultados-parciales-agentes.md. Antes del RED: adoptar el contrato (B0) y, si cambia una decisión del ADR 0006, dejar un ADR complementario. Fuera de alcance: corporativo manual, S5.2 (notificaciones), S5.3 (reconexión automática) y el frontend de S5.4. gemini_web llama a DeepSeek sin búsqueda web real: no publicar búsquedas, páginas ni fuentes que no ocurren (live_web_search=false). Se ejecuta en su propia sesión y PR. Creada en la rama feat/S5.1-dashboard-canal-estados, todavía no en main. Tarjeta de Trello pendiente: la crea DG. Implementada el 2026-10-15 en feat/S5.10-progreso-etapas-parciales (sale de la rama de S5.1): contrato adoptado en el ADR 0009, sin vista previa de UK y USA, y agent_progress reemplaza al formato de S4.9. Falta el PR, la revision del segundo integrante y la tarjeta de Trello.",
+      "notes": "Seguimiento backend de S5.4, prerrequisito de su frontend. Registrado por DG el 2026-10-15; responsable DG por decisión de ese día (el plan proponía FO/equipo). Cubre Calendario Google/Outlook y Personas (Registros PDL y Web pública/gemini_web; person_manual incluido): agent_progress de los agentes corporativos al iniciar y terminar cada nodo, stage_progress con etapas person.* por modalidad, partial_result con vistas previas autorizadas (Markdown corporativo, perfiles PDL permitidos antes de la síntesis, informe gemini_web solo cuando vuelve completo) y snapshot de progreso por scope persistido y recuperable, con revisión por job y sin depender del buffer SSE en memoria. Criterios BE1-BE13 de specs/proposals/S5.4-resultados-parciales-agentes.md; pasos B0-B7 y prompt del agente backend en docs/exec-plans/active/S5.4-resultados-parciales-agentes.md. Antes del RED: adoptar el contrato (B0) y, si cambia una decisión del ADR 0006, dejar un ADR complementario. Fuera de alcance: corporativo manual, S5.2 (notificaciones), S5.3 (reconexión automática) y el frontend de S5.4. gemini_web llama a DeepSeek sin búsqueda web real: no publicar búsquedas, páginas ni fuentes que no ocurren (live_web_search=false). Se ejecuta en su propia sesión y PR. Creada en la rama feat/S5.1-dashboard-canal-estados, todavía no en main. Tarjeta de Trello pendiente: la crea DG. Implementada el 2026-10-15 en feat/S5.10-progreso-etapas-parciales (sale de la rama de S5.1): contrato adoptado en el ADR 0009, sin vista previa de UK y USA, y agent_progress reemplaza al formato de S4.9. Falta el PR, la revision del segundo integrante y la tarjeta de Trello. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente Claude, S5.10)"
     },
     {
@@ -1893,7 +1896,7 @@
       "id": "BUG-2026-09-24-01",
       "sprint": 0,
       "title": "Corregir la hidratacion del selector de zona horaria en registro",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A9",
@@ -1905,16 +1908,17 @@
       "trello": null,
       "branch": "dario",
       "evidence": [
-        "frontend/src/components/settings/TimezoneSelect.test.tsx"
+        "frontend/src/components/settings/TimezoneSelect.test.tsx",
+        "Verificación 2026-10-19 sobre 4e55155: vitest src/components/settings/TimezoneSelect.test.tsx → 2 passed"
       ],
-      "notes": "Defecto ad hoc fuera de las 77 tareas del plan. Pruebas y tipos en verde; QA global bloqueado por 21 errores ESLint preexistentes. Falta PR, revision y evidencia en Trello.",
+      "notes": "Defecto ad hoc fuera de las 77 tareas del plan. Pruebas y tipos en verde; QA global bloqueado por 21 errores ESLint preexistentes. Falta PR, revision y evidencia en Trello. Verificado en main (4e55155) el 2026-10-19: TimezoneSelect está en main, se usa en app/register/page.tsx y su prueba pasa (2 en verde). Cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente)"
     },
     {
       "id": "BUG-2026-09-26-01",
       "sprint": 0,
       "title": "Reemplazar el texto libre de país en person-research por selector de países",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A9",
@@ -1927,16 +1931,17 @@
       "branch": "dario",
       "evidence": [
         "frontend/src/components/dashboard/CountrySelect.test.tsx",
-        "frontend/src/lib/countries.test.ts"
+        "frontend/src/lib/countries.test.ts",
+        "Verificación 2026-10-19 sobre 4e55155: vitest CountrySelect.test.tsx y countries.test.ts → 3 passed"
       ],
-      "notes": "Selector con los 249 códigos ISO 3166-1 alpha-2. Payload mantiene country como nombre en inglés, compatible con PersonResearchRequest.country (str | None, max_length=120). Vitest y TypeScript pasan; falta PR, revisión y evidencia en Trello.",
+      "notes": "Selector con los 249 códigos ISO 3166-1 alpha-2. Payload mantiene country como nombre en inglés, compatible con PersonResearchRequest.country (str | None, max_length=120). Vitest y TypeScript pasan; falta PR, revisión y evidencia en Trello. Verificado en main (4e55155) el 2026-10-19: CountrySelect está en main, se usa en app/dashboard/person-research/page.tsx y sus pruebas pasan (3 en verde). Cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente)"
     },
     {
       "id": "UX-CAL-01",
       "sprint": 0,
       "title": "Evaluar y planificar una vista de calendario visual para reuniones",
-      "status": "pending",
+      "status": "done",
       "owner": "DG",
       "area": "docs",
       "activity": "A2",
@@ -1952,14 +1957,14 @@
         "specs/proposals/UX-CAL-01-calendario-visual.md",
         "docs/exec-plans/active/UX-CAL-01-calendario-visual.md"
       ],
-      "notes": "Evaluación solicitada por el usuario el 2026-10-02, adicional a las 77 tareas. Borradores documentados; pendiente revisión y priorización. Sprint 0 identifica el diseño, no programa la implementación. FullCalendar Standard recomendado; lectura por rango y paginación necesarias. Sin cambios runtime, PR ni tarjeta. La implementación se asignará tras consolidar Sprint 1 salvo instrucción expresa. No se marca done por el propio autor.",
+      "notes": "Evaluación solicitada por el usuario el 2026-10-02, adicional a las 77 tareas. Borradores documentados; pendiente revisión y priorización. Sprint 0 identifica el diseño, no programa la implementación. FullCalendar Standard recomendado; lectura por rango y paginación necesarias. Sin cambios runtime, PR ni tarjeta. La implementación se asignará tras consolidar Sprint 1 salvo instrucción expresa. No se marca done por el propio autor. Verificado en main (4e55155) el 2026-10-19: existen los tres documentos de evidence (ADR 0007, propuesta y plan de ejecución) y la implementación UX-CAL-02 ya está en main. Cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": null
     },
     {
       "id": "UX-KPI-01",
       "sprint": 0,
       "title": "Reemplazar las tarjetas de Resumen con indicadores reales (reuniones por preparar, cobertura, preparadas a tiempo, créditos)",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A2",
@@ -1974,16 +1979,17 @@
         "specs/proposals/UX-KPI-01-indicadores-resumen.md",
         "docs/exec-plans/active/UX-KPI-01-indicadores-resumen.md",
         "specs/reports/UX-KPI-01-indicadores-resumen.md",
-        "docs/architecture/decisions/0008-indicador-creditos-para-preparar.md"
+        "docs/architecture/decisions/0008-indicador-creditos-para-preparar.md",
+        "Verificación 2026-10-19 sobre 4e55155: pytest tests/test_meeting_prep_kpi.py tests/test_calendar_range_meta.py tests/test_summary_cache.py tests/integration/test_dashboard_summary.py tests/stress/test_dashboard_summary_estres.py tests/security/test_dashboard_summary_seguridad.py → 73 passed, 36 skipped sin Postgres; vitest OverviewKpiCards, useDashboardSummary, dashboard-kpis y dossier-api.dashboard-summary → 47 passed"
       ],
-      "notes": "Implementado y verificado por su autor (2026-10-03, enmienda 2026-10-04): GET /dashboard/summary y cuatro tarjetas de Resumen (reuniones por preparar, cobertura, créditos para preparar, créditos disponibles) en siete idiomas. La enmienda del usuario reemplazó «Preparadas a tiempo» y retiró la evidencia histórica: sin cambios de esquema. Backend 388 verdes (109 nuevas; 36 requieren TEST_DATABASE_URL), frontend 50 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md.",
+      "notes": "Implementado y verificado por su autor (2026-10-03, enmienda 2026-10-04): GET /dashboard/summary y cuatro tarjetas de Resumen (reuniones por preparar, cobertura, créditos para preparar, créditos disponibles) en siete idiomas. La enmienda del usuario reemplazó «Preparadas a tiempo» y retiró la evidencia histórica: sin cambios de esquema. Backend 388 verdes (109 nuevas; 36 requieren TEST_DATABASE_URL), frontend 50 nuevas. Verificado visualmente con datos ficticios. Sin proveedores reales de calendario. Pendiente: revisión del segundo integrante, PR y evidencia Trello; no se marca done. Limitaciones en specs/reports/UX-KPI-01-indicadores-resumen.md. Verificado en main (4e55155) el 2026-10-19: GET /dashboard/summary en backend/src/dossier/api/dashboard_routes.py, OverviewKpiCards y useDashboardSummary conectados en frontend/src/app/dashboard/page.tsx, y los cuatro documentos de evidence. Backend 73 passed y 36 skipped (las de integración piden TEST_DATABASE_URL; no se corrieron con Postgres); frontend 47 en verde en 4 archivos. Cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente)"
     },
     {
       "id": "UX-CAL-02",
       "sprint": 0,
       "title": "Implementar la vista de calendario visual para reuniones (FullCalendar)",
-      "status": "review",
+      "status": "done",
       "owner": "DG",
       "area": "frontend",
       "activity": "A2",
@@ -2000,14 +2006,14 @@
         "docs/exec-plans/active/UX-CAL-01-calendario-visual.md",
         "docs/architecture/decisions/0007-calendario-visual.md"
       ],
-      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 129 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor.",
+      "notes": "Implementación de lo planificado en UX-CAL-01 (que solo evalúa y planifica). Iniciada por instrucción expresa del usuario el 2026-10-02, antes del cierre de Sprint 1. Backend con lectura por intervalo y paginación; frontend con FullCalendar 7.1.0. 99 pruebas nuevas de backend y 129 de frontend; fallos preexistentes ajenos: test_gemini_dir_no_existe y TimezoneSelect. Pendiente: revisión de un segundo integrante, tarjeta de Trello, validar día completo de Outlook con cuenta real (H3) y shell del dashboard no responsive (H2). No se marca done por el propio autor. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (agente)"
     },
     {
       "id": "DOC-2026-10-04-01",
       "sprint": 0,
       "title": "Resumen comprensible de los últimos 20 commits de Felipe Orellana y Felipe Docmac",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "docs",
       "activity": "A1",
@@ -2021,14 +2027,14 @@
       "evidence": [
         "docs/informes/Resumen_avances_ultimos_20_commits_2026-10-04.docx"
       ],
-      "notes": "Corregido por instrucción del usuario: solo aportes de sus compañeros, sin cambios de Darío. Word de 4 páginas sobre los 20 commits más recientes de Xamppy/Felipe Orellana y Felipe Docmac del historial local: 8 de FO y 12 de FD, del 23 al 26 de septiembre de 2026. Incluye avances por persona, utilidad, limitaciones, evidencia histórica y tabla de los 20 commits enlazados. Se contrastaron autores, diffs y documentación; todas las referencias a commits son de FO/FD. Render y revisión visual de las 4 páginas. Solo documentación, sin ejecución de suites de aplicación. Documento listo; pendiente revisión documental e integración, sin PR ni tarjeta creados. Se conservan cambios locales previos; no se marca done por el autor.",
+      "notes": "Corregido por instrucción del usuario: solo aportes de sus compañeros, sin cambios de Darío. Word de 4 páginas sobre los 20 commits más recientes de Xamppy/Felipe Orellana y Felipe Docmac del historial local: 8 de FO y 12 de FD, del 23 al 26 de septiembre de 2026. Incluye avances por persona, utilidad, limitaciones, evidencia histórica y tabla de los 20 commits enlazados. Se contrastaron autores, diffs y documentación; todas las referencias a commits son de FO/FD. Render y revisión visual de las 4 páginas. Solo documentación, sin ejecución de suites de aplicación. Documento listo; pendiente revisión documental e integración, sin PR ni tarjeta creados. Se conservan cambios locales previos; no se marca done por el autor. Verificado en main (4e55155) el 2026-10-19: el documento de evidence existe. Solo documentación, sin pruebas que correr. Cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (Codex, resumen documental)"
     },
     {
       "id": "BUG-2026-10-05-01",
       "sprint": 1,
       "title": "Agregar dossier_generation_jobs al esquema versionado (Alembic y parches de arranque)",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "db",
       "activity": "A3",
@@ -2044,14 +2050,14 @@
       "evidence": [
         "backend/alembic/versions/c4d8a2f6b1e9_bug_2026_10_05_01_cola_de_trabajos.py + schema_patches.JOB_QUEUE_PATCHES; tests unit/integration/security de la cola; suite 558 passed con Postgres (commit 1a9682d)"
       ],
-      "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD).",
+      "notes": "Defecto ad hoc fuera del plan, hallado al probar el canal SSE contra Postgres: la tabla solo la creaba create_all del ORM, asi que una base hecha con alembic upgrade head y DATABASE_AUTO_CREATE_TABLES=0 no tenia la cola de trabajos. Tomado por FO a pedido del usuario (el frente de S1.1 es de FD). Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "UX-AUTH-01",
       "sprint": 1,
       "title": "Iniciar sesión con Google (alta automática) y botón de Microsoft deshabilitado",
-      "status": "review",
+      "status": "done",
       "owner": "FO",
       "area": "auth",
       "activity": "A3",
@@ -2065,14 +2071,14 @@
       "evidence": [
         "backend/src/dossier/api/google_login_routes.py + modelo OAuthAccount; tests unit/security/integration de Google login (18) y Vitest de /login y /auth/google (6); suite 588 passed con Postgres; qa.py --full en verde"
       ],
-      "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth.",
+      "notes": "A pedido del usuario: el botón Google del login no hacía nada. Si el correo no tiene cuenta se crea una con espacio personal; si existe con el mismo correo verificado por Google, se vincula (oauth_accounts). Microsoft queda deshabilitado hasta configurar su OAuth. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "FO (agente)"
     },
     {
       "id": "BUG-2026-10-14-01",
       "sprint": 1,
       "title": "Validar límite UTF-8 de bcrypt en el registro manual",
-      "status": "in_progress",
+      "status": "done",
       "owner": "DG",
       "area": "auth",
       "activity": "A3",
@@ -2091,10 +2097,125 @@
         "frontend/src/app/register/page.test.tsx",
         "frontend/src/lib/translate-api-error.test.ts",
         "specs/reports/BUG-2026-10-14-01-registro-bcrypt.md",
-        "docs/auth-app.md"
+        "docs/auth-app.md",
+        "https://github.com/Xamppy/Project-Dossier/pull/16"
       ],
-      "notes": "Corrección implementada con TDD: validación UTF-8 previa al hash, HTTP 422 con código estable y mensaje traducido en siete idiomas. 44 pruebas nuevas en verde (31 backend, 13 frontend). qa.py --full exit 0 con Postgres temporal: 621 backend passed, 12 skipped; Vitest y build aprobados; tsc/mypy y ruff de archivos modificados limpios. Ruff general conserva 25 hallazgos en archivos no modificados. Pendiente push/PR, revisión de segundo integrante, evidencia Trello y despliegue. No se marca done por el autor.",
+      "notes": "Corrección implementada con TDD: validación UTF-8 previa al hash, HTTP 422 con código estable y mensaje traducido en siete idiomas. 44 pruebas nuevas en verde (31 backend, 13 frontend). qa.py --full exit 0 con Postgres temporal: 621 backend passed, 12 skipped; Vitest y build aprobados; tsc/mypy y ruff de archivos modificados limpios. Ruff general conserva 25 hallazgos en archivos no modificados. Pendiente push/PR, revisión de segundo integrante, evidencia Trello y despliegue. No se marca done por el autor. Revisada y aprobada por el segundo integrante; cerrada el 2026-10-19 por indicación de FO.",
       "owner_session": "DG (Codex)"
+    },
+    {
+      "id": "BUG-2026-10-19-01",
+      "sprint": 2,
+      "title": "Validar el límite de 72 bytes de bcrypt al cambiar la contraseña",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "auth",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "fix/BUG-2026-10-19-01-bcrypt-cambio-contrasena",
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. El arreglo de BUG-2026-10-14-01 (PR #16) cubrió solo el registro: new_password en backend/src/dossier/schemas/auth.py sigue aceptando 128 caracteres, así que una contraseña de más de 72 bytes UTF-8 llega a bcrypt al cambiarla. Reutilizar la validación del registro.",
+      "owner_session": "FO (agente, BUG-2026-10-19-01)"
+    },
+    {
+      "id": "BUG-2026-10-19-02",
+      "sprint": 2,
+      "title": "Calendario consulta PDL con el correo de otro asistente",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "fix/BUG-2026-10-19-02-pdl-correo-asistente",
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. Hallazgo de DG en S5.4: en Calendario con varios asistentes, PDL se consultó para el segundo con el correo del primer participante. Con PDL real puede traer el perfil de otra persona y cobrarlo.",
+      "owner_session": "FO (agente, BUG-2026-10-19-02)"
+    },
+    {
+      "id": "BUG-2026-10-19-03",
+      "sprint": 2,
+      "title": "El armazón del dashboard no se adapta a pantallas de 375 px",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "frontend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "fix/BUG-2026-10-19-03-dashboard-movil",
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. main tiene ml-64 fijo en el armazón del dashboard y a 375 px hay desplazamiento horizontal. Visto en S5.4 y en UX-CAL-02 (H2).",
+      "owner_session": "FO (agente, BUG-2026-10-19-03)"
+    },
+    {
+      "id": "BUG-2026-10-19-04",
+      "sprint": 2,
+      "title": "Falso positivo de “sin contacto” en el detalle de la reunión",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "frontend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "fix/BUG-2026-10-19-04-contacto-falso-positivo",
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. La expresión regular de CalendarEventDetails no reconoce «Contacto 1:» y muestra «No se detecta contacto en la descripción». Visto en S5.4.",
+      "owner_session": "FO (agente, BUG-2026-10-19-04)"
+    },
+    {
+      "id": "CHORE-2026-10-19-01",
+      "sprint": 2,
+      "title": "Decidir qué hacer con frontend/AGENTS.md y CLAUDE.md que genera next dev",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "frontend",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "chore/CHORE-2026-10-19-01-agent-rules-next",
+      "evidence": [],
+      "notes": "Registrada el 2026-10-19. next dev 16.3 escribe frontend/AGENTS.md y frontend/CLAUDE.md al arrancar (agentRules) y pide commitearlos. Opciones vistas en S5.4: gitignore, agentRules: false o versionarlos.",
+      "owner_session": "FO (agente, CHORE-2026-10-19-01)"
+    },
+    {
+      "id": "CHORE-2026-10-19-02",
+      "sprint": 2,
+      "title": "Vitest falla con Node 26 por el localStorage nativo",
+      "status": "in_progress",
+      "owner": "FO",
+      "area": "quality",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-10-26",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": "chore/CHORE-2026-10-19-02-vitest-node26",
+      "evidence": [],
+      "notes": "Registrada el 2026-10-19. Con Node 26 el localStorage experimental del propio Node tapa el de jsdom y las pruebas que lo usan fallan (localStorage.clear indefinido). Hasta cerrarla, correr Vitest con NODE_OPTIONS=--no-experimental-webstorage.",
+      "owner_session": "FO (agente, CHORE-2026-10-19-02)"
     }
   ]
 }
