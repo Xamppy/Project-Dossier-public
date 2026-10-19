@@ -63,6 +63,7 @@ python scripts/sec_edgar.py
 | Variable | Uso |
 |----------|-----|
 | `COMPANIES_HOUSE_API_KEY` | API Companies House |
+| `SEC_USER_AGENT` | User-Agent «nombre correo» para la SEC (por defecto `Project Dossier contacto@example.com`) |
 | `DEEPSEEK_API_KEY` | Síntesis del dossier corporativo e informes de persona |
 | `PDL_API_KEY` | Enriquecimiento de personas (People Data Labs) |
 | `GEMINI_API_KEY` | Análisis de archivos en CLIs SEC / Companies House |
@@ -90,3 +91,7 @@ Endpoints principales: **`POST /auth/register`**, **`POST /auth/login`**, **`GET
 4. Arranca API (`python main.py`) y el frontend (`npm run dev`); registro e inicio de sesión llaman al backend y guardan el token en `localStorage` o `sessionStorage`.
 
 Detalle: [docs/auth-app.md](docs/auth-app.md).
+
+## Licencia
+
+Sin licencia de uso: todos los derechos reservados por los autores; consultar al equipo.
