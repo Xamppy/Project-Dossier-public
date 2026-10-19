@@ -61,6 +61,7 @@ const messages = {
   "auth.error.company_required": "Indiquez le nom de l'entreprise.",
   "auth.error.terms_required": "Vous devez accepter les conditions pour continuer.",
   "auth.error.password_min_8": "Minimum 8 caractères.",
+  "auth.error.password_max_bytes": "Le mot de passe dépasse la limite de 72 octets. Utilisez-en un plus court ; les lettres accentuées et les emojis peuvent occuper plusieurs octets.",
   "auth.strength.very_weak": "Très faible",
   "auth.strength.weak": "Faible",
   "auth.strength.fair": "Moyen",

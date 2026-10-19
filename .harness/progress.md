@@ -109,6 +109,37 @@ Son 149 pruebas nuevas. La suite backend da 737 passed con Postgres de prueba y 
 
 ---
 
+### 2026-10-14 · BUG-2026-10-14-01 · DG (Codex)
+
+**Hecho.** Tras auditar el defecto y recibir autorización del usuario, se conservó
+bcrypt y se agregó validación de 72 bytes UTF-8 al esquema del registro. El exceso
+responde 422 con tipo estable `password_too_long_bytes`; el formulario lo bloquea y
+traduce también el error de la API en los siete idiomas. Sin truncar ni cambiar hashes.
+Spec, documentación y reporte de verificación actualizados. TDD comprobado en rojo
+(18 backend y 10 frontend fallidas) y después 44 pruebas nuevas en verde (31/13).
+`qa.py --full` con PostgreSQL temporal: salida 0, backend 621 passed/12 skipped,
+Vitest y build aprobados. Tsc/mypy limpios; Ruff en código y pruebas modificadas limpio.
+
+**Sin terminar.** Push, PR, revisión de un segundo integrante, evidencia Trello y
+despliegue. Tarea en `in_progress`; no se marca done por el autor.
+
+**Lo que hay que saber.** bcrypt 5.0.0 rechaza más de 72 bytes, aunque el esquema
+admitía 128 caracteres. La validación corre antes del límite de caracteres para que
+incluso 129 ASCII devuelvan el mensaje acordado. Se probaron 72/73 bytes, tildes,
+emojis, cuentas personales/empresa, login y ausencia de filas parciales. Invitaciones
+comparten la validación: se probó rechazo sin consultas a DB. Los otros flujos de
+credenciales no se modificaron. QA conserva 25 hallazgos Ruff en archivos ajenos a
+la tarea y ESLint un warning. Entorno existente Python 3.14.7; no repetido en 3.12.
+No se usó `.env` ni datos reales; PostgreSQL de pruebas separado, detenido al terminar.
+
+**Siguiente paso concreto.** Revisar el diff de esta rama y el reporte
+`specs/reports/BUG-2026-10-14-01-registro-bcrypt.md`; integrar mediante PR y revisión
+del segundo integrante antes de desplegar.
+
+**Rama.** `codex/fix-register-password-bytes` · **Estado.** `in_progress`
+
+---
+
 ### 2026-10-13 · S4.8 (revisión) y S5.1 · DG (agente Claude)
 
 **Hecho.** DG revisó S4.8 como segundo integrante y la marcó `done` (21 pruebas del canal en verde, ruff limpio); **CA2 `agent_progress` se trasladó a S5.4**, que ya lo cubre. Después se implementó S5.1: `DossierJobsProvider` deja el `setInterval` de 3 s y sigue cada job remoto activo (Calendario Google/Outlook, Personas PDL/Web pública) por `GET /dossier-generation-jobs/{id}/stream` con `@microsoft/fetch-event-source` 2.0.1. Adaptador en `frontend/src/lib/dossier-job-stream.ts`; la página de Personas muestra cortes y «Reconectar». 78 pruebas nuevas (293 en total), lint, tsc y `qa.py --full --since d0ae752` en verde. Demostración integrada con backend y `next dev` locales: 0 lecturas periódicas de jobs (antes, 80 en 60 s con 4 activos). Reporte: `specs/reports/S5.1-dashboard-canal-estados.md`.

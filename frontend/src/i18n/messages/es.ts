@@ -64,6 +64,7 @@ const messages = {
   "auth.error.company_required": "Ingresa el nombre de tu empresa.",
   "auth.error.terms_required": "Debes aceptar los términos para continuar.",
   "auth.error.password_min_8": "Mínimo 8 caracteres.",
+  "auth.error.password_max_bytes": "La contraseña supera el máximo de 72 bytes. Usa una más corta; las tildes y los emojis pueden ocupar varios bytes.",
   "auth.strength.very_weak": "Muy débil",
   "auth.strength.weak": "Débil",
   "auth.strength.fair": "Aceptable",
