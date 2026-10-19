@@ -28,6 +28,7 @@ limpias también se guardan, con su explicación.
 | **Pruebas** | [pruebas/](pruebas/README.md) | Backend: 768 passed, 12 skipped, cobertura 63 %. Frontend: 522 pruebas en verde, cobertura de sentencias 36,77 %. Conteo por categoría: 486 unitarias, 166 de integración, 67 de seguridad y 61 de estrés. | Avance técnico; política de pruebas | `pytest --cov=dossier`, `npm test`, `npm run test:cov`, `_herramientas/categorias_pruebas.py` |
 | **Calidad** | [calidad/](calidad/README.md) | ruff 0, mypy 0 (124 archivos), eslint 0 errores y 1 advertencia, `tsc` 0. Auditorías: `pip-audit` 2 avisos en `pyjwt`; `npm audit` 6 (5 altas), todas con corrección disponible. | Definición de Terminado (análisis estático); avance técnico | `ruff check`, `mypy`, `npm run lint`, `npx tsc --noEmit`, `pip-audit`, `npm audit --omit=dev` |
 | **Contribuciones** | [contribuciones/](contribuciones/README.md) | Commits, líneas, PR y tareas del harness por integrante, con los alias de git unificados, un gráfico de barras y los sesgos de cada cifra explicados (commit raíz heredado, merges, asistencia de agentes, rama `docmac`). | Rúbrica: **aporte de cada integrante** | `git shortlog -sne --all`, `_herramientas/contribuciones.py`, `gh pr list` |
+| **GitHub** | [github/](github/README.md) | Capturas de la interfaz web de GitHub en la copia pública, sin sesión: portada con README, lista de Actions, CI exitosa con los jobs Backend y Frontend en verde y sus pasos, `ci.yml`, las 3 migraciones de Alembic, esta carpeta publicada, commits convencionales, gráfico de contribuidores y los ADR. | Observaciones: **integración continua** y **migraciones**; rúbrica: **aporte de cada integrante**; uso de Git; documentación | ver `github/README.md` |
 | **Interfaz** | [ui/](ui/README.md) | Capturas del calendario visual y de los indicadores conectados del dashboard (las prepara otra sesión de trabajo en `ui/`). | Observación: **calendario visual** e **indicadores conectados** | ver `ui/README.md` |
 
 ## Cifras clave
@@ -46,9 +47,9 @@ limpias también se guardan, con su explicación.
 
 ## Pendientes
 
-- **Capturas de la interfaz web de GitHub Actions.** El repositorio es privado y la página de Actions
-  responde «Page not found» sin sesión; no se ingresaron credenciales. Las URLs exactas están en
-  [ci-cd/README.md](ci-cd/README.md#capturas-de-github-actions-pendientes-de-tomar-cuando-el-repo-sea-público).
+- ~~**Capturas de la interfaz web de GitHub Actions.**~~ Resuelto: el repositorio de trabajo sigue
+  privado, pero las capturas se tomaron sin sesión en la copia pública `Xamppy/Project-Dossier-public`.
+  Ver [github/README.md](github/README.md).
 - **Redespliegue automático en Dokploy.** El job existe y corre, pero faltan los secretos `DOKPLOY_*`
   en el repositorio: hoy publica las imágenes y avisa que no redespliega.
 - **Postgres en la CI.** Las 109 pruebas con base se omiten en Actions; aquí se corrieron localmente.
