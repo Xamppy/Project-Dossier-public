@@ -248,9 +248,9 @@ def extract_numbered_persons_from_description(descripcion: str) -> list[dict[str
     """
     Varios contactos numerados en la descripción::
 
-        Contacto 1: James Girling
+        Contacto 1: Valeria Ruiz Prueba
         Cargo 1: CEO
-        Email 1: james@oxccu.com
+        Email 1: valeria.ruiz@example.com
         Contacto 2: María López
         Cargo 2: CTO
     """
@@ -370,8 +370,8 @@ def extract_person_from_description(descripcion: str) -> tuple[str, str | None, 
 
     Formato recomendado (una línea por campo)::
 
-        Empresa: SpaceX
-        Contacto: Elon Musk
+        Empresa: Empresa Ejemplo SpA
+        Contacto: Valeria Ruiz Prueba
         Cargo: CEO
         País (opcional): Estados Unidos
     """
@@ -796,6 +796,21 @@ def _generate_one_person_dossier(
     return out
 
 
+# Ayuda que ve el usuario cuando no se pudo generar ningún dossier. Datos ficticios.
+MENSAJE_FORMATO_SIN_DOSSIER = (
+    "No se pudo generar ningún dossier. "
+    "Usa este formato en la descripción del evento:\n\n"
+    "**Asunto:** Kick-off proyecto Q3\n\n"
+    "**Descripción:**\n"
+    "Empresa: Empresa Ejemplo SpA\n"
+    "Contacto 1: Valeria Ruiz Prueba\n"
+    "Cargo 1: CEO\n"
+    "País 1: Estados Unidos\n"
+    "Contacto 2: Andrea Soto Ejemplo\n"
+    "Cargo 2: Presidenta"
+)
+
+
 def generate_dossiers_from_calendar_event(
     reunion: dict[str, Any],
     *,
@@ -906,18 +921,7 @@ def generate_dossiers_from_calendar_event(
             person_cache_key = one.get("cache_key")
 
     if not corporate_md and not any(p.get("md") for p in dossier_personas):
-        corporate_md = (
-            "No se pudo generar ningún dossier. "
-            "Usa este formato en la descripción del evento:\n\n"
-            "**Asunto:** Kick-off proyecto Q3\n\n"
-            "**Descripción:**\n"
-            "Empresa: SpaceX\n"
-            "Contacto 1: Elon Musk\n"
-            "Cargo 1: CEO\n"
-            "País 1: Estados Unidos\n"
-            "Contacto 2: Gwynne Shotwell\n"
-            "Cargo 2: Presidenta"
-        )
+        corporate_md = MENSAJE_FORMATO_SIN_DOSSIER
 
     return {
         "reunion": reunion,

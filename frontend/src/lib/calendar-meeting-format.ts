@@ -28,13 +28,13 @@ export const CALENDAR_FIELD_LABELS = {
 } as const;
 
 /** Plantilla por defecto (español); la guía usa i18n `calendar.guide.template_example`. */
-export const CALENDAR_MEETING_FORMAT_EXAMPLE = `Empresa: OXCCU
-Contacto 1: James Girling
+export const CALENDAR_MEETING_FORMAT_EXAMPLE = `Empresa: Empresa Ejemplo SpA
+Contacto 1: Valeria Ruiz Prueba
 Cargo 1: CEO
-Email 1: james@oxccu.com
+Email 1: valeria.ruiz@example.com
 Contacto 2: María López
 Cargo 2: CTO
-Email 2: maria@oxccu.com
+Email 2: maria.lopez@example.com
 País 2: Chile`;
 
 /** Ejemplos de asunto (solo empresa) mostrados en la guía de calendario. */
