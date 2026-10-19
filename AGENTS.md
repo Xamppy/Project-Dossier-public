@@ -73,7 +73,7 @@ Evidencia de cada una: [docs/architecture/gaps.md](docs/architecture/gaps.md)
 | `backend/src/dossier/security/` | JWT, RBAC, contraseñas |
 | `backend/src/dossier/billing/` | Créditos, planes, permisos |
 | `frontend/src/app/` | Rutas Next.js (dashboard, login, registro) |
-| `frontend/src/providers/` | Estado global — hoy sondean con `setInterval` (B4) |
+| `frontend/src/providers/` | Estado global — `DossierJobsProvider` por SSE (S5.1); `NotificationsProvider` aún sondea (S5.2, B4) |
 | `frontend/src/i18n/` | Cinco idiomas: es, en, en-gb, fr, de |
 
 Detalle heredado: [docs/estructura.md](docs/estructura.md)
