@@ -2107,7 +2107,7 @@
       "id": "BUG-2026-10-19-01",
       "sprint": 2,
       "title": "Validar el límite de 72 bytes de bcrypt al cambiar la contraseña",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "auth",
       "activity": "A3",
@@ -2118,15 +2118,17 @@
       "blocks": [],
       "trello": null,
       "branch": "fix/BUG-2026-10-19-01-bcrypt-cambio-contrasena",
-      "evidence": [],
-      "notes": "Defecto ad hoc registrado el 2026-10-19. El arreglo de BUG-2026-10-14-01 (PR #16) cubrió solo el registro: new_password en backend/src/dossier/schemas/auth.py sigue aceptando 128 caracteres, así que una contraseña de más de 72 bytes UTF-8 llega a bcrypt al cambiarla. Reutilizar la validación del registro.",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/19"
+      ],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. El arreglo de BUG-2026-10-14-01 (PR #16) cubrió solo el registro: new_password en backend/src/dossier/schemas/auth.py sigue aceptando 128 caracteres, así que una contraseña de más de 72 bytes UTF-8 llega a bcrypt al cambiarla. Reutilizar la validación del registro. PR #19 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, BUG-2026-10-19-01)"
     },
     {
       "id": "BUG-2026-10-19-02",
       "sprint": 2,
       "title": "Calendario consulta PDL con el correo de otro asistente",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "backend",
       "activity": "A9",
@@ -2134,18 +2136,22 @@
       "gap": null,
       "due": "2026-10-26",
       "depends_on": [],
-      "blocks": [],
+      "blocks": [
+        "BUG-2026-10-19-07"
+      ],
       "trello": null,
       "branch": "fix/BUG-2026-10-19-02-pdl-correo-asistente",
-      "evidence": [],
-      "notes": "Defecto ad hoc registrado el 2026-10-19. Hallazgo de DG en S5.4: en Calendario con varios asistentes, PDL se consultó para el segundo con el correo del primer participante. Con PDL real puede traer el perfil de otra persona y cobrarlo.",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/17"
+      ],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. Hallazgo de DG en S5.4: en Calendario con varios asistentes, PDL se consultó para el segundo con el correo del primer participante. Con PDL real puede traer el perfil de otra persona y cobrarlo. PR #17 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, BUG-2026-10-19-02)"
     },
     {
       "id": "BUG-2026-10-19-03",
       "sprint": 2,
       "title": "El armazón del dashboard no se adapta a pantallas de 375 px",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "frontend",
       "activity": "A9",
@@ -2156,15 +2162,17 @@
       "blocks": [],
       "trello": null,
       "branch": "fix/BUG-2026-10-19-03-dashboard-movil",
-      "evidence": [],
-      "notes": "Defecto ad hoc registrado el 2026-10-19. main tiene ml-64 fijo en el armazón del dashboard y a 375 px hay desplazamiento horizontal. Visto en S5.4 y en UX-CAL-02 (H2).",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/22"
+      ],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. main tiene ml-64 fijo en el armazón del dashboard y a 375 px hay desplazamiento horizontal. Visto en S5.4 y en UX-CAL-02 (H2). PR #22 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, BUG-2026-10-19-03)"
     },
     {
       "id": "BUG-2026-10-19-04",
       "sprint": 2,
       "title": "Falso positivo de “sin contacto” en el detalle de la reunión",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "frontend",
       "activity": "A9",
@@ -2175,15 +2183,17 @@
       "blocks": [],
       "trello": null,
       "branch": "fix/BUG-2026-10-19-04-contacto-falso-positivo",
-      "evidence": [],
-      "notes": "Defecto ad hoc registrado el 2026-10-19. La expresión regular de CalendarEventDetails no reconoce «Contacto 1:» y muestra «No se detecta contacto en la descripción». Visto en S5.4.",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/21"
+      ],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. La expresión regular de CalendarEventDetails no reconoce «Contacto 1:» y muestra «No se detecta contacto en la descripción». Visto en S5.4. PR #21 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, BUG-2026-10-19-04)"
     },
     {
       "id": "CHORE-2026-10-19-01",
       "sprint": 2,
       "title": "Decidir qué hacer con frontend/AGENTS.md y CLAUDE.md que genera next dev",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "frontend",
       "activity": "A3",
@@ -2194,15 +2204,17 @@
       "blocks": [],
       "trello": null,
       "branch": "chore/CHORE-2026-10-19-01-agent-rules-next",
-      "evidence": [],
-      "notes": "Registrada el 2026-10-19. next dev 16.3 escribe frontend/AGENTS.md y frontend/CLAUDE.md al arrancar (agentRules) y pide commitearlos. Opciones vistas en S5.4: gitignore, agentRules: false o versionarlos.",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/23"
+      ],
+      "notes": "Registrada el 2026-10-19. next dev 16.3 escribe frontend/AGENTS.md y frontend/CLAUDE.md al arrancar (agentRules) y pide commitearlos. Opciones vistas en S5.4: gitignore, agentRules: false o versionarlos. PR #23 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, CHORE-2026-10-19-01)"
     },
     {
       "id": "CHORE-2026-10-19-02",
       "sprint": 2,
       "title": "Vitest falla con Node 26 por el localStorage nativo",
-      "status": "in_progress",
+      "status": "review",
       "owner": "FO",
       "area": "quality",
       "activity": "A3",
@@ -2213,9 +2225,108 @@
       "blocks": [],
       "trello": null,
       "branch": "chore/CHORE-2026-10-19-02-vitest-node26",
-      "evidence": [],
-      "notes": "Registrada el 2026-10-19. Con Node 26 el localStorage experimental del propio Node tapa el de jsdom y las pruebas que lo usan fallan (localStorage.clear indefinido). Hasta cerrarla, correr Vitest con NODE_OPTIONS=--no-experimental-webstorage.",
+      "evidence": [
+        "https://github.com/Xamppy/Project-Dossier/pull/18"
+      ],
+      "notes": "Registrada el 2026-10-19. Con Node 26 el localStorage experimental del propio Node tapa el de jsdom y las pruebas que lo usan fallan (localStorage.clear indefinido). Hasta cerrarla, correr Vitest con NODE_OPTIONS=--no-experimental-webstorage. PR #18 abierto; pendiente de revisión del segundo integrante.",
       "owner_session": "FO (agente, CHORE-2026-10-19-02)"
+    },
+    {
+      "id": "BUG-2026-10-19-05",
+      "sprint": 2,
+      "title": "La etiqueta «mail» trunca el nombre del contacto dentro de «gmail.»",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-11-01",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19 (revisión del PR #21). Con «Contacto 1: Ana <ana@gmail.com>», calendar_meeting_labels.py y calendar_event_dossiers.py extraen el nombre «Ana <ana@g»: la etiqueta «mail» coincide dentro de «gmail.». Las etiquetas no tienen límite de palabra; «nome» dentro de «genome» también cuenta.",
+      "owner_session": null
+    },
+    {
+      "id": "BUG-2026-10-19-06",
+      "sprint": 2,
+      "title": "«Contactos: Ana, Luis» toma a Luis como cargo, y una etiqueta vacía captura la línea siguiente",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-11-01",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19 (revisión del PR #21). Al separar por coma se asume «Nombre, Cargo», así que con «Contactos: Ana, Luis» Luis queda como cargo de Ana. Con «Contacto:» sin valor, se captura el campo de la línea siguiente.",
+      "owner_session": null
+    },
+    {
+      "id": "CHORE-2026-10-19-03",
+      "sprint": 2,
+      "title": "Alinear setup-buildx-action a v4 y fijar ci.yml por SHA",
+      "status": "pending",
+      "owner": "FD",
+      "area": "ci",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-11-01",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Registrada el 2026-10-19. imagenes.yml usa docker/setup-buildx-action v3.12.0 junto a login-action v4 y build-push-action v7 (PR #6–#10 de Dependabot, mezclados hoy). ci.yml referencia las acciones por tag y no por SHA.",
+      "owner_session": null
+    },
+    {
+      "id": "DOC-2026-10-19-01",
+      "sprint": 2,
+      "title": "Corregir «cinco idiomas» en CLAUDE.md y AGENTS.md",
+      "status": "pending",
+      "owner": "EQ",
+      "area": "docs",
+      "activity": "A3",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-11-01",
+      "depends_on": [],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Registrada el 2026-10-19. CLAUDE.md («dashboard en cinco idiomas») y la tabla de AGENTS.md dicen cinco, pero frontend/src/i18n/messages/ tiene siete catálogos: es, en, en-gb, pt, it, fr y de.",
+      "owner_session": null
+    },
+    {
+      "id": "BUG-2026-10-19-07",
+      "sprint": 2,
+      "title": "Dossiers de calendario ya guardados con el subject_email de otro asistente",
+      "status": "pending",
+      "owner": "FO",
+      "area": "backend",
+      "activity": "A9",
+      "objective": "OE2",
+      "gap": null,
+      "due": "2026-11-01",
+      "depends_on": [
+        "BUG-2026-10-19-02"
+      ],
+      "blocks": [],
+      "trello": null,
+      "branch": null,
+      "evidence": [],
+      "notes": "Defecto ad hoc registrado el 2026-10-19. El PR #17 (BUG-2026-10-19-02) corrige los dossiers nuevos, pero no migra los existentes: los guardados antes del arreglo pueden tener el subject_email de otro asistente. Evaluar si se corrigen o se marcan.",
+      "owner_session": null
     }
   ]
 }
