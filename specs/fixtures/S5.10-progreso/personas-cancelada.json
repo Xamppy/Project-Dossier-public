@@ -1,0 +1,357 @@
+{
+  "escenario": "personas-cancelada",
+  "descripcion": "Personas / PDL cancelado durante la investigación: el progreso se cierra al cancelar y los callbacks posteriores no se publican. El guardado ya iniciado no se deshace.",
+  "contrato": "docs/architecture/decisions/0009-contrato-progreso-por-scopes.md",
+  "generado_por": "backend/scripts/generar_fixtures_progreso.py",
+  "frames": [
+    {
+      "id": 1,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:09b140d9581144c88d1260478341fe2e",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": null,
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 2,
+      "event": "job_status",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "running",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:09b140d9581144c88d1260478341fe2e",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": null,
+        "result": null,
+        "progress": {
+          "schema_version": 1,
+          "revision": 1,
+          "scopes": [
+            {
+              "scope_id": "person:0",
+              "kind": "person",
+              "label": "Ana Prueba",
+              "research_source": "pdl",
+              "live_web_search": false,
+              "origin": null,
+              "profiles_count": null,
+              "stages": [
+                {
+                  "stage_id": "person.cache_lookup",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_enrich",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.pdl_search",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_normalization",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.context_analysis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.profile_synthesis",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.markdown_fallback",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.report_finalize",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                },
+                {
+                  "stage_id": "person.persist",
+                  "status": "pending",
+                  "reason_code": null,
+                  "revision": 0,
+                  "timestamp": null
+                }
+              ],
+              "partial_results": [],
+              "dossier": null
+            }
+          ]
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": null
+      }
+    },
+    {
+      "id": 3,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 2,
+        "research_source": "pdl",
+        "stage_id": "person.cache_lookup",
+        "status": "skipped",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": "cache_unavailable"
+      }
+    },
+    {
+      "id": 4,
+      "event": "stage_progress",
+      "data": {
+        "schema_version": 1,
+        "job_id": "00000000-0000-4000-8000-000000000001",
+        "scope_id": "person:0",
+        "revision": 3,
+        "research_source": "pdl",
+        "stage_id": "person.pdl_enrich",
+        "status": "running",
+        "timestamp": "2026-10-15T12:00:00+00:00",
+        "reason_code": null
+      }
+    },
+    {
+      "id": 5,
+      "event": "job_failed",
+      "data": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "cancelled",
+        "job_type": "person_manual",
+        "calendar_provider": null,
+        "external_event_id": "person:09b140d9581144c88d1260478341fe2e",
+        "meeting_label": "Ana Prueba",
+        "credits_estimated": 1,
+        "credits_consumed": 0,
+        "error_message": "Cancelado por el usuario",
+        "result": null,
+        "progress": {
+          "scopes": [
+            {
+              "kind": "person",
+              "label": "Ana Prueba",
+              "origin": null,
+              "stages": [
+                {
+                  "status": "skipped",
+                  "revision": 2,
+                  "stage_id": "person.cache_lookup",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "cache_unavailable"
+                },
+                {
+                  "status": "cancelled",
+                  "revision": 4,
+                  "stage_id": "person.pdl_enrich",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": null
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.pdl_search",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.profile_normalization",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.context_analysis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.profile_synthesis",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.markdown_fallback",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.report_finalize",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                },
+                {
+                  "status": "skipped",
+                  "revision": 4,
+                  "stage_id": "person.persist",
+                  "timestamp": "2026-10-15T12:00:00+00:00",
+                  "reason_code": "not_reached"
+                }
+              ],
+              "dossier": null,
+              "scope_id": "person:0",
+              "profiles_count": null,
+              "live_web_search": false,
+              "partial_results": [],
+              "research_source": "pdl"
+            }
+          ],
+          "revision": 4,
+          "schema_version": 1
+        },
+        "created_at": "2026-10-15T12:00:00+00:00",
+        "started_at": "2026-10-15T12:00:00+00:00",
+        "completed_at": "2026-10-15T12:00:00+00:00"
+      }
+    }
+  ],
+  "snapshot_final": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "cancelled",
+    "job_type": "person_manual",
+    "calendar_provider": null,
+    "external_event_id": "person:09b140d9581144c88d1260478341fe2e",
+    "meeting_label": "Ana Prueba",
+    "credits_estimated": 1,
+    "credits_consumed": 0,
+    "error_message": "Cancelado por el usuario",
+    "result": null,
+    "progress": {
+      "scopes": [
+        {
+          "kind": "person",
+          "label": "Ana Prueba",
+          "origin": null,
+          "stages": [
+            {
+              "status": "skipped",
+              "revision": 2,
+              "stage_id": "person.cache_lookup",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "cache_unavailable"
+            },
+            {
+              "status": "cancelled",
+              "revision": 4,
+              "stage_id": "person.pdl_enrich",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": null
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.pdl_search",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.profile_normalization",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.context_analysis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.profile_synthesis",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.markdown_fallback",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.report_finalize",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            },
+            {
+              "status": "skipped",
+              "revision": 4,
+              "stage_id": "person.persist",
+              "timestamp": "2026-10-15T12:00:00+00:00",
+              "reason_code": "not_reached"
+            }
+          ],
+          "dossier": null,
+          "scope_id": "person:0",
+          "profiles_count": null,
+          "live_web_search": false,
+          "partial_results": [],
+          "research_source": "pdl"
+        }
+      ],
+      "revision": 4,
+      "schema_version": 1
+    },
+    "created_at": "2026-10-15T12:00:00+00:00",
+    "started_at": "2026-10-15T12:00:00+00:00",
+    "completed_at": "2026-10-15T12:00:00+00:00"
+  }
+}

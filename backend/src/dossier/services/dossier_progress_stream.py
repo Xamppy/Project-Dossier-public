@@ -113,19 +113,32 @@ def stream_job_events(
 
         esperar(poll_seconds)
 
+        terminal_en_base: dict[str, Any] | None = None
         if clock() - last_db >= db_poll_seconds:
             job = fetch_job()
             last_db = clock()
             if job is None:
                 return
             publish_if_changed(job_id, event_name_for_status(job.get("status")), job)
+            if job.get("status") in TERMINAL_STATUSES:
+                terminal_en_base = job
 
+        nuevos = events_since(job_id, last_seq)
+        actual = latest_event(job_id)
+        if not nuevos and actual is not None and actual[0] < last_seq:
+            # El bus se reinició o lo limpió otro stream (S5.10): numera de nuevo desde 1.
+            nuevos = events_since(job_id, 0)
         terminal = False
-        for seq, event, data in events_since(job_id, last_seq):
+        for seq, event, data in nuevos:
             yield sse_frame(event, data, seq)
             last_seq = seq
             last_sent = clock()
             terminal = terminal or event in TERMINAL_EVENTS
+        if not terminal and terminal_en_base is not None:
+            # Otro stream entregó el terminal y vació el bus antes de que este lo leyera.
+            last_seq += 1
+            yield sse_frame(event_name_for_status(terminal_en_base.get("status")), terminal_en_base, last_seq)
+            terminal = True
         if terminal:
             forget(job_id)
             return

@@ -6,6 +6,40 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-15 · S5.10 (seguimiento backend de S5.4) · DG (agente Claude, S5.10)
+
+**Hecho.** Contrato adoptado en el [ADR 0009](../docs/architecture/decisions/0009-contrato-progreso-por-scopes.md) y backend instrumentado de punta a punta:
+
+- **Modelo y coordinador:** progreso por scopes guardado en `result_payload["_progress"]`, con una transacción por cambio, el job bloqueado y la publicación después del commit.
+- **Grafo corporativo:** cada agente informa su inicio y su terminal reales, y Europa, prensa y síntesis publican vista previa.
+- **Personas:** PDL y Web pública emiten sus etapas reales, y el parcial de perfiles sale antes del LLM.
+- **Wrappers:** el de Personas y el de Calendario informan caché y guardado.
+- **Worker y cancelación:** fusionan y cierran el progreso; `serialize_job` expone `progress`.
+- **Stream:** dos pestañas sobre el mismo job ya no se quedan colgadas.
+- **Fixtures para S5.4:** 8 escenarios en `specs/fixtures/S5.10-progreso/`.
+
+Son 149 pruebas nuevas. La suite backend da 737 passed con Postgres de prueba y 646 sin él, y `qa.py --full --since 03d76c6` está en verde. BE2 en un proceso: máximo 7,67 ms con Postgres local. Reporte: `specs/reports/S5.10-progreso-etapas-parciales.md`.
+
+**Sin terminar.** Push, PR, revisión del segundo integrante y tarjeta de Trello de S5.10, que DG tiene que crear. S5.10 queda en `in_progress` hasta abrir el PR. El frontend de S5.4 no se empezó.
+
+**Lo que hay que saber.**
+- **La rama `feat/S5.10-progreso-etapas-parciales` sale de la de S5.1 (`03d76c6`), no de `main`.** S5.10 solo existe allí. Hay que integrar primero S5.1, o rebasar.
+- **`agent_progress` cambió de forma.** El de S4.9 (solo fallos, al final, con el job ID en `dossier_id`) ya no se emite; se borraron su función y sus 2 pruebas.
+- **No hay vista previa de UK ni de USA.** `build_uk/us_corporate_context_markdown` intercalan diagnósticos internos («Error al analizar el documento: …») aun cuando el agente termina bien. Para publicarlos hace falta una proyección pública propia.
+- **Cómo pasan los nodos el motivo y la vista previa.** Un nodo del grafo puede devolver la clave privada `_progreso`; el envoltorio de `build_corporate_dossier_graph` la retira antes de LangGraph. Llamar al nodo suelto la devuelve, y las pruebas existentes lo toleran porque leen por clave.
+- **Las pruebas pueden leer el código fuente.** `test_person_depth_alignment.py` inspecciona `run_person_research_and_persist`: extraer el guardado a otra función la rompe. Por eso `persistence_error` de Personas lo marca el worker cuando el pipeline lanza con `person.persist` en curso.
+- **Un error de proveedor no activa el respaldo Markdown.** `StructuredSynthesisError` hereda de `RuntimeError`; el respaldo solo corre con JSON inválido. Un `requests.Timeout` de PDL se sigue propagando y hace fallar el job, como antes; ahora la etapa queda `failed (provider_timeout)`.
+- **El bus podía dejar colgado un segundo stream.** Su `forget()` reinicia la numeración. Si otra pestaña entregaba el terminal y limpiaba el bus, este stream esperaba hasta los 600 s. Ahora la consulta a la base le entrega el terminal.
+- **Fixtures.** `backend/scripts/generar_fixtures_progreso.py` las regenera contra una base `…test…` (borra su esquema). `test_progress_fixtures.py` las valida sin base.
+- **Base de prueba.** Para las pruebas con Postgres se creó `dossier_s510_test` y se borró al terminar. No se tocó `dossier_local` ni se llamó a ningún proveedor real.
+- **Cancelar durante el guardado del Calendario** deja el job `completed`, como antes, con `person.persist` en `skipped (not_reached)`. Documentado como límite.
+
+**Siguiente paso concreto.** DG decide el push y el PR de S5.10. Si S5.1 entra antes en `main`, conviene rebasar S5.10 sobre `main`. Después viene el frontend de S5.4 con las fixtures y el ADR 0009, sumando `progress` a `DossierGenerationJobApi`.
+
+**Rama.** `feat/S5.10-progreso-etapas-parciales` · **Estado.** S5.10 `in_progress`
+
+---
+
 ### 2026-10-15 · S5.1 (push), S4.9 (revisión) y alta de S5.10 · DG (agente Claude)
 
 **Hecho.** Tres decisiones de DG, en este orden. **S5.1:** la rama está en origin sin PR, por decisión de DG; queda anotado en S5.1, que sigue `in_progress`. **S4.9 (FO):** revisada y aprobada por DG como segundo integrante. Cumple el criterio del plan de trabajo: con un agente forzado a fallar, el canal emite el fallo y la generación continúa con los datos parciales. Pasan las 20 pruebas de S4.9 y otras 64 de S4.8 y del grafo de cinco nodos, contra un Postgres de prueba; la suite backend da 590 passed y 12 skipped; ruff y mypy, limpios. Una verificación de extremo a extremo, no commiteada (worker y grafo reales, agente UK forzado a fallar, stream SSE con un cliente conectado), recibió `job_status` queued → running → `agent_progress` de `agent_corporate_uk` → `job_completed`, y el dossier corporativo quedó `complete` con `agents_failed`. **S5.10:** creada a nombre de DG, «Instrumentar progreso por etapas y resultados parciales para S5.4 (backend)», con `depends_on` S4.9 y `blocks` S5.4; S5.4 la suma a sus dependencias y el plan de S5.4 la nombra en la secuencia, en B0, en ambos prompts y en su registro.

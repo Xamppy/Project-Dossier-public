@@ -9,7 +9,7 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from dossier.billing.credit_policy import (
     PERSON_IDENTITY_CREDITS,
@@ -29,7 +29,14 @@ from dossier.services.calendar_event_dossiers import (
     parse_calendar_event_for_dossiers,
     persist_calendar_dossiers,
 )
+from dossier.services.dossier_job_progress import (
+    JobProgress,
+    SqlProgressStore,
+    merge_result_payload,
+    split_result_payload,
+)
 from dossier.services.dossier_progress_events import event_name_for_status, publish_if_changed
+from dossier.services.dossier_progress_model import person_scope
 from dossier.services.google_calendar_api import obtener_reunion_google_por_id
 from dossier.services.google_calendar_token import get_google_calendar_access_token_for_user
 from dossier.services.graph_calendar import merge_reunion_payload, obtener_reunion_por_id
@@ -51,6 +58,8 @@ def _iso(dt: datetime | None) -> str | None:
 
 
 def serialize_job(job: DossierGenerationJob) -> dict[str, Any]:
+    # El progreso (S5.10) viaja aparte: `result` sigue siendo solo el resultado real.
+    result, progress = split_result_payload(job.result_payload)
     return {
         "id": str(job.id),
         "status": job.status,
@@ -61,7 +70,8 @@ def serialize_job(job: DossierGenerationJob) -> dict[str, Any]:
         "credits_estimated": job.credits_estimated,
         "credits_consumed": job.credits_consumed,
         "error_message": job.error_message,
-        "result": job.result_payload,
+        "result": result,
+        "progress": progress,
         "created_at": _iso(job.created_at),
         "started_at": _iso(job.started_at),
         "completed_at": _iso(job.completed_at),
@@ -174,7 +184,11 @@ def cancel_dossier_generation_job(
     *,
     job: DossierGenerationJob,
 ) -> DossierGenerationJob:
+    # Bloquea el job: el progreso (S5.10) se escribe en otras transacciones y no
+    # debe perderse ni seguir avanzando después de cancelar.
+    db.refresh(job, with_for_update=True)
     if job.status not in _CANCELLABLE_STATUSES:
+        db.rollback()
         from fastapi import HTTPException
 
         raise HTTPException(
@@ -184,6 +198,7 @@ def cancel_dossier_generation_job(
     job.status = "cancelled"
     job.error_message = "Cancelado por el usuario"
     job.completed_at = datetime.now(UTC)
+    job.result_payload = _final_payload(None, job)
     db.commit()
     db.refresh(job)
     _publicar_estado(job)
@@ -326,27 +341,27 @@ def _publicar_estado(job: DossierGenerationJob) -> None:
     publish_if_changed(job.id, event_name_for_status(job.status), serialize_job(job))
 
 
-def _publish_corporate_agent_failures(job_id: UUID, agents_failed: list[str]) -> None:
-    """Emite un evento SSE `agent_progress` (S0.11) por cada agente que falló (S4.9).
+def _job_progress(db: Session, job_id: UUID) -> JobProgress:
+    """Progreso del job (S5.10): cada cambio en su propia sesión sobre el mismo motor."""
+    factory = sessionmaker(bind=db.get_bind(), autoflush=False, expire_on_commit=False)
+    return JobProgress(job_id, SqlProgressStore(factory, serialize_job))
 
-    Reutiliza el bus en memoria de S4.8 (``dossier_progress_events``): si nadie está
-    conectado a `/dossier-generation-jobs/{id}/stream`, el evento simplemente queda en
-    el buffer acotado del job hasta que caduque o alguien se conecte.
+
+def _marcar_guardado_fallido(scope: Any) -> None:
+    """Si el pipeline falló con el guardado en curso, el fallo fue al persistir (S5.10)."""
+    actual = scope.snapshot() or {}
+    persist = next((e for e in actual.get("stages") or [] if e.get("stage_id") == "person.persist"), None)
+    if persist is not None and persist.get("status") == "running":
+        scope.stage("person.persist", "failed", "persistence_error")
+
+
+def _final_payload(result: dict[str, Any] | None, job: DossierGenerationJob) -> dict[str, Any] | None:
+    """Resultado más el progreso cerrado con el estado final del job (se fusiona, no se pisa).
+
+    Sin resultado nuevo se conserva el que hubiera (cancelación o fallo antes de terminar).
     """
-    if not agents_failed:
-        return
-    timestamp = datetime.now(UTC).isoformat()
-    for agent_name in agents_failed:
-        publish_if_changed(
-            job_id,
-            "agent_progress",
-            {
-                "dossier_id": str(job_id),
-                "agent_name": agent_name,
-                "status": "failed",
-                "timestamp": timestamp,
-            },
-        )
+    previo, _ = split_result_payload(job.result_payload)
+    return merge_result_payload(result if result is not None else previo, job.result_payload, job.status)
 
 
 def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
@@ -369,13 +384,16 @@ def process_dossier_generation_job(db: Session, job_id: UUID) -> None:
     except Exception as exc:
         logger.exception("Job dossier %s falló", job_id)
         db.rollback()
-        job = db.get(DossierGenerationJob, job_id)
+        job = db.get(DossierGenerationJob, job_id, with_for_update=True, populate_existing=True)
         if job is not None and job.status != "cancelled":
             job.status = "failed"
             job.error_message = str(exc)[:2000]
             job.completed_at = datetime.now(UTC)
+            job.result_payload = _final_payload(None, job)
             db.commit()
             _publicar_estado(job)
+        else:
+            db.rollback()
 
 
 def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
@@ -390,14 +408,23 @@ def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
         raise RuntimeError("Snapshot de persona inválido en el job.")
 
     body = PersonResearchRequest.model_validate(raw_req)
-    result = run_person_research_and_persist(db, user=user, org=org, body=body)
+    progress = _job_progress(db, job.id)
+    progress.declare(
+        [person_scope("person:0", body.full_name.strip()[:255] or "Persona", body.research_source.value)]
+    )
+    scope = progress.scope("person:0")
+    try:
+        result = run_person_research_and_persist(db, user=user, org=org, body=body, progress=scope)
+    except Exception:
+        _marcar_guardado_fallido(scope)
+        raise
 
-    db.refresh(job)
+    db.refresh(job, with_for_update=True)
     if job.status == "cancelled":
+        db.rollback()
         logger.info("Job persona %s cancelado; no se actualiza el resultado", job.id)
         return
 
-    job.result_payload = result
     saved = result.get("saved_dossier")
     if not saved or not saved.get("id") or saved.get("status") == "failed":
         job.status = "failed"
@@ -410,6 +437,7 @@ def _process_person_manual_job(db: Session, job: DossierGenerationJob) -> None:
         job.status = "completed"
         job.error_message = None
     job.completed_at = datetime.now(UTC)
+    job.result_payload = _final_payload(result, job)
     saved = result.get("saved_dossier") or {}
     job.credits_consumed = int(saved.get("credits_consumed") or 0)
     db.commit()
@@ -441,6 +469,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         reunion.get("_output_language") if isinstance(reunion, dict) else None
     )
     out_lang = effective_output_language(user, snap_lang)
+    progress = _job_progress(db, job.id)
     item = generate_dossiers_from_calendar_event(
         reunion,
         organization_context_block=org_ctx,
@@ -448,9 +477,9 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         organization_plan=org.plan,
         depth=depth,
         output_language=out_lang,
+        progress=progress,
     )
     elapsed_ms = int((time.perf_counter() - t0) * 1000)
-    _publish_corporate_agent_failures(job.id, item.get("corporate_agents_failed") or [])
 
     db.refresh(job)
     if job.status == "cancelled":
@@ -467,13 +496,14 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         depth=depth,
         charge_credits=charge,
         trigger_source="manual",
+        progress=progress,
     )
 
+    db.refresh(job, with_for_update=True)  # trae el progreso al día y bloquea el cierre
     saved = item.get("saved_dossiers") or {}
     job.credits_consumed = _credits_consumed_from_saved(
         saved, depth=depth, charge=charge, result=item
     )
-    job.result_payload = item
     failure = _calendar_job_failure_message(item)
     if failure:
         job.status = "failed"
@@ -482,6 +512,7 @@ def _process_calendar_manual_job(db: Session, job: DossierGenerationJob) -> None
         job.status = "completed"
         job.error_message = None
     job.completed_at = datetime.now(UTC)
+    job.result_payload = _final_payload(item, job)
     db.commit()
     _publicar_estado(job)
     logger.info(
