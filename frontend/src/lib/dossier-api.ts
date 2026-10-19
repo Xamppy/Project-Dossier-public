@@ -1040,9 +1040,11 @@ export type PdlHealthResponse = {
 export type PersonSavedDossier = {
   id: string;
   organization_id: string;
+  /** `complete` o `failed`: un registro `failed` existe pero no es un informe. */
   status: string;
   credits_consumed: number;
   generation_duration_ms: number | null;
+  status_message?: string | null;
 };
 
 export type PersonResearchApiResponse = {
@@ -1910,8 +1912,11 @@ export async function fetchGoogleCalendarEventos(options?: {
 /** Referencia a dossier guardado en Mis Dossiers. */
 export type CalendarSavedDossierRef = {
   id: string;
+  /** `complete` o `failed`: un ID guardado no demuestra que haya informe. */
   status: string;
   subject_name?: string;
+  status_message?: string | null;
+  cache_hit?: boolean;
 };
 
 /** Ítem de ``GET /calendario/generar-dossiers``. */
@@ -1930,8 +1935,14 @@ export type CalendarGenerarDossierItem = {
     md?: string | null;
     cache_hit?: boolean;
     error?: string | null;
+    /** Scope de progreso del asistente (`person:N`, ADR 0009). */
+    scope_id?: string;
   }>;
   corporate_skipped_plan_free?: boolean;
+  /** Agentes corporativos que fallaron (S4.9). Su ausencia no prueba que el resto corriera. */
+  corporate_agents_failed?: string[] | null;
+  /** El bloque corporativo se reutilizó de caché. */
+  corporate_cache_hit?: boolean;
   saved_dossiers?: {
     corporate?: CalendarSavedDossierRef;
     person?: CalendarSavedDossierRef;
@@ -2097,9 +2108,195 @@ export type DossierGenerationJobApi = {
   credits_consumed?: number;
   error_message?: string | null;
   result?: CalendarGenerarDossierItem | PersonResearchApiResponse | CreateCorporateDossierResponse | null;
+  /**
+   * Progreso por scopes (ADR 0009, S5.10). `null` si el job no tiene progreso
+   * (jobs anteriores a S5.10 o corporativo manual); ausente en clientes viejos.
+   */
+  progress?: DossierJobProgressSnapshot | null;
   created_at?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
+};
+
+// --- Progreso por scopes (ADR 0009) ------------------------------------------
+
+/** Estado de un agente corporativo o de una etapa de persona. */
+export type DossierProgressStatus =
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed"
+  | "skipped"
+  | "cancelled";
+
+/** IDs de los nodos de LangGraph; no los alias de ADR 0006, que nunca existieron. */
+export type DossierCorporateAgentName =
+  | "agent_corporate_uk"
+  | "agent_corporate_usa"
+  | "agent_corporate_eu"
+  | "agent_news"
+  | "synthesize_llm";
+
+export type DossierPersonStageId =
+  | "person.cache_lookup"
+  | "person.pdl_enrich"
+  | "person.pdl_search"
+  | "person.profile_normalization"
+  | "person.context_analysis"
+  | "person.profile_synthesis"
+  | "person.markdown_fallback"
+  | "person.report_finalize"
+  | "person.persist";
+
+/** Modalidad de Personas declarada por el servidor (nunca el selector del formulario). */
+export type DossierPersonResearchSource = "pdl" | "gemini_web";
+
+/** Motivo estable para traducir; nunca el texto de una excepción. */
+export type DossierProgressReasonCode =
+  | "no_matches"
+  | "cache_hit"
+  | "cache_miss"
+  | "out_of_scope"
+  | "no_target_company"
+  | "plan_not_included"
+  | "cache_unavailable"
+  | "force_refresh"
+  | "mode_not_applicable"
+  | "sufficient_profiles"
+  | "no_profiles"
+  | "configuration_missing"
+  | "feature_disabled"
+  | "insufficient_input"
+  | "not_required"
+  | "no_content"
+  | "upstream_auth_failed"
+  | "not_reached"
+  | "provider_error"
+  | "provider_timeout"
+  | "provider_quota"
+  | "provider_rate_limit"
+  | "structured_output_invalid"
+  | "no_valid_report"
+  | "persistence_error"
+  | "interrupted";
+
+/** `redis_cache` = resultado reutilizado; `null` = aún no se sabe. */
+export type DossierProgressOrigin = "generated" | "redis_cache" | null;
+
+export type DossierAgentProgressEntry = {
+  agent_name: DossierCorporateAgentName;
+  status: DossierProgressStatus;
+  reason_code: DossierProgressReasonCode | null;
+  /** Revisión del job en la que cambió por última vez este agente. */
+  revision: number;
+  timestamp: string | null;
+};
+
+export type DossierStageProgressEntry = {
+  stage_id: DossierPersonStageId;
+  status: DossierProgressStatus;
+  reason_code: DossierProgressReasonCode | null;
+  revision: number;
+  timestamp: string | null;
+  /** Llamadas reales al proveedor dentro de la etapa; nunca un porcentaje. */
+  attempts?: { total: number; failed: number };
+  /** `false`: la etapa terminó pero su texto no quedó en el informe final. */
+  used_in_final?: boolean;
+  /** Etapa que recuperó este fallo (p. ej. el respaldo Markdown). */
+  recovered_by?: DossierPersonStageId;
+  /** Solo en `person.persist`: dossier guardado y su estado real. */
+  dossier_id?: string;
+  dossier_status?: string;
+};
+
+export type DossierPartialProvenance = {
+  basis: "provider_records" | "model_only" | "mixed" | "unknown";
+  sources: string[];
+  live_web_search: boolean;
+};
+
+/** Proyección pública de un perfil PDL: nada de `data` crudo, contactos ni IDs del proveedor. */
+export type DossierPersonProfilePreview = {
+  record_key: string;
+  full_name: string | null;
+  job_title: string | null;
+  company: string | null;
+  /** Solo `https`, como mucho tres. */
+  profile_urls: string[];
+};
+
+export type DossierCorporatePartialSection = "corporate_eu" | "news" | "synthesis";
+export type DossierPersonMarkdownSection = "person_context_report" | "person_report";
+
+type DossierPartialBase = {
+  origin: DossierProgressOrigin;
+  /** Siempre vista previa: no equivale a un dossier guardado. */
+  provisional: true;
+  /** El servidor cortó el texto en 32 KiB entre bloques completos. */
+  truncated: boolean;
+  revision: number;
+};
+
+export type DossierCorporatePartial = DossierPartialBase & {
+  section: DossierCorporatePartialSection;
+  agent_name: DossierCorporateAgentName;
+  format: "markdown";
+  content: string;
+};
+
+export type DossierPersonProfilesPartial = DossierPartialBase & {
+  section: "person_profiles";
+  stage_id: DossierPersonStageId;
+  format: "person_profiles";
+  data: { profiles: DossierPersonProfilePreview[]; profiles_count: number };
+  provenance: DossierPartialProvenance;
+};
+
+export type DossierPersonMarkdownPartial = DossierPartialBase & {
+  section: DossierPersonMarkdownSection;
+  stage_id: DossierPersonStageId;
+  format: "markdown";
+  content: string;
+  provenance: DossierPartialProvenance;
+};
+
+export type DossierPersonPartial = DossierPersonProfilesPartial | DossierPersonMarkdownPartial;
+
+/** Referencia al dossier guardado de un scope; su `status` puede ser `failed`. */
+export type DossierScopeDossierRef = { id: string; status: string };
+
+export type DossierCorporateProgressScope = {
+  scope_id: string;
+  kind: "corporate";
+  label: string | null;
+  origin: DossierProgressOrigin;
+  agents: DossierAgentProgressEntry[];
+  partial_results: DossierCorporatePartial[];
+  dossier: DossierScopeDossierRef | null;
+};
+
+export type DossierPersonProgressScope = {
+  scope_id: string;
+  kind: "person";
+  label: string | null;
+  research_source: DossierPersonResearchSource;
+  /** `false` en la implementación actual: Web pública no usa buscador. */
+  live_web_search: boolean;
+  origin: DossierProgressOrigin;
+  /** Con caché antigua puede ser > 0 sin perfiles en la vista previa. */
+  profiles_count: number | null;
+  stages: DossierStageProgressEntry[];
+  partial_results: DossierPersonPartial[];
+  dossier: DossierScopeDossierRef | null;
+};
+
+export type DossierProgressScope = DossierCorporateProgressScope | DossierPersonProgressScope;
+
+export type DossierJobProgressSnapshot = {
+  schema_version: 1;
+  /** Entero creciente persistido por job; distinto del `id` volátil del frame SSE. */
+  revision: number;
+  scopes: DossierProgressScope[];
 };
 
 export type EnqueueCalendarDossierResponse = {
