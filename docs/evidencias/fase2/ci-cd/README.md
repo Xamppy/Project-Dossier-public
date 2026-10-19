@@ -78,6 +78,9 @@ aparecen con «-».
 
 ## Capturas de GitHub Actions pendientes de tomar cuando el repo sea público
 
+> **Actualización (2026-10-19):** las capturas de la interfaz web se tomaron en la copia pública
+> `Xamppy/Project-Dossier-public`, sin sesión. Están en [../github/](../github/README.md).
+
 El repositorio es privado. Al abrir `https://github.com/Xamppy/Project-Dossier/actions` con Chrome DevTools
 (sin sesión iniciada) GitHub responde «Page not found». No se ingresaron credenciales. Cuando el repo sea
 público, o desde una sesión con acceso, capturar:
