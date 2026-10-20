@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+body{margin:0;background:#fff;font-family:Calibri,"Segoe UI",sans-serif;color:#1f2937}
+.wrap{padding:18px 22px;width:1060px}
+.row{display:flex;align-items:stretch;gap:0}
+.box{border:1.5px solid #1F3864;border-radius:6px;background:#F4F7FC;padding:10px 12px;font-size:16px;line-height:1.3}
+.box h4{margin:0 0 6px;font-size:16px;color:#1F3864}
+.grp{border:1.5px dashed #7F8FA9;border-radius:8px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.grp .t{font-size:15px;font-weight:bold;color:#1F3864;text-align:center}
+.arrow{display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:120px;font-size:13px;color:#374151;text-align:center;padding:0 6px}
+.arrow .l{font-size:30px;line-height:1;color:#1F3864}
+.pend{border-color:#B45309;background:#FFF7ED}
+.pend h4{color:#B45309}
+.down{display:flex;justify-content:flex-end;padding-right:120px;font-size:30px;color:#1F3864;height:38px;align-items:center}
+code{font-family:Consolas,monospace;font-size:14px}
+</style></head><body><div class="wrap">
+<div class="row">
+  <div class="box" style="align-self:center"><h4>Desarrollador</h4>push o pull request<br>hacia <code>main</code></div>
+  <div class="arrow"><div class="l">&#10230;</div>dispara</div>
+  <div class="grp"><div class="t">CI · <code>ci.yml</code></div>
+    <div class="box"><h4>Job Backend</h4>Python 3.12 · <code>ruff</code> · <code>mypy</code> · <code>pytest --cov</code></div>
+    <div class="box"><h4>Job Frontend</h4>Node 20 · <code>eslint</code> · Vitest · <code>next build</code></div>
+  </div>
+  <div class="arrow"><div class="l">&#10230;</div><code>workflow_run</code><br>solo CI en verde,<br>evento push en <code>main</code></div>
+  <div class="grp"><div class="t">Imágenes Docker · <code>imagenes.yml</code></div>
+    <div class="box"><h4>Publicar backend</h4>build + push (matriz)</div>
+    <div class="box"><h4>Publicar frontend</h4>build + push (matriz)</div>
+  </div>
+</div>
+<div class="down">&#8595;</div>
+<div class="row" style="justify-content:flex-end">
+  <div class="box pend" style="align-self:center"><h4>VPS con Dokploy</h4><code>docker compose</code></div>
+  <div class="arrow"><div class="l">&#8672;</div>pendiente</div>
+  <div class="box pend" style="align-self:center"><h4>Redesplegar en Dokploy</h4><code>POST /api/compose.deploy</code><br>pendiente: secretos <code>DOKPLOY_*</code></div>
+  <div class="arrow"><div class="l">&#8592;</div>tras publicar</div>
+  <div class="box" style="align-self:center"><h4>GitHub Container Registry</h4><code>ghcr.io/xamppy/project-dossier-backend</code><br><code>ghcr.io/xamppy/project-dossier-frontend</code><br>etiquetas <code>:latest</code> y <code>:SHA</code></div>
+</div>
+</div></body></html>
