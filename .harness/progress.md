@@ -6,6 +6,75 @@ Cada sesión que toca el repositorio deja una entrada. El formato está en
 [handoff.md](handoff.md), sección 5. Las cuatro secciones importan, pero **«Lo que hay que
 saber»** es la que ahorra horas: es lo que descubriste y no está escrito en ningún otro lado.
 
+### 2026-10-19 (tarde) · Retroalimentación docente, repo público y tareas nuevas · FO (agente)
+
+**Hecho.**
+- **PR #25–#29 abiertos.** Sus cinco tareas pasaron a `review`, con el PR en `evidence`:
+  - PR #28 · BUG-2026-10-19-05, apilado sobre #21.
+  - PR #29 · BUG-2026-10-19-06, apilado sobre #28.
+  - PR #27 · BUG-2026-10-19-07, apilado sobre #17.
+  - PR #25 · CHORE-2026-10-19-03.
+  - PR #26 · DOC-2026-10-19-01.
+- **PR #30 mezclado** (datos personales): el PDF de la Guía Fase 1 sin RUT, `SEC_USER_AGENT` sin
+  correo real y ejemplos con datos ficticios.
+- **Copia pública** [`Xamppy/Project-Dossier-public`](https://github.com/Xamppy/Project-Dossier-public):
+  0 RUT en todo el historial, gitleaks solo con falsos positivos y la CI pública en verde.
+- **Evidencias de la Fase 2** en `docs/evidencias/fase2/`: #31 (interfaz), #32 (técnicas) y #35
+  (GitHub), los tres mezclados.
+- **Informe v2** en `docs/documentos-capstone/` (PR #34).
+- **Tareas nuevas** (`pending`, sprint 2, vencen el 2026-11-01 salvo DOC-2026-10-19-02, que
+  vence el 2026-10-26):
+  - SEC-2026-10-19-01 (FD): actualizar `pyjwt` y `next` por vulnerabilidades conocidas.
+  - CHORE-2026-10-19-04 (FO, y FD para la protección de rama): redespliegue en Dokploy,
+    PostgreSQL en la CI y protección de `main`.
+  - BUG-2026-10-19-08 (FO): `credit_ledger.balance_after` repetido con dos dossiers en la misma
+    sentencia.
+  - BUG-2026-10-19-09 (DG): el aviso flotante de generación muestra la hora en UTC.
+  - BUG-2026-10-19-10 (FO): el saneador HTML borra un `<correo>` escrito tal cual.
+  - CHORE-2026-10-19-05 (FO): el script de sincronización del repo público falla en Git Bash.
+  - DOC-2026-10-19-02 (FD): validar el texto sobre su avance en el informe de la Fase 2.
+- **«cinco idiomas» en `.harness/`:** corregido en `PROMPT.md` y en el título de S3.7, a «seis
+  idiomas (siete catálogos, con en-gb como variante)».
+- **`AGENTS.md` no se tocó:** el PR #33 ya añade la fila «Copia pública» en la tabla de temas.
+- **Estados:** antes había 49 `done`, 43 `pending` y 6 `review` (98 tareas). Ahora hay 49 `done`,
+  45 `pending` y 11 `review` (105 tareas). `next.py --check` da OK.
+
+**Sin terminar.**
+- Revisión del segundo integrante de los PR #17–#19, #21–#23 y #25–#29. Ninguno se mezcló.
+- El PR #33 (procedimiento de la copia pública) sigue sin mezclar.
+- Faltan respuestas del equipo sobre la fecha de corte, el plazo de S0.15, el texto de FD en el
+  informe e ISO 25010.
+
+**Lo que hay que saber.**
+- **Por qué existe la copia pública:** el PDF original de la Guía Fase 1, con los RUT de los
+  integrantes, quedó en el historial del repo privado. Además, GitHub guarda los `refs/pull/*`,
+  que no se pueden borrar sin el soporte de GitHub. Por eso se publica una copia con el
+  historial reescrito en lugar de limpiar el privado.
+- **Cómo sincronizarla:** `scripts/sincronizar_repo_publico.sh` clona `main` del privado, lo
+  filtra con `git filter-repo`, revisa RUT en todo el historial (también dentro de PDF y DOCX) y
+  corre gitleaks. Con `--push` hace push forzado al público. Los SHA cambian en cada
+  sincronización. El procedimiento está en `docs/dev/repo-publico.md` (PR #33). En Git Bash el
+  script falla hoy (CHORE-2026-10-19-05).
+- **GitHub cuenta a «claude» como contribuidor** por los `Co-Authored-By` de los commits.
+- **gitleaks marca `ClaveFicticia-2026`** en
+  `docs/evidencias/fase2/_herramientas/registrar_usuario_ficticio.py`. Es un falso positivo: es
+  la contraseña de una cuenta ficticia de prueba.
+- **Vitest con cobertura en Windows** necesita un `testTimeout` mayor que el de omisión.
+- **Una prueba de estrés falla si la máquina está cargada.** Antes de tratarla como regresión,
+  hay que repetirla con la máquina libre.
+- **Agentes en worktrees aislados:** usan junctions a `node_modules` y a `backend/.venv` del
+  worktree `mako`.
+- **PR apilados:** #28→#21, #29→#28 y #27→#17. Hay que mezclarlos en orden. Al mezclar la base,
+  hay que cambiar la base del PR siguiente a `main`.
+
+**Siguiente paso concreto.** Revisar en este orden: #18, #23, #17→#27, #21→#28→#29 y después el
+resto. Luego sincronizar la copia pública.
+
+**Rama.** `chore/harness-traspaso-2026-10-19-b` · **Estado.** 5 tareas más en `review` y 7
+nuevas en `pending`
+
+---
+
 ### 2026-10-19 · Correcciones en paralelo (6 PR) · FO (agente)
 
 **Hecho.** Las seis tareas abiertas en la entrada anterior tienen PR y pasaron a `review`, con el
