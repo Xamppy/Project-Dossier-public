@@ -32,7 +32,7 @@ Autenticación JWT con roles · Multiempresa con aislamiento por organización �
 Google y Microsoft · Generación asíncrona con cola Redis · Investigación de personas (PDL,
 Lusha) · Registros corporativos de Reino Unido (Companies House) y Estados Unidos (SEC EDGAR)
 orquestados con LangGraph · Créditos y planes · Retención configurable · Dashboard Next.js en
-cinco idiomas.
+seis idiomas (siete catálogos, con en-gb como variante).
 
 Si algo de esta lista parece que falta, búscalo bien antes de escribirlo de nuevo.
 
